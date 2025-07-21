@@ -1,0 +1,417 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../utils/providers.dart';
+import '../services/localizacao_service.dart';
+import '../widgets/restaurante_proximidade_card.dart';
+import '../widgets/raio_busca_slider.dart';
+
+class ProximidadeScreen extends ConsumerStatefulWidget {
+  const ProximidadeScreen({super.key});
+
+  @override
+  ConsumerState<ProximidadeScreen> createState() => _ProximidadeScreenState();
+}
+
+class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Iniciar obtenção de localização ao abrir a tela
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocalizacaoManager.inicializarLocalizacao(ref);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final statusLocalizacao = ref.watch(statusLocalizacaoProvider);
+    final usandoFallback = ref.watch(usandoFallbackProvider);
+    final estatisticas = ref.watch(estatisticasProximidadeProvider);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFfbe9d2),
+      appBar: AppBar(
+        title: const Text(
+          'Descobrir por Proximidade',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF2c3985),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: _reobterLocalizacao,
+            icon: const Icon(Icons.my_location),
+            tooltip: 'Atualizar localização',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Header com status e controles
+          _buildHeader(statusLocalizacao, usandoFallback, estatisticas),
+          
+          // Slider de raio
+          _buildRaioControl(),
+          
+          // Lista de restaurantes
+          Expanded(
+            child: _buildRestaurantesList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(StatusLocalizacao status, bool usandoFallback, Map<String, int> stats) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Status da localização
+          Row(
+            children: [
+              Icon(
+                _getStatusIcon(status),
+                color: _getStatusColor(status),
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getStatusTitle(status, usandoFallback),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2c3985),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _getStatusSubtitle(status, usandoFallback),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          // Estatísticas se há restaurantes
+          if (stats['total']! > 0) ...[
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+            Text(
+              'Restaurantes encontrados: ${stats['total']}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2c3985),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildStatBadge('🟢', stats['muitoProximo']!, 'Até 1km'),
+                _buildStatBadge('🟠', stats['proximo']!, '1-3km'),
+                _buildStatBadge('🔴', stats['distante']!, '+ 3km'),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatBadge(String emoji, int count, String label) {
+    return Column(
+      children: [
+        Text(
+          emoji,
+          style: const TextStyle(fontSize: 20),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          count.toString(),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2c3985),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRaioControl() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: const RaioBuscaSlider(),
+    );
+  }
+
+  Widget _buildRestaurantesList() {
+    final restaurantesProximos = ref.watch(restaurantesProximosProvider);
+    
+    return restaurantesProximos.when(
+      data: (restaurantes) {
+        if (restaurantes.isEmpty) {
+          return _buildEmptyState();
+        }
+        
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: restaurantes.length,
+          itemBuilder: (context, index) {
+            final restauranteComDistancia = restaurantes[index];
+            return RestauranteProximidadeCard(
+              restauranteComDistancia: restauranteComDistancia,
+            );
+          },
+        );
+      },
+      loading: () => _buildLoading(),
+      error: (error, stack) => _buildError(error.toString()),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    final raio = ref.watch(raioBuscaProvider);
+    final usandoFallback = ref.watch(usandoFallbackProvider);
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.location_searching,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              usandoFallback 
+                ? 'Nenhum restaurante encontrado no raio de ${raio.toStringAsFixed(0)}km em Porto Alegre'
+                : 'Nenhum restaurante encontrado no raio de ${raio.toStringAsFixed(0)}km',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2c3985),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tente aumentar o raio de busca ou verificar sua localização',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _reobterLocalizacao,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Tentar Novamente'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2c3985),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(color: Color(0xFF2c3985)),
+          SizedBox(height: 16),
+          Text(
+            'Buscando restaurantes próximos...',
+            style: TextStyle(
+              fontSize: 16,
+              color: Color(0xFF2c3985),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 80,
+              color: Colors.red.shade400,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Erro ao buscar restaurantes',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _reobterLocalizacao,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Tentar Novamente'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Métodos auxiliares para status
+  IconData _getStatusIcon(StatusLocalizacao status) {
+    switch (status) {
+      case StatusLocalizacao.obtida:
+        return Icons.location_on;
+      case StatusLocalizacao.obtendo:
+        return Icons.location_searching;
+      case StatusLocalizacao.fallback:
+        return Icons.location_city;
+      case StatusLocalizacao.negada:
+      case StatusLocalizacao.negadaPermanentemente:
+        return Icons.location_disabled;
+      case StatusLocalizacao.erro:
+        return Icons.error_outline;
+      default:
+        return Icons.location_on;
+    }
+  }
+
+  Color _getStatusColor(StatusLocalizacao status) {
+    switch (status) {
+      case StatusLocalizacao.obtida:
+        return Colors.green;
+      case StatusLocalizacao.obtendo:
+        return const Color(0xFF2c3985);
+      case StatusLocalizacao.fallback:
+        return const Color(0xFFee9d21);
+      case StatusLocalizacao.negada:
+      case StatusLocalizacao.negadaPermanentemente:
+        return Colors.red;
+      case StatusLocalizacao.erro:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getStatusTitle(StatusLocalizacao status, bool usandoFallback) {
+    if (usandoFallback) {
+      return 'Usando localização aproximada';
+    }
+    
+    switch (status) {
+      case StatusLocalizacao.obtida:
+        return 'Localização precisa obtida';
+      case StatusLocalizacao.obtendo:
+        return 'Obtendo sua localização...';
+      case StatusLocalizacao.negada:
+        return 'Permissão de localização negada';
+      case StatusLocalizacao.negadaPermanentemente:
+        return 'Permissão bloqueada';
+      case StatusLocalizacao.erro:
+        return 'Erro na localização';
+      default:
+        return 'Verificando localização';
+    }
+  }
+
+  String _getStatusSubtitle(StatusLocalizacao status, bool usandoFallback) {
+    if (usandoFallback) {
+      return 'Mostrando resultados para Porto Alegre';
+    }
+    
+    switch (status) {
+      case StatusLocalizacao.obtida:
+        return 'Restaurantes ordenados por proximidade real';
+      case StatusLocalizacao.obtendo:
+        return 'Aguarde enquanto encontramos você';
+      case StatusLocalizacao.negada:
+        return 'Toque no ícone para tentar novamente';
+      case StatusLocalizacao.negadaPermanentemente:
+        return 'Vá às configurações para permitir localização';
+      case StatusLocalizacao.erro:
+        return 'Usando localização aproximada como alternativa';
+      default:
+        return 'Preparando busca por proximidade';
+    }
+  }
+
+  Future<void> _reobterLocalizacao() async {
+    // Re-inicializar localização
+    await LocalizacaoManager.inicializarLocalizacao(ref);
+    // Invalidar provider de restaurantes para atualizar lista
+    ref.invalidate(restaurantesProximosProvider);
+  }
+} 
