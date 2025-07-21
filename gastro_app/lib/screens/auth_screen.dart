@@ -5,6 +5,7 @@ import '../services/auth_service.dart';
 import '../widgets/login_form.dart';
 import '../widgets/register_form.dart';
 import '../widgets/taste_test_logo.dart';
+import '../config/app_theme.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,17 +16,29 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -42,9 +55,12 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Colors.red.shade600,
+          backgroundColor: AppTheme.danger,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+          ),
+          margin: const EdgeInsets.all(16),
         ),
       );
     }
@@ -55,9 +71,12 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Colors.green.shade600,
+          backgroundColor: AppTheme.customColors['success'],
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+          ),
+          margin: const EdgeInsets.all(16),
         ),
       );
     }
@@ -66,28 +85,38 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFfbe9d2), // Cor de fundo areia clara
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 60),
-                
-                // Logo e título
-                _buildHeader(),
-                
-                const SizedBox(height: 50),
-                
-                // Card principal com as abas
-                _buildAuthCard(),
-                
-                const SizedBox(height: 30),
-                
-                // Rodapé com informações
-                _buildFooter(),
-              ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppTheme.gradientFundo,
+        ),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 80),
+                    
+                    // Logo centralizado
+                    _buildCleanHeader(),
+                    
+                    const SizedBox(height: 60),
+                    
+                    // Card de autenticação minimalista
+                    _buildCleanAuthCard(),
+                    
+                    const SizedBox(height: 40),
+                    
+                    // Rodapé simples
+                    _buildCleanFooter(),
+                    
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -95,107 +124,131 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildCleanHeader() {
     return Column(
       children: [
-        // Logo Taste Test
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF2c3985).withOpacity(0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+        // Logo Taste Test com design clean
+        Hero(
+          tag: 'taste_test_logo',
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              gradient: AppTheme.gradientSuave,
+              borderRadius: BorderRadius.circular(AppTheme.radiusExtraGrande),
+              boxShadow: AppTheme.sombraCard,
+              border: Border.all(
+                color: Colors.white.withOpacity(0.8),
+                width: 1,
               ),
-            ],
-          ),
-          child: TasteTestLogo.large(
-            subtitle: 'GASTRO EXPERIENCE',
+            ),
+            child: TasteTestLogo.large(),
           ),
         ),
         
-        const SizedBox(height: 24),
+        const SizedBox(height: 36),
         
-        // Título principal
+        // Título clean
         const Text(
-          'Gastro App',
+          'Bem-vindo',
           style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2c3985),
-            letterSpacing: -0.5,
+            fontSize: 28,
+            fontWeight: FontWeight.w300,
+            color: AppTheme.primary,
+            letterSpacing: 0.5,
           ),
         ),
         
         const SizedBox(height: 8),
         
-        // Subtítulo
+        // Subtítulo minimalista
         Text(
-          'Entre para personalizar sua experiência gastronômica',
+          'Sua jornada gastronômica começa aqui',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.grey.shade600,
-            height: 1.4,
+            color: AppTheme.cinzaMedio,
+            fontWeight: FontWeight.w400,
+            height: 1.3,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAuthCard() {
+  Widget _buildCleanAuthCard() {
     return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
+        boxShadow: AppTheme.sombraElevada,
+        border: Border.all(
+          color: AppTheme.bordoSuave,
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          // Tab bar personalizada
+          // Tab bar minimalista
           Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFFfbe9d2).withOpacity(0.5),
-              borderRadius: BorderRadius.circular(16),
+              color: AppTheme.cinzaClaro,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
             ),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
-                color: const Color(0xFF2c3985),
-                borderRadius: BorderRadius.circular(12),
+                gradient: AppTheme.gradientPrimario,
+                borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
               labelColor: Colors.white,
-              unselectedLabelColor: const Color(0xFF2c3985),
+              unselectedLabelColor: AppTheme.cinzaMedio,
               labelStyle: const TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
               ),
               unselectedLabelStyle: const TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
               tabs: const [
-                Tab(text: 'Entrar'),
-                Tab(text: 'Criar Conta'),
+                Tab(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('Entrar'),
+                  ),
+                ),
+                Tab(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('Criar Conta'),
+                  ),
+                ),
               ],
             ),
           ),
           
           // Conteúdo das abas
-          SizedBox(
-            height: 400, // Altura fixa para evitar mudanças bruscas
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 380,
             child: TabBarView(
               controller: _tabController,
+              physics: const BouncingScrollPhysics(),
               children: [
                 LoginForm(
                   onSubmit: _handleLogin,
@@ -213,35 +266,25 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildCleanFooter() {
     return Column(
       children: [
-        // Texto de política
+        // Texto de política simplificado
         Text(
-          'Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade',
+          'Ao continuar, você aceita nossos termos e política de privacidade',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey.shade500,
+            color: AppTheme.cinzaMedio.withOpacity(0.8),
             height: 1.4,
-          ),
-        ),
-        
-        const SizedBox(height: 20),
-        
-        // Versão do app
-        Text(
-          'Gastro App v1.0.0',
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey.shade400,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
     );
   }
 
-  // Handlers para login e registro
+  // Handlers para login e registro (mantidos inalterados)
   Future<void> _handleLogin(String email, String password) async {
     _setLoading(true);
     

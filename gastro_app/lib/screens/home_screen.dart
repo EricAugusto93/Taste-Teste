@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/auth_service.dart';
 import '../utils/providers.dart';
-import '../services/localizacao_service.dart';
+import '../config/app_theme.dart';
 import '../widgets/taste_test_logo.dart';
 import 'favoritos_screen.dart';
 import 'experiencias_screen.dart';
@@ -16,21 +16,41 @@ class GastroHomeScreen extends ConsumerStatefulWidget {
   ConsumerState<GastroHomeScreen> createState() => _GastroHomeScreenState();
 }
 
-class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
+class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> 
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _fadeController.forward();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogout() async {
-    // Mostrar dialog de confirmação
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+        ),
         title: const Text('Sair da conta'),
         content: const Text('Tem certeza que deseja sair da sua conta?'),
         actions: [
@@ -41,8 +61,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: AppTheme.danger,
             ),
             child: const Text('Sair'),
           ),
@@ -54,29 +73,17 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
       final success = await AuthService.signOut();
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Logout realizado com sucesso'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Logout realizado com sucesso'),
+            backgroundColor: AppTheme.customColors['success'],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+            ),
           ),
         );
       }
     }
-  }
-
-  void _navigateToFavoritos() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const FavoritosScreen(),
-      ),
-    );
-  }
-
-  void _navigateToProximidade() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const ProximidadeScreen(),
-      ),
-    );
   }
 
   void _handleProtectedAction(String action) {
@@ -89,7 +96,9 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     
     switch (action) {
       case 'favoritos':
-        _navigateToFavoritos();
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const FavoritosScreen()),
+        );
         break;
       case 'experiencias':
         Navigator.push(
@@ -98,7 +107,9 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
         );
         break;
       case 'proximidade':
-        _navigateToProximidade();
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const ProximidadeScreen()),
+        );
         break;
     }
   }
@@ -107,34 +118,28 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+        ),
+        title: const Row(
           children: [
-            Icon(
-              Icons.lock_outline,
-              color: const Color(0xFF2c3985),
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            const Text('Login necessário'),
+            Icon(Icons.lock_outline, color: AppTheme.primary),
+            SizedBox(width: 8),
+            Text('Login necessário'),
           ],
         ),
-        content: Text(
-          'Para ${_getActionName(action)}, você precisa estar logado.',
-        ),
+        content: Text('Para ${_getActionDescription(action)}, você precisa estar logado.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+            child: const Text('Voltar'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Navegar para tela de login ou mostrar modal
+              // Sair forçado para mostrar tela de login
+              AuthService.signOut();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2c3985),
-              foregroundColor: Colors.white,
-            ),
             child: const Text('Fazer Login'),
           ),
         ],
@@ -142,10 +147,10 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  String _getActionName(String action) {
+  String _getActionDescription(String action) {
     switch (action) {
       case 'favoritos':
-        return 'acessar seus favoritos';
+        return 'ver seus favoritos';
       case 'experiencias':
         return 'ver suas experiências';
       case 'proximidade':
@@ -161,263 +166,191 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFfbe9d2), // Cor de fundo areia clara
-      drawer: _buildDrawer(user),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(),
-              
-              // Categoria Cards
-              _buildCategorySection(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppTheme.gradientFundo,
+        ),
+        child: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    
+                    // Header Clean
+                    _buildCleanHeader(user),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Banner Demo (como na segunda imagem)
+                    _buildDemoBanner(),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Busca por IA
+                    _buildSearchSection(),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Grid de Navegação (2 colunas)
+                    _buildNavigationGrid(),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Grid de Categorias Clean (2 colunas)
+                    _buildCleanCategoriesGrid(),
 
-              // Botões de Navegação
-              _buildNavigationButtons(),
-
-              const SizedBox(height: 20),
-            ],
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDrawer(user) {
-    return Drawer(
-      backgroundColor: Colors.white,
-      child: Column(
+  Widget _buildCleanHeader(user) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
+        boxShadow: AppTheme.sombraCard,
+        border: Border.all(
+          color: Colors.white.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Row(
         children: [
-          // Header do drawer
+          // Menu Button
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF2c3985), Color(0xFF1e2a5f)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              color: AppTheme.azulSuave,
+              borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
             ),
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: IconButton(
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              icon: const Icon(Icons.menu_rounded, color: AppTheme.primary),
+              iconSize: 24,
+            ),
+          ),
+          
+          const SizedBox(width: 16),
+          
+          // Logo
+          TasteTestLogo.medium(showSubtitle: false),
+          
+          const Spacer(),
+          
+          // User Avatar/Menu
+          GestureDetector(
+            onTap: _handleLogout,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: AppTheme.gradientPrimario,
+                borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+                boxShadow: AppTheme.sombraCard,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Avatar
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white.withOpacity(0.2),
                     child: const Icon(
-                      Icons.person,
+                      Icons.person_rounded,
                       color: Colors.white,
-                      size: 30,
+                      size: 18,
                     ),
                   ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Nome do usuário
+                  const SizedBox(width: 8),
                   Text(
-                    user?.userMetadata?['name'] ?? user?.email?.split('@').first ?? 'Usuário',
+                    user?.email?.split('@').first ?? 'User',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  
-                  const SizedBox(height: 4),
-                  
-                  // Email
-                  Text(
-                    user?.email ?? '',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
-                      fontSize: 14,
-                    ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.expand_more,
+                    color: Colors.white,
+                    size: 16,
                   ),
                 ],
               ),
             ),
           ),
-          
-          // Items do menu
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildDrawerItem(
-                  icon: Icons.home,
-                  title: 'Início',
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.favorite,
-                  title: 'Favoritos',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _handleProtectedAction('favoritos');
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.star,
-                  title: 'Minhas Experiências',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _handleProtectedAction('experiencias');
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.person,
-                  title: 'Perfil',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // TODO: Navegar para perfil
-                  },
-                ),
-                _buildDrawerItem(
-                  icon: Icons.settings,
-                  title: 'Configurações',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // TODO: Navegar para configurações
-                  },
-                ),
-                const Divider(),
-                _buildDrawerItem(
-                  icon: Icons.help,
-                  title: 'Ajuda',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // TODO: Navegar para ajuda
-                  },
-                ),
-              ],
-            ),
-          ),
-          
-          // Botão de logout
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: _handleLogout,
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: const Text(
-                  'Sair da conta',
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: const Color(0xFF2c3985),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Color(0xFF2c3985),
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
+  Widget _buildDemoBanner() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2c3985), Color(0xFF1e2a5f)],
+          colors: [
+            AppTheme.secondary.withOpacity(0.1),
+            AppTheme.mostardaSuave,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+        border: Border.all(
+          color: AppTheme.secondary.withOpacity(0.2),
+          width: 1,
+        ),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Row(
-            children: [
-              // Menu button
-              IconButton(
-                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                icon: const Icon(Icons.menu, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: 8),
-              // Logo Taste Test
-              TasteTestLogo.medium(
-                showSubtitle: false,
-                primaryColor: Colors.white,
-                secondaryColor: const Color(0xFFee9d21),
-              ),
-              const Spacer(),
-              // Notification button
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
           Container(
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
+              color: AppTheme.secondary,
+              borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+            ),
+            child: const Icon(
+              Icons.science_rounded,
               color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🧪 Demo Funcional',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Esta é uma demonstração das funcionalidades implementadas.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.cinzaMedio,
+                    height: 1.3,
+                  ),
                 ),
               ],
-            ),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Ex: pizza romântica para dois...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF2c3985)),
-                suffixIcon: Container(
-                  margin: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFee9d21),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.tune, color: Colors.white),
-                  ),
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              ),
             ),
           ),
         ],
@@ -425,188 +358,218 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildCategorySection() {
+  Widget _buildSearchSection() {
     return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+        boxShadow: AppTheme.sombraCard,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '🍽️ Explore por Categorias',
+            '🤖 Busca Inteligente',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2c3985),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primary,
             ),
           ),
           const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.2,
-            children: [
-              _buildCategoryCard('💕', 'Jantar Romântico', 'Momentos especiais'),
-              _buildCategoryCard('☕', 'Cafés Tranquilos', 'Relaxe e aproveite'),
-              _buildCategoryCard('🍕', 'Clássicos da Cidade', 'Tradição e sabor'),
-              _buildCategoryCard('🍔', 'Mata-Fome', 'Rápido e saboroso'),
-              _buildCategoryCard('🧁', 'Doces & Sobremesas', 'Delícias açucaradas'),
-              _buildCategoryCard('🥂', 'Brunch Domingo', 'Fim de semana perfeito'),
-              _buildCategoryCard('🍷', 'Para Beber', 'Drinks e petiscos'),
-              _buildCategoryCard('🐕', 'Pet Friendly', 'Traga seu amiguinho'),
-            ],
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Ex: comida vegana barata...',
+              hintStyle: TextStyle(
+                color: AppTheme.cinzaMedio.withOpacity(0.7),
+              ),
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryCard(String emoji, String title, String subtitle) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+  Widget _buildNavigationGrid() {
+    final navigationItems = [
+      {'icon': Icons.near_me_rounded, 'title': 'Próximos', 'action': 'proximidade', 'color': Colors.blue},
+      {'icon': Icons.favorite_rounded, 'title': 'Favoritos', 'action': 'favoritos', 'color': Colors.red},
+      {'icon': Icons.star_rounded, 'title': 'Experiências', 'action': 'experiencias', 'color': Colors.purple},
+      {'icon': Icons.explore_rounded, 'title': 'Explorar', 'action': 'explorar', 'color': Colors.green},
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.5,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {},
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 32),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2c3985),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+      itemCount: navigationItems.length,
+      itemBuilder: (context, index) {
+        final item = navigationItems[index];
+        return _buildNavigationCard(
+          icon: item['icon'] as IconData,
+          title: item['title'] as String,
+          color: item['color'] as Color,
+          onTap: () => _handleProtectedAction(item['action'] as String),
+        );
+      },
+    );
+  }
+
+  Widget _buildNavigationCard({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+          boxShadow: AppTheme.sombraCard,
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 1,
           ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNavigationButtons() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildNavButton(
-                  '🗺️',
-                  'Descobrir por\nProximidade',
-                  const Color(0xFF4CAF50),
-                  () => _navigateToProximidade(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildNavButton(
-                  '❤️',
-                  'Meus\nFavoritos',
-                  const Color(0xFFE91E63),
-                  () => _handleProtectedAction('favoritos'),
-                ),
-              ),
-            ],
+  Widget _buildCleanCategoriesGrid() {
+    final categories = [
+      {'icon': '💕', 'title': 'Jantar Romântico'},
+      {'icon': '☕', 'title': 'Cafés Tranquilos'},
+      {'icon': '🏛️', 'title': 'Clássicos da Cidade'},
+      {'icon': '🍔', 'title': 'Mata-Fome'},
+      {'icon': '🍰', 'title': 'Doces & Sobremesas'},
+      {'icon': '🥐', 'title': 'Brunch Domingo'},
+      {'icon': '🍹', 'title': 'Para Beber'},
+      {'icon': '🐕', 'title': 'Pet Friendly'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 20),
+          child: Text(
+            '🏷️ Explore por Categorias',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primary,
+            ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildNavButton(
-                  '⭐',
-                  'Minhas\nExperiências',
-                  const Color(0xFFFF9800),
-                  () => _handleProtectedAction('experiencias'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildNavButton(
-                  '🔍',
-                  'Buscar\nRestaurantes',
-                  const Color(0xFF2196F3),
-                  () {
-                    // TODO: Implementar busca inteligente
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Busca inteligente em breve!'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1.8,
           ),
-        ],
-      ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return _buildCategoryCard(
+              emoji: category['icon'] as String,
+              title: category['title'] as String,
+              onTap: () {
+                // TODO: Implementar navegação para categoria
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildNavButton(String emoji, String label, Color color, VoidCallback onTap) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: 20)),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: color.withOpacity(0.8),
-                  ),
-                ),
-              ],
+  Widget _buildCategoryCard({
+    required String emoji,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+          boxShadow: AppTheme.sombraCard,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              emoji,
+              style: const TextStyle(fontSize: 32),
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primary,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );

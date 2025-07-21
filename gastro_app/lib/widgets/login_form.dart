@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../config/app_theme.dart';
 
 class LoginForm extends StatefulWidget {
-  final Future<void> Function(String email, String password) onSubmit;
+  final Function(String email, String password) onSubmit;
   final bool isLoading;
 
   const LoginForm({
@@ -15,354 +15,419 @@ class LoginForm extends StatefulWidget {
   State<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+  late AnimationController _buttonController;
+  late Animation<double> _buttonAnimation;
   bool _obscurePassword = true;
-  bool _isLoadingForgotPassword = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _buttonController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _buttonAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _buttonController,
+      curve: Curves.easeInOut,
+    ));
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _buttonController.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      widget.onSubmit(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-    }
-  }
-
-  Future<void> _handleForgotPassword() async {
-    final email = _emailController.text.trim();
-    
-    if (email.isEmpty) {
-      _showErrorMessage('Digite seu email para recuperar a senha');
-      return;
-    }
-    
-    if (!email.isValidEmail) {
-      _showErrorMessage('Digite um email válido');
-      return;
-    }
-
-    setState(() {
-      _isLoadingForgotPassword = true;
-    });
-
-    try {
-      final success = await AuthService.resetPassword(email);
-      
-      if (success) {
-        _showSuccessMessage('Email de recuperação enviado para $email');
-      } else {
-        _showErrorMessage('Erro ao enviar email de recuperação');
-      }
-    } catch (e) {
-      _showErrorMessage('Erro inesperado. Tente novamente.');
-    } finally {
-      setState(() {
-        _isLoadingForgotPassword = false;
-      });
-    }
-  }
-
-  void _showErrorMessage(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-    }
-  }
-
-  void _showSuccessMessage(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+  void _handleSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      await _buttonController.forward();
+      widget.onSubmit(_emailController.text.trim(), _passwordController.text);
+      _buttonController.reverse();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(28.0),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            const SizedBox(height: 20),
-            
-            // Campo de email
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              textCapitalization: TextCapitalization.none,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'seu@email.com',
-                prefixIcon: const Icon(
-                  Icons.email_outlined,
-                  color: Color(0xFF2c3985),
+              const SizedBox(height: 8),
+              
+              // Título
+              const Text(
+                'Entre na sua conta',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.primary,
                 ),
-                filled: true,
-                fillColor: const Color(0xFFfbe9d2).withOpacity(0.3),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFF2c3985).withOpacity(0.2),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF2c3985),
-                    width: 2,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.red.shade400),
-                ),
+                textAlign: TextAlign.center,
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Digite seu email';
-                }
-                if (!value.trim().isValidEmail) {
-                  return 'Digite um email válido';
-                }
-                return null;
+              
+              const SizedBox(height: 32),
+              
+              // Campo de email
+              _buildEmailField(),
+              
+              const SizedBox(height: 20),
+              
+              // Campo de senha
+              _buildPasswordField(),
+              
+              const SizedBox(height: 12),
+              
+              // Link "Esqueci minha senha"
+              _buildForgotPasswordLink(),
+              
+              const SizedBox(height: 32),
+              
+              // Botão de login
+              _buildLoginButton(),
+              
+              const SizedBox(height: 24),
+              
+              // Divisor
+              _buildDivider(),
+              
+              const SizedBox(height: 16),
+              
+              // Texto de registro
+              _buildRegisterText(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Email',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.cinzaEscuro,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          autocorrect: false,
+          textCapitalization: TextCapitalization.none,
+          decoration: InputDecoration(
+            hintText: 'seu@email.com',
+            hintStyle: TextStyle(
+              color: AppTheme.cinzaMedio.withOpacity(0.6),
+            ),
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.azulSuave,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.email_outlined,
+                color: AppTheme.primary,
+                size: 20,
+              ),
+            ),
+            filled: true,
+            fillColor: AppTheme.cinzaClaro.withOpacity(0.5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide(
+                color: AppTheme.bordoSuave,
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: const BorderSide(
+                color: AppTheme.primary,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide(color: AppTheme.danger, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor, insira seu email';
+            }
+            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              return 'Por favor, insira um email válido';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Senha',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.cinzaEscuro,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            hintText: 'Digite sua senha',
+            hintStyle: TextStyle(
+              color: AppTheme.cinzaMedio.withOpacity(0.6),
+            ),
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.azulSuave,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.lock_outline,
+                color: AppTheme.primary,
+                size: 20,
+              ),
+            ),
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
               },
-              onFieldSubmitted: (_) => _handleSubmit(),
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // Campo de senha
-            TextFormField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                hintText: 'Sua senha',
-                prefixIcon: const Icon(
-                  Icons.lock_outline,
-                  color: Color(0xFF2c3985),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    color: const Color(0xFF2c3985),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                ),
-                filled: true,
-                fillColor: const Color(0xFFfbe9d2).withOpacity(0.3),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: const Color(0xFF2c3985).withOpacity(0.2),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF2c3985),
-                    width: 2,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.red.shade400),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Digite sua senha';
-                }
-                if (value.length < 6) {
-                  return 'A senha deve ter pelo menos 6 caracteres';
-                }
-                return null;
-              },
-              onFieldSubmitted: (_) => _handleSubmit(),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Link "Esqueci minha senha"
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: _isLoadingForgotPassword ? null : _handleForgotPassword,
-                child: _isLoadingForgotPassword
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Color(0xFF2c3985),
-                        ),
-                      )
-                    : const Text(
-                        'Esqueci minha senha',
-                        style: TextStyle(
-                          color: Color(0xFF2c3985),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: AppTheme.cinzaMedio,
+                size: 20,
               ),
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Botão de login
-            SizedBox(
-              height: 56,
-              child: ElevatedButton(
-                onPressed: widget.isLoading ? null : _handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2c3985),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  shadowColor: const Color(0xFF2c3985).withOpacity(0.3),
-                ),
-                child: widget.isLoading
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Entrando...',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      )
-                    : const Text(
-                        'Entrar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+            filled: true,
+            fillColor: AppTheme.cinzaClaro.withOpacity(0.5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide(
+                color: AppTheme.bordoSuave,
+                width: 1,
               ),
             ),
-            
-            const SizedBox(height: 20),
-            
-            // Divider com "ou"
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 1,
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'ou',
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    height: 1,
-                    color: Colors.grey.shade300,
-                  ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: const BorderSide(
+                color: AppTheme.primary,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderSide: BorderSide(color: AppTheme.danger, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Por favor, insira sua senha';
+            }
+            if (value.length < 6) {
+              return 'A senha deve ter pelo menos 6 caracteres';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildForgotPasswordLink() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: () {
+          // TODO: Implementar recuperação de senha
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Funcionalidade em breve!'),
+              backgroundColor: AppTheme.customColors['info'],
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+              ),
+            ),
+          );
+        },
+        style: TextButton.styleFrom(
+          foregroundColor: AppTheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        ),
+        child: const Text(
+          'Esqueci minha senha',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return AnimatedBuilder(
+      animation: _buttonAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _buttonAnimation.value,
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: AppTheme.gradientPrimario,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            
-            const SizedBox(height: 20),
-            
-            // Botão Google (desabilitado por enquanto)
-            SizedBox(
-              height: 56,
-              child: OutlinedButton.icon(
-                onPressed: null, // Será implementado no futuro
-                icon: Image.asset(
-                  'assets/icons/google.png',
-                  width: 20,
-                  height: 20,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.g_mobiledata,
-                      color: Colors.grey,
-                      size: 24,
-                    );
-                  },
-                ),
-                label: const Text(
-                  'Continuar com Google',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+            child: ElevatedButton(
+              onPressed: widget.isLoading ? null : _handleSubmit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
                 ),
               ),
+              child: widget.isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.login_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Entrar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
             ),
-          ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            color: AppTheme.bordoSuave,
+          ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'ou',
+            style: TextStyle(
+              color: AppTheme.cinzaMedio,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
         ),
-      ),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: AppTheme.bordoSuave,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterText() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Não tem uma conta? ',
+          style: TextStyle(
+            color: AppTheme.cinzaMedio,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          'Criar conta',
+          style: TextStyle(
+            color: AppTheme.primary,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 } 
