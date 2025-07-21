@@ -101,49 +101,67 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFfbe9d2), // Fundo areia clara
-      body: Column(
-        children: [
-          // Header superior fixo
-          _buildFixedHeader(),
-          
-          // Conteúdo rolável
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // Banner Demo Funcional
-                    _buildDemoBanner(),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Barra de busca
-                    _buildSearchBar(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Botões rápidos
-                    _buildQuickButtons(),
-                    
-                    const SizedBox(height: 32),
-                    
-                    // Seção Explore por Categorias
-                    _buildCategoriesSection(),
-                    
-                    const SizedBox(height: 20),
-                  ],
+      body: Center(
+        child: Container(
+          width: 400, // Largura fixa como mobile
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            children: [
+              // Header superior
+              _buildMobileHeader(),
+              
+              // Conteúdo rolável
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Banner Demo Funcional
+                        _buildMobileDemoBanner(),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Barra de busca
+                        _buildMobileSearchBar(),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Botões rápidos
+                        _buildMobileQuickButtons(),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Seção Explore por Categorias
+                        _buildMobileCategoriesSection(),
+                        
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildFixedHeader() {
+  Widget _buildMobileHeader() {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -151,6 +169,10 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           colors: [Color(0xFFee9d21), Color(0xFFfbe9d2)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
         ),
       ),
       child: SafeArea(
@@ -163,8 +185,8 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 28,
+                    height: 28,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -172,14 +194,14 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                     child: const Icon(
                       Icons.restaurant_menu,
                       color: Color(0xFF2c3985),
-                      size: 20,
+                      size: 16,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   const Text(
                     'Gastro App',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2c3985),
                     ),
@@ -187,13 +209,13 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                 ],
               ),
               
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               
               // Subtítulo
               const Text(
                 'Powered by AI • Demonstração Interativa',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w400,
                 ),
@@ -205,7 +227,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildDemoBanner() {
+  Widget _buildMobileDemoBanner() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -221,7 +243,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
         children: [
           const Text(
             '🧪',
-            style: TextStyle(fontSize: 24),
+            style: TextStyle(fontSize: 20),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -231,7 +253,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                 Text(
                   'Demo Funcional',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF2c3985),
                   ),
@@ -240,11 +262,11 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                 Text(
                   'Esta é uma demonstração das funcionalidades implementadas. Digite uma busca natural ou clique nas categorias!',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Color(0xFF6B7280),
                     height: 1.3,
                   ),
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -255,18 +277,15 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildMobileSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE9ECEF),
+          width: 1,
+        ),
       ),
       child: TextField(
         controller: _searchController,
@@ -274,44 +293,41 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           hintText: 'Ex: comida vegana barata...',
           hintStyle: const TextStyle(
             color: Color(0xFF9CA3AF),
-            fontSize: 16,
+            fontSize: 14,
           ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(left: 20, right: 16),
-            child: Icon(
-              Icons.search,
-              color: Color(0xFF6B7280),
-              size: 24,
-            ),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: Color(0xFF6B7280),
+            size: 20,
           ),
           suffixIcon: Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(6),
             decoration: const BoxDecoration(
               color: Color(0xFFee9d21),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.tune,
               color: Colors.white,
-              size: 20,
+              size: 16,
             ),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
+            horizontal: 16,
+            vertical: 12,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildQuickButtons() {
+  Widget _buildMobileQuickButtons() {
     final buttons = [
       {
         'icon': Icons.near_me,
         'label': 'Próximos',
-        'color': const Color(0xFF3B82F6),
+        'color': const Color(0xFFEF4444),
         'action': 'proximidade',
       },
       {
@@ -329,7 +345,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
       {
         'icon': Icons.explore,
         'label': 'Explorar',
-        'color': const Color(0xFF10B981),
+        'color': const Color(0xFF3B82F6),
         'action': 'explorar',
       },
     ];
@@ -341,12 +357,12 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 2.2,
+        childAspectRatio: 3.0,
       ),
       itemCount: buttons.length,
       itemBuilder: (context, index) {
         final button = buttons[index];
-        return _buildQuickButton(
+        return _buildMobileQuickButton(
           icon: button['icon'] as IconData,
           label: button['label'] as String,
           color: button['color'] as Color,
@@ -356,7 +372,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildQuickButton({
+  Widget _buildMobileQuickButton({
     required IconData icon,
     required String label,
     required Color color,
@@ -364,18 +380,14 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
   }) {
     return GestureDetector(
       onTap: () => _handleProtectedAction(action),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFF8F9FA),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(
+            color: const Color(0xFFE9ECEF),
+            width: 1,
+          ),
         ),
         child: Material(
           color: Colors.transparent,
@@ -383,21 +395,24 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
             borderRadius: BorderRadius.circular(8),
             onTap: () => _handleProtectedAction(action),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Icon(
                     icon,
                     color: color,
-                    size: 24,
+                    size: 18,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2c3985),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF2c3985),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -409,24 +424,24 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildCategoriesSection() {
+  Widget _buildMobileCategoriesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Título da seção
         const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 16),
+          padding: EdgeInsets.only(bottom: 16),
           child: Row(
             children: [
               Text(
                 '📖',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 16),
               ),
               SizedBox(width: 8),
               Text(
                 'Explore por Categorias',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF2c3985),
                 ),
@@ -436,12 +451,12 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
         ),
         
         // Grid de categorias
-        _buildCategoriesGrid(),
+        _buildMobileCategoriesGrid(),
       ],
     );
   }
 
-  Widget _buildCategoriesGrid() {
+  Widget _buildMobileCategoriesGrid() {
     final categories = [
       {'emoji': '💕', 'label': 'Jantar Romântico'},
       {'emoji': '☕', 'label': 'Cafés Tranquilos'},
@@ -460,12 +475,12 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.6,
+        childAspectRatio: 1.2,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
-        return _buildCategoryCard(
+        return _buildMobileCategoryCard(
           emoji: category['emoji'] as String,
           label: category['label'] as String,
         );
@@ -473,13 +488,12 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     );
   }
 
-  Widget _buildCategoryCard({
+  Widget _buildMobileCategoryCard({
     required String emoji,
     required String label,
   }) {
     return GestureDetector(
       onTap: () {
-        // TODO: Implementar navegação para categoria
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Categoria "$label" em breve!'),
@@ -490,18 +504,14 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           ),
         );
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFF8F9FA),
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(
+            color: const Color(0xFFE9ECEF),
+            width: 1,
+          ),
         ),
         child: Material(
           color: Colors.transparent,
@@ -519,19 +529,19 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     emoji,
-                    style: const TextStyle(fontSize: 32),
+                    style: const TextStyle(fontSize: 24),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     label,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2c3985),
                     ),
