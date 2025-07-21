@@ -5,6 +5,7 @@ import '../utils/providers.dart';
 import '../services/localizacao_service.dart';
 import '../widgets/restaurante_proximidade_card.dart';
 import '../widgets/raio_busca_slider.dart';
+import '../widgets/smooth_loader.dart';
 
 class ProximidadeScreen extends ConsumerStatefulWidget {
   const ProximidadeScreen({super.key});
@@ -263,20 +264,10 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
   }
 
   Widget _buildLoading() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: Color(0xFF2c3985)),
-          SizedBox(height: 16),
-          Text(
-            'Buscando restaurantes próximos...',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF2c3985),
-            ),
-          ),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: SmoothLoader.restaurantSearch(),
       ),
     );
   }

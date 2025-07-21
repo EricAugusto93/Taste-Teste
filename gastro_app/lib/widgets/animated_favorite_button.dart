@@ -103,43 +103,50 @@ class _AnimatedFavoriteButtonState extends State<AnimatedFavoriteButton>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) {
-        _scaleController.forward();
-      },
-      onTapUp: (_) {
-        _scaleController.reverse();
-      },
-      onTapCancel: () {
-        _scaleController.reverse();
-      },
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_scaleAnimation, _colorAnimation]),
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: _colorAnimation.value?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.3),
-                    blurRadius: 8,
-                    spreadRadius: widget.isFavorite ? 2 : 0,
-                  ),
-                ],
-              ),
-              child: Icon(
-                widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-                size: widget.size,
-                color: _colorAnimation.value,
-              ),
-            ),
-          );
+    return Semantics(
+      label: widget.isFavorite 
+          ? 'Remover dos favoritos' 
+          : 'Adicionar aos favoritos',
+      button: true,
+      enabled: widget.onTap != null,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) {
+          _scaleController.forward();
         },
+        onTapUp: (_) {
+          _scaleController.reverse();
+        },
+        onTapCancel: () {
+          _scaleController.reverse();
+        },
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_scaleAnimation, _colorAnimation]),
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: _colorAnimation.value?.withOpacity(0.3) ?? Colors.grey.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: widget.isFavorite ? 2 : 0,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  widget.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  size: widget.size,
+                  color: _colorAnimation.value,
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -192,33 +199,40 @@ class _SimpleFavoriteButtonState extends State<SimpleFavoriteButton>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) => _controller.reverse(),
-      onTapCancel: () => _controller.reverse(),
-      onTap: widget.onTap,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(
-                  scale: animation,
-                  child: child,
-                );
-              },
-              child: Icon(
-                widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-                key: ValueKey(widget.isFavorite),
-                size: widget.size,
-                color: widget.isFavorite ? AppColors.favorito : Colors.grey,
+    return Semantics(
+      label: widget.isFavorite 
+          ? 'Remover dos favoritos' 
+          : 'Adicionar aos favoritos',
+      button: true,
+      enabled: widget.onTap != null,
+      child: GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) => _controller.reverse(),
+        onTapCancel: () => _controller.reverse(),
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  );
+                },
+                child: Icon(
+                  widget.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  key: ValueKey(widget.isFavorite),
+                  size: widget.size,
+                  color: widget.isFavorite ? AppColors.favorito : Colors.grey,
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

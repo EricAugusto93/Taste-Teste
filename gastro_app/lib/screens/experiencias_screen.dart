@@ -4,12 +4,76 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/providers.dart';
 import '../widgets/experiencia_button.dart';
 import '../services/experiencia_service.dart';
+import '../utils/snackbar_utils.dart';
 
-class ExperienciasScreen extends ConsumerWidget {
+class ExperienciasScreen extends ConsumerStatefulWidget {
   const ExperienciasScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExperienciasScreen> createState() => _ExperienciasScreenState();
+}
+
+class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _slideController;
+  late AnimationController _fadeController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupAnimations();
+  }
+
+  @override
+  void dispose() {
+    _slideController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  void _setupAnimations() {
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    ));
+
+    // Iniciar animações
+    _fadeController.forward();
+    _slideController.forward();
+  }
+
+  void _refreshExperiencias() {
+    ref.invalidate(experienciasUsuarioProvider);
+    
+    // Mostrar feedback visual usando o utilitário global
+    SnackBarUtils.showSuccess(context, 'Experiências atualizadas!');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final experiencias = ref.watch(experienciasUsuarioProvider);
 
     return Scaffold(
@@ -26,19 +90,31 @@ class ExperienciasScreen extends ConsumerWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: () {
-              ref.invalidate(experienciasUsuarioProvider);
+          AnimatedBuilder(
+            animation: _fadeAnimation,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: IconButton(
+                  onPressed: _refreshExperiencias,
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Atualizar lista',
+                ),
+              );
             },
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Atualizar lista',
           ),
         ],
       ),
-      body: experiencias.when(
-        data: (experienciasList) => _buildContent(context, experienciasList),
-        loading: () => _buildLoading(),
-        error: (error, stack) => _buildError(context, error.toString()),
+      body: SlideTransition(
+        position: _slideAnimation,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: experiencias.when(
+            data: (experienciasList) => _buildContent(context, experienciasList),
+            loading: () => _buildLoading(),
+            error: (error, stack) => _buildError(context, error.toString()),
+          ),
+        ),
       ),
     );
   }

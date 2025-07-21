@@ -16,6 +16,7 @@ import '../widgets/tag_chip.dart';
 import '../widgets/sugestoes_proximas.dart';
 import '../widgets/categorias_carrossel.dart';
 import '../widgets/taste_test_logo.dart';
+import '../widgets/smooth_loader.dart';
 import 'resultados_screen_modern.dart';
 import 'favoritos_screen.dart';
 import 'experiencias_screen.dart';
@@ -611,39 +612,9 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
 
   Widget _buildLoadingState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              gradient: AppTheme.gradientPrimario,
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                strokeWidth: 3,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppTheme.espacoGrande),
-          Text(
-            'Analisando seu desejo...',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppTheme.cinzaEscuro,
-            ),
-          ),
-          const SizedBox(height: AppTheme.espacoPequeno),
-          Text(
-            'Buscando os melhores restaurantes para você',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.cinzaMedio,
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.espacoExtraGrande),
+        child: SmoothLoader.restaurantSearch(),
       ),
     );
   }

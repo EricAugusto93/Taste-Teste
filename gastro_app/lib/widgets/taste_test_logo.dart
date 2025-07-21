@@ -26,50 +26,66 @@ class TasteTestLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    
+    // Adaptação responsiva do tamanho da fonte
+    final baseFontSize = fontSize ?? 32.0;
+    final responsiveFontSize = screenWidth < 360 
+        ? baseFontSize * 0.8  // Telas muito pequenas
+        : screenWidth < 400 
+            ? baseFontSize * 0.9  // Telas pequenas
+            : baseFontSize;  // Telas normais e grandes
+    
     final effectivePrimaryColor = primaryColor ?? AppColors.amareloMostarda;
     final effectiveSecondaryColor = secondaryColor ?? AppColors.vermelhoTelha;
-    final effectiveFontSize = fontSize ?? 32.0;
+    final effectiveFontSize = responsiveFontSize;
     final effectiveSubtitle = subtitle ?? 'GASTRO EXPERIENCE';
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Column(
-        mainAxisAlignment: alignment,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Logo principal com gradiente
-          ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [effectivePrimaryColor, effectiveSecondaryColor],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ).createShader(bounds),
-            child: Text(
-              'Taste Test',
-              style: TextStyle(
-                fontSize: effectiveFontSize,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
+    return Semantics(
+      label: showSubtitle 
+          ? 'Taste Test $effectiveSubtitle'
+          : 'Taste Test',
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Column(
+          mainAxisAlignment: alignment,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Logo principal com gradiente
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [effectivePrimaryColor, effectiveSecondaryColor],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ).createShader(bounds),
+              child: Text(
+                'Taste Test',
+                style: TextStyle(
+                  fontSize: effectiveFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
-          ),
-          
-          // Subtítulo (opcional)
-          if (showSubtitle) ...[
-            const SizedBox(height: 4),
-            Text(
-              effectiveSubtitle,
-              style: TextStyle(
-                fontSize: effectiveFontSize * 0.3,
-                fontWeight: FontWeight.w600,
-                color: AppColors.cinzaMedio,
-                letterSpacing: 2.0,
+            
+            // Subtítulo (opcional)
+            if (showSubtitle) ...[
+              const SizedBox(height: 4),
+              Text(
+                effectiveSubtitle,
+                style: TextStyle(
+                  fontSize: effectiveFontSize * 0.3,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.cinzaMedio,
+                  letterSpacing: 2.0,
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

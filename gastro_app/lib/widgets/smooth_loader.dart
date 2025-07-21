@@ -21,6 +21,50 @@ class SmoothLoader extends StatefulWidget {
 
   @override
   State<SmoothLoader> createState() => _SmoothLoaderState();
+
+  /// Factory para loader de busca de restaurantes
+  factory SmoothLoader.restaurantSearch({
+    String message = 'Buscando restaurantes próximos...',
+  }) {
+    return SmoothLoader(
+      message: message,
+      type: LoaderType.restaurantSearch,
+      size: 60,
+    );
+  }
+
+  /// Factory para loader de favoritos
+  factory SmoothLoader.favorites({
+    String message = 'Carregando favoritos...',
+  }) {
+    return SmoothLoader(
+      message: message,
+      type: LoaderType.pulse,
+      color: AppColors.favorito,
+      size: 50,
+    );
+  }
+
+  /// Factory para loader simples
+  factory SmoothLoader.simple({
+    String message = 'Carregando...',
+  }) {
+    return SmoothLoader(
+      message: message,
+      type: LoaderType.circular,
+      size: 40,
+    );
+  }
+
+  /// Factory para loader de pontos
+  factory SmoothLoader.dots({
+    String message = 'Processando...',
+  }) {
+    return SmoothLoader(
+      message: message,
+      type: LoaderType.dots,
+    );
+  }
 }
 
 enum LoaderType {
@@ -266,50 +310,6 @@ class _SmoothLoaderState extends State<SmoothLoader>
           ),
         );
       },
-    );
-  }
-
-  /// Factory para loader de busca de restaurantes
-  static SmoothLoader restaurantSearch({
-    String message = 'Buscando restaurantes próximos...',
-  }) {
-    return SmoothLoader(
-      message: message,
-      type: LoaderType.restaurantSearch,
-      size: 60,
-    );
-  }
-
-  /// Factory para loader de favoritos
-  static SmoothLoader favorites({
-    String message = 'Carregando favoritos...',
-  }) {
-    return SmoothLoader(
-      message: message,
-      type: LoaderType.pulse,
-      color: AppColors.favorito,
-      size: 50,
-    );
-  }
-
-  /// Factory para loader simples
-  static SmoothLoader simple({
-    String message = 'Carregando...',
-  }) {
-    return SmoothLoader(
-      message: message,
-      type: LoaderType.circular,
-      size: 40,
-    );
-  }
-
-  /// Factory para loader de pontos
-  static SmoothLoader dots({
-    String message = 'Processando...',
-  }) {
-    return SmoothLoader(
-      message: message,
-      type: LoaderType.dots,
     );
   }
 }
