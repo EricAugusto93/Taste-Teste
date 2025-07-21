@@ -105,9 +105,10 @@ class _LoginFormState extends State<LoginForm> {
       padding: const EdgeInsets.all(24.0),
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             const SizedBox(height: 20),
             
             // Campo de email
@@ -359,6 +360,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

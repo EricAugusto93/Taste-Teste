@@ -5,6 +5,7 @@ import '../utils/providers.dart';
 import '../widgets/experiencia_button.dart';
 import '../services/experiencia_service.dart';
 import '../utils/snackbar_utils.dart';
+import '../config/app_theme.dart';
 
 class ExperienciasScreen extends ConsumerStatefulWidget {
   const ExperienciasScreen({super.key});
@@ -124,7 +125,7 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
       return _buildEmptyState(context);
     }
 
-    // Se são ExperienciaComRestaurante, usamos como tal
+    // Converter para ExperienciaComRestaurante
     final experiencias = experienciasList.cast<ExperienciaComRestaurante>();
 
     return Column(

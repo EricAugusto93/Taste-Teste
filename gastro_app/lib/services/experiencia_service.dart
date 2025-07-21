@@ -11,11 +11,14 @@ class ExperienciaService {
   static Future<List<dynamic>> obterExperienciasUsuario() async {
     try {
       final user = AuthService.currentUser;
-      if (user == null) return [];
+      if (user == null) {
+        return [];
+      }
       
       final experiencias = await buscarExperienciasDoUsuario(user.id);
       return experiencias;
     } catch (e) {
+      print('ERRO em obterExperienciasUsuario: $e');
       return [];
     }
   }
@@ -67,34 +70,54 @@ class ExperienciaService {
     String userId,
   ) async {
     try {
-      final response = await _supabase
+      // Buscar experiências sem JOIN para evitar problemas de URL
+      final experienciasResponse = await _supabase
           .from('experiencias')
-          .select('''
-            *,
-            restaurantes:restaurante_id (
-              id,
-              nome,
-              tipo,
-              descricao,
-              imagem_url,
-              latitude,
-              longitude,
-              tags
-            )
-          ''')
+          .select('*')
           .eq('user_id', userId)
           .order('data_visita', ascending: false);
 
-      return (response as List<dynamic>).map((data) {
-        final experiencia = Experiencia.fromJson(data);
-        final restauranteData = data['restaurantes'] as Map<String, dynamic>;
-        final restaurante = Restaurante.fromJson(restauranteData);
-        
-        return ExperienciaComRestaurante(
-          experiencia: experiencia,
-          restaurante: restaurante,
-        );
-      }).toList();
+      if (experienciasResponse.isEmpty) {
+        return [];
+      }
+
+      // Buscar restaurantes separadamente para evitar problemas com embedded resources
+      List<ExperienciaComRestaurante> resultado = [];
+      
+      for (final expData in experienciasResponse) {
+        try {
+          final experiencia = Experiencia.fromJson(expData);
+          
+          // Buscar restaurante separadamente
+          final restauranteResponse = await _supabase
+              .from('restaurantes')
+              .select('''
+                id,
+                nome,
+                tipo,
+                descricao,
+                imagem_url,
+                latitude,
+                longitude,
+                tags
+              ''')
+              .eq('id', experiencia.restauranteId)
+              .maybeSingle();
+
+          if (restauranteResponse != null) {
+            final restaurante = Restaurante.fromJson(restauranteResponse);
+            resultado.add(ExperienciaComRestaurante(
+              experiencia: experiencia,
+              restaurante: restaurante,
+            ));
+          }
+        } catch (e) {
+          // Continua processando outras experiências mesmo se uma falhar
+          continue;
+        }
+      }
+
+      return resultado;
     } catch (e) {
       throw Exception('Erro ao buscar experiências do usuário: $e');
     }
@@ -167,34 +190,54 @@ class ExperienciaService {
   /// Busca experiências recentes de todos os usuários (últimas 10)
   static Future<List<ExperienciaComRestaurante>> buscarExperienciasRecentes() async {
     try {
-      final response = await _supabase
+      // Buscar experiências sem JOIN para evitar problemas de URL
+      final experienciasResponse = await _supabase
           .from('experiencias')
-          .select('''
-            *,
-            restaurantes:restaurante_id (
-              id,
-              nome,
-              tipo,
-              descricao,
-              imagem_url,
-              latitude,
-              longitude,
-              tags
-            )
-          ''')
+          .select('*')
           .order('created_at', ascending: false)
           .limit(10);
 
-      return (response as List<dynamic>).map((data) {
-        final experiencia = Experiencia.fromJson(data);
-        final restauranteData = data['restaurantes'] as Map<String, dynamic>;
-        final restaurante = Restaurante.fromJson(restauranteData);
-        
-        return ExperienciaComRestaurante(
-          experiencia: experiencia,
-          restaurante: restaurante,
-        );
-      }).toList();
+      if (experienciasResponse.isEmpty) {
+        return [];
+      }
+
+      // Buscar restaurantes separadamente
+      List<ExperienciaComRestaurante> resultado = [];
+      
+      for (final expData in experienciasResponse) {
+        try {
+          final experiencia = Experiencia.fromJson(expData);
+          
+          // Buscar restaurante separadamente
+          final restauranteResponse = await _supabase
+              .from('restaurantes')
+              .select('''
+                id,
+                nome,
+                tipo,
+                descricao,
+                imagem_url,
+                latitude,
+                longitude,
+                tags
+              ''')
+              .eq('id', experiencia.restauranteId)
+              .maybeSingle();
+
+          if (restauranteResponse != null) {
+            final restaurante = Restaurante.fromJson(restauranteResponse);
+            resultado.add(ExperienciaComRestaurante(
+              experiencia: experiencia,
+              restaurante: restaurante,
+            ));
+          }
+        } catch (e) {
+          // Continua processando outras experiências mesmo se uma falhar
+          continue;
+        }
+      }
+
+      return resultado;
     } catch (e) {
       throw Exception('Erro ao buscar experiências recentes: $e');
     }
