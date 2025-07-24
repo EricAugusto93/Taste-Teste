@@ -72,7 +72,7 @@ class EstatisticasService {
           emoji,
           comentario,
           data_visita,
-          usuarios(nome)
+          usuarios(email)
         ''')
         .eq('restaurante_id', restauranteId)
         .order('data_visita', ascending: false);
@@ -94,7 +94,16 @@ class EstatisticasService {
       // Adicionar aos comentários recentes se tem comentário
       final comentario = exp['comentario'] as String?;
       if (comentario != null && comentario.trim().isNotEmpty && comentariosRecentes.length < 3) {
-        final nomeUsuario = exp['usuarios']?['nome'] as String?;
+        final emailUsuario = exp['usuarios']?['email'] as String?;
+        // Extrair nome do email (parte antes do @) ou usar email mascarado
+        String? nomeUsuario;
+        if (emailUsuario != null) {
+          if (emailUsuario.contains('@')) {
+            nomeUsuario = emailUsuario.split('@').first;
+          } else {
+            nomeUsuario = emailUsuario;
+          }
+        }
         comentariosRecentes.add(
           ComentarioRecente(
             id: exp['id'] as String,

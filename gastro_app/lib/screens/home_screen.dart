@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
 import '../utils/providers.dart';
 import '../config/app_theme.dart';
+
 import 'favoritos_screen.dart';
 import 'experiencias_screen.dart';
 import 'proximidade_screen.dart';
@@ -97,6 +98,137 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
     }
   }
 
+  Widget _buildRestaurantesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(
+              Icons.restaurant,
+              color: Color(0xFF2c3985),
+              size: 20,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'Restaurantes Disponíveis',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2c3985),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Consumer(
+          builder: (context, ref, child) {
+            final restaurantesAsync = ref.watch(sugestoesProximasProvider);
+            return restaurantesAsync.when(
+              data: (restaurantes) {
+                if (restaurantes.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Nenhum restaurante encontrado',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+                return Column(
+                  children: restaurantes.take(3).map((restaurante) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFee9d21).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.restaurant,
+                              color: Color(0xFFee9d21),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  restaurante.nome,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2c3985),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  restaurante.tipo,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.grey.shade400,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+              loading: () => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              error: (error, stack) => Center(
+                child: Text(
+                  'Erro ao carregar restaurantes',
+                  style: TextStyle(color: Colors.red.shade600),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        Center(
+          child: TextButton(
+            onPressed: () => _handleProtectedAction('proximidade'),
+            child: const Text(
+              'Ver todos os restaurantes →',
+              style: TextStyle(
+                color: Color(0xFF2c3985),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,11 +262,6 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                     ),
                     child: Column(
                       children: [
-                        // Banner Demo Funcional
-                        _buildMobileDemoBanner(),
-                        
-                        const SizedBox(height: 20),
-                        
                         // Barra de busca
                         _buildMobileSearchBar(),
                         
@@ -147,6 +274,11 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
                         
                         // Seção Explore por Categorias
                         _buildMobileCategoriesSection(),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Seção de Restaurantes Próximos
+                        _buildRestaurantesSection(),
                         
                         const SizedBox(height: 20),
                       ],
@@ -302,7 +434,7 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           ),
           suffixIcon: Container(
             margin: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFFee9d21),
               borderRadius: BorderRadius.circular(8),
             ),

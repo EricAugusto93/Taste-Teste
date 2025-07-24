@@ -16,7 +16,19 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'exemplo.com',  // Adicionado domínio em português
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unsplash.com',  // Domínio adicional do Unsplash
         port: '',
         pathname: '/**',
       },
@@ -25,12 +37,19 @@ const nextConfig = {
         hostname: 'via.placeholder.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',  // Placeholder images
+        port: '',
+        pathname: '/**',
       }
     ],
-    // Para desenvolvimento - aceita qualquer domínio (remover em produção)
-    unoptimized: false,
+    // Configuração mais permissiva para desenvolvimento
+    domains: ['images.unsplash.com', 'example.com', 'exemplo.com', 'via.placeholder.com', 'picsum.photos'],
+    unoptimized: process.env.NODE_ENV === 'development', // Só desativar otimização em dev
   },
-  // Para desenvolvimento - permite domínios não listados
+  // Headers de segurança
   async headers() {
     return [
       {
@@ -39,6 +58,10 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
         ],
       },

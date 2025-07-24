@@ -112,9 +112,9 @@ final obterLocalizacaoProvider = FutureProvider<Map<String, double>>((ref) async
 /// Helper para inicializar localização de forma segura
 class LocalizacaoManager {
   static Future<void> inicializarLocalizacao(WidgetRef ref) async {
-    ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtendo;
-    
     try {
+      ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtendo;
+      
       final position = await LocalizacaoService.getCurrentPosition();
       
       if (position != null) {
@@ -123,20 +123,35 @@ class LocalizacaoManager {
           'longitude': position.longitude,
         };
         
-        ref.read(localizacaoAtualProvider.notifier).state = location;
-        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtida;
-        ref.read(usandoFallbackProvider.notifier).state = false;
+        try {
+          ref.read(localizacaoAtualProvider.notifier).state = location;
+          ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtida;
+          ref.read(usandoFallbackProvider.notifier).state = false;
+        } catch (e) {
+          // Widget foi disposed durante a operação, ignora silenciosamente
+          return;
+        }
       } else {
         final fallbackLocation = LocalizacaoService.getFallbackLocation();
-        ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
-        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.fallback;
-        ref.read(usandoFallbackProvider.notifier).state = true;
+        try {
+          ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
+          ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.fallback;
+          ref.read(usandoFallbackProvider.notifier).state = true;
+        } catch (e) {
+          // Widget foi disposed durante a operação, ignora silenciosamente
+          return;
+        }
       }
     } catch (e) {
-      final fallbackLocation = LocalizacaoService.getFallbackLocation();
-      ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
-      ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.erro;
-      ref.read(usandoFallbackProvider.notifier).state = true;
+      try {
+        final fallbackLocation = LocalizacaoService.getFallbackLocation();
+        ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
+        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.erro;
+        ref.read(usandoFallbackProvider.notifier).state = true;
+      } catch (e) {
+        // Widget foi disposed durante a operação, ignora silenciosamente
+        return;
+      }
     }
   }
 }
@@ -164,12 +179,16 @@ final restaurantesProximosProvider = FutureProvider<List<RestauranteComDistancia
   final localizacao = ref.watch(localizacaoAtualProvider);
   final raio = ref.watch(raioBuscaProvider);
   
+  print('🔍 restaurantesProximosProvider: localização=$localizacao, raio=$raio');
+  
   // Se não tem localização, usar fallback
   final localizacaoFinal = localizacao ?? LocalizacaoService.getFallbackLocation();
+  print('📍 Localização final: $localizacaoFinal');
   
   try {
     // Buscar todos os restaurantes
     final todosRestaurantes = await RestauranteService.obterTodos();
+    print('🍽️ Total de restaurantes encontrados: ${todosRestaurantes.length}');
     
     // Filtrar e ordenar por proximidade
     final restaurantesComDistancia = todosRestaurantes
@@ -185,11 +204,14 @@ final restaurantesProximosProvider = FutureProvider<List<RestauranteComDistancia
         .where((item) => item.distancia <= raio)
         .toList();
 
+    print('📏 Restaurantes dentro do raio: ${restaurantesComDistancia.length}');
+
     // Ordenar por distância
     restaurantesComDistancia.sort((a, b) => a.distancia.compareTo(b.distancia));
     
     return restaurantesComDistancia;
   } catch (e) {
+    print('❌ Erro em restaurantesProximosProvider: $e');
     return [];
   }
 });
@@ -442,6 +464,26 @@ final estatisticasProximidadeProvider = Provider<Map<String, int>>((ref) {
       'total': 0,
     },
   );
+});
+
+/// Provider para sugestões próximas (versão simplificada para debug)
+final sugestoesProximasProvider = FutureProvider<List<Restaurante>>((ref) async {
+  try {
+    print('🔍 sugestoesProximasProvider: Iniciando busca...');
+    
+    // Buscar todos os restaurantes diretamente
+    final todosRestaurantes = await RestauranteService.obterTodos();
+    print('🍽️ sugestoesProximasProvider: ${todosRestaurantes.length} restaurantes encontrados');
+    
+    // Retornar todos os restaurantes (máximo 10 para performance)
+    final result = todosRestaurantes.take(10).toList();
+    print('✅ sugestoesProximasProvider: Retornando ${result.length} restaurantes');
+    
+    return result;
+  } catch (e) {
+    print('❌ Erro em sugestoesProximasProvider: $e');
+    return <Restaurante>[];
+  }
 }); 
 
 // ============================================

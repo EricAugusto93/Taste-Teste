@@ -20,7 +20,9 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
     super.initState();
     // Iniciar obtenção de localização ao abrir a tela
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      LocalizacaoManager.inicializarLocalizacao(ref);
+      if (mounted) {
+        LocalizacaoManager.inicializarLocalizacao(ref);
+      }
     });
   }
 
@@ -401,8 +403,10 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
 
   Future<void> _reobterLocalizacao() async {
     // Re-inicializar localização
-    await LocalizacaoManager.inicializarLocalizacao(ref);
-    // Invalidar provider de restaurantes para atualizar lista
-    ref.invalidate(restaurantesProximosProvider);
+    if (mounted) {
+      await LocalizacaoManager.inicializarLocalizacao(ref);
+      // Invalidar provider de restaurantes para atualizar lista
+      ref.invalidate(restaurantesProximosProvider);
+    }
   }
 } 

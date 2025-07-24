@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../utils/providers.dart';
 import '../widgets/experiencia_button.dart';
+import '../widgets/registrar_experiencia.dart';
 import '../services/experiencia_service.dart';
 import '../utils/snackbar_utils.dart';
 import '../config/app_theme.dart';
@@ -41,7 +42,7 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
     );
 
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -61,6 +62,19 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
       curve: Curves.easeIn,
     ));
 
+    // Configurar animação repetida para o FAB
+    _fadeController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) _fadeController.reverse();
+        });
+      } else if (status == AnimationStatus.dismissed) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) _fadeController.forward();
+        });
+      }
+    });
+
     // Iniciar animações
     _fadeController.forward();
     _slideController.forward();
@@ -71,6 +85,148 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
     
     // Mostrar feedback visual usando o utilitário global
     SnackBarUtils.showSuccess(context, 'Experiências atualizadas!');
+  }
+
+  void _mostrarSeletorRestaurante() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _buildSeletorRestaurante(),
+    );
+  }
+
+  Widget _buildSeletorRestaurante() {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.restaurant,
+                  color: Color(0xFF2c3985),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Selecione um Restaurante',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2c3985),
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Consumer(
+              builder: (context, ref, child) {
+                final restaurantesAsync = ref.watch(sugestoesProximasProvider);
+                return restaurantesAsync.when(
+                  data: (restaurantes) {
+                    if (restaurantes.isEmpty) {
+                      return const Center(
+                        child: Text('Nenhum restaurante encontrado'),
+                      );
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: restaurantes.length,
+                      itemBuilder: (context, index) {
+                        final restaurante = restaurantes[index];
+                        return _buildRestauranteItem(restaurante);
+                      },
+                    );
+                  },
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (error, stack) => Center(
+                    child: Text('Erro: $error'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRestauranteItem(dynamic restaurante) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: const Color(0xFFee9d21).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.restaurant,
+            color: Color(0xFFee9d21),
+          ),
+        ),
+        title: Text(
+          restaurante.nome,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2c3985),
+          ),
+        ),
+        subtitle: Text(restaurante.tipo),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: Colors.grey,
+        ),
+        onTap: () {
+          Navigator.pop(context);
+          _mostrarRegistrarExperiencia(restaurante);
+        },
+      ),
+    );
+  }
+
+  void _mostrarRegistrarExperiencia(dynamic restaurante) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: RegistrarExperiencia(
+          restaurante: restaurante,
+          onSalvar: () {
+            _refreshExperiencias();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('✅ Experiência registrada com sucesso!'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -117,6 +273,42 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
           ),
         ),
       ),
+      floatingActionButton: experiencias.when(
+        data: (experienciasList) => experienciasList.isEmpty 
+          ? _buildAnimatedFAB()
+          : _buildNormalFAB(),
+        loading: () => _buildNormalFAB(),
+        error: (_, __) => _buildNormalFAB(),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedFAB() {
+    return AnimatedBuilder(
+      animation: _fadeController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: 1.0 + (_fadeController.value * 0.1),
+          child: FloatingActionButton.extended(
+            onPressed: _mostrarSeletorRestaurante,
+            backgroundColor: const Color(0xFF2c3985),
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.add),
+            label: const Text('Nova Experiência'),
+            elevation: 6 + (_fadeController.value * 2),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNormalFAB() {
+    return FloatingActionButton.extended(
+      onPressed: _mostrarSeletorRestaurante,
+      backgroundColor: const Color(0xFF2c3985),
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.add),
+      label: const Text('Nova Experiência'),
     );
   }
 
@@ -512,29 +704,88 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
                 color: Color(0xFF2c3985),
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Você ainda não registrou nenhuma experiência.\n\nVisite restaurantes e compartilhe suas avaliações!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-                height: 1.5,
-              ),
-            ),
+                                    const SizedBox(height: 12),
+                        Text(
+                          'Você ainda não registrou nenhuma experiência.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Visite restaurantes e compartilhe suas avaliações!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2c3985).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF2c3985).withOpacity(0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.lightbulb_outline,
+                                color: Color(0xFF2c3985),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Clique no botão "+" para adicionar sua primeira experiência!',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: const Color(0xFF2c3985),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
             const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.explore),
-              label: const Text('Explorar Restaurantes'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2c3985),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Column(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _mostrarSeletorRestaurante,
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: const Text('Registrar Primeira Experiência'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2c3985),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.explore),
+                  label: const Text('Explorar Restaurantes'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF2c3985),
+                    side: const BorderSide(color: Color(0xFF2c3985)),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

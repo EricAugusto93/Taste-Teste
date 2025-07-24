@@ -70,6 +70,13 @@ export default function RestauranteForm({ restaurante, onSubmit, onCancel }: Res
     }))
   }
 
+  const removeTag = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index)
+    }))
+  }
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -133,201 +140,242 @@ export default function RestauranteForm({ restaurante, onSubmit, onCancel }: Res
   }
 
   return (
-    <div className="max-h-[80vh] overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">
-          {restaurante ? 'Editar Restaurante' : 'Adicionar Novo Restaurante'}
-        </h3>
-        <button
-          onClick={onCancel}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+    <div className="min-h-screen bg-orange-50">
+      <div className="max-w-4xl mx-auto py-8 px-6 sm:px-8 lg:px-12">
+        <div className="bg-white rounded-2xl shadow-xl border border-orange-200 overflow-hidden">
+          <div className="px-8 py-6 max-h-[80vh] overflow-y-auto">
+            {/* Header Elegante */}
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-orange-200">
+              <div>
+                <h3 className="text-xl font-bold text-blue-600">
+                  {restaurante ? 'Editar Restaurante' : 'Adicionar Novo Restaurante'}
+                </h3>
+                <p className="text-sm text-blue-600/60 mt-1">
+                  {restaurante ? 'Atualize as informações do restaurante' : 'Preencha os dados do novo restaurante'}
+                </p>
+              </div>
+              <button
+                onClick={onCancel}
+                className="text-blue-600/40 hover:text-blue-600 transition-all duration-200 p-2 rounded-lg hover:bg-orange-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Nome */}
-        <div>
-          <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
-            Nome do Restaurante *
-          </label>
-          <input
-            type="text"
-            id="nome"
-            name="nome"
-            value={formData.nome}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Digite o nome do restaurante"
-            required
-          />
-        </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Nome - Campo Principal */}
+              <div>
+                <label htmlFor="nome" className="block text-sm font-semibold text-blue-600 mb-2">
+                  Nome do Restaurante *
+                </label>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 placeholder-blue-600/40"
+                  placeholder="Digite o nome do restaurante"
+                  required
+                />
+              </div>
 
-        {/* Tipo */}
-        <div>
-          <label htmlFor="tipo" className="block text-sm font-medium text-gray-700 mb-1">
-            Tipo de Cozinha *
-          </label>
-          <select
-            id="tipo"
-            name="tipo"
-            value={formData.tipo}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            required
-          >
-            <option value="">Selecione o tipo</option>
-            {tiposRestaurante.map(tipo => (
-              <option key={tipo} value={tipo}>{tipo}</option>
-            ))}
-          </select>
-        </div>
+              {/* Tipo - Seleção Elegante */}
+              <div>
+                <label htmlFor="tipo" className="block text-sm font-semibold text-blue-600 mb-2">
+                  Tipo de Cozinha *
+                </label>
+                <select
+                  id="tipo"
+                  name="tipo"
+                  value={formData.tipo}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600"
+                  required
+                >
+                  <option value="" className="text-blue-600/60">Selecione o tipo</option>
+                  {tiposRestaurante.map(tipo => (
+                    <option key={tipo} value={tipo} className="text-blue-600">{tipo}</option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Descrição */}
-        <div>
-          <label htmlFor="descricao" className="block text-sm font-medium text-gray-700 mb-1">
-            Descrição *
-          </label>
-          <textarea
-            id="descricao"
-            name="descricao"
-            value={formData.descricao}
-            onChange={handleInputChange}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Descreva o restaurante..."
-            required
-          />
-        </div>
+              {/* Descrição */}
+              <div>
+                <label htmlFor="descricao" className="block text-sm font-semibold text-blue-600 mb-2">
+                  Descrição *
+                </label>
+                <textarea
+                  id="descricao"
+                  name="descricao"
+                  value={formData.descricao}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 placeholder-blue-600/40 resize-none"
+                  placeholder="Descreva o restaurante, sua especialidade, ambiente..."
+                  required
+                />
+              </div>
 
-        {/* Coordenadas */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
-              Latitude *
-            </label>
-            <input
-              type="number"
-              id="latitude"
-              name="latitude"
-              value={formData.latitude}
-              onChange={handleInputChange}
-              step="any"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="-23.5505"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
-              Longitude *
-            </label>
-            <input
-              type="number"
-              id="longitude"
-              name="longitude"
-              value={formData.longitude}
-              onChange={handleInputChange}
-              step="any"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="-46.6333"
-              required
-            />
-          </div>
-        </div>
+              {/* Coordenadas - Layout em Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="latitude" className="block text-sm font-semibold text-blue-600 mb-2">
+                    Latitude *
+                  </label>
+                  <input
+                    type="number"
+                    id="latitude"
+                    name="latitude"
+                    value={formData.latitude || ''}
+                    onChange={handleInputChange}
+                    step="any"
+                    className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 placeholder-blue-600/40"
+                    placeholder="Ex: -30.0342"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="longitude" className="block text-sm font-semibold text-blue-600 mb-2">
+                    Longitude *
+                  </label>
+                  <input
+                    type="number"
+                    id="longitude"
+                    name="longitude"
+                    value={formData.longitude || ''}
+                    onChange={handleInputChange}
+                    step="any"
+                    className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 placeholder-blue-600/40"
+                    placeholder="Ex: -51.2173"
+                    required
+                  />
+                </div>
+              </div>
 
-        {/* Tags */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tags
-          </label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              placeholder="Digite uma tag e pressione Enter"
-            />
-            <button
-              type="button"
-              onClick={handleAddTag}
-              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-200"
-            >
-              Adicionar
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {formData.tags.map((tag, index) => (
-              <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
-                {tag}
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-semibold text-blue-600 mb-2">
+                  Tags e Características
+                </label>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleAddTag()
+                        }
+                      }}
+                      className="flex-1 px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 placeholder-blue-600/40"
+                      placeholder="Digite uma tag e pressione Enter"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddTag}
+                      className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium whitespace-nowrap"
+                    >
+                      ➕ Adicionar
+                    </button>
+                  </div>
+                  
+                  {formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-2 bg-orange-100 text-blue-600 rounded-lg text-sm font-medium"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(index)}
+                                                         className="text-blue-600/60 hover:text-red-600 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Upload de Imagem */}
+              <div>
+                <label className="block text-sm font-semibold text-blue-600 mb-2">
+                  Imagem do Restaurante
+                </label>
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full px-4 py-3 border border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all duration-200 bg-white text-blue-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-100 file:text-blue-600 hover:file:bg-orange-200"
+                    disabled={uploadingImage}
+                  />
+                  
+                  {formData.imagem_url && (
+                    <div className="relative">
+                      <img
+                        src={formData.imagem_url}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-xl border border-orange-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, imagem_url: '' }))}
+                                                 className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Mensagem de Erro */}
+              {error && (
+                                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                   <p className="text-red-800 text-sm font-medium">❌ {error}</p>
+                </div>
+              )}
+
+              {/* Botões de Ação */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6">
                 <button
                   type="button"
-                  onClick={() => handleRemoveTag(tag)}
-                  className="ml-2 text-orange-600 hover:text-orange-800"
+                  onClick={onCancel}
+                                     className="flex-1 px-6 py-3 border border-orange-300 text-blue-600 rounded-xl font-semibold hover:bg-orange-50 transition-all duration-200"
                 >
-                  ×
+                  ↩️ Cancelar
                 </button>
-              </span>
-            ))}
+                <button
+                  type="submit"
+                  disabled={loading || uploadingImage}
+                                     className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-white"></div>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      {restaurante ? '✏️ Atualizar' : '✨ Criar'}
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        {/* Upload de Imagem */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Imagem do Restaurante
-          </label>
-          <div className="flex items-center space-x-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-            />
-            {uploadingImage && (
-              <div className="text-sm text-gray-500">Enviando...</div>
-            )}
-          </div>
-          {formData.imagem_url && (
-            <div className="mt-2">
-              <img
-                src={formData.imagem_url}
-                alt="Preview"
-                className="h-20 w-20 object-cover rounded-lg"
-              />
-            </div>
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-            {error}
-          </div>
-        )}
-
-        {/* Botões */}
-        <div className="flex justify-end space-x-3 pt-6 border-t">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={loading || uploadingImage}
-            className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
-          >
-            {loading ? 'Salvando...' : restaurante ? 'Atualizar' : 'Criar'}
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   )
 } 
