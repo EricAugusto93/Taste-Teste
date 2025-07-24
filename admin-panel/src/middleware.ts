@@ -7,26 +7,43 @@ export async function middleware(req: NextRequest) {
   // Verifica autenticação apenas para dashboard
   if (req.nextUrl.pathname.startsWith('/dashboard')) {
     
-    // Por enquanto, vamos apenas logar e permitir acesso para debug
     const cookies = req.cookies.getAll()
     console.log('🍪 Todos os cookies:', cookies.map(c => c.name).join(', '))
     
-    // Verificar se há localStorage através de uma verificação menos restritiva
-    const hasAnyAuth = cookies.some(cookie => 
-      cookie.name.includes('auth') || 
-      cookie.name.includes('supabase') || 
-      cookie.name.includes('sb-')
+    // Procurar especificamente pelos cookies do Supabase (vários formatos possíveis)
+    const supabaseTokens = cookies.filter(cookie => 
+      cookie.name.includes('sb-gnosarnyuiyrbcdwkfto') ||
+      cookie.name.includes('supabase-auth-token') ||
+      cookie.name.includes('sb-') ||
+      cookie.name.includes('auth-token')
     )
     
-    console.log('🔐 Tem algum cookie de auth:', hasAnyAuth)
+    console.log('🔐 Tokens Supabase encontrados:', supabaseTokens.length)
+    console.log('📝 Nomes dos tokens:', supabaseTokens.map(t => t.name))
     
-    // Temporariamente, vamos ser mais permissivos para debug
-    if (!hasAnyAuth) {
-      console.log('⚠️ Sem cookies de auth detectados, mas permitindo acesso para debug')
-      // return NextResponse.redirect(new URL('/login', req.url))
+    // Se tem tokens específicos do Supabase, permitir acesso
+    if (supabaseTokens.length > 0) {
+      console.log('✅ Tokens Supabase encontrados, permitindo acesso')
+      return NextResponse.next()
     }
-
-    console.log('✅ Permitindo acesso ao dashboard')
+    
+    // Verificar se há localStorage session (via header ou referrer)
+    const hasLocalStorageHint = req.headers.get('referer')?.includes('/login')
+    
+    if (hasLocalStorageHint) {
+      console.log('🟡 Vindo do login, permitindo acesso para verificar localStorage')
+      return NextResponse.next()
+    }
+    
+    console.log('⚠️ Permitindo acesso temporariamente para debug completo')
+    console.log('🔧 Login está funcionando, middleware será permissivo por enquanto')
+    
+    // Permitir acesso temporariamente - remover quando tudo estiver funcionando
+    return NextResponse.next()
+    
+    // Quando quiser ativar redirecionamento:
+    // console.log('❌ Nenhum token encontrado, redirecionando para login')
+    // return NextResponse.redirect(new URL('/login', req.url))
   }
 
   return NextResponse.next()

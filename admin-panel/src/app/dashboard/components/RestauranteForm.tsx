@@ -112,13 +112,21 @@ export default function RestauranteForm({ restaurante, onSubmit, onCancel }: Res
       if (formData.latitude === 0 || formData.longitude === 0) {
         throw new Error('Coordenadas são obrigatórias')
       }
+      
+      // Validar limites de coordenadas geográficas
+      if (formData.latitude < -90 || formData.latitude > 90) {
+        throw new Error('Latitude deve estar entre -90 e 90')
+      }
+      if (formData.longitude < -180 || formData.longitude > 180) {
+        throw new Error('Longitude deve estar entre -180 e 180')
+      }
 
       const dados = {
         nome: formData.nome.trim(),
         tipo: formData.tipo.trim(),
         descricao: formData.descricao.trim(),
-        latitude: formData.latitude,
-        longitude: formData.longitude,
+        latitude: parseFloat(formData.latitude.toFixed(6)), // Limitar a 6 casas decimais 
+        longitude: parseFloat(formData.longitude.toFixed(6)), // Limitar a 6 casas decimais
         tags: formData.tags,
         imagem_url: formData.imagem_url || undefined
       }

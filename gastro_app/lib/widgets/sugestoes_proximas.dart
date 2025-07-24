@@ -24,42 +24,33 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
   }
 
   Future<void> _solicitarLocalizacao() async {
-    ref.read(statusLocalizacaoProvider.notifier).update(
-      (state) => LocalizacaoStatus.solicitando,
-    );
+    ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtendo;
 
     final resultado = await LocalizacaoService.obterLocalizacaoAtual();
     
-    if (resultado.sucesso && resultado.posicao != null) {
-      ref.read(localizacaoAtualProvider.notifier).update(
-        (state) => resultado.posicao,
-      );
-      ref.read(statusLocalizacaoProvider.notifier).update(
-        (state) => LocalizacaoStatus.permitida,
-      );
-      ref.read(configuracaoDistanciaProvider.notifier).update(
-        (state) => state.copyWith(usando_localizacao_real: true),
-      );
-    } else {
-      // Atualizar status baseado no tipo de erro
-      LocalizacaoStatus novoStatus;
-      switch (resultado.tipoErro) {
-        case TipoErroLocalizacao.permissaoNegada:
-          novoStatus = LocalizacaoStatus.negada;
-          break;
-        case TipoErroLocalizacao.permissaoNegadaPermanente:
-          novoStatus = LocalizacaoStatus.negadaPermanente;
-          break;
-        case TipoErroLocalizacao.servicoDesabilitado:
-          novoStatus = LocalizacaoStatus.servicoDesabilitado;
-          break;
-        default:
-          novoStatus = LocalizacaoStatus.erro;
-      }
+    try {
+      final position = await LocalizacaoService.getCurrentPosition();
       
-      ref.read(statusLocalizacaoProvider.notifier).update(
-        (state) => novoStatus,
-      );
+      if (position != null) {
+        final location = {
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+        };
+        
+        ref.read(localizacaoAtualProvider.notifier).state = location;
+        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtida;
+        ref.read(usandoFallbackProvider.notifier).state = false;
+      } else {
+        final fallbackLocation = LocalizacaoService.getFallbackLocation();
+        ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
+        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.fallback;
+        ref.read(usandoFallbackProvider.notifier).state = true;
+      }
+    } catch (e) {
+      final fallbackLocation = LocalizacaoService.getFallbackLocation();
+      ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
+      ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.erro;
+      ref.read(usandoFallbackProvider.notifier).state = true;
     }
   }
 
@@ -140,8 +131,8 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
                     ],
                   ),
                 ),
-                if (statusLocalizacao == LocalizacaoStatus.negada ||
-                    statusLocalizacao == LocalizacaoStatus.servicoDesabilitado)
+                if (statusLocalizacao == StatusLocalizacao.negada ||
+                    statusLocalizacao == StatusLocalizacao.servicoDesabilitado)
                   TextButton.icon(
                     onPressed: _reativarLocalizacao,
                     icon: const Icon(Icons.refresh, size: 16),
@@ -150,7 +141,7 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
                       foregroundColor: Colors.deepOrange,
                     ),
                   ),
-                if (statusLocalizacao == LocalizacaoStatus.negadaPermanente)
+                if (statusLocalizacao == StatusLocalizacao.negadaPermanentemente)
                   TextButton.icon(
                     onPressed: () async {
                       await LocalizacaoService.abrirConfiguracoesApp();
@@ -344,34 +335,37 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
     );
   }
 
-  String _getTituloSugestoes(LocalizacaoStatus status, ConfiguracaoDistancia config) {
+  String _getTituloSugestoes(StatusLocalizacao status, Map<String, dynamic> config) {
     switch (status) {
-      case LocalizacaoStatus.solicitando:
+      case StatusLocalizacao.obtendo:
         return 'Obtendo sua localização...';
-      case LocalizacaoStatus.permitida:
+      case StatusLocalizacao.obtida:
         return 'Sugestões próximas';
-      case LocalizacaoStatus.negada:
+      case StatusLocalizacao.negada:
         return 'Permissão de localização negada';
-      case LocalizacaoStatus.negadaPermanente:
+      case StatusLocalizacao.negadaPermanentemente:
         return 'Localização bloqueada';
-      case LocalizacaoStatus.servicoDesabilitado:
+      case StatusLocalizacao.servicoDesabilitado:
         return 'Localização desabilitada';
+      case StatusLocalizacao.fallback:
+        return 'Restaurantes próximos';
       default:
         return 'Restaurantes em destaque';
     }
   }
 
-  String _getSubtituloSugestoes(LocalizacaoStatus status, ConfiguracaoDistancia config) {
+  String _getSubtituloSugestoes(StatusLocalizacao status, Map<String, dynamic> config) {
     switch (status) {
-      case LocalizacaoStatus.solicitando:
+      case StatusLocalizacao.obtendo:
         return 'Aguarde um momento...';
-      case LocalizacaoStatus.permitida:
-        return 'Lugares até ${LocalizacaoService.formatarDistancia(config.raioAtual)} de você';
-      case LocalizacaoStatus.negada:
+      case StatusLocalizacao.obtida:
+      case StatusLocalizacao.fallback:
+        return 'Lugares até ${(config['raioMaximo'] ?? 10.0).toStringAsFixed(0)} km de você';
+      case StatusLocalizacao.negada:
         return 'Toque em "Tentar" para permitir localização';
-      case LocalizacaoStatus.negadaPermanente:
+      case StatusLocalizacao.negadaPermanentemente:
         return 'Ative nas configurações do app';
-      case LocalizacaoStatus.servicoDesabilitado:
+      case StatusLocalizacao.servicoDesabilitado:
         return 'Ative a localização no seu dispositivo';
       default:
         return 'Baseado na região de São Paulo';

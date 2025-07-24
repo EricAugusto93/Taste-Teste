@@ -119,8 +119,6 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
         tipo: respostaIA['tipo'],
         tags: respostaIA['tags']?.cast<String>(),
         localizacao: respostaIA['localizacao'],
-        ambiente: respostaIA['ambiente'],
-        faixaPreco: respostaIA['faixaPreco']?.toDouble(),
       );
 
       ref.read(estadoBuscaProvider.notifier).update((state) => {

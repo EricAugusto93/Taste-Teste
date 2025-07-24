@@ -8,7 +8,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false
+    detectSessionInUrl: false,
+    flowType: 'pkce',
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined
   }
 })
 
@@ -145,15 +147,27 @@ export const restaurantesAPI = {
   // Criar novo restaurante
   create: async (restaurante: Omit<Restaurante, 'id'>) => {
     try {
+      console.log('🚀 Criando restaurante:', restaurante)
+      
+      // Verificar sessão atual
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('👤 Sessão atual:', session?.user?.email || 'NENHUMA')
+      
       const { data, error } = await supabase
         .from('restaurantes')
         .insert([restaurante])
         .select()
         .single()
       
-      if (error) throw error
+      if (error) {
+        console.error('❌ Erro na inserção:', error)
+        throw error
+      }
+      
+      console.log('✅ Restaurante criado com sucesso:', data)
       return data as Restaurante
     } catch (error) {
+      console.error('💥 Erro geral na criação:', error)
       return handleApiError(error)
     }
   },
@@ -194,22 +208,37 @@ export const restaurantesAPI = {
 export const storage = {
   uploadImage: async (file: File, folder: string = 'restaurantes') => {
     try {
+      console.log('📁 Fazendo upload da imagem:', file.name, 'Tamanho:', file.size)
+      
+      // Verificar sessão atual
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('👤 Sessão para upload:', session?.user?.email || 'NENHUMA')
+      
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}.${fileExt}`
       const filePath = `${folder}/${fileName}`
+
+      console.log('📂 Caminho do arquivo:', filePath)
 
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filePath, file)
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Erro no upload:', error)
+        throw error
+      }
+
+      console.log('✅ Upload realizado:', data.path)
 
       const { data: { publicUrl } } = supabase.storage
         .from('images')
         .getPublicUrl(filePath)
 
+      console.log('🔗 URL pública gerada:', publicUrl)
       return publicUrl
     } catch (error) {
+      console.error('💥 Erro geral no upload:', error)
       return handleApiError(error)
     }
   },

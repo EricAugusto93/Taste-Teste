@@ -92,29 +92,35 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 80),
-                    
-                    // Logo centralizado
-                    _buildCleanHeader(),
-                    
-                    const SizedBox(height: 60),
-                    
-                    // Card de autenticação minimalista
-                    _buildCleanAuthCard(),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // Rodapé simples
-                    _buildCleanFooter(),
-                    
-                    const SizedBox(height: 30),
-                  ],
+            child: Center(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 80),
+                      
+                      // Logo centralizado
+                      _buildCleanHeader(),
+                      
+                      const SizedBox(height: 60),
+                      
+                      // Card de autenticação minimalista
+                      _buildCleanAuthCard(),
+                      
+                      const SizedBox(height: 40),
+                      
+                      // Rodapé simples
+                      _buildCleanFooter(),
+                      
+                      const SizedBox(height: 30),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -178,7 +184,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   Widget _buildCleanAuthCard() {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: 400),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
@@ -329,4 +334,4 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       _setLoading(false);
     }
   }
-} 
+}

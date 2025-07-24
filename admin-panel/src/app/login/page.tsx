@@ -66,8 +66,9 @@ export default function LoginPage() {
       
       // Aguardar um pouco para garantir que os cookies sejam definidos
       setTimeout(() => {
-        router.push('/dashboard')
-      }, 100)
+        // Usar window.location para forçar uma navegação completa
+        window.location.href = '/dashboard'
+      }, 500)
       
     } catch (err: any) {
       console.error('💥 Erro no processo de login:', err)

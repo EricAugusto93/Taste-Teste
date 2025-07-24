@@ -8,50 +8,57 @@ export default function AcessoNegadoPage() {
 
   const handleLogout = async () => {
     await auth.signOut()
-    localStorage.removeItem('admin-session')
+    router.push('/login')
+  }
+
+  const handleGoBack = () => {
     router.push('/login')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 text-center">
-        <div>
-          <svg
-            className="mx-auto h-16 w-16 text-red-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-            />
-          </svg>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Acesso Negado
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Você não tem permissão para acessar este painel administrativo.
-          </p>
-          <p className="mt-1 text-sm text-gray-500">
-            Apenas usuários autorizados podem gerenciar o sistema.
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-4">
-          <button
-            onClick={handleLogout}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200"
-          >
-            Sair e Voltar ao Login
-          </button>
-          
+    <div className="min-h-screen bg-orange-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="bg-white shadow-xl rounded-2xl p-8 border border-red-200">
           <div className="text-center">
-            <p className="text-xs text-gray-500">
-              Se você acredita que deveria ter acesso, entre em contato com o administrador do sistema.
+            <div className="mx-auto h-16 w-16 bg-red-500 rounded-full flex items-center justify-center mb-4">
+              <span className="text-white text-2xl font-bold">🚫</span>
+            </div>
+            
+            <h1 className="text-2xl font-bold text-red-600 mb-2">
+              Acesso Negado
+            </h1>
+            
+            <p className="text-red-600/70 text-sm mb-6">
+              Você não tem permissão para acessar o painel administrativo.
             </p>
+            
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+              <p className="text-red-800 text-sm">
+                ❌ <strong>Erro:</strong> Usuário não autorizado como administrador
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <button
+                onClick={handleLogout}
+                className="w-full px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                🚪 Fazer Logout
+              </button>
+              
+              <button
+                onClick={handleGoBack}
+                className="w-full px-6 py-3 border border-red-300 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                ↩️ Voltar ao Login
+              </button>
+            </div>
+            
+            <div className="mt-6 text-center">
+              <p className="text-xs text-red-500/60">
+                Entre em contato com o administrador do sistema para obter acesso
+              </p>
+            </div>
           </div>
         </div>
       </div>

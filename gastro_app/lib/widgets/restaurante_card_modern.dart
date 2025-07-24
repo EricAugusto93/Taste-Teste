@@ -83,14 +83,15 @@ class _RestauranteCardModernState extends ConsumerState<RestauranteCardModern>
 
   void _toggleFavorite() async {
     try {
-      final isFavoriteNow = ref.read(favoritosProvider).when(
-        data: (favoritos) => favoritos.any((fav) => fav.restauranteId == widget.restaurante.id),
-        loading: () => false,
-        error: (_, __) => false,
-      );
+      final favoritosSet = ref.read(favoritosProvider);
+      final isFavoriteNow = favoritosSet.contains(widget.restaurante.id);
       
-      await ref.read(usuarioServiceProvider).toggleFavorito(widget.restaurante.id);
-      ref.invalidate(favoritosProvider);
+      // Atualizar o conjunto de favoritos localmente
+      if (isFavoriteNow) {
+        ref.read(favoritosProvider.notifier).state = {...favoritosSet}..remove(widget.restaurante.id);
+      } else {
+        ref.read(favoritosProvider.notifier).state = {...favoritosSet, widget.restaurante.id};
+      }
 
       // Mostrar feedback
       if (mounted) {
@@ -128,11 +129,7 @@ class _RestauranteCardModernState extends ConsumerState<RestauranteCardModern>
   @override
   Widget build(BuildContext context) {
     final favoritos = ref.watch(favoritosProvider);
-    final isFavorite = favoritos.when(
-      data: (favs) => favs.contains(widget.restaurante.id),
-      loading: () => false,
-      error: (_, __) => false,
-    );
+    final isFavorite = favoritos.contains(widget.restaurante.id);
 
     return AnimatedBuilder(
       animation: _scaleAnimation,
