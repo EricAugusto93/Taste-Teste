@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -49,16 +50,28 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 final currentUserProvider = Provider<User?>((ref) {
   final authState = ref.watch(authStateProvider);
   return authState.when(
-    data: (state) => state.session?.user,
-    loading: () => null,
-    error: (_, __) => null,
+    data: (state) {
+      final user = state.session?.user;
+      print('👤 [currentUserProvider] AuthState data - User: ${user?.id ?? 'null'}');
+      return user;
+    },
+    loading: () {
+      print('⏳ [currentUserProvider] AuthState loading');
+      return null;
+    },
+    error: (error, stack) {
+      print('❌ [currentUserProvider] AuthState error: $error');
+      return null;
+    },
   );
 });
 
 /// Provider para verificar se usuário está autenticado
 final isAuthenticatedProvider = Provider<bool>((ref) {
   final user = ref.watch(currentUserProvider);
-  return user != null;
+  final isAuth = user != null;
+  print('🔐 [isAuthenticatedProvider] User: ${user?.id ?? 'null'}, isAuth: $isAuth');
+  return isAuth;
 });
 
 /// Provider para dados completos do usuário atual (da tabela usuarios)
@@ -67,9 +80,30 @@ final usuarioAtualProvider = FutureProvider<Usuario?>((ref) async {
   if (authUser == null) return null;
   
   try {
-    return await UsuarioService.obterUsuarioAtual();
+    // Tentar obter usuário existente
+    var usuario = await UsuarioService.obterUsuarioAtual();
+    
+    // Se não existe, sincronizar automaticamente
+    if (usuario == null) {
+      debugPrint('🔄 Usuário não encontrado na tabela, sincronizando...');
+      usuario = await UsuarioService.sincronizarUsuario();
+      debugPrint('✅ Usuário sincronizado: ${usuario.email}');
+    }
+    
+    return usuario;
   } catch (e) {
-    return null;
+    debugPrint('❌ Erro no usuarioAtualProvider: $e');
+    
+    // Tentar sincronizar como fallback
+    try {
+      debugPrint('🔄 Tentando sincronização de emergência...');
+      final usuario = await UsuarioService.sincronizarUsuario();
+      debugPrint('✅ Sincronização de emergência bem-sucedida');
+      return usuario;
+    } catch (syncError) {
+      debugPrint('❌ Erro na sincronização de emergência: $syncError');
+      return null;
+    }
   }
 });
 
@@ -78,7 +112,7 @@ final usuarioAtualProvider = FutureProvider<Usuario?>((ref) async {
 // ============================================
 
 /// Provider para status da localização
-final statusLocalizacaoProvider = StateProvider<StatusLocalizacao>((ref) => StatusLocalizacao.desconhecido);
+final statusLocalizacaoProvider = StateProvider<StatusLocalizacao>((ref) => StatusLocalizacao.inicial);
 
 /// Provider para localização atual do usuário
 final localizacaoAtualProvider = StateProvider<Map<String, double>?>((ref) => null);
@@ -111,20 +145,47 @@ final obterLocalizacaoProvider = FutureProvider<Map<String, double>>((ref) async
 
 /// Helper para inicializar localização de forma segura
 class LocalizacaoManager {
+  static const double _distanciaMinimaMudanca = 0.1; // 100 metros
+  
   static Future<void> inicializarLocalizacao(WidgetRef ref) async {
     try {
+      final statusAtual = ref.read(statusLocalizacaoProvider);
+      
+      // Evitar re-inicialização se já está obtendo
+      if (statusAtual == StatusLocalizacao.obtendo) {
+        return;
+      }
+      
       ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtendo;
       
       final position = await LocalizacaoService.getCurrentPosition();
       
       if (position != null) {
-        final location = {
+        final novaLocalizacao = {
           'latitude': position.latitude,
           'longitude': position.longitude,
         };
         
+        // Verificar se a localização mudou significativamente
+        final localizacaoAtual = ref.read(localizacaoAtualProvider);
+        bool deveAtualizar = true;
+        
+        if (localizacaoAtual != null) {
+          final distancia = LocalizacaoService.calcularDistancia(
+            localizacaoAtual['latitude']!,
+            localizacaoAtual['longitude']!,
+            position.latitude,
+            position.longitude,
+          );
+          
+          // Só atualizar se a mudança for significativa
+          deveAtualizar = distancia >= _distanciaMinimaMudanca;
+        }
+        
         try {
-          ref.read(localizacaoAtualProvider.notifier).state = location;
+          if (deveAtualizar) {
+            ref.read(localizacaoAtualProvider.notifier).state = novaLocalizacao;
+          }
           ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtida;
           ref.read(usandoFallbackProvider.notifier).state = false;
         } catch (e) {
@@ -174,46 +235,61 @@ final todosRestaurantesProvider = FutureProvider<List<Restaurante>>((ref) async 
   return await RestauranteService.obterTodos();
 });
 
-/// Provider para restaurantes próximos baseado na localização e raio
-final restaurantesProximosProvider = FutureProvider<List<RestauranteComDistancia>>((ref) async {
+/// Provider para todos os restaurantes com distância calculada (cache)
+final restaurantesComDistanciaProvider = FutureProvider<List<RestauranteComDistancia>>((ref) async {
   final localizacao = ref.watch(localizacaoAtualProvider);
-  final raio = ref.watch(raioBuscaProvider);
-  
-  print('🔍 restaurantesProximosProvider: localização=$localizacao, raio=$raio');
+  final todosRestaurantesAsync = ref.watch(todosRestaurantesProvider);
   
   // Se não tem localização, usar fallback
   final localizacaoFinal = localizacao ?? LocalizacaoService.getFallbackLocation();
-  print('📍 Localização final: $localizacaoFinal');
   
-  try {
-    // Buscar todos os restaurantes
-    final todosRestaurantes = await RestauranteService.obterTodos();
-    print('🍽️ Total de restaurantes encontrados: ${todosRestaurantes.length}');
-    
-    // Filtrar e ordenar por proximidade
-    final restaurantesComDistancia = todosRestaurantes
-        .map((restaurante) {
-          final distancia = LocalizacaoService.calcularDistancia(
-            localizacaoFinal['latitude']!,
-            localizacaoFinal['longitude']!,
-            restaurante.latitude,
-            restaurante.longitude,
-          );
-          return RestauranteComDistancia(restaurante, distancia);
-        })
-        .where((item) => item.distancia <= raio)
-        .toList();
+  return todosRestaurantesAsync.when(
+    data: (todosRestaurantes) {
+      try {
+        // Calcular distância uma vez e cachear
+        final restaurantesComDistancia = todosRestaurantes
+            .map((restaurante) {
+              final distancia = LocalizacaoService.calcularDistancia(
+                localizacaoFinal['latitude']!,
+                localizacaoFinal['longitude']!,
+                restaurante.latitude,
+                restaurante.longitude,
+              );
+              return RestauranteComDistancia(restaurante, distancia);
+            })
+            .toList();
 
-    print('📏 Restaurantes dentro do raio: ${restaurantesComDistancia.length}');
+        // Ordenar por distância uma vez
+        restaurantesComDistancia.sort((a, b) => a.distancia.compareTo(b.distancia));
+        
+        return restaurantesComDistancia;
+      } catch (e) {
+        debugPrint('Erro em restaurantesComDistanciaProvider: $e');
+        return <RestauranteComDistancia>[];
+      }
+    },
+    loading: () => <RestauranteComDistancia>[],
+    error: (_, __) => <RestauranteComDistancia>[],
+  );
+});
 
-    // Ordenar por distância
-    restaurantesComDistancia.sort((a, b) => a.distancia.compareTo(b.distancia));
-    
-    return restaurantesComDistancia;
-  } catch (e) {
-    print('❌ Erro em restaurantesProximosProvider: $e');
-    return [];
-  }
+/// Provider para restaurantes próximos filtrados por raio (otimizado)
+final restaurantesProximosProvider = Provider<AsyncValue<List<RestauranteComDistancia>>>((ref) {
+  final raio = ref.watch(raioBuscaProvider);
+  final restaurantesComDistanciaAsync = ref.watch(restaurantesComDistanciaProvider);
+  
+  return restaurantesComDistanciaAsync.when(
+    data: (restaurantesComDistancia) {
+      // Filtrar apenas por raio (sem recalcular distâncias)
+      final restaurantesFiltrados = restaurantesComDistancia
+          .where((item) => item.distancia <= raio)
+          .toList();
+      
+      return AsyncValue.data(restaurantesFiltrados);
+    },
+    loading: () => const AsyncValue.loading(),
+    error: (error, stack) => AsyncValue.error(error, stack),
+  );
 });
 
 /// Provider para restaurantes filtrados por distância (NOVO - corrige erro)
@@ -273,37 +349,138 @@ final filtrosBuscaProvider = StateProvider<Map<String, dynamic>>((ref) {
 // PROVIDERS DE FAVORITOS (PROTEGIDOS)
 // ============================================
 
-/// Provider para controle de estado local dos favoritos (StateProvider)
-final favoritosProvider = StateProvider<Set<String>>((ref) => <String>{});
+/// Provider para conjunto de IDs de restaurantes favoritos do usuário
+final favoritosProvider = StateProvider<Set<String>>((ref) {
+  return <String>{};
+});
 
-/// Provider para IDs dos restaurantes favoritos do usuário
-final favoritosIdsProvider = FutureProvider<Set<String>>((ref) async {
+/// Provider para carregar favoritos do usuário autenticado
+final carregarFavoritosProvider = FutureProvider<Set<String>>((ref) async {
   final isAuth = ref.watch(isAuthenticatedProvider);
-  if (!isAuth) return <String>{};
+  if (!isAuth) {
+    return <String>{};
+  }
   
   try {
-    return await UsuarioService.obterFavoritos();
+    final favoritos = await UsuarioService.obterFavoritos();
+    return favoritos.toSet();
   } catch (e) {
+    debugPrint('Erro ao carregar favoritos: $e');
     return <String>{};
   }
 });
 
-/// Provider para lista completa dos restaurantes favoritos
+/// Provider para favoritos do usuário (atualizado automaticamente)
+final favoritosAtualizadosProvider = Provider<Set<String>>((ref) {
+  final favoritosCarregados = ref.watch(carregarFavoritosProvider);
+  return favoritosCarregados.when(
+    data: (favoritos) => favoritos,
+    loading: () => <String>{},
+    error: (_, __) => <String>{},
+  );
+});
+
+/// Provider para ações de favoritos (adicionar/remover)
+final favoritosActionsProvider = Provider<FavoritosActions>((ref) {
+  return FavoritosActions(ref);
+});
+
+/// Classe para gerenciar ações de favoritos
+class FavoritosActions {
+  final ProviderRef ref;
+  
+  FavoritosActions(this.ref);
+  
+  Future<void> toggleFavorito(String restauranteId) async {
+    try {
+      final usuarioAtual = ref.read(usuarioAtualProvider);
+      final usuario = usuarioAtual.value;
+      
+      if (usuario == null) {
+        throw Exception('Usuário não autenticado');
+      }
+      
+      final favoritos = ref.read(favoritosAtualizadosProvider);
+      
+      if (favoritos.contains(restauranteId)) {
+        await UsuarioService.removerFavorito(usuario.id, restauranteId);
+      } else {
+        await UsuarioService.adicionarFavorito(usuario.id, restauranteId);
+      }
+      
+      // Invalidar providers para recarregar dados
+      ref.invalidate(carregarFavoritosProvider);
+      ref.invalidate(restaurantesFavoritosProvider);
+    } catch (e) {
+      debugPrint('Erro ao alterar favorito: $e');
+      rethrow;
+    }
+  }
+  
+  Future<void> adicionarFavorito(String restauranteId) async {
+    try {
+      final usuarioAtual = ref.read(usuarioAtualProvider);
+      final usuario = usuarioAtual.value;
+      
+      if (usuario == null) {
+        throw Exception('Usuário não autenticado');
+      }
+      
+      await UsuarioService.adicionarFavorito(usuario.id, restauranteId);
+      ref.invalidate(carregarFavoritosProvider);
+      ref.invalidate(restaurantesFavoritosProvider);
+    } catch (e) {
+      debugPrint('Erro ao adicionar favorito: $e');
+      rethrow;
+    }
+  }
+  
+  Future<void> removerFavorito(String restauranteId) async {
+    try {
+      final usuarioAtual = ref.read(usuarioAtualProvider);
+      final usuario = usuarioAtual.value;
+      
+      if (usuario == null) {
+        throw Exception('Usuário não autenticado');
+      }
+      
+      await UsuarioService.removerFavorito(usuario.id, restauranteId);
+      ref.invalidate(carregarFavoritosProvider);
+      ref.invalidate(restaurantesFavoritosProvider);
+    } catch (e) {
+      debugPrint('Erro ao remover favorito: $e');
+      rethrow;
+    }
+  }
+}
+
+/// Provider para lista de restaurantes favoritos
 final restaurantesFavoritosProvider = FutureProvider<List<Restaurante>>((ref) async {
-  final favoritosIds = await ref.watch(favoritosIdsProvider.future);
-  if (favoritosIds.isEmpty) return <Restaurante>[];
+  final isAuth = ref.watch(isAuthenticatedProvider);
+  if (!isAuth) return <Restaurante>[];
   
   try {
+    // Obter IDs dos favoritos
+    final favoritosIds = await UsuarioService.obterFavoritos();
+    if (favoritosIds.isEmpty) return <Restaurante>[];
+    
+    // Buscar restaurantes pelos IDs
     return await RestauranteService.obterPorIds(favoritosIds.toList());
   } catch (e) {
+    debugPrint('Erro ao carregar restaurantes favoritos: $e');
     return <Restaurante>[];
   }
 });
 
 /// Provider para verificar se um restaurante específico é favorito
 final isFavoritoProvider = Provider.family<bool, String>((ref, restauranteId) {
-  final favoritos = ref.watch(favoritosProvider);
-  return favoritos.contains(restauranteId);
+  try {
+    final favoritos = ref.watch(favoritosAtualizadosProvider);
+    return favoritos.contains(restauranteId);
+  } catch (e) {
+    debugPrint('Erro ao verificar favorito: $e');
+    return false;
+  }
 });
 
 /// Provider para controle de loading de favoritos
@@ -315,12 +492,32 @@ final loadingFavoritoProvider = StateProvider.family<bool, String>((ref, restaur
 
 /// Provider para experiências do usuário
 final experienciasUsuarioProvider = FutureProvider<List<dynamic>>((ref) async {
+  print('🔄 [experienciasUsuarioProvider] Carregando experiências...');
+  print('⏰ [experienciasUsuarioProvider] Timestamp: ${DateTime.now()}');
+  
   final isAuth = ref.watch(isAuthenticatedProvider);
-  if (!isAuth) return [];
+  print('🔐 [experienciasUsuarioProvider] isAuthenticated: $isAuth');
+  
+  if (!isAuth) {
+    print('❌ [experienciasUsuarioProvider] Usuário não autenticado');
+    return [];
+  }
   
   try {
-    return await ExperienciaService.obterExperienciasUsuario();
-  } catch (e) {
+    print('🚀 [experienciasUsuarioProvider] Iniciando busca de experiências...');
+    final experiencias = await ExperienciaService.obterExperienciasUsuario();
+    print('✅ [experienciasUsuarioProvider] Experiências carregadas: ${experiencias.length}');
+    
+    // Log detalhado das experiências
+    for (int i = 0; i < experiencias.length; i++) {
+      final exp = experiencias[i];
+      print('📋 [experienciasUsuarioProvider] Exp $i: ${exp.experiencia?.emoji ?? 'N/A'} - ${exp.restaurante?.nome ?? 'N/A'}');
+    }
+    
+    return experiencias;
+  } catch (e, stackTrace) {
+    print('❌ [experienciasUsuarioProvider] Erro ao carregar experiências: $e');
+    print('🔍 [experienciasUsuarioProvider] Stack: $stackTrace');
     return [];
   }
 });
@@ -421,14 +618,19 @@ final usuarioServiceProvider = Provider<UsuarioService>((ref) => UsuarioService(
 
 /// Provider para serviço de experiências (alias para compatibilidade)  
 final experienciasProvider = FutureProvider<List<dynamic>>((ref) async {
-  return ref.watch(experienciasUsuarioProvider.future);
+  final experiencias = ref.watch(experienciasUsuarioProvider);
+  return experiencias.when(
+    data: (data) => data,
+    loading: () => [],
+    error: (_, __) => [],
+  );
 });
 
-/// Provider para contagem de restaurantes por faixa de distância
+/// Provider para contagem de restaurantes por faixa de distância (otimizado)
 final estatisticasProximidadeProvider = Provider<Map<String, int>>((ref) {
-  final restaurantesProximos = ref.watch(restaurantesProximosProvider);
+  final restaurantesProximosAsync = ref.watch(restaurantesProximosProvider);
   
-  return restaurantesProximos.when(
+  return restaurantesProximosAsync.when(
     data: (restaurantes) {
       int muitoProximo = 0; // <= 1km
       int proximo = 0; // 1-3km  
@@ -466,23 +668,27 @@ final estatisticasProximidadeProvider = Provider<Map<String, int>>((ref) {
   );
 });
 
-/// Provider para sugestões próximas (versão simplificada para debug)
-final sugestoesProximasProvider = FutureProvider<List<Restaurante>>((ref) async {
+/// Provider para sugestões próximas (versão otimizada)
+final sugestoesProximasProvider = Provider<AsyncValue<List<Restaurante>>>((ref) {
   try {
-    print('🔍 sugestoesProximasProvider: Iniciando busca...');
+    // Usar os restaurantes com distância já calculados
+    final restaurantesComDistanciaAsync = ref.watch(restaurantesComDistanciaProvider);
     
-    // Buscar todos os restaurantes diretamente
-    final todosRestaurantes = await RestauranteService.obterTodos();
-    print('🍽️ sugestoesProximasProvider: ${todosRestaurantes.length} restaurantes encontrados');
-    
-    // Retornar todos os restaurantes (máximo 10 para performance)
-    final result = todosRestaurantes.take(10).toList();
-    print('✅ sugestoesProximasProvider: Retornando ${result.length} restaurantes');
-    
-    return result;
+    return restaurantesComDistanciaAsync.when(
+      data: (restaurantesComDistancia) {
+        // Pegar os 10 mais próximos (já estão ordenados por distância)
+        final sugestoes = restaurantesComDistancia
+            .take(10)
+            .map((item) => item.restaurante)
+            .toList();
+        return AsyncValue.data(sugestoes);
+      },
+      loading: () => const AsyncValue.loading(),
+      error: (error, stack) => AsyncValue.error(error, stack),
+    );
   } catch (e) {
-    print('❌ Erro em sugestoesProximasProvider: $e');
-    return <Restaurante>[];
+    debugPrint('Erro em sugestoesProximasProvider: $e');
+    return AsyncValue.error(e, StackTrace.current);
   }
 }); 
 
@@ -507,4 +713,4 @@ final invalidarEstatisticasProvider = Provider<void Function(String)>((ref) {
     ref.invalidate(estatisticasRestauranteProvider);
     ref.invalidate(experienciaRestauranteProvider(restauranteId));
   };
-}); 
+});

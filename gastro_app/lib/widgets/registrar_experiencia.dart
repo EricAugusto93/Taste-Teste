@@ -23,32 +23,55 @@ class RegistrarExperiencia extends ConsumerStatefulWidget {
 }
 
 class _RegistrarExperienciaState extends ConsumerState<RegistrarExperiencia> {
-  final TextEditingController _comentarioController = TextEditingController();
+  late final TextEditingController _comentarioController;
   EmojiAvaliacao? _emojiSelecionado;
   bool _salvando = false;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
-    _inicializarDados();
+    _comentarioController = TextEditingController();
+    
+    // Inicializar com dados existentes se houver
+    if (widget.experienciaExistente != null) {
+      _comentarioController.text = widget.experienciaExistente!.comentario ?? '';
+      _emojiSelecionado = EmojiAvaliacao.fromEmoji(widget.experienciaExistente!.emoji);
+    }
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _comentarioController.dispose();
     super.dispose();
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
   }
 
   void _inicializarDados() {
     if (widget.experienciaExistente != null) {
       final experiencia = widget.experienciaExistente!;
-      _comentarioController.text = experiencia.comentario;
+      _comentarioController.text = experiencia.comentario ?? '';
       _emojiSelecionado = EmojiAvaliacao.fromEmoji(experiencia.emoji);
     }
   }
 
   Future<void> _salvarExperiencia() async {
+    // Prevenir execução múltipla
+    if (_salvando) {
+      debugPrint('⚠️ Salvamento já em andamento, ignorando...');
+      return;
+    }
+
+    debugPrint('🔄 Iniciando _salvarExperiencia...');
+    
     if (_emojiSelecionado == null) {
+      debugPrint('❌ Nenhum emoji selecionado');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, selecione uma avaliação'),
@@ -58,78 +81,104 @@ class _RegistrarExperienciaState extends ConsumerState<RegistrarExperiencia> {
       return;
     }
 
-    final usuarioAtual = ref.read(usuarioAtualProvider);
+    debugPrint('✅ Emoji selecionado: ${_emojiSelecionado!.emoji}');
+
+    // Verificar se usuário está autenticado primeiro
+    final isAuthenticated = ref.read(isAuthenticatedProvider);
+    debugPrint('🔐 isAuthenticated: $isAuthenticated');
     
-    await usuarioAtual.when(
-      data: (usuario) async {
-        if (usuario == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Usuário não autenticado'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
+    if (!isAuthenticated) {
+      debugPrint('❌ Usuário não autenticado');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Usuário não autenticado'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
-        setState(() {
-          _salvando = true;
+    // Obter usuário de forma síncrona
+    final usuarioAtualAsync = ref.read(usuarioAtualProvider);
+    final usuario = usuarioAtualAsync.value;
+    
+    debugPrint('👤 Obtendo usuário atual...');
+    
+    if (usuario == null) {
+      debugPrint('❌ Usuário não carregado ou é null');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao obter dados do usuário'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    debugPrint('📊 Dados do usuário: ${usuario.email}');
+    debugPrint('🔄 Iniciando salvamento...');
+    
+    _safeSetState(() {
+      _salvando = true;
+    });
+
+    try {
+      if (widget.experienciaExistente != null) {
+        // Atualizar experiência existente
+        await ExperienciaService.atualizarExperiencia(
+          widget.experienciaExistente!.id,
+          emoji: _emojiSelecionado!.emoji,
+          comentario: _comentarioController.text.trim(),
+        );
+      } else {
+        // Criar nova experiência
+        await ExperienciaService.registrarExperiencia(
+          userId: usuario.id,
+          restauranteId: widget.restaurante.id,
+          emoji: _emojiSelecionado!.emoji,
+          comentario: _comentarioController.text.trim(),
+        );
+      }
+
+      // Invalidar providers para atualizar a UI
+      ref.invalidate(experienciasUsuarioProvider);
+      ref.invalidate(experienciaRestauranteProvider(widget.restaurante.id));
+      ref.invalidate(estatisticasRestauranteProvider(widget.restaurante.id));
+      ref.invalidate(experienciasRecentesProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.experienciaExistente != null 
+                ? 'Experiência atualizada com sucesso!' 
+                : 'Obrigado por compartilhar sua experiência!',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        widget.onSalvar?.call();
+        Navigator.of(context).pop();
+      }
+
+    } catch (e) {
+      debugPrint('❌ Erro ao salvar experiência: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar experiência: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        _safeSetState(() {
+          _salvando = false;
         });
-
-        try {
-          if (widget.experienciaExistente != null) {
-            // Atualizar experiência existente
-            await ExperienciaService.atualizarExperiencia(
-              widget.experienciaExistente!.id,
-              emoji: _emojiSelecionado!.emoji,
-              comentario: _comentarioController.text.trim(),
-            );
-          } else {
-            // Criar nova experiência
-            await ExperienciaService.registrarExperiencia(
-              userId: usuario.id,
-              restauranteId: widget.restaurante.id,
-              emoji: _emojiSelecionado!.emoji,
-              comentario: _comentarioController.text.trim(),
-            );
-          }
-
-          // Invalidar providers para atualizar a UI
-          ref.invalidate(experienciasUsuarioProvider);
-          ref.invalidate(experienciaRestauranteProvider(widget.restaurante.id));
-          ref.invalidate(estatisticasRestauranteProvider(widget.restaurante.id));
-          ref.invalidate(experienciasRecentesProvider);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                widget.experienciaExistente != null 
-                  ? 'Experiência atualizada com sucesso!' 
-                  : 'Obrigado por compartilhar sua experiência!',
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          widget.onSalvar?.call();
-          Navigator.of(context).pop();
-
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Erro ao salvar experiência: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } finally {
-          setState(() {
-            _salvando = false;
-          });
-        }
-      },
-      loading: () => null,
-      error: (error, stack) => null,
-    );
+      }
+    }
   }
 
   @override
@@ -204,7 +253,7 @@ class _RegistrarExperienciaState extends ConsumerState<RegistrarExperiencia> {
               final selecionado = _emojiSelecionado == avaliacao;
               return GestureDetector(
                 onTap: () {
-                  setState(() {
+                  _safeSetState(() {
                     _emojiSelecionado = avaliacao;
                   });
                 },
@@ -345,4 +394,4 @@ class _RegistrarExperienciaState extends ConsumerState<RegistrarExperiencia> {
       ),
     );
   }
-} 
+}

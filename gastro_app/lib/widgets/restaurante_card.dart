@@ -22,16 +22,29 @@ class RestauranteCard extends ConsumerWidget {
     this.isFavorito,
   });
 
-  Future<void> _toggleFavorito(WidgetRef ref) async {
-    final usuarioAtual = ref.read(usuarioAtualProvider);
+  Future<void> _toggleFavorito(BuildContext context, WidgetRef ref) async {
+    // Verificar se usuário está autenticado primeiro
+    final isAuthenticated = ref.read(isAuthenticatedProvider);
+    if (!isAuthenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Faça login para favoritar restaurantes'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Obter dados do usuário atual
+    final usuarioAtualAsync = ref.read(usuarioAtualProvider);
     
-    await usuarioAtual.when(
+    await usuarioAtualAsync.when(
       data: (usuario) async {
         if (usuario == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Faça login para favoritar restaurantes'),
-              backgroundColor: Colors.orange,
+              content: Text('Erro ao obter dados do usuário'),
+              backgroundColor: Colors.red,
             ),
           );
           return;
@@ -41,29 +54,21 @@ class RestauranteCard extends ConsumerWidget {
         ref.read(loadingFavoritoProvider(restaurante.id).notifier).state = true;
 
         try {
-          final novoStatus = await UsuarioService.toggleFavorito(usuario.id, restaurante.id);
+          // Usar apenas o favoritosActions para evitar duplicação
+          final favoritosActions = ref.read(favoritosActionsProvider);
+          await favoritosActions.toggleFavorito(restaurante.id);
           
-          // Atualizar o estado local
-          final favoritosAtuais = ref.read(favoritosProvider);
-          if (novoStatus) {
-            ref.read(favoritosProvider.notifier).state = {...favoritosAtuais, restaurante.id};
-          } else {
-            final novosFavoritos = Set<String>.from(favoritosAtuais);
-            novosFavoritos.remove(restaurante.id);
-            ref.read(favoritosProvider.notifier).state = novosFavoritos;
-          }
-
-          // Invalidar provider de restaurantes favoritos
-          ref.invalidate(restaurantesFavoritosProvider);
+          // Verificar o novo status
+          final isFavoritoAgora = ref.read(isFavoritoProvider(restaurante.id));
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                novoStatus 
+                isFavoritoAgora 
                   ? '${restaurante.nome} adicionado aos favoritos!' 
                   : '${restaurante.nome} removido dos favoritos!',
               ),
-              backgroundColor: novoStatus ? Colors.green : Colors.orange,
+              backgroundColor: isFavoritoAgora ? Colors.green : Colors.orange,
               duration: const Duration(seconds: 2),
             ),
           );
@@ -81,8 +86,22 @@ class RestauranteCard extends ConsumerWidget {
           ref.read(loadingFavoritoProvider(restaurante.id).notifier).state = false;
         }
       },
-      loading: () => null,
-      error: (error, stack) => null,
+      loading: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Carregando dados do usuário...'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      },
+      error: (error, stack) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar usuário: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
     );
   }
 
@@ -118,193 +137,166 @@ class RestauranteCard extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header com imagem, nome e botão favorito
-              Row(
-                children: [
-                  // Imagem do restaurante
-                  RestauranteImagem(
-                    imagemUrl: restaurante.imagemUrl,
-                    width: 80,
-                    height: 80,
-                    borderRadius: BorderRadius.circular(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Imagem do restaurante
+            Stack(
+              children: [
+                RestauranteImagem(
+                  imagemUrl: restaurante.imagemUrl,
+                  width: double.infinity,
+                  height: 180,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
                   ),
-                  
-                  const SizedBox(width: 12),
-                  
-                  // Informações do restaurante
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          restaurante.nome,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.deepOrange.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                restaurante.tipo.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.deepOrange.shade700,
-                                ),
+                ),
+                
+                // Botão de favorito
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: isLoadingFavorito
+                        ? const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            DistanciaBadge(
-                              restaurante: restaurante,
-                              mostrarIcone: false,
-                              tamanhoFonte: 12,
+                          )
+                        : IconButton(
+                            onPressed: () => _toggleFavorito(context, ref),
+                            icon: Icon(
+                              (isFavoritoAtual ?? false) ? Icons.favorite : Icons.favorite_border,
+                              color: (isFavoritoAtual ?? false) ? Colors.red : Colors.grey,
+                            ),
+                            tooltip: (isFavoritoAtual ?? false) ? 'Remover dos favoritos' : 'Adicionar aos favoritos',
+                          ),
+                  ),
+                ),
+                
+                // Badge de distância
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: DistanciaBadge(restaurante: restaurante),
+                ),
+              ],
+            ),
+            
+            // Informações do restaurante
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Nome e tipo
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              restaurante.nome,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              restaurante.tipo,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      
+                      // Botão de registrar experiência
+                      IconButton(
+                        onPressed: () => _mostrarRegistrarExperiencia(context, ref),
+                        icon: Icon(
+                          Icons.rate_review,
+                          color: Colors.orange.shade600,
+                        ),
+                        tooltip: 'Registrar experiência',
+                      ),
+                    ],
                   ),
                   
-                  // Botão favorito
-                  isLoadingFavorito 
-                    ? Container(
-                        width: 48,
-                        height: 48,
-                        padding: const EdgeInsets.all(12),
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
-                        ),
-                      )
-                    : IconButton(
-                        onPressed: () => _toggleFavorito(ref),
-                        icon: Icon(
-                          isFavoritoAtual ? Icons.favorite : Icons.favorite_border,
-                          color: isFavoritoAtual ? Colors.red : Colors.grey,
-                          size: 24,
-                        ),
-                        tooltip: isFavoritoAtual ? 'Remover dos favoritos' : 'Adicionar aos favoritos',
+                  const SizedBox(height: 8),
+                  
+                  // Descrição
+                  if (restaurante.descricao.isNotEmpty)
+                    Text(
+                      restaurante.descricao,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        height: 1.3,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Tags
+                  if (restaurante.tags.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: restaurante.tags.take(3).map((tag) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.orange.shade200,
+                            ),
+                          ),
+                          child: Text(
+                            tag,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                 ],
               ),
-              
-              const SizedBox(height: 12),
-              
-              // Descrição
-              Text(
-                restaurante.descricao,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  height: 1.4,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Tags
-              if (restaurante.tags.isNotEmpty) ...[
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: restaurante.tags.map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 12),
-              ],
-              
-              // Botões de ação
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onTap,
-                      icon: const Icon(
-                        Icons.visibility,
-                        size: 16,
-                      ),
-                      label: const Text('Ver Detalhes'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.deepOrange,
-                        side: BorderSide(color: Colors.deepOrange.shade300),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _mostrarRegistrarExperiencia(context, ref),
-                      icon: const Icon(
-                        Icons.rate_review,
-                        size: 16,
-                      ),
-                      label: const Text('Avaliar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-} 
+}

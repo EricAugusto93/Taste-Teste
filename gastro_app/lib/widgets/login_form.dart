@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
+import '../services/auth_service.dart';
 
 class LoginForm extends StatefulWidget {
   final Function(String email, String password) onSubmit;
@@ -17,15 +18,21 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
   late AnimationController _buttonController;
   late Animation<double> _buttonAnimation;
   bool _obscurePassword = true;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
+    
+    // Inicializar controllers de forma segura
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    
     _buttonController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
@@ -41,10 +48,17 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _disposed = true;
     _emailController.dispose();
     _passwordController.dispose();
     _buttonController.dispose();
     super.dispose();
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
   }
 
   void _handleSubmit() async {
@@ -57,256 +71,200 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(28.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 8),
-              
-              // Título
-              const Text(
-                'Entre na sua conta',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primary,
-                ),
-                textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 20.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Título compacto
+            const Text(
+              'Entre na sua conta',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primary,
               ),
-              
-              const SizedBox(height: 32),
-              
-              // Campo de email
-              _buildEmailField(),
-              
-              const SizedBox(height: 20),
-              
-              // Campo de senha
-              _buildPasswordField(),
-              
-              const SizedBox(height: 12),
-              
-              // Link "Esqueci minha senha"
-              _buildForgotPasswordLink(),
-              
-              const SizedBox(height: 32),
-              
-              // Botão de login
-              _buildLoginButton(),
-              
-              const SizedBox(height: 24),
-              
-              // Divisor
-              _buildDivider(),
-              
-              const SizedBox(height: 16),
-              
-              // Texto de registro
-              _buildRegisterText(),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Campo de email compacto
+            _buildCompactEmailField(),
+            
+            const SizedBox(height: 16),
+            
+            // Campo de senha compacto
+            _buildCompactPasswordField(),
+            
+            const SizedBox(height: 8),
+            
+            // Link "Esqueci minha senha" compacto
+            _buildCompactForgotPasswordLink(),
+            
+            const SizedBox(height: 24),
+            
+            // Botão de login otimizado
+            _buildCompactLoginButton(),
+            
+            const SizedBox(height: 12),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildEmailField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Email',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppTheme.cinzaEscuro,
+  Widget _buildCompactEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      autocorrect: false,
+      textCapitalization: TextCapitalization.none,
+      style: const TextStyle(fontSize: 16),
+      decoration: InputDecoration(
+        labelText: 'Email',
+        hintText: 'seu@email.com',
+        prefixIcon: const Icon(
+          Icons.email_outlined,
+          color: AppTheme.primary,
+          size: 20,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        filled: true,
+        fillColor: AppTheme.background.withOpacity(0.3),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: AppTheme.primary.withOpacity(0.2),
           ),
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          autocorrect: false,
-          textCapitalization: TextCapitalization.none,
-          decoration: InputDecoration(
-            hintText: 'seu@email.com',
-            hintStyle: TextStyle(
-              color: AppTheme.cinzaMedio.withOpacity(0.6),
-            ),
-            prefixIcon: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.azulSuave,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.email_outlined,
-                color: AppTheme.primary,
-                size: 20,
-              ),
-            ),
-            filled: true,
-            fillColor: AppTheme.cinzaClaro.withOpacity(0.5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide(
-                color: AppTheme.bordoSuave,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: const BorderSide(
-                color: AppTheme.primary,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide(color: AppTheme.danger, width: 1),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppTheme.primary,
+            width: 2,
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Por favor, insira seu email';
-            }
-            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-              return 'Por favor, insira um email válido';
-            }
-            return null;
-          },
         ),
-      ],
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppTheme.danger,
+            width: 1,
+          ),
+        ),
+        labelStyle: const TextStyle(
+          color: AppTheme.cinzaMedio,
+          fontSize: 14,
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Digite seu email';
+        }
+        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+          return 'Email inválido';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildPasswordField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Senha',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppTheme.cinzaEscuro,
-          ),
+  Widget _buildCompactPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: _obscurePassword,
+      style: const TextStyle(fontSize: 16),
+      decoration: InputDecoration(
+        labelText: 'Senha',
+        hintText: 'Digite sua senha',
+        prefixIcon: const Icon(
+          Icons.lock_outline,
+          color: AppTheme.primary,
+          size: 20,
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _passwordController,
-          obscureText: _obscurePassword,
-          decoration: InputDecoration(
-            hintText: 'Digite sua senha',
-            hintStyle: TextStyle(
-              color: AppTheme.cinzaMedio.withOpacity(0.6),
-            ),
-            prefixIcon: Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.azulSuave,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.lock_outline,
-                color: AppTheme.primary,
-                size: 20,
-              ),
-            ),
-            suffixIcon: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-              icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                color: AppTheme.cinzaMedio,
-                size: 20,
-              ),
-            ),
-            filled: true,
-            fillColor: AppTheme.cinzaClaro.withOpacity(0.5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide(
-                color: AppTheme.bordoSuave,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: const BorderSide(
-                color: AppTheme.primary,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
-              borderSide: BorderSide(color: AppTheme.danger, width: 1),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+            color: AppTheme.cinzaMedio,
+            size: 20,
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Por favor, insira sua senha';
-            }
-            if (value.length < 6) {
-              return 'A senha deve ter pelo menos 6 caracteres';
-            }
-            return null;
+          onPressed: () {
+                      _safeSetState(() {
+            _obscurePassword = !_obscurePassword;
+          });
           },
         ),
-      ],
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        filled: true,
+        fillColor: AppTheme.background.withOpacity(0.3),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: AppTheme.primary.withOpacity(0.2),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppTheme.primary,
+            width: 2,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: AppTheme.danger,
+            width: 1,
+          ),
+        ),
+        labelStyle: const TextStyle(
+          color: AppTheme.cinzaMedio,
+          fontSize: 14,
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Digite sua senha';
+        }
+        if (value.length < 6) {
+          return 'Senha deve ter pelo menos 6 caracteres';
+        }
+        return null;
+      },
     );
   }
 
-  Widget _buildForgotPasswordLink() {
+  Widget _buildCompactForgotPasswordLink() {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {
-          // TODO: Implementar recuperação de senha
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Funcionalidade em breve!'),
-              backgroundColor: AppTheme.customColors['info'],
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
-              ),
-            ),
-          );
-        },
+        onPressed: widget.isLoading ? null : _showForgotPasswordDialog,
         style: TextButton.styleFrom(
-          foregroundColor: AppTheme.primary,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          minimumSize: const Size(0, 32),
         ),
         child: const Text(
           'Esqueci minha senha',
           style: TextStyle(
-            fontSize: 14,
+            color: AppTheme.primary,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -314,17 +272,17 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildCompactLoginButton() {
     return AnimatedBuilder(
       animation: _buttonAnimation,
       builder: (context, child) {
         return Transform.scale(
           scale: _buttonAnimation.value,
           child: Container(
-            height: 56,
+            height: 50,
             decoration: BoxDecoration(
               gradient: AppTheme.gradientPrimario,
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.primary.withOpacity(0.3),
@@ -333,44 +291,46 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            child: ElevatedButton(
-              onPressed: widget.isLoading ? null : _handleSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedio),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: widget.isLoading ? null : _handleSubmit,
+                child: Container(
+                  height: 50,
+                  child: widget.isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.login,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Entrar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
-              child: widget.isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.login_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Entrar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
             ),
           ),
         );
@@ -378,56 +338,85 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: AppTheme.bordoSuave,
+  void _showForgotPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final emailController = TextEditingController();
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'ou',
+          title: const Text(
+            'Recuperar Senha',
             style: TextStyle(
-              color: AppTheme.cinzaMedio,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
+              color: AppTheme.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: AppTheme.bordoSuave,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Digite seu email para receber as instruções de recuperação:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRegisterText() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Não tem uma conta? ',
-          style: TextStyle(
-            color: AppTheme.cinzaMedio,
-            fontSize: 14,
-          ),
-        ),
-        Text(
-          'Criar conta',
-          style: TextStyle(
-            color: AppTheme.primary,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                                 if (emailController.text.isNotEmpty) {
+                   try {
+                     await AuthService.resetPassword(emailController.text.trim());
+                     if (mounted) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Email de recuperação enviado!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+              ),
+              child: const Text(
+                'Enviar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 } 

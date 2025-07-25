@@ -3,7 +3,7 @@ class Experiencia {
   final String userId;
   final String restauranteId;
   final String emoji;
-  final String comentario;
+  final String? comentario;
   final DateTime dataVisita;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -13,7 +13,7 @@ class Experiencia {
     required this.userId,
     required this.restauranteId,
     required this.emoji,
-    required this.comentario,
+    this.comentario,
     required this.dataVisita,
     required this.createdAt,
     required this.updatedAt,
@@ -25,10 +25,14 @@ class Experiencia {
       userId: json['user_id'] as String,
       restauranteId: json['restaurante_id'] as String,
       emoji: json['emoji'] as String,
-      comentario: json['comentario'] as String,
+      comentario: json['comentario'] as String?,
       dataVisita: DateTime.parse(json['data_visita'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
     );
   }
 
@@ -66,4 +70,4 @@ class Experiencia {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-} 
+}

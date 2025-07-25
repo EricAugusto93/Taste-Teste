@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/usuario.dart';
 import '../models/restaurante.dart';
 import 'supabase_service.dart';
@@ -37,24 +39,58 @@ class UsuarioService {
     }
   }
 
-  // Sincronizar dados do usuário (caso necessário atualizar)
+  // Sincronizar dados do usuário (criar se não existir, atualizar se existir)
   static Future<Usuario> sincronizarUsuario() async {
     try {
       final user = AuthService.currentUser;
       if (user == null) throw Exception('Usuário não autenticado');
 
+      debugPrint('🔄 Sincronizando usuário: ${user.email}');
+
+      // Dados básicos e seguros (sem campos que podem não existir)
+      final dadosUsuario = {
+        'id': user.id,
+        'email': user.email!,
+        'favoritos': <String>[], // Array vazio tipado para novos usuários
+      };
+
+      // Adicionar nome se disponível
+      final nome = user.userMetadata?['name'] ?? user.email!.split('@')[0];
+      if (nome.isNotEmpty) {
+        dadosUsuario['nome'] = nome;
+      }
+
       final response = await _supabase
           .from('usuarios')
-          .upsert({
-            'id': user.id,
-            'email': user.email!,
-          })
+          .upsert(dadosUsuario)
           .select()
           .single();
 
+      debugPrint('✅ Usuário sincronizado com sucesso');
       return Usuario.fromJson(response);
     } catch (e) {
-      throw Exception('Erro ao sincronizar usuário: $e');
+      debugPrint('❌ Erro na sincronização: $e');
+      
+      // Tentar versão ainda mais simplificada se tudo falhar
+      try {
+        debugPrint('🔄 Tentando sincronização de emergência...');
+        final dadosMinimos = {
+          'id': AuthService.currentUser!.id,
+          'email': AuthService.currentUser!.email!,
+        };
+
+        final response = await _supabase
+            .from('usuarios')
+            .upsert(dadosMinimos)
+            .select()
+            .single();
+
+        debugPrint('✅ Sincronização de emergência bem-sucedida');
+        return Usuario.fromJson(response);
+      } catch (emergencyError) {
+        debugPrint('❌ Erro na sincronização de emergência: $emergencyError');
+        throw Exception('Erro crítico ao sincronizar usuário: $emergencyError');
+      }
     }
   }
 
@@ -201,4 +237,4 @@ class UsuarioService {
       throw Exception('Erro ao limpar favoritos: $e');
     }
   }
-} 
+}

@@ -53,7 +53,16 @@ class _FiltroSliderState extends State<FiltroSlider>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    // Verificação de segurança para evitar PersistedOffset errors
+    try {
+      if (_animationController.isAnimating) {
+        _animationController.stop();
+      }
+      _animationController.dispose();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao descartar animationController: $e');
+    }
+    
     super.dispose();
   }
 
@@ -154,10 +163,18 @@ class _FiltroSliderState extends State<FiltroSlider>
                     onChanged: (value) {
                       widget.onChanged(value);
                       
-                      // Animação de feedback
-                      _animationController.forward().then((_) {
-                        _animationController.reverse();
-                      });
+                      // Animação de feedback com verificação de segurança
+                      if (mounted) {
+                        try {
+                          _animationController.forward().then((_) {
+                            if (mounted) {
+                              _animationController.reverse();
+                            }
+                          });
+                        } catch (e) {
+                          debugPrint('⚠️ Erro na animação do slider: $e');
+                        }
+                      }
                     },
                   ),
                 ),
@@ -391,4 +408,4 @@ class PriceRangeSlider extends StatelessWidget {
       ),
     );
   }
-} 
+}

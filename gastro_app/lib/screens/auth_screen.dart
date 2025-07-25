@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
 import '../widgets/login_form.dart';
 import '../widgets/register_form.dart';
-import '../widgets/taste_test_logo.dart';
+import '../widgets/logo_widget.dart';
+import '../widgets/email_confirmation_dialog.dart';
 import '../config/app_theme.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -82,8 +83,22 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     }
   }
 
+  void _showEmailConfirmationDialog(String email) {
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => EmailConfirmationDialog(email: email),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final safeAreaHeight = screenHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom;
+    
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -92,37 +107,45 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Calcular espaçamentos baseado na altura disponível
+                final isCompactScreen = safeAreaHeight < 700;
+                final topSpacing = isCompactScreen ? 20.0 : 40.0;
+                final logoSpacing = isCompactScreen ? 20.0 : 30.0;
+                final cardSpacing = isCompactScreen ? 16.0 : 24.0;
+                final bottomSpacing = isCompactScreen ? 16.0 : 24.0;
+                
+                return Container(
                   width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  height: constraints.maxHeight,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth > 400 ? 32.0 : 24.0,
+                  ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 80),
+                      SizedBox(height: topSpacing),
                       
-                      // Logo centralizado
-                      _buildCleanHeader(),
+                      // Logo e header compacto
+                      _buildCompactHeader(isCompactScreen),
                       
-                      const SizedBox(height: 60),
+                      SizedBox(height: logoSpacing),
                       
-                      // Card de autenticação minimalista
-                      _buildCleanAuthCard(),
+                      // Card de autenticação otimizado
+                      Expanded(
+                        child: _buildOptimizedAuthCard(isCompactScreen),
+                      ),
                       
-                      const SizedBox(height: 40),
+                      SizedBox(height: cardSpacing),
                       
-                      // Rodapé simples
-                      _buildCleanFooter(),
+                      // Rodapé minimalista
+                      _buildCompactFooter(),
                       
-                      const SizedBox(height: 30),
+                      SizedBox(height: bottomSpacing),
                     ],
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -130,64 +153,84 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCleanHeader() {
+  Widget _buildCompactHeader(bool isCompactScreen) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Logo Taste Test com design clean
+        // Logo Real Taste Test
         Hero(
           tag: 'taste_test_logo',
           child: Container(
-            padding: const EdgeInsets.all(28),
+            padding: EdgeInsets.all(isCompactScreen ? 16 : 20),
             decoration: BoxDecoration(
-              gradient: AppTheme.gradientSuave,
-              borderRadius: BorderRadius.circular(AppTheme.radiusExtraGrande),
-              boxShadow: AppTheme.sombraCard,
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
               border: Border.all(
                 color: Colors.white.withOpacity(0.8),
                 width: 1,
               ),
             ),
-            child: TasteTestLogo.large(),
+            child: isCompactScreen 
+              ? LogoWidget.medium()
+              : LogoWidget.large(),
           ),
         ),
         
-        const SizedBox(height: 36),
-        
-        // Título clean
-        const Text(
-          'Bem-vindo',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w300,
-            color: AppTheme.primary,
-            letterSpacing: 0.5,
+        if (!isCompactScreen) ...[
+          const SizedBox(height: 16),
+          
+          // Título simplificado
+          const Text(
+            'Bem-vindo',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w300,
+              color: AppTheme.primary,
+              letterSpacing: 0.5,
+            ),
           ),
-        ),
-        
-        const SizedBox(height: 8),
-        
-        // Subtítulo minimalista
-        Text(
-          'Sua jornada gastronômica começa aqui',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: AppTheme.cinzaMedio,
-            fontWeight: FontWeight.w400,
-            height: 1.3,
+          
+          const SizedBox(height: 8),
+          
+          // Subtítulo compacto
+          Text(
+            'Sua jornada gastronômica começa aqui',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppTheme.cinzaMedio,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
 
-  Widget _buildCleanAuthCard() {
+  Widget _buildOptimizedAuthCard(bool isCompactScreen) {
     return Container(
       width: double.infinity,
+      constraints: BoxConstraints(
+        maxWidth: 400,
+        maxHeight: isCompactScreen ? 420 : 480,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
-        boxShadow: AppTheme.sombraElevada,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
         border: Border.all(
           color: AppTheme.bordoSuave,
           width: 1,
@@ -195,7 +238,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       ),
       child: Column(
         children: [
-          // Tab bar minimalista
+          // Tab bar otimizada
           Container(
             margin: const EdgeInsets.all(6),
             decoration: BoxDecoration(
@@ -247,10 +290,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             ),
           ),
           
-          // Conteúdo das abas
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: 380,
+          // Conteúdo das abas com altura flexível
+          Expanded(
             child: TabBarView(
               controller: _tabController,
               physics: const BouncingScrollPhysics(),
@@ -271,25 +312,20 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCleanFooter() {
-    return Column(
-      children: [
-        // Texto de política simplificado
-        Text(
-          'Ao continuar, você aceita nossos termos e política de privacidade',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppTheme.cinzaMedio.withOpacity(0.8),
-            height: 1.4,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
+  Widget _buildCompactFooter() {
+    return Text(
+      'Ao continuar, você aceita nossos termos e política de privacidade',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 11,
+        color: AppTheme.cinzaMedio.withOpacity(0.8),
+        height: 1.3,
+        fontWeight: FontWeight.w400,
+      ),
     );
   }
 
-  // Handlers para login e registro (mantidos inalterados)
+  // Handlers para login e registro atualizados
   Future<void> _handleLogin(String email, String password) async {
     _setLoading(true);
     
@@ -302,6 +338,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       if (result.isSuccess) {
         _showSuccessMessage('Login realizado com sucesso!');
         // Navigation será tratada automaticamente pelo AuthWrapper
+      } else if (result.needsEmailConfirmation) {
+        _showEmailConfirmationDialog(result.emailToConfirm!);
       } else {
         _showErrorMessage(result.error ?? 'Erro no login');
       }
@@ -325,6 +363,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       if (result.isSuccess) {
         _showSuccessMessage('Conta criada com sucesso!');
         // Navigation será tratada automaticamente pelo AuthWrapper
+      } else if (result.needsEmailConfirmation) {
+        _showEmailConfirmationDialog(result.emailToConfirm!);
       } else {
         _showErrorMessage(result.error ?? 'Erro no registro');
       }

@@ -44,8 +44,22 @@ class _CategoriasCarrosselState extends State<CategoriasCarrossel>
 
   @override
   void dispose() {
-    _slideController.dispose();
-    _pageController.dispose();
+    // Verificação de segurança para evitar PersistedOffset errors
+    try {
+      if (_slideController.isAnimating) {
+        _slideController.stop();
+      }
+      _slideController.dispose();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao descartar slideController: $e');
+    }
+    
+    try {
+      _pageController.dispose();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao descartar pageController: $e');
+    }
+    
     super.dispose();
   }
 
@@ -63,10 +77,14 @@ class _CategoriasCarrosselState extends State<CategoriasCarrossel>
       curve: Curves.easeOutCubic,
     ));
 
-    // Iniciar animação após um breve delay
+    // Iniciar animação após um breve delay com verificação de segurança
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
-        _slideController.forward();
+        try {
+          _slideController.forward();
+        } catch (e) {
+          debugPrint('⚠️ Erro ao iniciar animação: $e');
+        }
       }
     });
   }
@@ -188,9 +206,12 @@ class _CategoriasCarrosselState extends State<CategoriasCarrossel>
     return PageView.builder(
       controller: pageController,
       onPageChanged: (page) {
-        setState(() {
-          _currentPage = page;
-        });
+        // Evitar rebuilds desnecessários - só atualizar se realmente mudou
+        if (_currentPage != page && mounted) {
+          setState(() {
+            _currentPage = page;
+          });
+        }
       },
       itemCount: (widget.categorias.length / itemsPerPage).ceil(),
       itemBuilder: (context, pageIndex) {
@@ -498,4 +519,4 @@ class CategoriasDestaque extends StatelessWidget {
       ),
     );
   }
-} 
+}

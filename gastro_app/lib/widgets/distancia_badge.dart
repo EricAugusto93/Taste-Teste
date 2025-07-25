@@ -6,6 +6,29 @@ import '../models/restaurante.dart';
 import '../services/localizacao_service.dart';
 import '../utils/providers.dart';
 
+// Provider para memoizar o cálculo de distância
+final distanciaRestauranteProvider = Provider.family<double?, Map<String, dynamic>>((ref, params) {
+  final localizacao = ref.watch(localizacaoAtualProvider);
+  final statusLocalizacao = ref.watch(statusLocalizacaoProvider);
+  
+  // Só calcular se temos localização válida
+  if (localizacao == null || 
+      (statusLocalizacao != StatusLocalizacao.obtida && 
+       statusLocalizacao != StatusLocalizacao.fallback)) {
+    return null;
+  }
+  
+  final latitude = params['latitude'] as double;
+  final longitude = params['longitude'] as double;
+  
+  return LocalizacaoService.calcularDistancia(
+    localizacao['latitude']!,
+    localizacao['longitude']!,
+    latitude,
+    longitude,
+  );
+});
+
 class DistanciaBadge extends ConsumerWidget {
   final Restaurante restaurante;
   final bool mostrarIcone;
@@ -20,20 +43,16 @@ class DistanciaBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localizacao = ref.watch(localizacaoAtualProvider);
-    final statusLocalizacao = ref.watch(statusLocalizacaoProvider);
+    final distancia = ref.watch(distanciaRestauranteProvider({
+      'id': restaurante.id,
+      'latitude': restaurante.latitude,
+      'longitude': restaurante.longitude,
+    }));
 
-    // Se não tem localização, não exibir distância
-    if (localizacao == null || statusLocalizacao != LocalizacaoStatus.permitida) {
+    // Se não tem distância calculada, não exibir
+    if (distancia == null) {
       return const SizedBox.shrink();
     }
-
-    final distancia = LocalizacaoService.calcularDistancia(
-      localizacao.latitude,
-      localizacao.longitude,
-      restaurante.latitude,
-      restaurante.longitude,
-    );
 
     final distanciaFormatada = LocalizacaoService.formatarDistancia(distancia);
 
@@ -78,4 +97,4 @@ class DistanciaBadge extends ConsumerWidget {
       return Colors.red.shade600; // Longe
     }
   }
-} 
+}

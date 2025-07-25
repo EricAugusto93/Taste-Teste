@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:math' as math;
 
 class LocalizacaoService {
@@ -213,6 +214,7 @@ class _RestauranteComDistanciaHelper<T> {
 
 /// Enum para status de permissão/localização
 enum StatusLocalizacao {
+  inicial,
   desconhecido,
   obtendo,
   obtida,
@@ -221,4 +223,4 @@ enum StatusLocalizacao {
   servicoDesabilitado,
   erro,
   fallback,
-} 
+}

@@ -3,16 +3,14 @@ class Usuario {
   final String email;
   final String? nome;
   final List<String> favoritos;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
 
   const Usuario({
     required this.id,
     required this.email,
     this.nome,
     required this.favoritos,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) {
@@ -21,20 +19,25 @@ class Usuario {
       email: json['email'] as String,
       nome: json['nome'] as String?,
       favoritos: List<String>.from(json['favoritos'] as List? ?? []),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final map = {
       'id': id,
       'email': email,
       'nome': nome,
       'favoritos': favoritos,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
     };
+    
+    if (createdAt != null) {
+      map['created_at'] = createdAt!.toIso8601String();
+    }
+    
+    return map;
   }
 
   Usuario copyWith({
@@ -43,7 +46,6 @@ class Usuario {
     String? nome,
     List<String>? favoritos,
     DateTime? createdAt,
-    DateTime? updatedAt,
   }) {
     return Usuario(
       id: id ?? this.id,
@@ -51,7 +53,6 @@ class Usuario {
       nome: nome ?? this.nome,
       favoritos: favoritos ?? this.favoritos,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 } 

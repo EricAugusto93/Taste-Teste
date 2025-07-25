@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
 import '../utils/providers.dart';
 import '../config/app_theme.dart';
+import '../widgets/logo_widget.dart';
+import '../widgets/restaurante_card.dart';
+import '../models/restaurante.dart';
 
 import 'favoritos_screen.dart';
 import 'experiencias_screen.dart';
@@ -17,12 +20,26 @@ class GastroHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _searchController;
+  bool _disposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+  }
 
   @override
   void dispose() {
+    _disposed = true;
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
   }
 
   void _handleProtectedAction(String action) {
@@ -50,6 +67,76 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
           MaterialPageRoute(builder: (context) => const ProximidadeScreen()),
         );
         break;
+      case 'explorar':
+        _navegarParaTodosRestaurantes();
+        break;
+    }
+  }
+
+  void _navegarParaTodosRestaurantes() async {
+    try {
+      // Buscar todos os restaurantes disponíveis
+      final todosRestaurantes = ref.read(sugestoesProximasProvider);
+      
+      await todosRestaurantes.when(
+        data: (restaurantes) {
+          if (restaurantes.isNotEmpty) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => _TodosRestaurantesScreen(
+                  restaurantes: restaurantes,
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Nenhum restaurante disponível no momento'),
+                backgroundColor: Colors.orange,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            );
+          }
+        },
+        loading: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Carregando restaurantes...'),
+              backgroundColor: Colors.blue,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        },
+        error: (error, stack) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Erro ao carregar restaurantes'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
     }
   }
 
@@ -309,52 +396,139 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: Column(
             children: [
-              // Logo e nome
+              // Header com logo e botão logout
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.restaurant_menu,
-                      color: Color(0xFF2c3985),
-                      size: 16,
+                  // Espaço para equilibrar o layout
+                  const SizedBox(width: 40),
+                  
+                  // Logo centralizada
+                  Expanded(
+                    child: Center(
+                      child: LogoWidget.medium(),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Gastro App',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2c3985),
-                    ),
-                  ),
+                  
+                  // Botão de logout
+                  _buildLogoutButton(),
                 ],
               ),
               
               const SizedBox(height: 6),
               
-              // Subtítulo
-              const Text(
-                'Powered by AI • Demonstração Interativa',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF6B7280),
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
+              // Remover o subtítulo completamente
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return IconButton(
+      onPressed: () => _showLogoutDialog(),
+      icon: const Icon(
+        Icons.logout,
+        color: Color(0xFF2c3985),
+        size: 24,
+      ),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white.withOpacity(0.9),
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(8),
+        minimumSize: const Size(40, 40),
+      ),
+      tooltip: 'Sair da conta',
+    );
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.logout,
+                color: Colors.red,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Sair da Conta',
+              style: TextStyle(
+                color: Color(0xFF2c3985),
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Tem certeza que deseja sair da sua conta?',
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Fechar dialog
+              
+              // Fazer logout
+              final success = await AuthService.signOut();
+              
+              if (success && mounted) {
+                // Mostrar mensagem de sucesso
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Logout realizado com sucesso!'),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Sair',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -685,6 +859,177 @@ class _GastroHomeScreenState extends ConsumerState<GastroHomeScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+} 
+
+class _TodosRestaurantesScreen extends ConsumerWidget {
+  final List<Restaurante> restaurantes;
+
+  const _TodosRestaurantesScreen({
+    required this.restaurantes,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFfbe9d2),
+      appBar: AppBar(
+        title: const Text(
+          'Todos os Restaurantes',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF2c3985),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Refresh da lista
+              ref.invalidate(sugestoesProximasProvider);
+            },
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Atualizar lista',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Header com estatísticas
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF2c3985),
+                  const Color(0xFF2c3985).withOpacity(0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.restaurant,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Explore Todos',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${restaurantes.length} restaurante${restaurantes.length != 1 ? 's' : ''} disponível${restaurantes.length != 1 ? 'eis' : ''}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          // Lista de restaurantes
+          Expanded(
+            child: restaurantes.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: restaurantes.length,
+                    itemBuilder: (context, index) {
+                      final restaurante = restaurantes[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: RestauranteCard(
+                          restaurante: restaurante,
+                          onTap: () {
+                            // TODO: Navegar para detalhes do restaurante
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Abrindo ${restaurante.nome}'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFF2c3985).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: const Icon(
+                Icons.restaurant_outlined,
+                size: 40,
+                color: Color(0xFF2c3985),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Nenhum restaurante encontrado',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2c3985),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tente novamente em alguns instantes',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

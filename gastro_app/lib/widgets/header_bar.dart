@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../config/app_theme.dart';
+import '../services/auth_service.dart';
 import 'taste_test_logo.dart';
 
 class HeaderBar extends StatelessWidget {
@@ -171,8 +173,8 @@ class WelcomeHeader extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'O que você está com vontade de comer hoje?',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          'O que você gostaria de comer hoje?',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppTheme.cinzaMedio,
                           ),
                         ),
@@ -181,44 +183,53 @@ class WelcomeHeader extends StatelessWidget {
                   ),
                   
                   // Botão de notificações
-                  Stack(
-                    children: [
-                      IconButton(
-                        onPressed: onNotificationTap,
-                        icon: const Icon(Icons.notifications_outlined),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppTheme.mostarda,
-                          shape: const CircleBorder(),
-                        ),
-                      ),
-                      if (notificationCount > 0)
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
-                            child: Text(
-                              notificationCount > 9 ? '9+' : notificationCount.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                  if (onNotificationTap != null) ...[
+                    IconButton(
+                      onPressed: onNotificationTap,
+                      icon: Stack(
+                        children: [
+                          const Icon(
+                            Icons.notifications_outlined,
+                            color: AppTheme.cinzaEscuro,
+                            size: 24,
                           ),
-                        ),
-                    ],
-                  ),
+                          if (notificationCount > 0)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                decoration: const BoxDecoration(
+                                  color: AppTheme.danger,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    notificationCount > 9 ? '9+' : '$notificationCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.8),
+                        shape: const CircleBorder(),
+                        padding: const EdgeInsets.all(8),
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.espacoPequeno),
+                  ],
+                  
+                  // Botão de logout
+                  _buildLogoutButton(context),
                   
                   const SizedBox(width: AppTheme.espacoPequeno),
                   
@@ -259,6 +270,111 @@ class WelcomeHeader extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return IconButton(
+      onPressed: () => _showLogoutDialog(context),
+      icon: const Icon(
+        Icons.logout,
+        color: AppTheme.cinzaEscuro,
+        size: 24,
+      ),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white.withOpacity(0.8),
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(8),
+      ),
+      tooltip: 'Sair da conta',
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.danger.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.logout,
+                color: AppTheme.danger,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Sair da Conta',
+              style: TextStyle(
+                color: AppTheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Tem certeza que deseja sair da sua conta?',
+          style: TextStyle(
+            fontSize: 16,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                color: AppTheme.cinzaMedio,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // Fechar dialog
+              
+              // Fazer logout
+              final success = await AuthService.signOut();
+              
+              if (success && context.mounted) {
+                // Mostrar mensagem de sucesso
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Logout realizado com sucesso!'),
+                    backgroundColor: AppTheme.customColors['success'],
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Sair',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SearchHeader extends StatefulWidget {
@@ -284,19 +400,50 @@ class SearchHeader extends StatefulWidget {
 class _SearchHeaderState extends State<SearchHeader> {
   late TextEditingController _searchController;
   late FocusNode _searchFocus;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(text: widget.initialQuery);
     _searchFocus = FocusNode();
+    
+    // Adicionar listener seguro para mudanças de focus
+    _searchFocus.addListener(_onFocusChange);
   }
 
   @override
   void dispose() {
+    _disposed = true;
+    _searchFocus.removeListener(_onFocusChange);
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_disposed || !mounted) return;
+    
+    try {
+      // Processar mudanças de focus de forma segura
+      if (_searchFocus.hasFocus) {
+        debugPrint('🎯 Campo de busca header ganhou foco');
+      } else {
+        debugPrint('🎯 Campo de busca header perdeu foco');
+      }
+    } catch (e) {
+      debugPrint('Erro ao processar mudança de foco no header: $e');
+    }
+  }
+
+  void _safeFocusOperation(VoidCallback operation) {
+    if (_disposed || !mounted) return;
+    
+    try {
+      operation();
+    } catch (e) {
+      debugPrint('Erro em operação de foco no header: $e');
+    }
   }
 
   @override
@@ -319,81 +466,96 @@ class _SearchHeaderState extends State<SearchHeader> {
                   backgroundColor: Colors.white,
                   foregroundColor: AppTheme.mostarda,
                   shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(8),
+                  minimumSize: const Size(40, 40),
                 ),
               ),
               
-              const SizedBox(width: AppTheme.espacoMedio),
+              const SizedBox(width: AppTheme.espacoPequeno),
               
               // Campo de busca
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusGrande),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(AppTheme.radiusPequeno),
+                    border: Border.all(
+                      color: AppTheme.bordoSuave,
+                      width: 1,
+                    ),
                   ),
                   child: TextField(
                     controller: _searchController,
                     focusNode: _searchFocus,
-                    onChanged: widget.onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: 'Buscar restaurantes, pratos...',
+                      hintText: 'Buscar restaurantes...',
                       hintStyle: TextStyle(
-                        color: AppTheme.cinzaMedio,
-                        fontSize: 16,
+                        color: AppTheme.cinzaMedio.withOpacity(0.7),
                       ),
                       prefixIcon: Icon(
                         Icons.search,
-                        color: AppTheme.mostarda,
+                        color: AppTheme.cinzaMedio,
+                        size: 20,
                       ),
+                      suffixIcon: _searchController.text.isNotEmpty 
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: AppTheme.cinzaMedio,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              widget.onSearchChanged?.call('');
+                            },
+                          )
+                        : null,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.espacoMedio,
                         vertical: AppTheme.espacoMedio,
                       ),
                     ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppTheme.cinzaEscuro,
+                    ),
+                    onChanged: widget.onSearchChanged,
+                    textInputAction: TextInputAction.search,
                   ),
                 ),
               ),
               
-              const SizedBox(width: AppTheme.espacoMedio),
+              const SizedBox(width: AppTheme.espacoPequeno),
               
               // Botão de filtros
-              Stack(
-                children: [
-                  IconButton(
-                    onPressed: widget.onFilterTap,
-                    icon: const Icon(Icons.tune),
-                    style: IconButton.styleFrom(
-                      backgroundColor: widget.hasActiveFilters 
-                        ? AppTheme.mostarda 
-                        : Colors.white,
-                      foregroundColor: widget.hasActiveFilters 
-                        ? Colors.white 
-                        : AppTheme.mostarda,
-                      shape: const CircleBorder(),
-                    ),
-                  ),
-                  if (widget.hasActiveFilters)
-                    Positioned(
-                      right: 4,
-                      top: 4,
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.terracota,
-                          shape: BoxShape.circle,
+              IconButton(
+                onPressed: widget.onFilterTap,
+                icon: Stack(
+                  children: [
+                    const Icon(Icons.tune),
+                    if (widget.hasActiveFilters)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.mostarda,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppTheme.mostarda,
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(8),
+                  minimumSize: const Size(40, 40),
+                ),
               ),
             ],
           ),

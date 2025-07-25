@@ -168,22 +168,7 @@ class _ResultadosScreenState extends ConsumerState<ResultadosScreen>
             
             const SizedBox(height: 16),
             
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _verDetalhes(restaurante);
-                },
-                icon: const Icon(Icons.visibility),
-                label: const Text('Ver Detalhes'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
+            // Botão Ver Detalhes removido
           ],
         ),
       ),
@@ -607,4 +592,4 @@ class _ResultadosScreenState extends ConsumerState<ResultadosScreen>
       ],
     );
   }
-} 
+}

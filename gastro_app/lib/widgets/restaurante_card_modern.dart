@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/restaurante.dart';
 import '../config/app_theme.dart';
@@ -83,15 +84,11 @@ class _RestauranteCardModernState extends ConsumerState<RestauranteCardModern>
 
   void _toggleFavorite() async {
     try {
-      final favoritosSet = ref.read(favoritosProvider);
-      final isFavoriteNow = favoritosSet.contains(widget.restaurante.id);
+      final favoritosActions = ref.read(favoritosActionsProvider);
+      final favoritos = ref.read(favoritosAtualizadosProvider);
+      final isFavoriteNow = favoritos.contains(widget.restaurante.id);
       
-      // Atualizar o conjunto de favoritos localmente
-      if (isFavoriteNow) {
-        ref.read(favoritosProvider.notifier).state = {...favoritosSet}..remove(widget.restaurante.id);
-      } else {
-        ref.read(favoritosProvider.notifier).state = {...favoritosSet, widget.restaurante.id};
-      }
+      await favoritosActions.toggleFavorito(widget.restaurante.id);
 
       // Mostrar feedback
       if (mounted) {
@@ -128,7 +125,7 @@ class _RestauranteCardModernState extends ConsumerState<RestauranteCardModern>
 
   @override
   Widget build(BuildContext context) {
-    final favoritos = ref.watch(favoritosProvider);
+    final favoritos = ref.watch(favoritosAtualizadosProvider);
     final isFavorite = favoritos.contains(widget.restaurante.id);
 
     return AnimatedBuilder(
@@ -455,4 +452,4 @@ class _RestauranteCardModernState extends ConsumerState<RestauranteCardModern>
     // Por enquanto, vamos usar um placeholder
     return "~500m";
   }
-} 
+}

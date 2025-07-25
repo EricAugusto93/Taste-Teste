@@ -18,10 +18,15 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
   @override
   void initState() {
     super.initState();
-    // Iniciar obtenção de localização ao abrir a tela
+    // Iniciar obtenção de localização ao abrir a tela apenas se necessário
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        LocalizacaoManager.inicializarLocalizacao(ref);
+        final statusAtual = ref.read(statusLocalizacaoProvider);
+        // Só inicializar se ainda não foi inicializado ou se houve erro
+        if (statusAtual == StatusLocalizacao.inicial || 
+            statusAtual == StatusLocalizacao.erro) {
+          LocalizacaoManager.inicializarLocalizacao(ref);
+        }
       }
     });
   }
@@ -325,6 +330,9 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
   // Métodos auxiliares para status
   IconData _getStatusIcon(StatusLocalizacao status) {
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return Icons.location_searching;
       case StatusLocalizacao.obtida:
         return Icons.location_on;
       case StatusLocalizacao.obtendo:
@@ -334,15 +342,18 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
       case StatusLocalizacao.negada:
       case StatusLocalizacao.negadaPermanentemente:
         return Icons.location_disabled;
+      case StatusLocalizacao.servicoDesabilitado:
+        return Icons.location_disabled;
       case StatusLocalizacao.erro:
         return Icons.error_outline;
-      default:
-        return Icons.location_on;
     }
   }
 
   Color _getStatusColor(StatusLocalizacao status) {
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return Colors.grey;
       case StatusLocalizacao.obtida:
         return Colors.green;
       case StatusLocalizacao.obtendo:
@@ -352,10 +363,10 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
       case StatusLocalizacao.negada:
       case StatusLocalizacao.negadaPermanentemente:
         return Colors.red;
+      case StatusLocalizacao.servicoDesabilitado:
+        return Colors.red;
       case StatusLocalizacao.erro:
         return Colors.red;
-      default:
-        return Colors.grey;
     }
   }
 
@@ -365,6 +376,9 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
     }
     
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return 'Verificando localização';
       case StatusLocalizacao.obtida:
         return 'Localização precisa obtida';
       case StatusLocalizacao.obtendo:
@@ -373,10 +387,12 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
         return 'Permissão de localização negada';
       case StatusLocalizacao.negadaPermanentemente:
         return 'Permissão bloqueada';
+      case StatusLocalizacao.servicoDesabilitado:
+        return 'Localização desabilitada';
       case StatusLocalizacao.erro:
         return 'Erro na localização';
-      default:
-        return 'Verificando localização';
+      case StatusLocalizacao.fallback:
+        return 'Localização aproximada';
     }
   }
 
@@ -386,6 +402,9 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
     }
     
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return 'Preparando busca por proximidade';
       case StatusLocalizacao.obtida:
         return 'Restaurantes ordenados por proximidade real';
       case StatusLocalizacao.obtendo:
@@ -394,10 +413,12 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
         return 'Toque no ícone para tentar novamente';
       case StatusLocalizacao.negadaPermanentemente:
         return 'Vá às configurações para permitir localização';
+      case StatusLocalizacao.servicoDesabilitado:
+        return 'Ative a localização no seu dispositivo';
       case StatusLocalizacao.erro:
         return 'Usando localização aproximada como alternativa';
-      default:
-        return 'Preparando busca por proximidade';
+      case StatusLocalizacao.fallback:
+        return 'Mostrando resultados para Porto Alegre';
     }
   }
 
@@ -405,8 +426,8 @@ class _ProximidadeScreenState extends ConsumerState<ProximidadeScreen> {
     // Re-inicializar localização
     if (mounted) {
       await LocalizacaoManager.inicializarLocalizacao(ref);
-      // Invalidar provider de restaurantes para atualizar lista
-      ref.invalidate(restaurantesProximosProvider);
+      // O restaurantesProximosProvider será atualizado automaticamente
+      // quando a localização mudar, não precisamos invalidar manualmente
     }
   }
-} 
+}

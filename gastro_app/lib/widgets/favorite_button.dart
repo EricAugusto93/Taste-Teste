@@ -88,7 +88,7 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
       );
 
       // Atualizar providers
-      ref.invalidate(favoritosIdsProvider);
+      ref.invalidate(carregarFavoritosProvider);
       ref.invalidate(restaurantesFavoritosProvider);
 
       // Mostrar feedback
@@ -234,12 +234,8 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
 
   @override
   Widget build(BuildContext context) {
-    final favoritosIds = ref.watch(favoritosIdsProvider);
-    final isFavorited = favoritosIds.when(
-      data: (ids) => ids.contains(widget.restauranteId),
-      loading: () => false,
-      error: (_, __) => false,
-    );
+    final favoritosIds = ref.watch(favoritosAtualizadosProvider);
+    final isFavorited = favoritosIds.contains(widget.restauranteId);
 
     final activeColor = widget.activeColor ?? Colors.red.shade600;
     final inactiveColor = widget.inactiveColor ?? Colors.grey.shade400;
@@ -319,4 +315,4 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
       ),
     );
   }
-} 
+}

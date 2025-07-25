@@ -30,7 +30,7 @@ class FavoritosScreen extends ConsumerWidget {
             onPressed: () {
               // Refresh da lista
               ref.invalidate(restaurantesFavoritosProvider);
-              ref.invalidate(favoritosIdsProvider);
+        ref.invalidate(carregarFavoritosProvider);
             },
             icon: const Icon(Icons.refresh),
             tooltip: 'Atualizar lista',
@@ -305,44 +305,7 @@ class FavoritosScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                     ],
 
-                    // Botão de ação
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              // TODO: Navegar para detalhes
-                            },
-                            icon: const Icon(Icons.info_outline, size: 16),
-                            label: const Text('Ver Detalhes'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF2c3985),
-                              side: const BorderSide(color: Color(0xFF2c3985)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // TODO: Chamar ou navegar
-                            },
-                            icon: const Icon(Icons.phone, size: 16),
-                            label: const Text('Ligar'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFee9d21),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Espaço removido dos botões de ação
                   ],
                 ),
               ),
@@ -502,4 +465,4 @@ class FavoritosScreen extends ConsumerWidget {
       ),
     );
   }
-} 
+}

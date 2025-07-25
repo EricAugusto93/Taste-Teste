@@ -52,9 +52,10 @@ class _CategoriaCardState extends State<CategoriaCard>
       curve: Curves.easeInOut,
     ));
 
+    // Reduzir a intensidade da animação de brilho para evitar rebuilds excessivos
     _shineAnimation = Tween<double>(
       begin: 0.0,
-      end: 1.0,
+      end: 0.5, // Reduzido de 1.0 para 0.5
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOut,
@@ -164,16 +165,17 @@ class _CategoriaCardState extends State<CategoriaCard>
                   children: [
                     if (widget.config.mostrarEmoji)
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
-                          child: Text(
-                            widget.categoria.emoji,
-                            style: const TextStyle(fontSize: 20),
+                          child: Icon(
+                            widget.categoria.icone,
+                            color: widget.categoria.iconeColor,
+                            size: 18,
                           ),
                         ),
                       ),
@@ -323,7 +325,7 @@ class CategoriaCardLista extends StatelessWidget {
             padding: const EdgeInsets.all(AppTheme.espacoGrande),
             child: Row(
               children: [
-                // Emoji
+                // Ícone
                 Container(
                   width: 50,
                   height: 50,
@@ -332,9 +334,10 @@ class CategoriaCardLista extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: Center(
-                    child: Text(
-                      categoria.emoji,
-                      style: const TextStyle(fontSize: 24),
+                    child: Icon(
+                      categoria.icone,
+                      color: categoria.iconeColor,
+                      size: 28,
                     ),
                   ),
                 ),
@@ -398,54 +401,30 @@ class CategoriaCardDestaque extends StatefulWidget {
   State<CategoriaCardDestaque> createState() => _CategoriaCardDestaqueState();
 }
 
-class _CategoriaCardDestaqueState extends State<CategoriaCardDestaque>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
-
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
-    _pulseController.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
+class _CategoriaCardDestaqueState extends State<CategoriaCardDestaque> {
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _pulseAnimation.value,
-          child: CategoriaCard(
-            categoria: widget.categoria,
-            onTap: widget.onTap,
-            config: const CategoriaConfig(
-              cardWidth: 200,
-              cardHeight: 140,
-              enableAnimations: true,
-            ),
+    // Remover animação contínua para evitar rebuilds excessivos
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-        );
-      },
+        ],
+      ),
+      child: CategoriaCard(
+        categoria: widget.categoria,
+        onTap: widget.onTap,
+        config: const CategoriaConfig(
+          cardWidth: 200,
+          cardHeight: 140,
+          enableAnimations: true,
+        ),
+      ),
     );
   }
-} 
+}

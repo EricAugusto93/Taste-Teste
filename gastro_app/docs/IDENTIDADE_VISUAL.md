@@ -1,543 +1,361 @@
-# 🎨 Identidade Visual - Gastro App
+# 🎨 Design System - Gastro App
 
 ## 📋 Visão Geral
 
-Este documento define o sistema de design completo do Gastro App, incluindo cores, tipografia, componentes e diretrizes de uso baseadas no Material Design 3.
+Sistema de design completo baseado no **Material Design 3** com paleta personalizada dourada/bege para transmitir sofisticação e warmth gastronômico.
 
 ---
 
 ## 🎯 **Paleta de Cores**
 
-### Cores Principais
+### **Cores Principais**
 
-#### 🔵 **Azul Profundo** - `#2C3985`
-- **Uso**: Cor primária do app
-- **Aplicação**: Botões principais, AppBar, ícones ativos, títulos importantes
-- **Variações**:
-  - Claro: `#4A5BA6` (hover states)
-  - Escuro: `#1E2760` (pressed states)
-  - Muito Claro: `#7A8BCF` (backgrounds sutis)
-
-#### 🟡 **Amarelo Mostarda** - `#EE9D21`
-- **Uso**: Cor secundária
-- **Aplicação**: CTAs secundários, destaques, elementos interativos
-- **Variações**:
-  - Claro: `#F2B847` (highlights)
-  - Escuro: `#B8741A` (texto em fundos claros)
-  - Muito Claro: `#F5D18A` (backgrounds)
-
-#### 🔴 **Vermelho Telha** - `#D9502B`
-- **Uso**: Erro e ações intensas
-- **Aplicação**: Erros, exclusões, alertas, chips de destaque
-- **Variações**:
-  - Claro: `#E6754F` (avisos suaves)
-  - Escuro: `#B03A1F` (textos de erro)
-  - Muito Claro: `#EDA487` (backgrounds de erro)
-
-#### 🟤 **Areia Clara** - `#FBE9D2`
-- **Uso**: Fundo principal
-- **Aplicação**: Background do app, cards claros, superfícies
-- **Variações**:
-  - Média: `#F0D4B3`
-  - Escura: `#E5BF94`
-  - Muito Clara: `#FDF4E8`
-
-### Cores Neutras
-
-```
-Branco: #FFFFFF
-Branco Quente: #FFFBF7
-Gelo: #F8F9FA
-Cinza Muito Claro: #F5F5F5
-Cinza Claro: #E0E0E0
-Cinza Médio: #9E9E9E
-Cinza Escuro: #616161
-Cinza Muito Escuro: #424242
-Preto Cinza: #2C2C2C
-Preto: #000000
-```
-
-### Cores Funcionais
-
-| Função | Cor | Hex | Uso |
-|--------|-----|-----|-----|
-| Sucesso | 🟢 | `#4CAF50` | Confirmações, feedback positivo |
-| Aviso | 🟠 | `#FF9800` | Alertas, atenção |
-| Informação | 🔵 | `#2196F3` | Dicas, informações neutras |
-| Favorito | ❤️ | `#E91E63` | Curtidas, favoritos |
-| Rating | ⭐ | `#FFC107` | Avaliações, estrelas |
-
----
-
-## ✍️ **Tipografia**
-
-### Família de Fonte
-- **Primária**: SF Pro Display (iOS) / Roboto (Android) / System Font (Web)
-- **Fallback**: Sans-serif padrão do sistema
-
-### Hierarquia Tipográfica
-
-#### Display (Títulos Grandes)
-```
-Display Large: 32px, Bold, -0.5 letter-spacing
-Display Medium: 28px, Bold, -0.25 letter-spacing  
-Display Small: 24px, SemiBold, 0 letter-spacing
-```
-
-#### Headlines (Títulos de Seção)
-```
-Headline Large: 22px, SemiBold, 0 letter-spacing
-Headline Medium: 20px, SemiBold, 0.15 letter-spacing
-Headline Small: 18px, Medium, 0.15 letter-spacing
-```
-
-#### Body (Corpo do Texto)
-```
-Body Large: 16px, Regular, 0.5 letter-spacing
-Body Medium: 14px, Regular, 0.25 letter-spacing
-Body Small: 12px, Regular, 0.4 letter-spacing
-```
-
-#### Labels (Botões e Tags)
-```
-Label Large: 16px, SemiBold, 0.1 letter-spacing
-Label Medium: 14px, Medium, 0.5 letter-spacing
-Label Small: 12px, Medium, 0.5 letter-spacing
-```
-
-### Estilos Especializados
-
-#### Restaurantes
 ```dart
-Restaurant Name: 18px, SemiBold, Azul Profundo
-Price: 16px, Bold, Amarelo Mostarda
-Rating: 14px, SemiBold, Rating (dourado)
-Distance: 12px, Regular, Cinza Escuro
+// Core Colors - Sempre usar essas constantes
+static const Color primary = Color(0xFF2C3985);       // Azul Profundo
+static const Color secondary = Color(0xFFEE9D21);     // Amarelo Mostarda
+static const Color danger = Color(0xFFD9502B);        // Vermelho Telha
+static const Color background = Color(0xFFFBE9D2);    // Areia Clara
+static const Color surface = Colors.white;            // Fundo de cards
 ```
 
-#### Formulários
+### **Variações Automáticas (Material 3)**
+
 ```dart
-Label: 14px, Medium, Azul Profundo
-Input: 14px, Regular, Azul Profundo
-Placeholder: 14px, Regular, Cinza Médio
-Error: 12px, Medium, Vermelho Telha
-Success: 12px, Medium, Sucesso
+// O sistema gera automaticamente:
+primary10, primary20, primary30... primary100
+secondary10, secondary20... secondary100
+neutral10, neutral20... neutral100
+
+// Para hover, pressed, disabled states
+```
+
+### **Cores Contextuais**
+
+```dart
+// Definidas em AppTheme.customColors
+'success': Color(0xFF2E7D55),      // Verde
+'warning': Color(0xFFF57C00),      // Laranja
+'info': Color(0xFF1976D2),         // Azul informativo
+'favorite': Color(0xFFE91E63),     // Pink para favoritos
 ```
 
 ---
 
-## 🧩 **Componentes**
+## 📝 **Tipografia**
 
-### Botões
+### **Hierarquia Definida**
 
-#### Elevated Button (Primário)
 ```dart
-Background: Azul Profundo
-Text: Branco
-Border Radius: 16px
-Padding: 24h x 16v
-Min Size: 48x48 (acessibilidade)
+// Títulos
+heading1: 24px, Bold, #2C3985       // Títulos principais
+headlineMedium: 20px, SemiBold      // Subtítulos seções
+headlineSmall: 18px, SemiBold       // Subtítulos cards
+
+// Corpo de texto
+bodyLarge: 18px, Regular            // Textos importantes
+bodyMedium: 16px, Regular           // Texto padrão
+bodySmall: 14px, Regular            // Textos secundários
+
+// Especiais
+labelLarge: 16px, Medium            // Botões
+labelMedium: 14px, Medium           // Labels
+labelSmall: 12px, Medium            // Badges, tags
 ```
 
-#### Outlined Button (Secundário)
+### **Uso Prático**
+
 ```dart
-Border: Azul Profundo, 1.5px
-Text: Azul Profundo
-Border Radius: 16px
-Padding: 20h x 14v
-```
-
-#### Text Button (Terciário)
-```dart
-Text: Azul Profundo
-Border Radius: 12px
-Padding: 16h x 12v
-```
-
-### Cards
-
-#### Card Padrão
-```dart
-Background: Branco
-Border Radius: 16px
-Elevation: 4
-Shadow: Sombra Leve (#000 8% opacity)
-Margin: 8h x 4v
-```
-
-#### Card de Restaurante
-```dart
-Background: Branco
-Border Radius: 16px
-Padding: 16px
-Tags: Areia Média + Borda Vermelho Telha
-```
-
-### Campos de Input
-
-#### TextField
-```dart
-Background: Branco
-Border: Cinza Claro, 1px
-Focus Border: Azul Profundo, 2px
-Error Border: Vermelho Telha, 1px
-Border Radius: 12px
-Padding: 16px
-```
-
-### Chips e Tags
-
-#### Chip Padrão
-```dart
-Background: Areia Média
-Border: Vermelho Telha (30% opacity), 1px
-Text: Azul Profundo
-Border Radius: 20px
-Padding: 12h x 8v
+// Sempre usar AppTextStyles
+Text('Título', style: AppTextStyles.heading1)
+Text('Corpo', style: AppTextStyles.bodyMedium)
+Text('Label', style: AppTextStyles.labelMedium)
 ```
 
 ---
 
-## 📐 **Sistema de Espaçamento**
+## 📏 **Espaçamentos**
 
-### Valores Padrão
+### **Escala Padronizada**
+
 ```dart
-XS: 4px   // Micro espaçamentos
-S:  8px   // Pequeno
-M:  16px  // Médio (padrão)
-L:  24px  // Grande
-XL: 32px  // Extra grande
-XXL: 48px // Máximo
-```
+// Constantes em AppTheme
+espacoPequeno: 8.0        // Espaçamentos mínimos
+espacoMedio: 16.0         // Espaçamento padrão
+espacoGrande: 24.0        // Seções importantes
+espacoExtraGrande: 32.0   // Separações maiores
 
-### Aplicação
-- **Margin/Padding interno**: 16px (M)
-- **Espaçamento entre seções**: 24px (L)
-- **Espaçamento entre elementos**: 8px (S)
-- **Espaçamento micro**: 4px (XS)
-
----
-
-## 🔘 **Border Radius**
-
-### Valores Padrão
-```dart
-XS: 4px   // Elementos pequenos
-S:  8px   // Tags, chips pequenos
-M:  12px  // Inputs, botões pequenos
-L:  16px  // Cards, botões principais
-XL: 20px  // Bottom sheets
-XXL: 24px // Containers grandes
-Circular: 999px // Elementos circulares
+// Uso responsivo
+double get espacoResponsivo => isTablet ? espacoGrande : espacoMedio;
 ```
 
 ---
 
-## 📊 **Elevação e Sombras**
+## 🎨 **Componentes Visuais**
 
-### Níveis de Elevação
+### **Cards e Containers**
+
 ```dart
-None: 0    // Elementos planos
-XS: 1      // Divisores sutis
-S: 2       // Chips, tags
-M: 4       // Cards padrão
-L: 6       // FAB, botões elevados
-XL: 8      // Navigation bar
-XXL: 16    // Modals, dialogs
-```
-
-### Sombras
-```dart
-Leve: #000 8% opacity, blur 8px, offset (0,2)
-Média: #000 16% opacity, blur 16px, offset (0,4)
-Forte: #000 24% opacity, blur 24px, offset (0,8)
-```
-
----
-
-## 🎨 **Gradientes**
-
-### Gradiente Primário
-```dart
-LinearGradient(
-  colors: [Azul Profundo, Azul Profundo Claro],
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-)
-```
-
-### Gradiente Secundário
-```dart
-LinearGradient(
-  colors: [Amarelo Mostarda, Amarelo Mostarda Claro],
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-)
-```
-
-### Gradiente de Ação
-```dart
-LinearGradient(
-  colors: [Vermelho Telha, Vermelho Telha Claro],
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-)
-```
-
----
-
-## ♿ **Acessibilidade**
-
-### Contraste
-- **Mínimo WCAG 2.1 AA**: 4.5:1
-- **Recomendado WCAG 2.1 AAA**: 7:1
-- **Textos grandes (18pt+)**: 3:1 mínimo
-
-### Tamanhos Mínimos
-- **Fonte**: 12pt (16px)
-- **Touch Target**: 44x44pt (iOS) / 48x48dp (Android)
-- **Espaçamento entre toques**: 8pt mínimo
-
-### Estados Interativos
-```dart
-Hover: Azul Profundo 8% opacity
-Pressed: Azul Profundo 12% opacity
-Focus: Amarelo Mostarda 12% opacity
-Disabled Background: Cinza Muito Claro
-Disabled Text: Cinza Médio
-```
-
----
-
-## 🚀 **Como Usar**
-
-### 1. Importar Sistema de Design
-```dart
-import 'package:gastro_app/config/app_colors.dart';
-import 'package:gastro_app/config/app_text_styles.dart';
-import 'package:gastro_app/utils/app_theme.dart';
-```
-
-### 2. Usar Cores
-```dart
-// Cores principais
-Container(color: AppColors.azulProfundo)
-
-// Cores funcionais
-Icon(Icons.favorite, color: AppColors.favorito)
-
-// Gradientes
-Container(decoration: BoxDecoration(
-  gradient: AppColors.gradientePrimario,
-))
-```
-
-### 3. Usar Tipografia
-```dart
-Text(
-  'Título Principal',
-  style: AppTextStyles.headlineLarge,
-)
-
-Text(
-  'Nome do Restaurante',
-  style: AppTextStyles.restaurantName,
-)
-```
-
-### 4. Usar Espaçamentos
-```dart
-Padding(
-  padding: EdgeInsets.all(AppTheme.spacingM),
-  child: ...
-)
-
-SizedBox(height: AppTheme.spacingL)
-```
-
-### 5. Usar Border Radius
-```dart
+// Padrão de cards
 Container(
   decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(AppTheme.radiusL),
+    color: AppTheme.branco,
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: AppTheme.shadowLight,    // Elevação sutil
   ),
 )
+
+// Elevações definidas
+shadowLight: elevation 2     // Cards normais
+shadowMedium: elevation 4    // Cards hover
+shadowHeavy: elevation 8     // Modals, dialogs
 ```
 
----
+### **Botões**
 
-## 🔍 **Exemplos Práticos**
-
-### Card de Restaurante
 ```dart
-Card(
-  elevation: AppTheme.elevationM,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(AppTheme.radiusL),
-  ),
-  child: Padding(
-    padding: EdgeInsets.all(AppTheme.spacingM),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Sushi Zen',
-          style: AppTextStyles.restaurantName,
-        ),
-        SizedBox(height: AppTheme.spacingS),
-        Text(
-          'R\$ 80-120',
-          style: AppTextStyles.price,
-        ),
-        SizedBox(height: AppTheme.spacingM),
-        Wrap(
-          spacing: AppTheme.spacingS,
-          children: [
-            Chip(
-              label: Text('romântico', style: AppTextStyles.tag),
-              backgroundColor: AppColors.areiaMedia,
-            ),
-          ],
-        ),
-      ],
-    ),
-  ),
-)
-```
-
-### Botão Primário com Estado
-```dart
+// Primary Button
 ElevatedButton(
-  onPressed: isLoading ? null : onPressed,
   style: ElevatedButton.styleFrom(
-    backgroundColor: AppColors.azulProfundo,
-    foregroundColor: AppColors.branco,
-    padding: EdgeInsets.symmetric(
-      horizontal: AppTheme.spacingL,
-      vertical: AppTheme.spacingM,
-    ),
+    backgroundColor: AppColors.primary,
+    foregroundColor: Colors.white,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppTheme.radiusL),
+      borderRadius: BorderRadius.circular(8),
     ),
   ),
-  child: isLoading
-      ? SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            color: AppColors.branco,
-            strokeWidth: 2,
-          ),
-        )
-      : Text(
-          'Buscar Restaurantes',
-          style: AppTextStyles.labelLarge,
-        ),
+)
+
+// Secondary Button  
+OutlinedButton(
+  style: OutlinedButton.styleFrom(
+    foregroundColor: AppColors.primary,
+    side: BorderSide(color: AppColors.primary),
+  ),
+)
+```
+
+### **Input Fields**
+
+```dart
+// Padrão de inputs
+OutlineInputBorder(
+  borderRadius: BorderRadius.circular(8),
+  borderSide: BorderSide(color: AppColors.cinzaMedio),
+)
+
+// Focus state
+focusedBorder: OutlineInputBorder(
+  borderSide: BorderSide(color: AppColors.primary, width: 2),
 )
 ```
 
 ---
 
-## 🧪 **Showcase Interativo**
+## 🌈 **Gradientes e Efeitos**
 
-Para ver todos os componentes em ação, execute:
+### **Gradientes Principais**
 
 ```dart
-Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => const DesignShowcase(),
-  ),
-);
+// Gradiente primário (azul)
+LinearGradient(
+  colors: [AppColors.primary, AppColors.azulProfundoClaro],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+)
+
+// Gradiente secundário (mostarda)
+LinearGradient(
+  colors: [AppColors.secondary, AppColors.mostardaClara],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+)
+
+// Gradiente de fundo
+LinearGradient(
+  colors: [AppColors.background, AppColors.brancoQuente],
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+)
 ```
 
-O showcase inclui:
-- 🎨 Paleta de cores completa
-- ✍️ Exemplos de tipografia
-- 🔘 Todos os tipos de botões
-- 📝 Formulários e inputs
-- 🃏 Cards e componentes
-- ♿ Demonstrações de acessibilidade
+### **Badges Coloridos (Distância)**
+
+```dart
+// Verde (próximo): ≤500m
+Color(0xFF2E7D55)
+
+// Laranja (médio): ≤2km  
+Color(0xFFF57C00)
+
+// Vermelho (longe): >5km
+Color(0xFFD9502B)
+```
 
 ---
 
 ## 📱 **Responsividade**
 
-### Breakpoints
+### **Breakpoints**
+
 ```dart
-Mobile: < 600px
-Tablet: 600px - 1200px
-Desktop: > 1200px
+// Definidos em AppTheme
+static bool isTablet(BuildContext context) => 
+    MediaQuery.of(context).size.width > 768;
+
+static bool isDesktop(BuildContext context) => 
+    MediaQuery.of(context).size.width > 1024;
 ```
 
-### Adaptações
-- **Mobile**: Espaçamentos reduzidos (75%)
-- **Tablet**: Espaçamentos normais
-- **Desktop**: Espaçamentos aumentados (125%)
+### **Adaptações**
+
+```dart
+// Espaçamentos responsivos
+double get padding => isTablet ? 24.0 : 16.0;
+
+// Cards responsivos
+int get crossAxisCount => isTablet ? 3 : 2;
+
+// Tipografia responsiva
+double get fontSize => isTablet ? 18.0 : 16.0;
+```
 
 ---
 
-## 🔄 **Estados dos Componentes**
+## 🎭 **Estados Visuais**
 
-### Interações
-| Estado | Opacidade | Cor de Fundo |
-|--------|-----------|--------------|
-| Normal | 100% | Cor padrão |
-| Hover | 100% | +8% overlay |
-| Pressed | 100% | +12% overlay |
-| Focus | 100% | Borda amarela |
-| Disabled | 60% | Cinza claro |
+### **Feedback de Interação**
 
-### Loading
-- **Botões**: Spinner branco 20x20
-- **Cards**: Skeleton com gradiente
-- **Inputs**: Borda pulsante
+```dart
+// Loading states
+CircularProgressIndicator(color: AppColors.primary)
 
----
+// Empty states
+Icon(Icons.restaurant_outlined, 
+     color: AppColors.cinzaClaro, 
+     size: 64)
 
-## ✅ **Checklist de Implementação**
+// Error states  
+Icon(Icons.error_outline, 
+     color: AppColors.danger, 
+     size: 48)
 
-### Cores
-- [ ] Todas as cores hardcoded substituídas
-- [ ] Gradientes aplicados consistentemente
-- [ ] Estados de hover/pressed configurados
-- [ ] Contraste verificado em todos os componentes
+// Success states
+Icon(Icons.check_circle, 
+     color: AppTheme.customColors['success'], 
+     size: 48)
+```
 
-### Tipografia
-- [ ] Hierarquia consistente aplicada
-- [ ] Tamanhos mínimos respeitados
-- [ ] Line-height otimizado para legibilidade
-- [ ] Letter-spacing aplicado corretamente
+### **Hover e Pressed States**
 
-### Componentes
-- [ ] Botões seguem especificação Material 3
-- [ ] Cards têm elevação e radius corretos
-- [ ] Inputs têm estados visuais claros
-- [ ] Touch targets >= 48px
+```dart
+// Material InkWell para feedback tátil
+InkWell(
+  borderRadius: BorderRadius.circular(12),
+  onTap: () {},
+  child: Container(...),
+)
 
-### Acessibilidade
-- [ ] Contraste mínimo 4.5:1 verificado
-- [ ] Focus indicators visíveis
-- [ ] Estados disabled claros
-- [ ] Textos alternativos em ícones
+// Estados de botão automáticos via Material 3
+```
 
 ---
 
-## 🔧 **Manutenção**
+## 🖼️ **Imagens e Ícones**
 
-### Atualizações
-1. Modificar apenas arquivos centrais (`app_colors.dart`, `app_text_styles.dart`)
-2. Testar em pelo menos 3 telas diferentes
-3. Verificar contraste com ferramentas WCAG
-4. Atualizar documentação se necessário
+### **Placeholder de Imagens**
 
-### Novos Componentes
-1. Seguir padrões existentes
-2. Usar sistema de espaçamento
-3. Aplicar cores da paleta
-4. Documentar uso e variações
+```dart
+// Para restaurantes sem imagem
+Container(
+  decoration: BoxDecoration(
+    color: AppColors.areiaMedia,
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: Icon(
+    Icons.restaurant,
+    color: AppColors.cinzaMedio,
+    size: 48,
+  ),
+)
+```
+
+### **Ícones Padronizados**
+
+```dart
+// Navegação
+Icons.home_outlined        // Home
+Icons.search              // Busca  
+Icons.favorite_outline    // Favoritos
+Icons.rate_review         // Experiências
+
+// Ações
+Icons.add                 // Adicionar
+Icons.edit                // Editar
+Icons.delete_outline      // Excluir
+Icons.share               // Compartilhar
+
+// Estados
+Icons.location_on         // Localização
+Icons.wifi                // Wi-Fi
+Icons.family_restroom     // Família
+Icons.romantic_dinner     // Romântico (custom ou emoji)
+```
 
 ---
 
-*📅 Última atualização: Dezembro 2024*
-*👤 Responsável: Engenheiro de Software Sênior* 
+## 🎨 **Implementação Prática**
+
+### **Exemplo de Card Completo**
+
+```dart
+Container(
+  margin: EdgeInsets.all(AppTheme.espacoMedio),
+  decoration: BoxDecoration(
+    color: AppTheme.branco,
+    borderRadius: BorderRadius.circular(12),
+    boxShadow: AppTheme.shadowLight,
+  ),
+  child: Material(
+    color: Colors.transparent,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.all(AppTheme.espacoMedio),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              titulo,
+              style: AppTextStyles.headlineSmall,
+            ),
+            SizedBox(height: AppTheme.espacoPequeno),
+            Text(
+              descricao,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.cinzaEscuro,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+)
+```
+
+### **Dark Mode (Futuro)**
+
+```dart
+// Preparado para implementação futura
+ColorScheme.fromSeed(
+  seedColor: AppColors.primary,
+  brightness: Brightness.dark,  // Toggle aqui
+)
+```
+
+---
+
+**🎯 Objetivo:** Manter consistência visual em toda aplicação e facilitar manutenção e expansão do design system.
+
+**📱 Aplicação:** Cada componente deve seguir estes padrões para garantir experiência unificada e profissional. 

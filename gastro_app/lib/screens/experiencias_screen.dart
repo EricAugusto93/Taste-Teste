@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/providers.dart';
 import '../widgets/experiencia_button.dart';
 import '../widgets/registrar_experiencia.dart';
+import '../widgets/safe_list_view.dart';
 import '../services/experiencia_service.dart';
 import '../utils/snackbar_utils.dart';
 import '../config/app_theme.dart';
@@ -30,54 +31,64 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
 
   @override
   void dispose() {
-    _slideController.dispose();
-    _fadeController.dispose();
+    // Verificação de segurança para evitar PersistedOffset errors
+    try {
+      if (_slideController.isAnimating) {
+        _slideController.stop();
+      }
+      _slideController.dispose();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao descartar slideController: $e');
+    }
+    
+    try {
+      if (_fadeController.isAnimating) {
+        _fadeController.stop();
+      }
+      _fadeController.dispose();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao descartar fadeController: $e');
+    }
+    
     super.dispose();
   }
 
   void _setupAnimations() {
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    try {
+      _slideController = AnimationController(
+        duration: const Duration(milliseconds: 600),
+        vsync: this,
+      );
 
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
+      _fadeController = AnimationController(
+        duration: const Duration(milliseconds: 1500),
+        vsync: this,
+      );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+      _slideAnimation = Tween<Offset>(
+        begin: const Offset(0.0, 0.3),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _slideController,
+        curve: Curves.easeOutCubic,
+      ));
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
-    ));
+      _fadeAnimation = Tween<double>(
+        begin: 0.0,
+        end: 1.0,
+      ).animate(CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeIn,
+      ));
 
-    // Configurar animação repetida para o FAB
-    _fadeController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) _fadeController.reverse();
-        });
-      } else if (status == AnimationStatus.dismissed) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) _fadeController.forward();
-        });
+      // Iniciar animações com verificação de mounted
+      if (mounted) {
+        _fadeController.forward();
+        _slideController.forward();
       }
-    });
-
-    // Iniciar animações
-    _fadeController.forward();
-    _slideController.forward();
+    } catch (e) {
+      debugPrint('⚠️ Erro ao configurar animações: $e');
+    }
   }
 
   void _refreshExperiencias() {
@@ -142,9 +153,11 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
                         child: Text('Nenhum restaurante encontrado'),
                       );
                     }
-                    return ListView.builder(
+                    return SafeListViewBuilder(
                       padding: const EdgeInsets.all(16),
                       itemCount: restaurantes.length,
+                      shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         final restaurante = restaurantes[index];
                         return _buildRestauranteItem(restaurante);
@@ -317,10 +330,22 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
       return _buildEmptyState(context);
     }
 
+    // Filtrar experiências válidas (que têm restaurante associado)
+    final experienciasValidas = experienciasList.where((exp) => 
+      exp != null && 
+      exp.restaurante != null && 
+      exp.experiencia != null
+    ).toList();
+    
+    if (experienciasValidas.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
     // Converter para ExperienciaComRestaurante
-    final experiencias = experienciasList.cast<ExperienciaComRestaurante>();
+    final experiencias = experienciasValidas.cast<ExperienciaComRestaurante>();
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Header com estatísticas
         Container(
@@ -376,9 +401,11 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
 
         // Lista de experiências
         Expanded(
-          child: ListView.builder(
+          child: SafeListViewBuilder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: experiencias.length,
+            shrinkWrap: false,
+            physics: const AlwaysScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final experienciaComRestaurante = experiencias[index];
               return _buildExperienciaCard(context, experienciaComRestaurante);
@@ -393,8 +420,10 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
     final emojiCount = <String, int>{};
     
     for (final exp in experiencias) {
-      final emoji = exp.experiencia.emoji;
-      emojiCount[emoji] = (emojiCount[emoji] ?? 0) + 1;
+      final emoji = exp.experiencia?.emoji;
+      if (emoji != null && emoji.isNotEmpty) {
+        emojiCount[emoji] = (emojiCount[emoji] ?? 0) + 1;
+      }
     }
 
     if (emojiCount.isEmpty) return const SizedBox();
@@ -436,6 +465,10 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
+      constraints: const BoxConstraints(
+        minHeight: 120,
+        maxHeight: 400,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -451,6 +484,7 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header da experiência
             Row(
@@ -529,17 +563,24 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
             if (experiencia.comentario != null && experiencia.comentario!.isNotEmpty) ...[
               Container(
                 width: double.infinity,
+                constraints: const BoxConstraints(
+                  maxHeight: 100,
+                ),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFFfbe9d2).withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  experiencia.comentario!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                    height: 1.4,
+                child: SingleChildScrollView(
+                  child: Text(
+                    experiencia.comentario!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -634,25 +675,14 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
       await ExperienciaService.excluirExperiencia(experienciaId);
       
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Experiência excluída com sucesso'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        SnackBarUtils.showSuccess(context, 'Experiência excluída com sucesso!');
         
         // Refresh da lista
-        final container = ProviderScope.containerOf(context);
-        container.invalidate(experienciasUsuarioProvider);
+        ref.invalidate(experienciasUsuarioProvider);
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao excluir experiência: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackBarUtils.showError(context, 'Erro ao excluir experiência: $e');
       }
     }
   }
@@ -681,6 +711,7 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 120,
@@ -857,4 +888,4 @@ class _ExperienciasScreenState extends ConsumerState<ExperienciasScreen>
       ),
     );
   }
-} 
+}

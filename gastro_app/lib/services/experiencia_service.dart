@@ -7,18 +7,31 @@ import 'auth_service.dart';
 class ExperienciaService {
   static final _supabase = SupabaseService.client;
 
-  /// Obter experiências do usuário atual (método simplificado)
+  /// Obter experiências do usuário (método simplificado)
   static Future<List<dynamic>> obterExperienciasUsuario() async {
     try {
+      print('🔄 [obterExperienciasUsuario] Iniciando...');
       final user = AuthService.currentUser;
+      print('👤 [obterExperienciasUsuario] Usuário atual: ${user?.id}');
+      
       if (user == null) {
+        print('❌ [obterExperienciasUsuario] Usuário não encontrado');
         return [];
       }
       
+      print('🔍 [obterExperienciasUsuario] Buscando experiências para usuário: ${user.id}');
       final experiencias = await buscarExperienciasDoUsuario(user.id);
+      print('✅ [obterExperienciasUsuario] Experiências encontradas: ${experiencias.length}');
+      
+      for (int i = 0; i < experiencias.length; i++) {
+        final exp = experiencias[i];
+        print('📊 [obterExperienciasUsuario] Experiência $i: ${exp.experiencia.emoji} - ${exp.restaurante.nome}');
+      }
+      
       return experiencias;
     } catch (e) {
-      print('ERRO em obterExperienciasUsuario: $e');
+      print('❌ [obterExperienciasUsuario] ERRO: $e');
+      print('🔍 [obterExperienciasUsuario] Stack trace: ${StackTrace.current}');
       return [];
     }
   }
@@ -41,26 +54,63 @@ class ExperienciaService {
     required String userId,
     required String restauranteId,
     required String emoji,
-    required String comentario,
+    String? comentario,
     DateTime? dataVisita,
   }) async {
     try {
+      print('🔄 [ExperienciaService] Iniciando registro de experiência');
+      print('📊 [ExperienciaService] Dados: userId=$userId, restauranteId=$restauranteId, emoji=$emoji');
+      
       final dataVisitaFinal = dataVisita ?? DateTime.now();
+      
+      // Verificar se já existe uma experiência para este restaurante hoje
+      print('🔍 [ExperienciaService] Verificando experiência existente...');
+      final experienciaExistente = await buscarExperienciaUsuarioRestaurante(
+        userId, 
+        restauranteId
+      );
+      
+      if (experienciaExistente != null) {
+        print('🔄 [ExperienciaService] Experiência existente encontrada, atualizando...');
+        // Se já existe uma experiência, atualizar ao invés de criar nova
+        final resultado = await atualizarExperiencia(
+          experienciaExistente.id,
+          emoji: emoji,
+          comentario: comentario,
+          dataVisita: dataVisitaFinal,
+        );
+        print('✅ [ExperienciaService] Experiência atualizada com sucesso');
+        return resultado;
+      }
+      
+      print('➕ [ExperienciaService] Criando nova experiência...');
+      final dadosInsert = {
+        'user_id': userId,
+        'restaurante_id': restauranteId,
+        'emoji': emoji,
+        'comentario': comentario?.isNotEmpty == true ? comentario : null,
+        'data_visita': dataVisitaFinal.toIso8601String(),
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+      
+      print('📤 [ExperienciaService] Enviando dados para Supabase: $dadosInsert');
       
       final response = await _supabase
           .from('experiencias')
-          .insert({
-            'user_id': userId,
-            'restaurante_id': restauranteId,
-            'emoji': emoji,
-            'comentario': comentario,
-            'data_visita': dataVisitaFinal.toIso8601String(),
-          })
+          .insert(dadosInsert)
           .select()
           .single();
 
-      return Experiencia.fromJson(response);
+      print('📥 [ExperienciaService] Resposta do Supabase: $response');
+      
+      final experiencia = Experiencia.fromJson(response);
+      print('✅ [ExperienciaService] Experiência criada com sucesso: ${experiencia.id}');
+      
+      return experiencia;
     } catch (e) {
+      print('❌ [ExperienciaService] Erro ao registrar experiência: $e');
+      print('🔍 [ExperienciaService] Stack trace: ${StackTrace.current}');
       throw Exception('Erro ao registrar experiência: $e');
     }
   }
@@ -70,6 +120,8 @@ class ExperienciaService {
     String userId,
   ) async {
     try {
+      print('🔍 [buscarExperienciasDoUsuario] Buscando experiências para userId: $userId');
+      
       // Buscar experiências sem JOIN para evitar problemas de URL
       final experienciasResponse = await _supabase
           .from('experiencias')
@@ -77,18 +129,25 @@ class ExperienciaService {
           .eq('user_id', userId)
           .order('data_visita', ascending: false);
 
+      print('📥 [buscarExperienciasDoUsuario] Resposta do Supabase: ${experienciasResponse.length} experiências');
+      
       if (experienciasResponse.isEmpty) {
+        print('❌ [buscarExperienciasDoUsuario] Nenhuma experiência encontrada');
         return [];
       }
 
       // Buscar restaurantes separadamente para evitar problemas com embedded resources
       List<ExperienciaComRestaurante> resultado = [];
       
-      for (final expData in experienciasResponse) {
+      for (int i = 0; i < experienciasResponse.length; i++) {
+        final expData = experienciasResponse[i];
         try {
+          print('🔄 [buscarExperienciasDoUsuario] Processando experiência $i: ${expData['id']}');
           final experiencia = Experiencia.fromJson(expData);
+          print('✅ [buscarExperienciasDoUsuario] Experiência criada: ${experiencia.emoji}');
           
           // Buscar restaurante separadamente
+          print('🔍 [buscarExperienciasDoUsuario] Buscando restaurante: ${experiencia.restauranteId}');
           final restauranteResponse = await _supabase
               .from('restaurantes')
               .select('''
@@ -99,26 +158,35 @@ class ExperienciaService {
                 imagem_url,
                 latitude,
                 longitude,
-                tags
+                tags,
+                created_at,
+                updated_at
               ''')
               .eq('id', experiencia.restauranteId)
               .maybeSingle();
 
           if (restauranteResponse != null) {
+            print('✅ [buscarExperienciasDoUsuario] Restaurante encontrado: ${restauranteResponse['nome']}');
             final restaurante = Restaurante.fromJson(restauranteResponse);
             resultado.add(ExperienciaComRestaurante(
               experiencia: experiencia,
               restaurante: restaurante,
             ));
+            print('✅ [buscarExperienciasDoUsuario] ExperienciaComRestaurante adicionada');
+          } else {
+            print('❌ [buscarExperienciasDoUsuario] Restaurante não encontrado para ID: ${experiencia.restauranteId}');
           }
         } catch (e) {
+          print('❌ [buscarExperienciasDoUsuario] Erro ao processar experiência $i: $e');
           // Continua processando outras experiências mesmo se uma falhar
           continue;
         }
       }
 
+      print('✅ [buscarExperienciasDoUsuario] Total de experiências processadas: ${resultado.length}');
       return resultado;
     } catch (e) {
+      print('❌ [buscarExperienciasDoUsuario] Erro geral: $e');
       throw Exception('Erro ao buscar experiências do usuário: $e');
     }
   }
@@ -150,16 +218,23 @@ class ExperienciaService {
     DateTime? dataVisita,
   }) async {
     try {
+      print('🔄 [ExperienciaService] Atualizando experiência: $experienciaId');
+      
       final updateData = <String, dynamic>{};
       
       if (emoji != null) updateData['emoji'] = emoji;
-      if (comentario != null) updateData['comentario'] = comentario;
+      if (comentario != null) updateData['comentario'] = comentario.isNotEmpty ? comentario : null;
       if (dataVisita != null) updateData['data_visita'] = dataVisita.toIso8601String();
+      
+      // Sempre atualizar o timestamp
+      updateData['updated_at'] = DateTime.now().toIso8601String();
       
       if (updateData.isEmpty) {
         throw Exception('Nenhum campo para atualizar foi fornecido');
       }
-
+      
+      print('📤 [ExperienciaService] Dados de atualização: $updateData');
+      
       final response = await _supabase
           .from('experiencias')
           .update(updateData)
@@ -167,8 +242,14 @@ class ExperienciaService {
           .select()
           .single();
 
-      return Experiencia.fromJson(response);
+      print('📥 [ExperienciaService] Resposta da atualização: $response');
+      
+      final experiencia = Experiencia.fromJson(response);
+      print('✅ [ExperienciaService] Experiência atualizada com sucesso');
+      
+      return experiencia;
     } catch (e) {
+      print('❌ [ExperienciaService] Erro ao atualizar experiência: $e');
       throw Exception('Erro ao atualizar experiência: $e');
     }
   }
@@ -219,7 +300,9 @@ class ExperienciaService {
                 imagem_url,
                 latitude,
                 longitude,
-                tags
+                tags,
+                created_at,
+                updated_at
               ''')
               .eq('id', experiencia.restauranteId)
               .maybeSingle();
@@ -275,4 +358,4 @@ enum EmojiAvaliacao {
     }
     return null;
   }
-} 
+}

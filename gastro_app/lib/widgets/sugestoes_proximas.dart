@@ -17,40 +17,10 @@ class SugestoesProximas extends ConsumerStatefulWidget {
 class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
   bool _expandido = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _solicitarLocalizacao();
-  }
-
   Future<void> _solicitarLocalizacao() async {
-    ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtendo;
-
-    final resultado = await LocalizacaoService.obterLocalizacaoAtual();
-    
-    try {
-      final position = await LocalizacaoService.getCurrentPosition();
-      
-      if (position != null) {
-        final location = {
-          'latitude': position.latitude,
-          'longitude': position.longitude,
-        };
-        
-        ref.read(localizacaoAtualProvider.notifier).state = location;
-        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.obtida;
-        ref.read(usandoFallbackProvider.notifier).state = false;
-      } else {
-        final fallbackLocation = LocalizacaoService.getFallbackLocation();
-        ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
-        ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.fallback;
-        ref.read(usandoFallbackProvider.notifier).state = true;
-      }
-    } catch (e) {
-      final fallbackLocation = LocalizacaoService.getFallbackLocation();
-      ref.read(localizacaoAtualProvider.notifier).state = fallbackLocation;
-      ref.read(statusLocalizacaoProvider.notifier).state = StatusLocalizacao.erro;
-      ref.read(usandoFallbackProvider.notifier).state = true;
+    // Usar o LocalizacaoManager para consistência
+    if (mounted) {
+      await LocalizacaoManager.inicializarLocalizacao(ref);
     }
   }
 
@@ -63,9 +33,7 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
           analiseIA: {
             'tipo': null,
             'tags': [],
-            'localizacao': LocalizacaoService.temLocalizacaoReal 
-              ? 'Sua localização atual' 
-              : 'São Paulo - Centro',
+            'localizacao': 'Sua localização atual',
           },
         ),
       ),
@@ -144,7 +112,7 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
                 if (statusLocalizacao == StatusLocalizacao.negadaPermanentemente)
                   TextButton.icon(
                     onPressed: () async {
-                      await LocalizacaoService.abrirConfiguracoesApp();
+                      await LocalizacaoService.openLocationSettings();
                     },
                     icon: const Icon(Icons.settings, size: 16),
                     label: const Text('Config'),
@@ -337,6 +305,9 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
 
   String _getTituloSugestoes(StatusLocalizacao status, Map<String, dynamic> config) {
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return 'Restaurantes em destaque';
       case StatusLocalizacao.obtendo:
         return 'Obtendo sua localização...';
       case StatusLocalizacao.obtida:
@@ -347,15 +318,18 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
         return 'Localização bloqueada';
       case StatusLocalizacao.servicoDesabilitado:
         return 'Localização desabilitada';
+      case StatusLocalizacao.erro:
+        return 'Erro na localização';
       case StatusLocalizacao.fallback:
         return 'Restaurantes próximos';
-      default:
-        return 'Restaurantes em destaque';
     }
   }
 
   String _getSubtituloSugestoes(StatusLocalizacao status, Map<String, dynamic> config) {
     switch (status) {
+      case StatusLocalizacao.inicial:
+      case StatusLocalizacao.desconhecido:
+        return 'Baseado na região de Porto Alegre';
       case StatusLocalizacao.obtendo:
         return 'Aguarde um momento...';
       case StatusLocalizacao.obtida:
@@ -367,8 +341,8 @@ class _SugestoesProximasState extends ConsumerState<SugestoesProximas> {
         return 'Ative nas configurações do app';
       case StatusLocalizacao.servicoDesabilitado:
         return 'Ative a localização no seu dispositivo';
-      default:
-        return 'Baseado na região de São Paulo';
+      case StatusLocalizacao.erro:
+        return 'Usando localização aproximada';
     }
   }
-} 
+}

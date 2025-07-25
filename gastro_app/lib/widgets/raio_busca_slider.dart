@@ -1,14 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 
 import '../utils/providers.dart';
 
-class RaioBuscaSlider extends ConsumerWidget {
+class RaioBuscaSlider extends ConsumerStatefulWidget {
   const RaioBuscaSlider({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RaioBuscaSlider> createState() => _RaioBuscaSliderState();
+}
+
+class _RaioBuscaSliderState extends ConsumerState<RaioBuscaSlider> {
+  Timer? _debounceTimer;
+  double? _tempValue;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  void _updateRaio(double value) {
+    setState(() {
+      _tempValue = value;
+    });
+    
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      ref.read(raioBuscaProvider.notifier).state = value;
+      setState(() {
+        _tempValue = null;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final raioAtual = ref.watch(raioBuscaProvider);
+    final displayValue = _tempValue ?? raioAtual;
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -52,7 +82,7 @@ class RaioBuscaSlider extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${raioAtual.toStringAsFixed(0)} km',
+                  '${displayValue.toStringAsFixed(0)} km',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -77,13 +107,11 @@ class RaioBuscaSlider extends ConsumerWidget {
               trackHeight: 6,
             ),
             child: Slider(
-              value: raioAtual,
+              value: displayValue,
               min: 1.0,
               max: 10.0,
               divisions: 9,
-              onChanged: (value) {
-                ref.read(raioBuscaProvider.notifier).state = value;
-              },
+              onChanged: _updateRaio,
             ),
           ),
           
@@ -134,14 +162,14 @@ class RaioBuscaSlider extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  _getRaioIcon(raioAtual),
+                  _getRaioIcon(displayValue),
                   color: const Color(0xFF2c3985),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _getRaioDescricao(raioAtual),
+                    _getRaioDescricao(displayValue),
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xFF2c3985),
@@ -176,4 +204,4 @@ class RaioBuscaSlider extends ConsumerWidget {
       return 'Distância maior - carro ou transporte público';
     }
   }
-} 
+}

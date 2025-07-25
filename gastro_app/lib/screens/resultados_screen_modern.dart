@@ -715,14 +715,7 @@ class _RestaurantePreview extends ConsumerWidget {
 
                 const SizedBox(height: AppTheme.espacoGrande),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: onDetailsPressed,
-                    icon: const Icon(Icons.visibility),
-                    label: const Text('Ver Detalhes'),
-                  ),
-                ),
+                // Botão Ver Detalhes removido
               ],
             ),
           ),
@@ -730,4 +723,4 @@ class _RestaurantePreview extends ConsumerWidget {
       ),
     );
   }
-} 
+}

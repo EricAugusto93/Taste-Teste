@@ -1,16 +1,60 @@
-import 'dart:math';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Serviço de IA Simplificado para MVP
+/// Serviço de IA para Interpretação de Busca
 /// 
-/// Versão simplificada que usa apenas lógica de palavras-chave
-/// para interpretar buscas gastronômicas
+/// Suporta Edge Function (produção) e fallback local (desenvolvimento)
 class AiService {
-  /// Processar busca por desejo (versão simplificada)
+  static const String _edgeFunctionUrl = 'https://gnosarnyuiyrbcdwkfto.supabase.co/functions/v1/ai-interpret-search';
+  
+  /// Processar busca por desejo
   static Future<Map<String, dynamic>> processarBuscaPorDesejo(String input) async {
-    // Simula delay para UX consistente
-    await Future.delayed(const Duration(milliseconds: 400));
+    try {
+      // Tentar usar Edge Function primeiro
+      return await _processarComEdgeFunction(input);
+    } catch (e) {
+      print('Edge Function falhou, usando fallback: $e');
+      // Fallback para lógica local
+      return await _processarBuscaSimplificada(input);
+    }
+  }
+  
+  /// Processar usando Edge Function do Supabase
+  static Future<Map<String, dynamic>> _processarComEdgeFunction(String input) async {
+    final response = await http.post(
+      Uri.parse(_edgeFunctionUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${dotenv.env['SUPABASE_ANON_KEY']}',
+      },
+      body: json.encode({
+        'input': input,
+        'options': {
+          'provider': 'openai',
+          'maxTokens': 200,
+          'temperature': 0.3,
+        }
+      }),
+    ).timeout(const Duration(seconds: 10));
     
-    return _processarBuscaSimplificada(input);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return {
+        'tipo': data['tipo'],
+        'tags': List<String>.from(data['tags'] ?? []),
+        'localizacao': data['localizacao'],
+        'ambiente': data['ambiente'],
+        'faixaPreco': data['faixaPreco']?.toDouble(),
+        'horario': data['horario'],
+        'input_original': input,
+        'confianca': (data['confianca'] ?? 0.8) * 100,
+        'metadados': data['metadados'] ?? {},
+      };
+    } else {
+      throw Exception('Edge Function retornou ${response.statusCode}: ${response.body}');
+    }
   }
 
   /// Versão simplificada da interpretação de busca
@@ -197,4 +241,4 @@ class AiService {
   static void cancelarOperacoes() {
     // Placeholder - não há operações para cancelar
   }
-} 
+}

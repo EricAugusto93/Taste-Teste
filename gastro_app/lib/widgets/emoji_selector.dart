@@ -23,9 +23,10 @@ class EmojiSelector extends ConsumerStatefulWidget {
 
 class _EmojiSelectorState extends ConsumerState<EmojiSelector>
     with TickerProviderStateMixin {
-  final TextEditingController _comentarioController = TextEditingController();
+  late final TextEditingController _comentarioController;
   EmojiAvaliacao? _emojiSelecionado;
   bool _salvando = false;
+  bool _disposed = false;
   
   late AnimationController _slideController;
   late AnimationController _scaleController;
@@ -37,13 +38,15 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
   void initState() {
     super.initState();
     
+    _comentarioController = TextEditingController();
+    
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
     
     _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -52,14 +55,14 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _slideController,
-      curve: Curves.easeOutCubic,
+      curve: Curves.easeOut,
     ));
 
     _scaleAnimation = Tween<double>(
-      begin: 0.5,
+      begin: 0.8,
       end: 1.0,
     ).animate(CurvedAnimation(
-      parent: _slideController,
+      parent: _scaleController,
       curve: Curves.elasticOut,
     ));
 
@@ -77,10 +80,17 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
 
   @override
   void dispose() {
+    _disposed = true;
     _slideController.dispose();
     _scaleController.dispose();
     _comentarioController.dispose();
     super.dispose();
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
   }
 
   void _inicializarDados() {
@@ -97,16 +107,23 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
       return;
     }
 
-    final usuarioAtual = ref.read(usuarioAtualProvider);
+    // Verificar se usuário está autenticado primeiro
+    final isAuthenticated = ref.read(isAuthenticatedProvider);
+    if (!isAuthenticated) {
+      _showSnackBar('Usuário não autenticado', AppTheme.customColors['warning']!);
+      return;
+    }
+
+    final usuarioAtualAsync = ref.read(usuarioAtualProvider);
     
-    await usuarioAtual.when(
+    await usuarioAtualAsync.when(
       data: (usuario) async {
         if (usuario == null) {
-          _showSnackBar('Usuário não autenticado', AppTheme.customColors['warning']!);
+          _showSnackBar('Erro ao obter dados do usuário', AppTheme.customColors['warning']!);
           return;
         }
 
-        setState(() {
+        _safeSetState(() {
           _salvando = true;
         });
 
@@ -146,14 +163,18 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
           _showSnackBar('Erro ao salvar experiência', Colors.red);
         } finally {
           if (mounted) {
-            setState(() {
+            _safeSetState(() {
               _salvando = false;
             });
           }
         }
       },
-      loading: () => null,
-      error: (error, stack) => null,
+      loading: () {
+        _showSnackBar('Carregando dados do usuário...', Colors.blue);
+      },
+      error: (error, stack) {
+        _showSnackBar('Erro ao carregar usuário: $error', Colors.red);
+      },
     );
   }
 
@@ -304,7 +325,7 @@ class _EmojiSelectorState extends ConsumerState<EmojiSelector>
     
     return GestureDetector(
       onTap: () {
-        setState(() {
+        _safeSetState(() {
           _emojiSelecionado = avaliacao;
         });
         

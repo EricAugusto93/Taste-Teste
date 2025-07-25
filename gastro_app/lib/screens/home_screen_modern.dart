@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/restaurante.dart';
@@ -30,28 +31,67 @@ class HomeScreenModern extends ConsumerStatefulWidget {
 
 class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
     with TickerProviderStateMixin {
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
+  late final TextEditingController _searchController;
+  late final FocusNode _searchFocusNode;
   
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController();
+    _searchFocusNode = FocusNode();
     _setupAnimations();
     _carregarFavoritos();
+    
+    // Adicionar listener seguro para mudanças de focus
+    _searchFocusNode.addListener(_onFocusChange);
   }
 
   @override
   void dispose() {
+    _disposed = true;
+    _searchFocusNode.removeListener(_onFocusChange);
     _fadeController.dispose();
     _slideController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_disposed || !mounted) return;
+    
+    try {
+      // Processar mudanças de focus de forma segura
+      if (_searchFocusNode.hasFocus) {
+        debugPrint('🎯 Campo de busca ganhou foco');
+      } else {
+        debugPrint('🎯 Campo de busca perdeu foco');
+      }
+    } catch (e) {
+      debugPrint('Erro ao processar mudança de foco: $e');
+    }
+  }
+
+  void _safeSetState(VoidCallback fn) {
+    if (!_disposed && mounted) {
+      setState(fn);
+    }
+  }
+
+  void _safeFocusOperation(VoidCallback operation) {
+    if (_disposed || !mounted) return;
+    
+    try {
+      operation();
+    } catch (e) {
+      debugPrint('Erro em operação de foco: $e');
+    }
   }
 
   void _setupAnimations() {
@@ -91,8 +131,8 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
     usuarioAtual.whenData((usuario) async {
       if (usuario != null) {
         try {
-          final favoritos = await UsuarioService.obterIdsFavoritos(usuario.id);
-          ref.read(favoritosProvider.notifier).state = favoritos.toSet();
+          // Os favoritos agora são carregados automaticamente pelo carregarFavoritosProvider
+          ref.invalidate(carregarFavoritosProvider);
         } catch (e) {
           // Ignorar erro silenciosamente
         }
@@ -129,7 +169,7 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
         'erro': null,
       });
 
-      _searchFocusNode.unfocus();
+      _safeFocusOperation(() => _searchFocusNode.unfocus());
 
       // Mostrar feedback de interpretação da IA
       if (respostaIA['confianca'] != null) {
@@ -323,8 +363,8 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
     // Preencher o campo de busca com a query da categoria
     _searchController.text = categoria.queryBusca;
     
-    // Fechar o teclado se estiver aberto
-    _searchFocusNode.unfocus();
+    // Fechar o teclado se estiver aberto de forma segura
+    _safeFocusOperation(() => _searchFocusNode.unfocus());
     
     // Disparar a busca automaticamente
     await _handleSearch(categoria.queryBusca);
@@ -712,7 +752,7 @@ class _HomeScreenModernState extends ConsumerState<HomeScreenModern>
             ElevatedButton.icon(
               onPressed: () {
                 _searchController.clear();
-                _searchFocusNode.requestFocus();
+                _safeFocusOperation(() => _searchFocusNode.requestFocus());
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Nova Busca'),
@@ -1028,4 +1068,4 @@ class __QuickActionCardModernState extends State<_QuickActionCardModern>
       },
     );
   }
-} 
+}

@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
 
+enum TipoLocal {
+  restaurante('Restaurante'),
+  cafe('Café'),
+  bar('Bar'),
+  lanchonete('Lanchonete'),
+  sorveteria('Sorveteria'),
+  padaria('Padaria'),
+  bistro('Bistrô'),
+  pizzaria('Pizzaria'),
+  hamburgueria('Hamburgueria'),
+  doceria('Doceria');
+
+  const TipoLocal(this.nome);
+  final String nome;
+}
+
 class Categoria {
   final String id;
   final String nome;
   final String emoji;
+  final IconData icone;
+  final Color iconeColor;
+  final TipoLocal tipoLocal;
   final String queryBusca;
   final String descricao;
   final List<String> tags;
@@ -16,6 +35,9 @@ class Categoria {
     required this.id,
     required this.nome,
     required this.emoji,
+    required this.icone,
+    required this.iconeColor,
+    required this.tipoLocal,
     required this.queryBusca,
     required this.descricao,
     required this.tags,
@@ -31,6 +53,9 @@ class CategoriasData {
       id: 'jantar_romantico',
       nome: 'Jantar Romântico',
       emoji: '🍷',
+      icone: Icons.restaurant_menu,
+      iconeColor: Color(0xFFE91E63),
+      tipoLocal: TipoLocal.restaurante,
       queryBusca: 'lugar romântico para jantar a dois com ambiente intimista',
       descricao: 'Ambiente perfeito para momentos especiais',
       tags: ['romântico', 'intimista', 'especial', 'jantar'],
@@ -46,6 +71,9 @@ class CategoriasData {
       id: 'cafes_tranquilos',
       nome: 'Cafés Tranquilos',
       emoji: '☕',
+      icone: Icons.local_cafe,
+      iconeColor: Color(0xFF8B4513),
+      tipoLocal: TipoLocal.cafe,
       queryBusca: 'café tranquilo para trabalhar ou conversar',
       descricao: 'Para trabalhar ou relaxar com um bom café',
       tags: ['café', 'tranquilo', 'trabalho', 'wi-fi'],
@@ -61,6 +89,9 @@ class CategoriasData {
       id: 'classicos_cidade',
       nome: 'Clássicos da Cidade',
       emoji: '🍝',
+      icone: Icons.account_balance,
+      iconeColor: Color(0xFFB8860B),
+      tipoLocal: TipoLocal.restaurante,
       queryBusca: 'restaurantes tradicionais e clássicos da cidade',
       descricao: 'Tradições culinárias que marcaram a cidade',
       tags: ['tradicional', 'clássico', 'história', 'família'],
@@ -76,6 +107,9 @@ class CategoriasData {
       id: 'mata_fome_rapido',
       nome: 'Mata-Fome Rápido',
       emoji: '🍔',
+      icone: Icons.fastfood,
+      iconeColor: Color(0xFFFF6B35),
+      tipoLocal: TipoLocal.lanchonete,
       queryBusca: 'comida rápida e saborosa para matar a fome',
       descricao: 'Solução rápida para a fome do dia a dia',
       tags: ['rápido', 'delivery', 'fast-food', 'prático'],
@@ -91,6 +125,9 @@ class CategoriasData {
       id: 'doces_sobremesas',
       nome: 'Doces & Sobremesas',
       emoji: '🍦',
+      icone: Icons.icecream,
+      iconeColor: Color(0xFFE91E63),
+      tipoLocal: TipoLocal.sorveteria,
       queryBusca: 'lugar para comer sobremesa doce e deliciosa',
       descricao: 'Para satisfazer aquela vontade de doce',
       tags: ['doce', 'sobremesa', 'açaí', 'sorvete', 'torta'],
@@ -106,6 +143,9 @@ class CategoriasData {
       id: 'brunch_domingo',
       nome: 'Brunch de Domingo',
       emoji: '🍳',
+      icone: Icons.brunch_dining,
+      iconeColor: Color(0xFFFFC107),
+      tipoLocal: TipoLocal.bistro,
       queryBusca: 'brunch delicioso para domingo relaxante',
       descricao: 'Domingo perfeito com brunch caprichado',
       tags: ['brunch', 'domingo', 'café da manhã', 'ovos'],
@@ -121,6 +161,9 @@ class CategoriasData {
       id: 'beber_amigos',
       nome: 'Para Beber com os Amigos',
       emoji: '🍻',
+      icone: Icons.sports_bar,
+      iconeColor: Color(0xFF4CAF50),
+      tipoLocal: TipoLocal.bar,
       queryBusca: 'bar descontraído para beber com os amigos',
       descricao: 'Ambiente ideal para se divertir com a galera',
       tags: ['bar', 'amigos', 'bebida', 'descontraído', 'happy hour'],
@@ -136,6 +179,9 @@ class CategoriasData {
       id: 'pet_friendly',
       nome: 'Pet Friendly',
       emoji: '🐶',
+      icone: Icons.pets,
+      iconeColor: Color(0xFF9C27B0),
+      tipoLocal: TipoLocal.restaurante,
       queryBusca: 'restaurante que aceita pets e animais de estimação',
       descricao: 'Lugares que recebem você e seu melhor amigo',
       tags: ['pet friendly', 'cachorro', 'gato', 'animais'],
@@ -150,12 +196,15 @@ class CategoriasData {
     Categoria(
       id: 'vegetariano_vegano',
       nome: 'Vegetarianos/Veganos',
-      emoji: '🌿',
+      emoji: '🥗',
+      icone: Icons.local_florist,
+      iconeColor: Color(0xFF4CAF50),
+      tipoLocal: TipoLocal.restaurante,
       queryBusca: 'comida vegetariana e vegana saudável',
-      descricao: 'Opções deliciosas à base de plantas',
+      descricao: 'Opções deliciosas para quem não come carne',
       tags: ['vegetariano', 'vegano', 'saudável', 'orgânico'],
       gradient: LinearGradient(
-        colors: [Color(0xFF4CAF50), Color(0xFFC8E6C9)],
+        colors: [Color(0xFF4CAF50), Color(0xFF8BC34A)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -260,4 +309,4 @@ class CategoriaConfig {
       enableAnimations: enableAnimations ?? this.enableAnimations,
     );
   }
-} 
+}

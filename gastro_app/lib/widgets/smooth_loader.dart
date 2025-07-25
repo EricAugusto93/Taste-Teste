@@ -88,18 +88,19 @@ class _SmoothLoaderState extends State<SmoothLoader>
   void initState() {
     super.initState();
     
+    // Aumentar duração das animações para reduzir rebuilds
     _rotationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3), // Aumentado de 2 para 3 segundos
       vsync: this,
     );
     
     _pulseController = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 1500), // Aumentado de 1000 para 1500ms
       vsync: this,
     );
     
     _dotsController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000), // Aumentado de 1500 para 2000ms
       vsync: this,
     );
 
@@ -363,4 +364,4 @@ class LoaderOverlay extends StatelessWidget {
       ],
     );
   }
-} 
+}
