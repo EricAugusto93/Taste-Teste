@@ -72,6 +72,14 @@ class _CategoriaScreenState extends ConsumerState<CategoriaScreen> {
   /// Mapeia as categorias do app para os tipos e tags reais do banco de dados
   /// Baseado na análise dos dados reais: Japonesa, Italiana, Cafeteria, Hamburgueria, etc.
   List<Restaurante> _filtrarPorCategoria(List<Restaurante> restaurantes, String categoria) {
+    print('🔍 [_filtrarPorCategoria] Categoria: $categoria');
+    print('🔍 [_filtrarPorCategoria] Total de restaurantes recebidos: ${restaurantes.length}');
+    
+    // Log dos restaurantes recebidos
+    for (final r in restaurantes) {
+      print('🔍 [_filtrarPorCategoria] Restaurante: ${r.nome}, Tipo: ${r.tipo}, Tags: ${r.tags}');
+    }
+    
     switch (categoria.toLowerCase()) {
       case 'jantar romântico':
         return restaurantes.where((r) => 
@@ -204,26 +212,39 @@ class _CategoriaScreenState extends ConsumerState<CategoriaScreen> {
         ).toList();
         
       case 'para beber':
-        return restaurantes.where((r) => 
-          // Tipos bar do banco
-          r.tipo.toLowerCase().contains('bar') ||
-          r.tipo.toLowerCase().contains('pub') ||
-          r.tipo.toLowerCase().contains('cervejaria') ||
-          r.tipo.toLowerCase().contains('choperia') ||
-          r.tipo.toLowerCase().contains('lounge') ||
-          // Tags bebidas
-          r.tags.any((tag) => tag.toLowerCase().contains('bar')) ||
-          r.tags.any((tag) => tag.toLowerCase().contains('cerveja')) ||
-          r.tags.any((tag) => tag.toLowerCase().contains('beer')) ||
-          r.tags.any((tag) => tag.toLowerCase().contains('drinks')) ||
-          r.tags.any((tag) => tag.toLowerCase().contains('happy hour')) ||
-          r.tags.any((tag) => tag.toLowerCase().contains('chopp')) ||
-          // Nome indica bar
-          r.nome.toLowerCase().contains('bar') ||
-          r.nome.toLowerCase().contains('beer') ||
-          r.nome.toLowerCase().contains('pub') ||
-          r.nome.toLowerCase().contains('cervejaria')
-        ).toList();
+        print('🔍 [_filtrarPorCategoria] Filtrando para categoria: para beber');
+        final filtrados = restaurantes.where((r) {
+          final tipoMatch = r.tipo.toLowerCase().contains('bar') ||
+                           r.tipo.toLowerCase().contains('pub') ||
+                           r.tipo.toLowerCase().contains('cervejaria') ||
+                           r.tipo.toLowerCase().contains('choperia') ||
+                           r.tipo.toLowerCase().contains('lounge');
+          
+          final tagMatch = r.tags.any((tag) => tag.toLowerCase().contains('bar')) ||
+                          r.tags.any((tag) => tag.toLowerCase().contains('cerveja')) ||
+                          r.tags.any((tag) => tag.toLowerCase().contains('beer')) ||
+                          r.tags.any((tag) => tag.toLowerCase().contains('drinks')) ||
+                          r.tags.any((tag) => tag.toLowerCase().contains('happy hour')) ||
+                          r.tags.any((tag) => tag.toLowerCase().contains('chopp'));
+          
+          final nomeMatch = r.nome.toLowerCase().contains('bar') ||
+                           r.nome.toLowerCase().contains('beer') ||
+                           r.nome.toLowerCase().contains('pub') ||
+                           r.nome.toLowerCase().contains('cervejaria');
+          
+          final match = tipoMatch || tagMatch || nomeMatch;
+          
+          if (match) {
+            print('✅ [_filtrarPorCategoria] MATCH - ${r.nome}: tipo=${r.tipo}, tags=${r.tags}');
+          } else {
+            print('❌ [_filtrarPorCategoria] NO MATCH - ${r.nome}: tipo=${r.tipo}, tags=${r.tags}');
+          }
+          
+          return match;
+        }).toList();
+        
+        print('🔍 [_filtrarPorCategoria] Restaurantes filtrados para "para beber": ${filtrados.length}');
+        return filtrados;
         
       case 'pet friendly':
         return restaurantes.where((r) => 

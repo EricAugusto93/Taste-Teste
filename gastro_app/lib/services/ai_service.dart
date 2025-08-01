@@ -66,35 +66,27 @@ class AiService {
       'café': 'café',
       'coffee': 'café',
       'cafeteria': 'café',
-      'pizza': 'italiano',
-      'pizzaria': 'italiano',
+      'pizza': 'italiano',        // ✅ Corrigido
+      'pizzaria': 'italiano',     // ✅ Corrigido
       'bar': 'bar',
       'cerveja': 'bar',
-      'chopp': 'cervejaria',
-      'cervejaria': 'cervejaria',
-      'choperia': 'cervejaria',
-      'pub': 'bar',
-      'lounge': 'bar',
-      'beer': 'cervejaria',
-      'drinks': 'bar',
-      'para beber': 'bar',
-      'beber': 'bar',
-      'happy hour': 'bar',
-      'sushi': 'japonês',
-      'japonês': 'japonês',
-      'japonesa': 'japonês',
-      'chinês': 'japonês',
-      'chinesa': 'japonês',
+      'chopp': 'bar',
+      'sushi': 'japonês',         // ✅ Corrigido
+      'japonês': 'japonês',       // ✅ Corrigido
+      'japonesa': 'japonês',      // ✅ Corrigido
+      'chinês': 'japonês',        // ❌ Temporário - verificar se existe tipo 'chinês'
+      'chinesa': 'japonês',       // ❌ Temporário
       'vegano': 'vegetariano',
       'vegetariano': 'vegetariano',
       'saudável': 'vegetariano',
       'restaurante': 'contemporâneo',
-      'hambúrguer': 'bar',
-      'hamburgueria': 'bar',
+      'hambúrguer': 'bar',        // ❌ Verificar se existe tipo específico
+      'hamburgueria': 'bar',      // ❌ Verificar
       'lanche': 'bar',
-      'doce': 'café',
+      'doce': 'café',             // ❌ Verificar se existe 'sorveteria'
       'sorvete': 'café',
-      'churrasco': 'churrascaria',
+      'churrasco': 'churrascaria', // ✅ Adicionar
+      'cervejaria': 'cervejaria',  // ✅ Adicionar
     };
     
     Map<String, List<String>> tagsMap = {
@@ -112,22 +104,10 @@ class AiService {
       'luxo': ['premium'],
       'caro': ['premium'],
       'barato': ['casual'],
-      'artesanal': ['artesanal'],
-      'cerveja artesanal': ['cerveja artesanal', 'artesanal'],
+      'artesanal': ['pizza artesanal'],
       'orgânico': ['orgânico'],
-      'happy hour': ['happy hour', 'drinks'],
+      'happy hour': ['happy hour'],
       'rápido': ['fast-food'],
-      'drinks': ['drinks', 'bar'],
-      'cerveja': ['cerveja', 'beer'],
-      'chopp': ['chopp', 'beer'],
-      'beer': ['beer', 'cerveja'],
-      'para beber': ['drinks', 'bar', 'cerveja'],
-      'beber': ['drinks', 'bar'],
-      'música ao vivo': ['música ao vivo'],
-      'petiscos': ['petiscos'],
-      'descontraído': ['descontraído', 'casual'],
-      'pub food': ['pub food'],
-      'industrial': ['industrial'],
     };
     
     Map<String, String> localizacaoMap = {
@@ -233,25 +213,14 @@ class AiService {
       tags.add('casual');
     }
     
-    // Se mencionar bebida, adicionar contexto social e de bar
-    if (input.contains('beber') || input.contains('bebida') || input.contains('drinks') || 
-        input.contains('cerveja') || input.contains('chopp') || input.contains('beer')) {
-      tags.addAll(['drinks', 'bar', 'social']);
-    }
-    
-    // Se mencionar para beber especificamente
-    if (input.contains('para beber')) {
-      tags.addAll(['drinks', 'bar', 'cerveja', 'happy hour']);
+    // Se mencionar bebida, adicionar contexto social
+    if (input.contains('beber') || input.contains('bebida')) {
+      tags.add('social');
     }
     
     // Se mencionar encontro, adicionar contexto romântico
     if (input.contains('encontro') || input.contains('date')) {
       tags.add('romântico');
-    }
-    
-    // Se mencionar happy hour
-    if (input.contains('happy hour') || input.contains('happy-hour')) {
-      tags.addAll(['happy hour', 'drinks', 'bar']);
     }
   }
 
