@@ -1,0 +1,16 @@
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo fornecida pelo usuário -->
+  <defs>
+    <style>
+      .logo-text { font-family: 'Arial', sans-serif; font-weight: bold; }
+      .taste { font-size: 48px; fill: #2E5BBA; }
+      .test { font-size: 32px; fill: #2E5BBA; letter-spacing: 8px; }
+    </style>
+  </defs>
+  
+  <!-- Texto "taste" em script cursivo -->
+  <text x="20" y="80" class="taste" style="font-family: 'Brush Script MT', cursive; font-style: italic;">taste</text>
+  
+  <!-- Texto "TEST" em maiúsculas espaçadas -->
+  <text x="120" y="140" class="test">TEST</text>
+</svg>
