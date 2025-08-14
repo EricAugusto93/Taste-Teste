@@ -1,0 +1,14 @@
+# Configurações do Keystore para Produção
+# Copie este arquivo para key.properties e preencha com suas informações reais
+# NUNCA commite o arquivo key.properties no Git!
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=taste-app-key
+storeFile=../taste-app-keystore.jks
+
+# Para gerar um novo keystore, execute:
+# keytool -genkey -v -keystore taste-app-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias taste-app-key
+
+# Coloque o arquivo .jks na pasta android/ (mesmo nível que este arquivo)
+# Mantenha as senhas em local seguro!

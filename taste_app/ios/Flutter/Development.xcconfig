@@ -1,0 +1,12 @@
+#include "Generated.xcconfig"
+
+// Development Environment Configuration
+APP_NAME = Taste Dev
+APP_DISPLAY_NAME = Taste Dev
+PRODUCT_BUNDLE_IDENTIFIER = com.taste.app.dev
+ENVIRONMENT = development
+
+// Development specific settings
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+ENABLE_BITCODE = NO
+ONLY_ACTIVE_ARCH = YES

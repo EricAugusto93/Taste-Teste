@@ -1,0 +1,12 @@
+#include "Generated.xcconfig"
+
+// Staging Environment Configuration
+APP_NAME = Taste Staging
+APP_DISPLAY_NAME = Taste Staging
+PRODUCT_BUNDLE_IDENTIFIER = com.taste.app.staging
+ENVIRONMENT = staging
+
+// Staging specific settings
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+ENABLE_BITCODE = NO
+ONLY_ACTIVE_ARCH = NO
