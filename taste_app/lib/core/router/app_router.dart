@@ -26,21 +26,51 @@ import '../config/environment_config.dart';
 import '../guards/auth_guard.dart';
 import 'navigation_service.dart';
 
-/// Providers temporários para onboarding e auth
-final onboardingCompletedProvider = FutureProvider<bool>((ref) async {
-  return await OnboardingService.isOnboardingCompleted();
-});
+/// Notifier para gerenciar o estado do router sem recriá-lo
+class RouterNotifier extends ChangeNotifier {
+  static final RouterNotifier _instance = RouterNotifier._internal();
+  static RouterNotifier get instance => _instance;
+  RouterNotifier._internal();
 
-final authStateProvider = Provider<AuthService>((ref) => AuthService.instance);
+  bool _onboardingCompleted = false;
+  bool _isInitialized = false;
 
-/// Provider do GoRouter
+  bool get onboardingCompleted => _onboardingCompleted;
+  bool get isInitialized => _isInitialized;
+
+  /// Inicializa o router notifier
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+    
+    try {
+      _onboardingCompleted = await OnboardingService.isOnboardingCompleted();
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao inicializar RouterNotifier: $e');
+      _onboardingCompleted = false;
+      _isInitialized = true;
+      notifyListeners();
+    }
+  }
+
+  /// Atualiza o estado do onboarding
+  void updateOnboarding(bool completed) {
+    if (_onboardingCompleted != completed) {
+      _onboardingCompleted = completed;
+      notifyListeners();
+    }
+  }
+}
+
+/// Provider do GoRouter (criado apenas uma vez)
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final onboardingCompleted = ref.watch(onboardingCompletedProvider).value ?? false;
-  final authService = ref.watch(authStateProvider);
-
+  final routerNotifier = RouterNotifier.instance;
+  
   final router = GoRouter(
     debugLogDiagnostics: EnvironmentConfig.isDevelopment,
     initialLocation: '/',
+    refreshListenable: routerNotifier,
     redirect: (context, state) {
       final location = state.uri.path;
       
@@ -49,13 +79,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
       
+      // Se o router notifier não foi inicializado, força splash
+      if (!routerNotifier.isInitialized) {
+        return '/';
+      }
+      
       // Se não completou onboarding, redireciona
-      if (!onboardingCompleted && location != '/onboarding') {
+      if (!routerNotifier.onboardingCompleted && location != '/onboarding') {
         return '/onboarding';
       }
       
       // Se completou onboarding, aplica AuthGuard
-      if (onboardingCompleted) {
+      if (routerNotifier.onboardingCompleted) {
         return AuthGuard.redirect(context, state);
       }
       
@@ -112,13 +147,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const HomePage(),
           ),
           
-          // Search
+          // Search - Redireciona para busca dentro da página home por enquanto
           GoRoute(
             path: '/search',
             name: 'search',
-            builder: (context, state) {
+            redirect: (context, state) {
               final query = state.uri.queryParameters['q'] ?? '';
-              return SearchPage(initialQuery: query);
+              return '/home${query.isNotEmpty ? '?search=$query' : ''}';
             },
           ),
           
@@ -194,46 +229,59 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const NotSureReturnPage(),
           ),
           
-          // Settings
+          // Settings - Redireciona para perfil por enquanto
           GoRoute(
             path: '/settings',
             name: 'settings',
-            builder: (context, state) => const SettingsPage(),
+            redirect: (context, state) => '/profile',
           ),
           
-
-          
-          // User Profile
+          // User Profile - Redireciona para perfil principal
           GoRoute(
             path: '/user/:userId',
             name: 'user_profile',
-            builder: (context, state) {
-              final userId = state.pathParameters['userId']!;
-              return UserProfilePage(userId: userId);
-            },
+            redirect: (context, state) => '/profile',
           ),
           
-          // Restaurant Menu
+          // Restaurant Menu - Redireciona para detalhes do restaurante
           GoRoute(
             path: '/restaurant/:id/menu',
             name: 'restaurant_menu',
-            builder: (context, state) {
+            redirect: (context, state) {
               final restaurantId = state.pathParameters['id']!;
-              return RestaurantMenuPage(restaurantId: restaurantId);
+              return '/restaurant/$restaurantId';
             },
           ),
           
-          // Restaurant Reviews
+          // Restaurant Reviews - Redireciona para detalhes do restaurante
           GoRoute(
             path: '/restaurant/:id/reviews',
             name: 'restaurant_reviews',
-            builder: (context, state) {
+            redirect: (context, state) {
               final restaurantId = state.pathParameters['id']!;
-              return RestaurantReviewsPage(restaurantId: restaurantId);
+              return '/restaurant/$restaurantId';
             },
           ),
           
+          // Discovery - Suporte unificado para path parameter e query parameter
+          GoRoute(
+            path: '/discovery/:categoryId',
+            name: 'discovery',
+            builder: (context, state) {
+              final categoryId = state.pathParameters['categoryId']!;
+              return DiscoveryPage(categoryId: categoryId);
+            },
+          ),
 
+          // Discovery - Rota base que redireciona para categoria padrão ou específica
+          GoRoute(
+            path: '/discovery',
+            name: 'discovery_base',
+            redirect: (context, state) {
+              final categoryId = state.uri.queryParameters['category'] ?? 'todos';
+              return '/discovery/$categoryId';
+            },
+          ),
         ],
       ),
     ],
@@ -276,184 +324,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 });
 
 /// Configuração de rotas do aplicativo com go_router
+/// Use goRouterProvider ao invés de AppRouter.router
 class AppRouter {
-  static GoRouter get router => throw UnimplementedError(
-    'Use goRouterProvider instead of AppRouter.router'
-  );
-}
-
-/// Páginas temporárias para as rotas que ainda não foram implementadas
-
-class CategoryDetailsPage extends StatelessWidget {
-  final String categoryId;
-  
-  const CategoryDetailsPage({super.key, required this.categoryId});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categoria'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.category, size: 64),
-            const SizedBox(height: 16),
-            Text('Categoria ID: $categoryId'),
-            const SizedBox(height: 8),
-            const Text('Página em desenvolvimento'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => NavigationHelper.safeGoBack(context),
-              child: const Text('Voltar'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Classe mantida para compatibilidade, mas uso não recomendado
+  // Use goRouterProvider para obter a instância do router
 }
 
 
 
-// FavoritesPage agora é importada de favorites/favorites_page.dart
-
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configurações'),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.settings, size: 64),
-            SizedBox(height: 16),
-            Text('Configurações do aplicativo'),
-            SizedBox(height: 8),
-            Text('Página em desenvolvimento'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SearchPage extends StatelessWidget {
-  final String initialQuery;
-  
-  const SearchPage({super.key, required this.initialQuery});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buscar'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.search, size: 64),
-            const SizedBox(height: 16),
-            if (initialQuery.isNotEmpty)
-              Text('Buscando por: "$initialQuery"')
-            else
-              const Text('Buscar restaurantes'),
-            const SizedBox(height: 8),
-            const Text('Página em desenvolvimento'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class UserProfilePage extends StatelessWidget {
-  final String userId;
-  
-  const UserProfilePage({super.key, required this.userId});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Perfil do Usuário'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.person, size: 64),
-            const SizedBox(height: 16),
-            Text('Usuário ID: $userId'),
-            const SizedBox(height: 8),
-            const Text('Página em desenvolvimento'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RestaurantMenuPage extends StatelessWidget {
-  final String restaurantId;
-  
-  const RestaurantMenuPage({super.key, required this.restaurantId});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.menu_book, size: 64),
-            const SizedBox(height: 16),
-            Text('Menu do Restaurante: $restaurantId'),
-            const SizedBox(height: 8),
-            const Text('Página em desenvolvimento'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RestaurantReviewsPage extends StatelessWidget {
-  final String restaurantId;
-  
-  const RestaurantReviewsPage({super.key, required this.restaurantId});
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Avaliações'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.star, size: 64, color: Colors.amber),
-            const SizedBox(height: 16),
-            Text('Avaliações do Restaurante: $restaurantId'),
-            const SizedBox(height: 8),
-            const Text('Página em desenvolvimento'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
+

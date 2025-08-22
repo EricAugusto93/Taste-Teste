@@ -424,25 +424,26 @@ class _ReusableMapViewState extends State<ReusableMapView>
       }
     }
 
-    // Animar câmera para o marcador
+    // Animar câmera para o marcador com animação suave
     if (_controller != null) {
-      _controller!.animateCamera(
-        gmaps.CameraUpdate.newLatLngZoom(
-          gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
-          _currentZoom + 1,
-        ),
+      await _animateCameraToPosition(
+        gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+        _currentZoom + 1.5,
+        duration: const Duration(milliseconds: 800),
       );
     }
   }
 
   /// Lidar com toque em cluster
-  void _onClusterTap(RestaurantCluster cluster) {
+  Future<void> _onClusterTap(RestaurantCluster cluster) async {
     if (_controller == null) return;
 
     final bounds = _calculateClusterBounds(cluster);
     if (bounds != null) {
-      _controller!.animateCamera(
-        gmaps.CameraUpdate.newLatLngBounds(bounds, 100),
+      await _animateCameraToBounds(
+        bounds,
+        padding: 120.0,
+        duration: const Duration(milliseconds: 1000),
       );
     }
   }
@@ -496,13 +497,16 @@ class _ReusableMapViewState extends State<ReusableMapView>
     }
   }
 
-  void _fitMarkersInView() {
+  /// Ajustar câmera para mostrar todos os marcadores com animação suave
+  Future<void> _fitMarkersInView() async {
     if (_controller == null || !_isMapReady) return;
 
     final bounds = _calculateBounds();
     if (bounds != null) {
-      _controller!.animateCamera(
-        gmaps.CameraUpdate.newLatLngBounds(bounds, 120),
+      await _animateCameraToBounds(
+        bounds,
+        padding: 120.0,
+        duration: const Duration(milliseconds: 1500),
       );
     }
   }
@@ -651,81 +655,187 @@ class _ReusableMapViewState extends State<ReusableMapView>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-        child: Stack(
-          children: [
-            // Mapa principal
-            gmaps.GoogleMap(
-              key: _mapKey,
-              initialCameraPosition: _initialCameraPosition,
-              markers: _markers,
-              polygons: widget.polygons ?? {},
-              polylines: widget.polylines ?? {},
-              circles: widget.circles ?? {},
-              onMapCreated: _onMapCreated,
-              onTap: (latLng) {
-                _hideInfoWindow();
-                widget.onMapTap?.call(latLng);
-              },
-              myLocationEnabled: false, // Usamos marcador customizado
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: widget.showZoomControls,
-              mapToolbarEnabled: widget.showMapControls,
-              compassEnabled: widget.showMapControls,
-              rotateGesturesEnabled: widget.enableInteraction,
-              scrollGesturesEnabled: widget.enableInteraction,
-              tiltGesturesEnabled: widget.enableInteraction,
-              zoomGesturesEnabled: widget.enableInteraction,
-              mapType: widget.mapType,
-              onCameraMove: _onCameraMove,
-              onCameraIdle: _onCameraIdle,
-              padding: widget.padding,
-            ),
-            
-            // Loading overlay
-            if (_isLoading)
-              Container(
-                color: Colors.white.withOpacity(0.8),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+        child: SafeGoogleMap(
+          height: widget.height,
+          fallbackMessage: 'Mapa não disponível\nVerifique sua conexão com a internet',
+          mapWidget: Stack(
+            children: [
+              // Mapa principal
+              gmaps.GoogleMap(
+                key: _mapKey,
+                initialCameraPosition: _initialCameraPosition,
+                markers: _markers,
+                polygons: widget.polygons ?? {},
+                polylines: widget.polylines ?? {},
+                circles: widget.circles ?? {},
+                onMapCreated: _onMapCreated,
+                onTap: (latLng) {
+                  _hideInfoWindow();
+                  widget.onMapTap?.call(latLng);
+                },
+                myLocationEnabled: false, // Usamos marcador customizado
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: widget.showZoomControls,
+                mapToolbarEnabled: widget.showMapControls,
+                compassEnabled: widget.showMapControls,
+                rotateGesturesEnabled: widget.enableInteraction,
+                scrollGesturesEnabled: widget.enableInteraction,
+                tiltGesturesEnabled: widget.enableInteraction,
+                zoomGesturesEnabled: widget.enableInteraction,
+                mapType: widget.mapType,
+                onCameraMove: _onCameraMove,
+                onCameraIdle: _onCameraIdle,
+                padding: widget.padding,
+              ),
+              
+              // Loading overlay
+              if (_isLoading)
+                Container(
+                  color: Colors.white.withOpacity(0.8),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
                   ),
                 ),
-              ),
-            
-            // InfoWindow personalizada
-            if (_activeInfoWindow != null)
-              _activeInfoWindow!.build(context),
-            
-            // Botão de localização personalizado
-            if (widget.showMyLocationButton)
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: FloatingActionButton(
-                  mini: true,
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary,
-                  onPressed: _goToUserLocation,
-                  child: const Icon(Icons.my_location),
+              
+              // InfoWindow personalizada
+              if (_activeInfoWindow != null)
+                _activeInfoWindow!.build(context),
+              
+              // Botão de localização personalizado
+              if (widget.showMyLocationButton)
+                Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: FloatingActionButton(
+                    mini: true,
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.primary,
+                    onPressed: _goToUserLocation,
+                    child: const Icon(Icons.my_location),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _goToUserLocation() {
+  /// Ir para localização do usuário com animação suave
+  Future<void> _goToUserLocation() async {
     if (widget.userLocation != null && _controller != null) {
-      _controller!.animateCamera(
-        gmaps.CameraUpdate.newLatLngZoom(
-          gmaps.LatLng(
-            widget.userLocation!.latitude,
-            widget.userLocation!.longitude,
-          ),
-          16.0,
+      await _animateCameraToPosition(
+        gmaps.LatLng(
+          widget.userLocation!.latitude,
+          widget.userLocation!.longitude,
         ),
+        16.0,
+        duration: const Duration(milliseconds: 1200),
       );
+    }
+  }
+
+  /// Animar câmera para uma posição específica com ease-in-out
+  Future<void> _animateCameraToPosition(
+    gmaps.LatLng target,
+    double zoom, {
+    Duration duration = const Duration(milliseconds: 800),
+  }) async {
+    if (_controller == null) return;
+
+    try {
+      // Usar animação customizada com múltiplos steps para efeito ease-in-out
+      final currentPosition = await _controller!.getVisibleRegion();
+      final currentCenter = gmaps.LatLng(
+        (currentPosition.northeast.latitude + currentPosition.southwest.latitude) / 2,
+        (currentPosition.northeast.longitude + currentPosition.southwest.longitude) / 2,
+      );
+      
+      final steps = 20;
+      final stepDuration = Duration(milliseconds: duration.inMilliseconds ~/ steps);
+      
+      for (int i = 1; i <= steps; i++) {
+        final progress = i / steps;
+        // Aplicar ease-in-out usando função cúbica
+        final easedProgress = _easeInOutCubic(progress);
+        
+        final interpolatedLat = currentCenter.latitude + 
+            (target.latitude - currentCenter.latitude) * easedProgress;
+        final interpolatedLng = currentCenter.longitude + 
+            (target.longitude - currentCenter.longitude) * easedProgress;
+        final interpolatedZoom = _currentZoom + 
+            (zoom - _currentZoom) * easedProgress;
+        
+        await _controller!.animateCamera(
+          gmaps.CameraUpdate.newLatLngZoom(
+            gmaps.LatLng(interpolatedLat, interpolatedLng),
+            interpolatedZoom,
+          ),
+        );
+        
+        if (i < steps) {
+          await Future.delayed(stepDuration);
+        }
+      }
+    } catch (e) {
+      Logger.error('Erro na animação da câmera: $e');
+      // Fallback para animação simples
+      await _controller!.animateCamera(
+        gmaps.CameraUpdate.newLatLngZoom(target, zoom),
+      );
+    }
+  }
+
+  /// Animar câmera para bounds com ease-in-out
+  Future<void> _animateCameraToBounds(
+    gmaps.LatLngBounds bounds, {
+    double padding = 100.0,
+    Duration duration = const Duration(milliseconds: 1000),
+  }) async {
+    if (_controller == null) return;
+
+    try {
+      // Calcular centro e zoom dos bounds
+      final center = gmaps.LatLng(
+        (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+        (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
+      );
+      
+      // Estimar zoom baseado na distância dos bounds
+      final latDiff = (bounds.northeast.latitude - bounds.southwest.latitude).abs();
+      final lngDiff = (bounds.northeast.longitude - bounds.southwest.longitude).abs();
+      final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
+      
+      double targetZoom;
+      if (maxDiff > 0.1) {
+        targetZoom = 10.0;
+      } else if (maxDiff > 0.05) {
+        targetZoom = 12.0;
+      } else if (maxDiff > 0.01) {
+        targetZoom = 14.0;
+      } else {
+        targetZoom = 16.0;
+      }
+      
+      await _animateCameraToPosition(center, targetZoom, duration: duration);
+    } catch (e) {
+      Logger.error('Erro na animação para bounds: $e');
+      // Fallback para animação simples
+      await _controller!.animateCamera(
+        gmaps.CameraUpdate.newLatLngBounds(bounds, padding),
+      );
+    }
+  }
+
+  /// Função ease-in-out cúbica para animações suaves
+  double _easeInOutCubic(double t) {
+    if (t < 0.5) {
+      return 4 * t * t * t;
+    } else {
+      final f = 2 * t - 2;
+      return 1 + f * f * f / 2;
     }
   }
 }

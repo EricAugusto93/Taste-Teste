@@ -15,6 +15,7 @@ import '../services/offline_favorites_service.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/models/cache_item.dart';
 import '../../core/di/injection_container.dart';
+import '../../core/utils/logger.dart';
 import 'restaurant_repository.dart';
 
 /// Implementação do repositório de favoritos usando Supabase com sincronização offline
@@ -22,7 +23,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   final SupabaseClient _supabaseClient;
   final FavoritesSyncService _syncService;
   final CacheService _cacheService = InjectionContainer.get<CacheService>();
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   
   // Cache local para melhor performance
   final Map<String, bool> _favoritesCache = {};

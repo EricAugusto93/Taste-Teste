@@ -23,6 +23,8 @@ import '../../widgets/restaurant_card.dart';
 import '../../widgets/restaurant_grid_card.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/optimized_list_view.dart';
+import '../../widgets/view_mode_loading_widget.dart';
+import '../../widgets/no_restaurants_found_widget.dart';
 
 /// Página de resultados de busca com filtros e ordenação
 class SearchResultsPage extends ConsumerStatefulWidget {
@@ -58,6 +60,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
   bool _hasMoreResults = true;
   bool _showFilters = false;
   bool _showSortOptions = false;
+  bool _isViewModeChanging = false;
   
   SearchFilters _currentFilters = const SearchFilters();
   String _currentSortBy = 'relevance';
@@ -570,15 +573,26 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     }
 
     if (_restaurants.isEmpty) {
-      return EmptyStateWidget.searchEmpty(
-        query: widget.query,
+      return NoRestaurantsFoundWidget(
+        onChangeFilters: () {
+          _toggleFilters();
+        },
         onClearFilters: _isFiltersActive() ? _clearFilters : null,
+        hasActiveFilters: _isFiltersActive(),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => _performSearch(reset: true),
-      child: _buildCurrentView(),
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: () => _performSearch(reset: true),
+          child: _buildCurrentView(),
+        ),
+        if (_isViewModeChanging)
+          ViewModeLoadingOverlay(
+            message: 'Alterando visualização...',
+          ),
+      ],
     );
   }
 
@@ -642,7 +656,14 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
   }
 
   // Métodos auxiliares
-  void _toggleViewMode() {
+  void _toggleViewMode() async {
+    setState(() {
+      _isViewModeChanging = true;
+    });
+    
+    // Pequeno delay para mostrar o loading
+    await Future.delayed(const Duration(milliseconds: 300));
+    
     setState(() {
       // Ciclo: list -> grid -> map -> list
       switch (_currentViewMode) {
@@ -658,6 +679,13 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
         default:
           _currentViewMode = 'list';
       }
+    });
+    
+    // Delay adicional para animação suave
+    await Future.delayed(const Duration(milliseconds: 200));
+    
+    setState(() {
+      _isViewModeChanging = false;
     });
     
     // Analytics: rastrear mudança de visualização

@@ -23,6 +23,7 @@ class RestaurantModel extends Equatable {
   final String? phone;
   final bool isOpen;
   final bool isFeatured;
+  final String? emoji;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -47,6 +48,7 @@ class RestaurantModel extends Equatable {
     this.phone,
     required this.isOpen,
     required this.isFeatured,
+    this.emoji,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -74,6 +76,7 @@ class RestaurantModel extends Equatable {
       phone: json['phone'] as String?,
       isOpen: json['is_open'] as bool? ?? true,
       isFeatured: json['is_featured'] as bool? ?? false,
+      emoji: json['emoji'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -82,31 +85,32 @@ class RestaurantModel extends Equatable {
   /// Cria uma instância a partir de dados do Supabase
   factory RestaurantModel.fromSupabase(Map<String, dynamic> data) {
     return RestaurantModel(
-      id: data['id'] as String,
-      name: data['name'] as String,
-      description: data['description'] as String?,
-      categoryId: data['category_id'] as String?,
-      imageUrl: data['image_url'] as String?,
+      id: data['id']?.toString() ?? '',
+      name: data['name']?.toString() ?? '',
+      description: data['description']?.toString(),
+      categoryId: data['category_id']?.toString(),
+      imageUrl: data['image_url']?.toString(),
       rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: data['review_count'] as int? ?? 0,
-      category: data['category_name'] as String? ?? '',
-      deliveryTime: data['delivery_time'] as String? ?? '30-45 min',
+      category: data['category']?.toString() ?? '', // Para joins com tabela categories
+      deliveryTime: data['delivery_time']?.toString() ?? '30-45 min',
       deliveryFee: (data['delivery_fee'] as num?)?.toDouble() ?? 0.0,
-      minOrderValue: (data['minimum_order'] as num?)?.toDouble(),
+      minOrderValue: (data['min_order_value'] as num?)?.toDouble(),
       distance: (data['distance'] as num?)?.toDouble(),
-      hasPromotion: data['promotions'] as bool? ?? false,
-      priceRange: data['price_range'] as String?,
+      hasPromotion: data['has_promotion'] as bool? ?? false,
+      priceRange: data['price_range']?.toString(),
       latitude: (data['latitude'] as num?)?.toDouble(),
       longitude: (data['longitude'] as num?)?.toDouble(),
-      address: data['address'] as String?,
-      phone: data['phone'] as String?,
+      address: data['address']?.toString(),
+      phone: data['phone']?.toString(),
       isOpen: data['is_open'] as bool? ?? true,
       isFeatured: data['is_featured'] as bool? ?? false,
+      emoji: data['emoji']?.toString(),
       createdAt: data['created_at'] != null 
-          ? DateTime.parse(data['created_at'] as String)
+          ? DateTime.parse(data['created_at'].toString())
           : DateTime.now(),
       updatedAt: data['updated_at'] != null 
-          ? DateTime.parse(data['updated_at'] as String)
+          ? DateTime.parse(data['updated_at'].toString())
           : DateTime.now(),
     );
   }
@@ -134,6 +138,7 @@ class RestaurantModel extends Equatable {
       'phone': phone,
       'is_open': isOpen,
       'is_featured': isFeatured,
+      'emoji': emoji,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -161,6 +166,7 @@ class RestaurantModel extends Equatable {
     String? phone,
     bool? isOpen,
     bool? isFeatured,
+    String? emoji,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -185,6 +191,7 @@ class RestaurantModel extends Equatable {
       phone: phone ?? this.phone,
       isOpen: isOpen ?? this.isOpen,
       isFeatured: isFeatured ?? this.isFeatured,
+      emoji: emoji ?? this.emoji,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -212,6 +219,7 @@ class RestaurantModel extends Equatable {
         phone,
         isOpen,
         isFeatured,
+        emoji,
         createdAt,
         updatedAt,
       ];
@@ -239,6 +247,7 @@ class RestaurantModel extends Equatable {
       phone: entity.phone,
       isOpen: entity.isOpen,
       isFeatured: entity.isFeatured,
+      emoji: null, // Valor padrão para entidade
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

@@ -1,18 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { Restaurante, categoriesAPI, Category } from '@/lib/supabase'
 
-interface Restaurante {
-  id: string
-  nome: string
-  tipo: string
-  descricao: string
-  imagem_url?: string
-  latitude: number
-  longitude: number
-  tags: string[]
-}
+
 
 interface RestauranteTableProps {
   restaurantes: Restaurante[]
@@ -89,6 +81,39 @@ const RestauranteImage = ({ src, alt }: { src: string; alt: string }) => {
 }
 
 export default function RestauranteTable({ restaurantes, onEdit, onDelete }: RestauranteTableProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoriesData = await categoriesAPI.listActive();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId;
+  };
+
+  const getCategoryIcon = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.icon : '🍽️';
+  };
+
+  const getCategoryColor = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.color : '#FF6B47';
+  };
+
   if (restaurantes.length === 0) {
     return (
       <div className="text-center py-12">
@@ -119,7 +144,7 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
                 Localização
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Tags
+                Emoji & Contato
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">
                 Ações
@@ -138,8 +163,8 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
-                      {restaurante.imagem_url ? (
-                        <RestauranteImage src={restaurante.imagem_url} alt={restaurante.nome} />
+                      {restaurante.image_url ? (
+                        <RestauranteImage src={restaurante.image_url} alt={restaurante.name} />
                       ) : (
                         <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
                           <svg className="h-6 w-6 text-blue-600/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,10 +175,10 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-semibold text-blue-600">
-                        {restaurante.nome}
+                        {restaurante.name}
                       </div>
                       <div className="text-sm text-blue-600/60 max-w-xs truncate">
-                        {restaurante.descricao}
+                        {restaurante.description}
                       </div>
                     </div>
                   </div>
@@ -161,9 +186,19 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
 
                 {/* Coluna Tipo */}
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                    {restaurante.tipo}
-                  </span>
+                  {loadingCategories ? (
+                    <div className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-500">
+                      Carregando...
+                    </div>
+                  ) : (
+                    <span 
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full text-white"
+                      style={{ backgroundColor: getCategoryColor(restaurante.category_id) }}
+                    >
+                      <span>{getCategoryIcon(restaurante.category_id)}</span>
+                      <span>{getCategoryName(restaurante.category_id)}</span>
+                    </span>
+                  )}
                 </td>
 
                 {/* Coluna Localização */}
@@ -172,9 +207,24 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
                     {restaurante.latitude && restaurante.longitude ? (
                       <>
                         <div className="font-medium">📍 Localizado</div>
-                        <div className="text-xs text-blue-600/60">
+                        <div className="text-xs text-blue-600/60 mb-2">
                           {restaurante.latitude.toFixed(4)}, {restaurante.longitude.toFixed(4)}
                         </div>
+                        <button
+                          onClick={() => {
+                            const url = `https://www.google.com/maps?q=${restaurante.latitude},${restaurante.longitude}`
+                            window.open(url, '_blank')
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+                          title="Ver no Google Maps"
+                        >
+                          🗺️ Ver no Mapa
+                        </button>
+                        {restaurante.address && (
+                          <div className="text-xs text-blue-600/60 mt-1 max-w-xs truncate">
+                            📍 {restaurante.address}
+                          </div>
+                        )}
                       </>
                     ) : (
                       <span className="text-gray-400">Sem coordenadas</span>
@@ -182,22 +232,23 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
                   </div>
                 </td>
 
-                {/* Coluna Tags */}
+                {/* Coluna Emoji & Contato */}
                 <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1 max-w-xs">
-                    {restaurante.tags?.slice(0, 3).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex px-2 py-1 text-xs rounded-md bg-blue-100 text-blue-700"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {restaurante.tags && restaurante.tags.length > 3 && (
-                      <span className="inline-flex px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-600">
-                        +{restaurante.tags.length - 3}
-                      </span>
-                    )}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{restaurante.emoji || '🍽️'}</span>
+                      <span className="text-xs text-blue-600/60">Mapa</span>
+                    </div>
+                    <div className="text-xs text-blue-600/80">
+                      <div className="flex items-center gap-1">
+                        <span>📞</span>
+                        <span>{restaurante.phone || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span>💰</span>
+                        <span>{restaurante.price_range}</span>
+                      </div>
+                    </div>
                   </div>
                 </td>
 
@@ -231,4 +282,4 @@ export default function RestauranteTable({ restaurantes, onEdit, onDelete }: Res
       </div>
     </div>
   )
-} 
+}

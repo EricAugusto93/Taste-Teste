@@ -10,6 +10,7 @@ enum Environment {
 class EnvironmentConfig {
   static Environment _currentEnvironment = Environment.development;
   static bool _isInitialized = false;
+  static bool _hasBeenInitialized = false; // Flag para prevenir reinicializações
 
   static Environment get currentEnvironment => _currentEnvironment;
   static bool get isProduction => _currentEnvironment == Environment.production;
@@ -19,6 +20,14 @@ class EnvironmentConfig {
 
   /// Inicializa a configuração do ambiente
   static Future<void> initialize({Environment? environment}) async {
+    // Previne múltiplas inicializações
+    if (_hasBeenInitialized) {
+      debugPrint('⚠️ EnvironmentConfig já foi inicializado, pulando...');
+      return;
+    }
+    
+    _hasBeenInitialized = true;
+    
     // Determina o ambiente baseado no modo de build se não especificado
     _currentEnvironment = environment ?? _getEnvironmentFromBuildMode();
     
@@ -41,25 +50,41 @@ class EnvironmentConfig {
 
   /// Carrega o arquivo de ambiente apropriado
   static Future<void> _loadEnvironmentFile() async {
-    String envFile;
+    // Lista de arquivos de ambiente por prioridade
+    List<String> envFiles;
     
     switch (_currentEnvironment) {
       case Environment.development:
-        envFile = '.env.development';
+        // Para web, não tentar carregar .env.local pois não existe
+        envFiles = kIsWeb ? ['.env.development', '.env'] : ['.env.local', '.env.development', '.env'];
         break;
       case Environment.staging:
-        envFile = '.env.staging';
+        envFiles = kIsWeb ? ['.env.staging', '.env'] : ['.env.local', '.env.staging', '.env'];
         break;
       case Environment.production:
-        envFile = '.env.production';
+        envFiles = ['.env.production', '.env'];
         break;
     }
 
-    try {
-      await dotenv.load(fileName: envFile);
-    } catch (e) {
-      // Fallback para .env padrão se o arquivo específico não existir
-      await dotenv.load(fileName: '.env');
+    // Tenta carregar na ordem de prioridade
+    for (String envFile in envFiles) {
+      try {
+        await dotenv.load(fileName: envFile);
+        if (kDebugMode) {
+          print('✅ Arquivo de ambiente carregado: $envFile');
+        }
+        return; // Sucesso, para a busca
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ Não foi possível carregar $envFile: $e');
+        }
+        continue; // Tenta o próximo arquivo
+      }
+    }
+    
+    // Se chegou aqui, nenhum arquivo foi carregado
+    if (kDebugMode) {
+      print('❌ Nenhum arquivo de ambiente encontrado');
     }
   }
 

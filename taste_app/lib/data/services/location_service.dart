@@ -46,26 +46,38 @@ class LocationService {
   /// Obtém a posição atual do usuário
   Future<Position?> getCurrentPosition() async {
     try {
+      print('📍 LocationService: Tentando obter localização atual...');
+      
       // Verifica se o serviço está habilitado
       if (!await isLocationServiceEnabled()) {
+        print('❌ LocationService: Serviço de localização desabilitado');
         throw Exception('Serviço de localização desabilitado');
       }
 
       // Verifica permissões
       if (!await hasLocationPermission()) {
+        print('⚠️ LocationService: Sem permissão, solicitando...');
         final granted = await requestLocationPermission();
         if (!granted) {
+          print('❌ LocationService: Permissão negada pelo usuário');
           throw Exception('Permissão de localização negada');
         }
       }
 
-      // Obtém a posição
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 10),
+      print('🎯 LocationService: Obtendo posição com alta precisão...');
+      // Obtém a posição com configurações mais agressivas para web
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+        timeLimit: const Duration(seconds: 15),
+        forceAndroidLocationManager: true,
       );
+      
+      print('✅ LocationService: Localização obtida: ${position.latitude}, ${position.longitude}');
+      print('📊 LocationService: Precisão: ${position.accuracy}m, Timestamp: ${position.timestamp}');
+      
+      return position;
     } catch (e) {
-      print('Erro ao obter localização: $e');
+      print('❌ LocationService: Erro ao obter localização: $e');
       return null;
     }
   }

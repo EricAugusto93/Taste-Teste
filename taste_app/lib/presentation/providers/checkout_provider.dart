@@ -3,6 +3,7 @@ import '../../data/models/address_model.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/order_model.dart';
 import '../../data/services/checkout_service.dart';
+import '../../data/services/auth_service.dart';
 import 'cart_provider.dart';
 
 /// Estado do checkout
@@ -151,7 +152,7 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
 
       final order = OrderModel(
         id: 'order_${DateTime.now().millisecondsSinceEpoch}',
-        userId: 'user_123', // TODO: Obter do auth
+        userId: AuthService.instance.userId ?? 'anonymous',
         restaurant: cart.restaurant!,
         items: cart.items,
         deliveryAddress: state.selectedAddress!,

@@ -7,6 +7,7 @@ import '../../data/services/search_service.dart';
 import '../../data/repositories/location_repository.dart';
 import '../../data/repositories/restaurant_repository.dart';
 import '../../data/repositories/search_repository.dart';
+import '../../data/repositories/category_repository.dart';
 import '../../data/datasources/restaurant_remote_datasource.dart';
 import '../services/cache_service.dart';
 
@@ -77,9 +78,17 @@ class InjectionContainer {
        ),
      );
     
+    // Category Repository
+    getIt.registerLazySingleton<CategoryRepository>(
+      () => CategoryRepository.instance,
+    );
+    
     // Restaurant Repository
       getIt.registerLazySingleton<RestaurantRepository>(
-        () => RestaurantRepository(),
+        () => RestaurantRepository(
+          getIt<RestaurantRemoteDataSource>(),
+          getIt<CacheService>(),
+        ),
       );
   }
   

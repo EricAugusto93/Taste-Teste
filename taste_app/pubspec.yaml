@@ -66,6 +66,9 @@ dependencies:
   # Serialization
   json_annotation: ^4.8.1
 
+  # Web URL strategy
+  url_strategy: ^0.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

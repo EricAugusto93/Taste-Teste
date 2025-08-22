@@ -21,20 +21,16 @@ export default function DashboardPage() {
 
   const checkAuth = async () => {
     try {
-      console.log('🔍 Verificando autenticação...')
-      
       // Primeiro, tentar obter a sessão atual
       const { data: sessionData, error: sessionError } = await auth.getUser()
       
       if (sessionError) {
         // Garante que sessionError é do tipo esperado
         const errorMessage = (sessionError as { message?: string })?.message || String(sessionError)
-        console.log('❌ Erro na sessão:', errorMessage)
         
         // Se o erro for relacionado a refresh token, tentar reautenticar
         if (errorMessage.includes('refresh_token_not_found') || 
             errorMessage.includes('Invalid Refresh Token')) {
-          console.log('🔄 Tentando limpar sessão e redirecionar...')
           
           // Limpar dados locais
           localStorage.removeItem('admin-session')
@@ -49,31 +45,26 @@ export default function DashboardPage() {
       }
 
       if (sessionData.user?.email) {
-        console.log('✅ Usuário autenticado:', sessionData.user.email)
         setAdminEmail(sessionData.user.email)
         
         // Verificar se é admin
         const isAdminUser = await checkAdminAccess(sessionData.user.email)
         if (!isAdminUser) {
-          console.log('❌ Usuário não é admin')
           router.push('/acesso-negado')
           return
         }
         
       } else {
         // Verificar localStorage como fallback
-        console.log('🔄 Verificando localStorage...')
         const session = localStorage.getItem('admin-session')
         if (session) {
           const parsed = JSON.parse(session)
           setAdminEmail(parsed.email)
         } else {
-          console.log('❌ Sem sessão, redirecionando para login')
           router.push('/login')
         }
       }
     } catch (error: any) {
-      console.error('❌ Erro na verificação de auth:', error)
       
       // Se for erro de token, limpar e redirecionar
       if (error.message?.includes('refresh_token') || 
@@ -263,7 +254,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-blue-600/70 text-sm font-medium">Tipos Únicos</p>
                   <p className="text-blue-600 text-2xl font-bold">
-                    {new Set(restaurantes.map(r => r.tipo)).size}
+                    {new Set(restaurantes.map(r => r.category_id)).size}
                   </p>
                 </div>
               </div>

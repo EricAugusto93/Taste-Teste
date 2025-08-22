@@ -574,11 +574,7 @@ class _CategoryPageState extends State<CategoryPage> {
                                           'restaurant_id': restaurant.id,
                                           'restaurant_name': restaurant.name,
                                         });
-                                        Navigator.pushNamed(
-                                          context,
-                                          '/restaurant-details',
-                                          arguments: restaurant.id,
-                                        );
+                                        context.go('/restaurant/${restaurant.id}');
                                       },
                                     ),
                                   ),

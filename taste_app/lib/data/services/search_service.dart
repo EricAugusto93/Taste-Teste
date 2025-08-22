@@ -6,6 +6,7 @@ import '../models/restaurant_model.dart';
 import '../models/category_model.dart';
 import 'ai_search_service.dart';
 import 'search_analytics_service.dart';
+import '../../core/di/injection_container.dart';
 
 /// Serviço de busca inteligente para restaurantes
 class SearchService {
@@ -13,7 +14,7 @@ class SearchService {
   static SearchService get instance => _instance ??= SearchService._();
   SearchService._();
 
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   final CategoryRepository _categoryRepository = CategoryRepository.instance;
   final AISearchService _aiSearchService = AISearchService.instance;
   final SearchAnalyticsService _analyticsService = SearchAnalyticsService.instance;

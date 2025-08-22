@@ -18,7 +18,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=SUA_CHAVE_ANONIMA_AQUI
 CREATE TABLE restaurantes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   nome TEXT NOT NULL,
-  tipo TEXT NOT NULL,
+  category_id UUID REFERENCES categories(id) NOT NULL,
   descricao TEXT NOT NULL,
   latitude FLOAT NOT NULL,
   longitude FLOAT NOT NULL,
@@ -182,7 +182,7 @@ npm run dev
 Para testar a funcionalidade, você pode inserir alguns restaurantes de exemplo:
 
 ```sql
-INSERT INTO restaurantes (nome, tipo, descricao, latitude, longitude, tags) VALUES
+INSERT INTO restaurantes (nome, category_id, descricao, latitude, longitude, tags) VALUES
 ('Restaurante Exemplo 1', 'Italiana', 'Deliciosa comida italiana no coração da cidade', -23.5505, -46.6333, ARRAY['pizza', 'massa', 'italiano']),
 ('Restaurante Exemplo 2', 'Brasileira', 'Autêntica culinária brasileira', -23.5489, -46.6388, ARRAY['feijoada', 'churrasco', 'brasileiro']),
 ('Restaurante Exemplo 3', 'Japonesa', 'Sushi fresco e pratos japoneses tradicionais', -23.5505, -46.6333, ARRAY['sushi', 'sashimi', 'japonês']);
@@ -201,4 +201,4 @@ INSERT INTO restaurantes (nome, tipo, descricao, latitude, longitude, tags) VALU
 - [ ] RLS configurado para segurança
 - [ ] Projeto testado com `npm run dev`
 
-Se todos os itens estiverem marcados, seu painel administrativo está pronto para uso! 🎉 
+Se todos os itens estiverem marcados, seu painel administrativo está pronto para uso! 🎉

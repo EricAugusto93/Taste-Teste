@@ -3,6 +3,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'favorites_service.dart';
 import 'offline_favorites_service.dart';
+import 'auth_service.dart';
 
 /// Serviço para sincronização de favoritos entre offline e online
 class FavoritesSyncService {
@@ -247,9 +248,14 @@ class FavoritesSyncService {
   
   /// Sincronização periódica
   Future<void> _performPeriodicSync() async {
-    // TODO: Implementar lógica para obter usuário atual
-    // Por enquanto, não executar sincronização automática
-    // await performFullSync(currentUserId);
+    final userId = AuthService.instance.userId;
+    if (userId != null && userId != 'anonymous') {
+      try {
+        await performFullSync(userId);
+      } catch (e) {
+        debugPrint('Erro na sincronização periódica: $e');
+      }
+    }
   }
   
   /// Obter status da sincronização

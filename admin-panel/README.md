@@ -48,7 +48,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anonima
 CREATE TABLE restaurantes (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   nome TEXT NOT NULL,
-  tipo TEXT NOT NULL,
+  category_id UUID REFERENCES categories(id) NOT NULL,
   descricao TEXT NOT NULL,
   latitude FLOAT NOT NULL,
   longitude FLOAT NOT NULL,
@@ -105,7 +105,7 @@ npm start
 - Informações exibidas:
   - Nome e descrição
   - Imagem (miniatura)
-  - Tipo de cozinha
+  - Categoria do restaurante (referência à tabela categories)
   - Coordenadas (latitude/longitude)
   - Tags
   - Data de criação
@@ -218,4 +218,4 @@ Para contribuir com o projeto:
 
 ## 📞 Suporte
 
-Para dúvidas e suporte, entre em contato com a equipe de desenvolvimento. 
+Para dúvidas e suporte, entre em contato com a equipe de desenvolvimento.

@@ -462,15 +462,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
               child: RestaurantCard(
                 restaurant: RestaurantModel.fromEntity(favorite.restaurant!),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RestaurantDetailsPage(
-                        restaurantId: favorite.restaurant!.id,
-                        restaurant: RestaurantModel.fromEntity(favorite.restaurant!),
-                      ),
-                    ),
-                  );
+                  context.go('/restaurant/${favorite.restaurant!.id}');
                 },
                 showFavoriteButton: true,
                 enableQuickRating: true,
@@ -544,15 +536,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
                   child: RestaurantCard(
                     restaurant: RestaurantModel.fromEntity(favorite.restaurant!),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RestaurantDetailsPage(
-                            restaurantId: favorite.restaurant!.id,
-                            restaurant: RestaurantModel.fromEntity(favorite.restaurant!),
-                          ),
-                        ),
-                      );
+                      context.go('/restaurant/${favorite.restaurant!.id}');
                     },
                     showFavoriteButton: true,
                     enableQuickRating: true,

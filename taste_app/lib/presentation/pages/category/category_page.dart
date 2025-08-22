@@ -7,6 +7,7 @@ import '../../../core/theme/app_dimensions.dart';
 import '../../../domain/entities/category.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../../data/repositories/restaurant_repository.dart';
+import '../../../core/di/injection_container.dart';
 import '../../providers/category_provider.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget.dart';
@@ -31,7 +32,7 @@ class CategoryPage extends ConsumerStatefulWidget {
 
 class _CategoryPageState extends ConsumerState<CategoryPage>
     with TickerProviderStateMixin {
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
 

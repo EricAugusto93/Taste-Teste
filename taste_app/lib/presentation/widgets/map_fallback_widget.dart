@@ -20,6 +20,7 @@ class MapFallbackWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String defaultMessage;
+    List<String> issues = GoogleMapsConfig.configurationIssues;
     
     if (kIsWeb) {
       if (!GoogleMapsConfig.hasValidApiKey) {
@@ -31,6 +32,11 @@ class MapFallbackWidget extends StatelessWidget {
       }
     } else {
       defaultMessage = 'Erro ao carregar o mapa\nVerifique sua conexão';
+    }
+    
+    // Se há problemas específicos identificados, mostra eles
+    if (issues.isNotEmpty) {
+      defaultMessage = issues.join('\n');
     }
 
     return Container(
@@ -64,24 +70,48 @@ class MapFallbackWidget extends StatelessWidget {
           ),
           if (onRetry != null) ...[
             const SizedBox(height: 16),
-            TextButton(
+            ElevatedButton.icon(
               onPressed: onRetry,
-              child: Text(
-                'Tentar novamente',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Tentar novamente'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
           ],
-          if (kIsWeb && !GoogleMapsConfig.hasValidApiKey) ...[            const SizedBox(height: 8),
-            Text(
-              'Para usar o mapa, configure a\nGOOGLE_MAPS_API_KEY no arquivo .env',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textLight.withOpacity(0.7),
-                fontSize: 12,
+          if (kIsWeb && !GoogleMapsConfig.hasValidApiKey) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Para usar o mapa, configure a\nGOOGLE_MAPS_API_KEY no arquivo .env',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -141,12 +171,22 @@ class _SafeGoogleMapState extends State<SafeGoogleMap> {
     });
   }
 
-  void _retry() {
+  void _retry() async {
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
-    _checkMapAvailability();
+    
+    try {
+      // Tenta reinicializar o Google Maps
+      await GoogleMapsConfig.retryInitialization();
+      _checkMapAvailability();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro durante retry: $e');
+      }
+      _checkMapAvailability();
+    }
   }
 
   @override

@@ -144,6 +144,12 @@ class CategoryRepository {
     try {
       Logger.info('CategoryRepository: Buscando categoria por ID', {'id': id});
       
+      // Trata 'todos' como caso especial - não é uma categoria específica
+      if (id == 'todos') {
+        Logger.info('CategoryRepository: ID "todos" é um valor especial, retornando null');
+        return null;
+      }
+      
       // Primeiro verifica no cache local
       if (_cachedCategories != null) {
         final cached = _cachedCategories!.where((cat) => cat.id == id).firstOrNull;

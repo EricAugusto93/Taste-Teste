@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Google Maps API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 8px;
+            border-left: 3px solid #007bff;
+            background: white;
+            font-size: 14px;
+        }
+        .log-error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        .log-warning {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+        .log-success {
+            border-left-color: #28a745;
+            background: #f0fff4;
+        }
+        .api-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .test-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .test-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico Completo - Google Maps API</h1>
+        
+        <div class="api-info">
+            <h3>📋 Informações da API Key</h3>
+            <p><strong>API Key:</strong> AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo</p>
+            <p><strong>APIs Necessárias:</strong> Maps JavaScript API, Places API, Geocoding API</p>
+            <p><strong>Domínio de Teste:</strong> <span id="current-domain"></span></p>
+        </div>
+
+        <div id="main-status" class="status info">🔄 Iniciando diagnóstico...</div>
+
+        <div class="test-results">
+            <div class="test-card">
+                <h4>🗺️ Teste do Mapa</h4>
+                <div id="map-status" class="status info">Aguardando...</div>
+                <div id="map"></div>
+            </div>
+            
+            <div class="test-card">
+                <h4>🔍 Teste de APIs</h4>
+                <div id="geocoding-status" class="status info">Aguardando...</div>
+                <div id="places-status" class="status info">Aguardando...</div>
+            </div>
+        </div>
+
+        <div class="log-container">
+            <h3>📋 Log Detalhado</h3>
+            <div id="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo';
+        let map, geocoder, placesService;
+        let testResults = {
+            scriptLoaded: false,
+            mapCreated: false,
+            geocodingWorking: false,
+            placesWorking: false
+        };
+
+        // Mostrar domínio atual
+        document.getElementById('current-domain').textContent = window.location.hostname;
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            document.getElementById('logs').appendChild(logEntry);
+            logEntry.scrollIntoView({ behavior: 'smooth' });
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status ${type}`;
+                element.textContent = message;
+            }
+        }
+
+        function updateMainStatus() {
+            const total = Object.keys(testResults).length;
+            const passed = Object.values(testResults).filter(Boolean).length;
+            
+            if (passed === total) {
+                updateStatus('main-status', '✅ Todos os testes passaram! Google Maps funcionando corretamente.', 'success');
+            } else if (passed === 0) {
+                updateStatus('main-status', '❌ Todos os testes falharam. Verifique a API Key e configurações.', 'error');
+            } else {
+                updateStatus('main-status', `⚠️ ${passed}/${total} testes passaram. Algumas funcionalidades podem não funcionar.`, 'warning');
+            }
+        }
+
+        // Teste de Geocoding
+        function testGeocoding() {
+            if (!geocoder) {
+                addLog('❌ Geocoder não disponível', 'error');
+                updateStatus('geocoding-status', '❌ Geocoding: Não disponível', 'error');
+                return;
+            }
+
+            addLog('🔍 Testando Geocoding API...', 'info');
+            
+            geocoder.geocode({ address: 'Porto Alegre, RS, Brasil' }, (results, status) => {
+                if (status === 'OK' && results && results.length > 0) {
+                    testResults.geocodingWorking = true;
+                    addLog('✅ Geocoding API funcionando', 'success');
+                    addLog(`📍 Resultado: ${results[0].formatted_address}`, 'success');
+                    updateStatus('geocoding-status', '✅ Geocoding: Funcionando', 'success');
+                } else {
+                    addLog(`❌ Erro na Geocoding API: ${status}`, 'error');
+                    updateStatus('geocoding-status', `❌ Geocoding: ${status}`, 'error');
+                }
+                updateMainStatus();
+            });
+        }
+
+        // Teste de Places
+        function testPlaces() {
+            if (!placesService) {
+                addLog('❌ Places Service não disponível', 'error');
+                updateStatus('places-status', '❌ Places: Não disponível', 'error');
+                return;
+            }
+
+            addLog('🏪 Testando Places API...', 'info');
+            
+            const request = {
+                query: 'restaurante Porto Alegre',
+                fields: ['name', 'geometry', 'place_id']
+            };
+
+            placesService.textSearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+                    testResults.placesWorking = true;
+                    addLog('✅ Places API funcionando', 'success');
+                    addLog(`🏪 Encontrados ${results.length} resultados`, 'success');
+                    updateStatus('places-status', '✅ Places: Funcionando', 'success');
+                } else {
+                    addLog(`❌ Erro na Places API: ${status}`, 'error');
+                    updateStatus('places-status', `❌ Places: ${status}`, 'error');
+                }
+                updateMainStatus();
+            });
+        }
+
+        // Função principal de inicialização
+        function initMap() {
+            addLog('🚀 Iniciando Google Maps...', 'info');
+            
+            try {
+                // Verificar se o Google Maps está disponível
+                if (typeof google === 'undefined' || !google.maps) {
+                    throw new Error('Google Maps API não carregada');
+                }
+                
+                testResults.scriptLoaded = true;
+                addLog('✅ Google Maps API carregada', 'success');
+                
+                // Criar o mapa
+                const mapOptions = {
+                    zoom: 12,
+                    center: { lat: -30.0346, lng: -51.2177 }, // Porto Alegre
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                
+                map = new google.maps.Map(document.getElementById('map'), mapOptions);
+                testResults.mapCreated = true;
+                addLog('🗺️ Mapa criado com sucesso', 'success');
+                updateStatus('map-status', '✅ Mapa: Carregado', 'success');
+                
+                // Inicializar serviços
+                geocoder = new google.maps.Geocoder();
+                placesService = new google.maps.places.PlacesService(map);
+                
+                // Adicionar marcador
+                new google.maps.Marker({
+                    position: { lat: -30.0346, lng: -51.2177 },
+                    map: map,
+                    title: 'Porto Alegre - Teste'
+                });
+                
+                addLog('📍 Marcador adicionado', 'success');
+                
+                // Executar testes das APIs
+                setTimeout(() => {
+                    testGeocoding();
+                    setTimeout(() => testPlaces(), 2000);
+                }, 1000);
+                
+            } catch (error) {
+                addLog(`❌ Erro na inicialização: ${error.message}`, 'error');
+                updateStatus('map-status', `❌ Mapa: ${error.message}`, 'error');
+                updateMainStatus();
+            }
+        }
+
+        // Função de callback para erros
+        function handleMapError() {
+            addLog('❌ Erro ao carregar script do Google Maps', 'error');
+            updateStatus('map-status', '❌ Mapa: Erro no script', 'error');
+            updateMainStatus();
+        }
+
+        // Interceptar erros
+        window.addEventListener('error', function(e) {
+            if (e.filename && e.filename.includes('maps.googleapis.com')) {
+                addLog(`❌ Erro do Google Maps: ${e.message}`, 'error');
+            }
+        });
+
+        // Log inicial
+        addLog('📄 Página carregada, aguardando Google Maps...', 'info');
+
+        // Timeout de segurança
+        setTimeout(() => {
+            if (!testResults.scriptLoaded) {
+                addLog('⏰ TIMEOUT: Google Maps não carregou em 30 segundos', 'error');
+                addLog('🔍 Possíveis causas:', 'warning');
+                addLog('• API Key inválida, expirada ou sem permissões', 'warning');
+                addLog('• APIs não habilitadas no Google Cloud Console', 'warning');
+                addLog('• Restrições de domínio/referrer na API Key', 'warning');
+                addLog('• Cota da API excedida', 'warning');
+                addLog('• Problemas de conectividade', 'warning');
+                updateStatus('map-status', '⏰ Timeout no carregamento', 'error');
+                updateMainStatus();
+            }
+        }, 30000);
+    </script>
+
+    <!-- Carregar Google Maps API -->
+    <script async defer 
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo&libraries=places&callback=initMap&loading=async"
+            onerror="handleMapError()">
+    </script>
+</body>
+</html>

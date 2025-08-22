@@ -92,58 +92,132 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
     try {
       final position = await _locationService.getCurrentPosition();
       if (position != null) {
+        print('📍 Discovery: Localização obtida: ${position.latitude}, ${position.longitude}');
         state = state.copyWith(
           userLocation: position,
           hasLocationPermission: true,
         );
       } else {
+        print('⚠️ Discovery: Não foi possível obter localização, usando Curitiba como padrão');
+        // Usa Curitiba como localização padrão se não conseguir obter GPS
+        final defaultPosition = Position(
+          latitude: -25.4372, // Curitiba
+          longitude: -49.2695, // Curitiba
+          timestamp: DateTime.now(),
+          accuracy: 0,
+          altitude: 0,
+          altitudeAccuracy: 0,
+          heading: 0,
+          headingAccuracy: 0,
+          speed: 0,
+          speedAccuracy: 0,
+        );
         state = state.copyWith(
-          error: 'Não foi possível obter sua localização',
-          hasLocationPermission: false,
+          userLocation: defaultPosition,
+          hasLocationPermission: true, // Considera como tendo permissão para não bloquear
         );
       }
     } catch (e) {
+      print('❌ Discovery: Erro ao obter localização, usando Curitiba: $e');
+      // Em caso de erro, usa Curitiba como fallback
+      final defaultPosition = Position(
+        latitude: -25.4372, // Curitiba
+        longitude: -49.2695, // Curitiba
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
       state = state.copyWith(
-        error: 'Erro ao obter localização: $e',
-        hasLocationPermission: false,
+        userLocation: defaultPosition,
+        hasLocationPermission: true,
       );
     }
   }
 
   Future<void> _loadRestaurants() async {
     try {
-      // Carrega todos os restaurantes
-      final allRestaurants = await _restaurantRepository.getRestaurants();
+      print('🔍 Discovery: Carregando restaurantes para categoria: $categoryId');
       
-      // Filtra por categoria (exceto para 'todos')
+      // Carrega todos os restaurantes com retry
+      final allRestaurants = await _restaurantRepository.getRestaurants();
+      print('📊 Discovery: ${allRestaurants.length} restaurantes carregados do banco');
+      
+      // Se não conseguiu carregar restaurantes, tenta novamente uma vez
+      if (allRestaurants.isEmpty) {
+        print('⚠️ Discovery: Lista vazia, tentando novamente em 2 segundos...');
+        await Future.delayed(const Duration(seconds: 2));
+        final retryRestaurants = await _restaurantRepository.getRestaurants();
+        print('🔄 Discovery: Segunda tentativa: ${retryRestaurants.length} restaurantes');
+        
+        if (retryRestaurants.isEmpty) {
+          print('❌ Discovery: Ainda sem restaurantes, mas continuando sem erro');
+          state = state.copyWith(
+            restaurants: [],
+            isLoading: false,
+          );
+          return;
+        }
+      }
+      
+      // Debug: mostra alguns restaurantes com coordenadas
+      if (allRestaurants.isNotEmpty) {
+        for (int i = 0; i < (allRestaurants.length > 3 ? 3 : allRestaurants.length); i++) {
+          final r = allRestaurants[i];
+          print('🏪 Restaurante ${i + 1}: ${r.name} - categoryId: ${r.categoryId} - Coords: ${r.latitude}, ${r.longitude}');
+        }
+      }
+      
+      // Filtra restaurantes por categoria específica
       List<RestaurantModel> categoryRestaurants;
+      
       if (categoryId == 'todos') {
-        // Para 'todos', mostra restaurantes de todas as categorias
         categoryRestaurants = allRestaurants;
+        print('📋 Discovery: Mostrando TODOS os restaurantes (${categoryRestaurants.length})');
       } else {
-        // Para categoria específica, filtra por categoryId
         categoryRestaurants = allRestaurants
             .where((restaurant) => restaurant.categoryId == categoryId)
             .toList();
+        print('📋 Discovery: Filtrando por categoria $categoryId: ${categoryRestaurants.length} restaurantes encontrados');
       }
 
-      // Se temos localização do usuário, filtra por raio de 10km
+      // Se temos localização do usuário, filtra por raio (com aumento progressivo)
       List<RestaurantModel> filteredRestaurants = categoryRestaurants;
       
       if (state.userLocation != null) {
         final userLat = state.userLocation!.latitude;
         final userLng = state.userLocation!.longitude;
-        const radiusInMeters = 10000.0; // 10km
-
-        filteredRestaurants = categoryRestaurants.where((restaurant) {
-          return _locationService.isWithinRadius(
-            userLat,
-            userLng,
-            restaurant.latitude ?? 0.0,
-            restaurant.longitude ?? 0.0,
-            radiusInMeters,
-          );
-        }).toList();
+        
+        // Tenta diferentes raios até encontrar restaurantes - ajustado para Pinhais
+        const radiusOptions = [5000.0, 10000.0, 15000.0, 20000.0]; // 5km, 10km, 15km, 20km
+        
+        for (final radiusInMeters in radiusOptions) {
+          filteredRestaurants = categoryRestaurants.where((restaurant) {
+            return _locationService.isWithinRadius(
+              userLat,
+              userLng,
+              restaurant.latitude ?? 0.0,
+              restaurant.longitude ?? 0.0,
+              radiusInMeters,
+            );
+          }).toList();
+          
+          print('📍 Discovery: Localização do usuário: $userLat, $userLng (raio: ${(radiusInMeters/1000).toInt()}km)');
+          print('🗺️ Discovery: Com raio de ${(radiusInMeters/1000).toInt()}km: ${filteredRestaurants.length} restaurantes');
+          
+          // Se encontrou restaurantes, para de procurar
+          if (filteredRestaurants.isNotEmpty) break;
+        }
+        
+        // Se ainda não encontrou nada, mostra todos os restaurantes da categoria
+        if (filteredRestaurants.isEmpty) {
+          print('⚠️ Discovery: Nenhum restaurante próximo encontrado, mostrando todos da categoria');
+          filteredRestaurants = categoryRestaurants;
+        }
 
         // Ordena por distância (mais próximos primeiro)
         filteredRestaurants.sort((a, b) {
@@ -155,13 +229,20 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
           );
           return distanceA.compareTo(distanceB);
         });
+      } else {
+        print('❌ Discovery: Sem localização do usuário, mostrando todos os restaurantes da categoria');
       }
 
+      print('✅ Discovery: Total final de restaurantes: ${filteredRestaurants.length}');
+      
       state = state.copyWith(
         restaurants: filteredRestaurants,
         isLoading: false,
       );
     } catch (e) {
+      print('❌ Discovery: Erro ao carregar restaurantes: $e');
+      print('❌ Discovery: Stack trace: ${StackTrace.current}');
+      
       state = state.copyWith(
         isLoading: false,
         error: 'Erro ao carregar restaurantes: $e',

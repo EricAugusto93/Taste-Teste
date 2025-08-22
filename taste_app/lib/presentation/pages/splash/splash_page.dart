@@ -34,6 +34,8 @@ class _SplashPageState extends State<SplashPage>
   
   String _currentStatus = 'Inicializando...';
   bool _hasError = false;
+  int _retryCount = 0;
+  static const int _maxRetries = 3;
   
   @override
   void initState() {
@@ -284,27 +286,83 @@ class _SplashPageState extends State<SplashPage>
   }
   
   void _retryInitialization() {
+    if (_retryCount >= _maxRetries) {
+      setState(() {
+        _currentStatus = 'Muitas tentativas falharam. Verifique sua conexão e reinicie o app.';
+      });
+      return;
+    }
+    
+    _retryCount++;
     setState(() {
       _hasError = false;
-      _currentStatus = 'Tentando novamente...';
+      _currentStatus = 'Tentando novamente... (${_retryCount}/$_maxRetries)';
     });
-    _initializeApp();
+    
+    // Aguardar um pouco antes de tentar novamente (backoff)
+    Future.delayed(Duration(seconds: _retryCount), () {
+      if (mounted) {
+        _initializeApp();
+      }
+    });
   }
   
   Future<void> _navigateToNextScreen() async {
-    // Verificar se deve mostrar onboarding
-    final shouldShowOnboarding = await OnboardingService.shouldShowOnboarding();
-    
-    if (mounted) {
-      if (widget.onInitializationComplete != null) {
-        widget.onInitializationComplete!();
-      } else {
-        if (shouldShowOnboarding) {
-          context.go('/onboarding');
+    try {
+      // Verificar se deve mostrar onboarding
+      final shouldShowOnboarding = await OnboardingService.shouldShowOnboarding();
+      
+      // Aguardar um pouco para garantir que o router esteja completamente inicializado
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      if (mounted) {
+        // Verificar se o GoRouter está disponível no contexto antes de navegar
+        if (GoRouter.maybeOf(context) == null) {
+          debugPrint('GoRouter não está disponível no contexto, aguardando...');
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+        
+        if (widget.onInitializationComplete != null) {
+          widget.onInitializationComplete!();
         } else {
-          context.go('/home');
+          // Navegação segura
+          if (shouldShowOnboarding) {
+            _safeNavigate('/onboarding');
+          } else {
+            _safeNavigate('/home');
+          }
         }
       }
+    } catch (e) {
+      debugPrint('Erro na navegação do splash: $e');
+      // Fallback para home
+      if (mounted) {
+        _safeNavigate('/home');
+      }
+    }
+  }
+
+  /// Método para navegação segura que tenta múltiplas vezes se necessário
+  void _safeNavigate(String path) {
+    try {
+      if (GoRouter.maybeOf(context) != null) {
+        context.go(path);
+      } else {
+        // Tentar novamente após um delay
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted) {
+            _safeNavigate(path);
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro na navegação segura: $e');
+      // Tentar novamente após um delay maior
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          _safeNavigate(path);
+        }
+      });
     }
   }
   

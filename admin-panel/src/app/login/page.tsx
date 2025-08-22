@@ -3,56 +3,63 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signInWithEmail, isAdmin } from '@/lib/auth'
+import { useErrorHandler } from '@/hooks/useErrorHandler'
+import ErrorNotification from '@/components/ErrorNotification'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@gastroapp.com')
   const [password, setPassword] = useState('admin123')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const router = useRouter()
+  const { error, handleError, clearError } = useErrorHandler()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
+    clearError()
 
     try {
-      console.log('🔐 Iniciando processo de login...')
-      console.log('📧 Email:', email)
+      // Tentar fazer login primeiro
+      let { data, error: authError } = await signInWithEmail(email, password)
       
-      // Autenticação real com Supabase
-      console.log('🔄 Tentando autenticar com Supabase...')
-      const { data, error: authError } = await signInWithEmail(email, password)
-      
-      console.log('📊 Resultado da autenticação:', { 
-        user: data?.user?.email, 
-        session: !!data?.session,
-        error: authError?.message 
-      })
+      // Se o usuário não existe e são as credenciais padrão, criar o usuário
+      if (authError && email === 'admin@gastroapp.com' && password === 'admin123') {
+        console.log('🔧 Tentando criar usuário admin automaticamente...')
+        
+        // Tentar criar usuário
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+        })
+        
+        if (!signUpError && signUpData.user) {
+          console.log('✅ Usuário admin criado com sucesso')
+          // Tentar fazer login novamente
+          const loginResult = await signInWithEmail(email, password)
+          data = loginResult.data
+          authError = loginResult.error
+        }
+      }
       
       if (authError) {
-        console.error('❌ Erro de autenticação:', authError)
         throw new Error(`Erro de autenticação: ${authError.message}`)
       }
 
       if (!data.user) {
-        console.error('❌ Usuário não encontrado na resposta')
         throw new Error('Usuário não encontrado')
       }
 
-      console.log('✅ Usuário autenticado:', data.user.email)
+      console.log('👤 Verificando se usuário é admin:', data.user.email)
 
       // Verificar se é admin
-      console.log('🔍 Verificando se o usuário é admin...')
       const isAdminUser = await isAdmin(data.user.email!)
-      console.log('👤 Resultado verificação admin:', isAdminUser)
       
       if (!isAdminUser) {
-        console.error('❌ Usuário não é admin')
         throw new Error('Acesso negado: usuário não é administrador')
       }
-
-      console.log('✅ Usuário é admin, salvando sessão...')
+      
+      console.log('✅ Login de admin aprovado para:', data.user.email)
 
       // Salvar sessão no localStorage como backup
       localStorage.setItem('admin-session', JSON.stringify({
@@ -61,18 +68,14 @@ export default function LoginPage() {
         timestamp: Date.now(),
         session: data.session
       }))
-
-      console.log('🎯 Redirecionando para dashboard...')
       
       // Aguardar um pouco para garantir que os cookies sejam definidos
       setTimeout(() => {
-        // Usar window.location para forçar uma navegação completa
-        window.location.href = '/dashboard'
+        router.push('/dashboard')
       }, 500)
       
     } catch (err: any) {
-      console.error('💥 Erro no processo de login:', err)
-      setError(err.message || 'Erro no login. Verifique suas credenciais.')
+      handleError(err)
     } finally {
       setLoading(false)
     }
@@ -96,14 +99,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <div className="flex items-center">
-                  <span className="text-red-600 mr-2">❌</span>
-                  <p className="text-red-800 text-sm font-medium">{error}</p>
-                </div>
-              </div>
-            )}
 
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-blue-600 mb-2">
@@ -164,6 +159,11 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      
+      <ErrorNotification 
+        error={error} 
+        onClose={clearError} 
+      />
     </div>
   )
 }

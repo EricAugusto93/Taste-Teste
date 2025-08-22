@@ -8,6 +8,7 @@ import '../../widgets/restaurant_card.dart';
 import '../../widgets/loading_widget.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../widgets/map_fallback_widget.dart';
 
 class DiscoveryPage extends ConsumerWidget {
   final String categoryId;
@@ -36,7 +37,7 @@ class DiscoveryPage extends ConsumerWidget {
             ),
             
             // Barra de navegação inferior
-            _buildBottomNavigation(context),
+            _buildBottomNavigation(),
           ],
         ),
       ),
@@ -46,22 +47,21 @@ class DiscoveryPage extends ConsumerWidget {
   Widget _buildHeader(BuildContext context, DiscoveryState state) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       decoration: const BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
       ),
       child: Column(
         children: [
-          // Barra superior com logo e botão voltar
+          // Header com botão de voltar e logo
           Row(
             children: [
               // Botão de voltar
               GestureDetector(
-                onTap: () => context.pop(),
+                onTap: () {
+                  print('🔙 Discovery: Voltando para home');
+                  context.go('/home');
+                },
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -71,7 +71,7 @@ class DiscoveryPage extends ConsumerWidget {
                   child: const Icon(
                     LucideIcons.arrowLeft,
                     color: Colors.white,
-                    size: 20,
+                    size: 24,
                   ),
                 ),
               ),
@@ -83,7 +83,7 @@ class DiscoveryPage extends ConsumerWidget {
                     'tt',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: 36,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w300,
                     ),
@@ -91,28 +91,31 @@ class DiscoveryPage extends ConsumerWidget {
                 ),
               ),
               
-              // Espaço para balancear o botão de voltar
-              const SizedBox(width: 44),
+              // Espaço para manter logo centralizado
+              const SizedBox(width: 40),
             ],
           ),
           
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           
           // Texto principal
           Text(
-            'Encontramos Lugares\ncom a sua cara',
+            'Encontramos lugares\ncom a sua cara',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w400,
+              height: 1.2,
             ),
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           
           // Mapa pequeno
           _buildMiniMap(state),
+          
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -120,47 +123,52 @@ class DiscoveryPage extends ConsumerWidget {
 
   Widget _buildMiniMap(DiscoveryState state) {
     return Container(
-      height: 180,
+      height: 200,
       width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         color: Colors.grey[200],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: state.userLocation != null
-            ? GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                    state.userLocation?.latitude ?? 0.0,
-                    state.userLocation?.longitude ?? 0.0,
-                  ),
-                  zoom: 13,
-                ),
-                markers: {
-                  Marker(
-                    markerId: const MarkerId('user_location'),
-                    position: LatLng(
+            ? SafeGoogleMap(
+                height: 200,
+                fallbackMessage: 'Mapa não disponível\nVerifique sua conexão com a internet',
+                mapWidget: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
                       state.userLocation?.latitude ?? 0.0,
                       state.userLocation?.longitude ?? 0.0,
                     ),
-                    infoWindow: const InfoWindow(title: 'Sua localização'),
+                    zoom: 13,
                   ),
-                  ...state.restaurants.map(
-                    (restaurant) => Marker(
-                      markerId: MarkerId(restaurant.id),
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('user_location'),
                       position: LatLng(
-                        restaurant.latitude ?? 0.0,
-                        restaurant.longitude ?? 0.0,
+                        state.userLocation?.latitude ?? 0.0,
+                        state.userLocation?.longitude ?? 0.0,
                       ),
-                      infoWindow: InfoWindow(title: restaurant.name),
+                      infoWindow: const InfoWindow(title: 'Sua localização'),
                     ),
-                  ),
-                },
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-                myLocationButtonEnabled: false,
-                compassEnabled: false,
+                    ...state.restaurants.map(
+                      (restaurant) => Marker(
+                        markerId: MarkerId(restaurant.id),
+                        position: LatLng(
+                          restaurant.latitude ?? 0.0,
+                          restaurant.longitude ?? 0.0,
+                        ),
+                        infoWindow: InfoWindow(title: restaurant.name),
+                      ),
+                    ),
+                  },
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  compassEnabled: false,
+                ),
               )
             : Container(
                 color: Colors.grey[200],
@@ -206,7 +214,12 @@ class DiscoveryPage extends ConsumerWidget {
               return _buildEmptyState();
             }
 
-    return _buildRestaurantsList(context, state, notifier);
+    return Column(
+      children: [
+        _buildRecommendationSection(),
+        _buildRestaurantsList(context, state, notifier),
+      ],
+    );
   }
 
   Widget _buildErrorState(String error, DiscoveryNotifier notifier) {
@@ -348,42 +361,38 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildRecommendationSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: const BoxDecoration(
+        color: AppColors.primary,
+      ),
+      child: Text(
+        'Para você: aqui incluir o que a pessoa procurou - COM IA',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    );
+  }
+
   Widget _buildRestaurantsList(BuildContext context, DiscoveryState state, DiscoveryNotifier notifier) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Informações da busca
-        Container(
-          width: double.infinity,
-          color: AppColors.primary,
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            'Para você: (aqui incluir o que a pessoa procurou - COM IA)',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: ListView.builder(
+          itemCount: state.restaurants.length,
+          itemBuilder: (context, index) {
+            final restaurant = state.restaurants[index];
+            final distance = notifier.getDistanceToRestaurant(restaurant);
+            
+            return _buildCustomRestaurantCard(context, restaurant, distance);
+          },
         ),
-        
-        // Lista de restaurantes
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: state.restaurants.length,
-            itemBuilder: (context, index) {
-              final restaurant = state.restaurants[index];
-              final distance = notifier.getDistanceToRestaurant(restaurant);
-              
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildCustomRestaurantCard(context, restaurant, distance),
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -394,84 +403,92 @@ class DiscoveryPage extends ConsumerWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.primary,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Imagem do restaurante
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                width: 80,
-                height: 80,
-                color: Colors.white.withOpacity(0.2),
-                child: restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty
-                    ? Image.network(
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[200],
+              ),
+              child: restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
                         restaurant.imageUrl!,
-                        width: 80,
-                        height: 80,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Icon(
                             LucideIcons.utensils,
-                            color: Colors.white,
+                            color: Colors.grey,
                             size: 32,
                           );
                         },
-                      )
-                    : const Icon(
-                        LucideIcons.utensils,
-                        color: Colors.white,
-                        size: 32,
                       ),
-              ),
+                    )
+                  : const Icon(
+                      LucideIcons.utensils,
+                      color: Colors.grey,
+                      size: 32,
+                    ),
             ),
             
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             
             // Informações do restaurante
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nome do restaurante
+                  // Nome do restaurante com prefixo
                   Text(
                     'Nome do restaurante:',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
                     ),
                   ),
                   
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   
-                  // Categoria e nome
+                  // Categoria e nome real
                   Text(
                     '(${restaurant.category ?? 'pnt'}) ${restaurant.name ?? 'Bairro'}',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   
                   // Descrição
                   Text(
                     'Breve descrição (resumida do perfil)',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
                       fontSize: 12,
+                      color: Colors.grey[600],
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   
                   const SizedBox(height: 8),
@@ -479,28 +496,23 @@ class DiscoveryPage extends ConsumerWidget {
                   // Avaliação
                   Row(
                     children: [
-                      // Estrelas
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < (restaurant.rating?.floor() ?? 4)
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: Colors.amber,
-                            size: 16,
-                          );
-                        }),
-                      ),
-                      
-                      const SizedBox(width: 8),
-                      
-                      // Nota
+                      ...List.generate(5, (index) {
+                        return Icon(
+                          index < (restaurant.rating?.floor() ?? 4)
+                              ? LucideIcons.star
+                              : LucideIcons.star,
+                          size: 14,
+                          color: index < (restaurant.rating?.floor() ?? 4)
+                              ? Colors.amber
+                              : Colors.grey[300],
+                        );
+                      }),
+                      const SizedBox(width: 4),
                       Text(
-                        '${restaurant.rating?.toStringAsFixed(1) ?? '4.7'}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                        restaurant.rating?.toStringAsFixed(1) ?? '4.7',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
                         ),
                       ),
                     ],
@@ -514,24 +526,43 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBottomNavigation(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFFF6B35),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+  Widget _buildBottomNavigation() {
+    return Builder(
+      builder: (context) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildBottomNavItem(context, 'Descubra', true),
-              _buildBottomNavItem(context, 'Mapa', false),
-              _buildBottomNavItem(context, 'Perfil', false),
+              _buildBottomNavItem(
+                icon: LucideIcons.compass,
+                label: 'Descubra',
+                isActive: true,
+                onTap: () {},
+              ),
+              _buildBottomNavItem(
+                icon: LucideIcons.map,
+                label: 'Mapa',
+                isActive: false,
+                onTap: () => _onBottomNavTap(context, 1),
+              ),
+              _buildBottomNavItem(
+                icon: LucideIcons.user,
+                label: 'Perfil',
+                isActive: false,
+                onTap: () => _onBottomNavTap(context, 2),
+              ),
             ],
           ),
         ),
@@ -539,39 +570,47 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBottomNavItem(BuildContext context, String label, bool isSelected) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onBottomNavTap(context, label),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+  Widget _buildBottomNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    const Color orangeColor = Color(0xFFFF6B35);
+    
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isActive ? orangeColor : Colors.grey,
+            size: 24,
           ),
-          child: Text(
+          const SizedBox(height: 4),
+          Text(
             label,
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isActive ? orangeColor : Colors.grey,
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             ),
-            textAlign: TextAlign.center,
           ),
-        ),
+        ],
       ),
     );
   }
 
-  void _onBottomNavTap(BuildContext context, String label) {
-    switch (label) {
-      case 'Descubra':
+  void _onBottomNavTap(BuildContext context, int index) {
+    switch (index) {
+      case 0:
         // Já está na página de descoberta, não faz nada
         break;
-      case 'Mapa':
+      case 1:
         context.go('/search');
         break;
-      case 'Perfil':
+      case 2:
         context.go('/profile');
         break;
     }

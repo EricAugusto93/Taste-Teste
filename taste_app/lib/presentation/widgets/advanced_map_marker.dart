@@ -68,8 +68,8 @@ class AdvancedMapMarker {
     
     canvas.drawCircle(center, radius, borderPaint);
 
-    // Emoji com efeito 3D
-    final emoji = _getRestaurantEmoji(restaurant.categoryId);
+    // Emoji com efeito 3D - usa emoji do banco de dados ou fallback por categoria
+    final emoji = restaurant.emoji ?? _getRestaurantEmoji(restaurant.categoryId);
     await _drawEmojiWith3DEffect(canvas, emoji, center, size * 0.45);
 
     // Badge de status (aberto/fechado)

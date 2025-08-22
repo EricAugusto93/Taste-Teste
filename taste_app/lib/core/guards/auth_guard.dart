@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/services/auth_service.dart';
@@ -23,7 +24,9 @@ class AuthGuard {
       '/forgot-password',
     ];
 
+    // Obtém estado de autenticação incluindo fallback local
     final isAuthenticated = _authService.isAuthenticated;
+    debugPrint('🔍 AuthGuard: Verificando rota $route - isAuthenticated: $isAuthenticated');
 
     // Se a rota requer autenticação e o usuário não está autenticado
     if (protectedRoutes.any((protectedRoute) => route.startsWith(protectedRoute))) {
@@ -42,6 +45,7 @@ class AuthGuard {
   /// Obtém a rota de redirecionamento baseada no estado de autenticação
   static String getRedirectRoute(String attemptedRoute) {
     final isAuthenticated = _authService.isAuthenticated;
+    debugPrint('🔍 AuthGuard: getRedirectRoute - attemptedRoute: $attemptedRoute, isAuthenticated: $isAuthenticated');
 
     // Rotas que requerem autenticação
     final protectedRoutes = [
@@ -60,21 +64,30 @@ class AuthGuard {
 
     // Se tentou acessar rota protegida sem estar autenticado
     if (protectedRoutes.any((route) => attemptedRoute.startsWith(route)) && !isAuthenticated) {
+      debugPrint('🚫 AuthGuard: Rota protegida sem autenticação, redirecionando para /login');
       return '/login';
     }
 
     // Se tentou acessar rota de visitante estando autenticado
     if (guestOnlyRoutes.any((route) => attemptedRoute.startsWith(route)) && isAuthenticated) {
+      debugPrint('🔄 AuthGuard: Rota de visitante com usuário autenticado, redirecionando para /main');
       return '/main';
     }
 
     // Se não há redirecionamento necessário, retorna a rota original
+    debugPrint('✅ AuthGuard: Acesso permitido à rota $attemptedRoute');
     return attemptedRoute;
   }
 
   /// Middleware para GoRouter
   static String? redirect(BuildContext context, GoRouterState state) {
     final location = state.uri.toString();
+    
+    // Em modo de desenvolvimento, força autenticação local para rotas protegidas
+    if (kDebugMode && _shouldForceAuthInDev(location)) {
+      debugPrint('🔓 AuthGuard: Modo desenvolvimento - forçando autenticação local para $location');
+      _authService.forceLocalAuth();
+    }
     
     // Verifica se pode acessar a rota
     if (!canAccess(location)) {
@@ -88,6 +101,12 @@ class AuthGuard {
     }
 
     return null; // Não redireciona
+  }
+  
+  /// Verifica se deve forçar autenticação local em desenvolvimento
+  static bool _shouldForceAuthInDev(String location) {
+    final protectedRoutes = ['/profile', '/edit-profile', '/favorites', '/settings'];
+    return protectedRoutes.any((route) => location.startsWith(route));
   }
 
   /// Verifica se uma rota específica é protegida

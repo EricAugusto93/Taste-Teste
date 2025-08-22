@@ -46,6 +46,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         context.go('/main');
       }
     } catch (e) {
+      // Fallback: tenta login local para desenvolvimento
+      if (_emailController.text.trim() == 'user@example.com' && 
+          _passwordController.text == 'password123') {
+        
+        print('🔓 LoginPage: Usando login local de desenvolvimento');
+        // Força autenticação local
+        authNotifier.forceLocalAuth();
+        
+        if (mounted) {
+          context.go('/main');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login local realizado (modo desenvolvimento)'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -194,25 +214,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         isLoading: authState.isLoading,
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
-                      
-                      // Login social (Google)
-                      SocialAuthButton(
-                        text: 'Continuar com Google',
-                        icon: Icon(
-                          Icons.g_mobiledata,
-                          color: AppColors.textPrimary,
-                          size: 24,
-                        ),
-                        onPressed: () {
-                          // TODO: Implementar login com Google
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Login com Google em desenvolvimento'),
-                            ),
-                          );
-                        },
-                      ),
+
                       
                       const SizedBox(height: AppDimensions.paddingXXLarge),
                       

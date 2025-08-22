@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/restaurant_model.dart';
 import '../models/favorite_model.dart';
 import '../repositories/restaurant_repository.dart';
+import '../../core/di/injection_container.dart';
 
 /// Serviço para gerenciar favoritos
 class FavoritesService {
@@ -11,7 +12,7 @@ class FavoritesService {
   FavoritesService._();
 
   final SupabaseClient _client = Supabase.instance.client;
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   static const String _tableName = 'favorites';
 
   /// Cache de favoritos do usuário

@@ -41,19 +41,27 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
 
   /// Inicializa o estado da autenticação
   void _initializeAuth() {
+    // Usa o método isAuthenticated que já inclui fallback local
+    final isAuth = _authService.isAuthenticated;
     final user = _authService.currentUser;
+    
     state = AppAuthState(
-      isAuthenticated: user != null,
+      isAuthenticated: isAuth,
       user: user,
     );
 
-    // Escuta mudanças no estado de autenticação
-    _authService.authStateChanges.listen((supabaseAuthState) {
-      state = AppAuthState(
-        isAuthenticated: supabaseAuthState.session != null,
-        user: supabaseAuthState.session?.user,
-      );
-    });
+    // Escuta mudanças no estado de autenticação do Supabase
+    try {
+      _authService.authStateChanges.listen((supabaseAuthState) {
+        state = AppAuthState(
+          isAuthenticated: supabaseAuthState.session != null || _authService.isAuthenticated,
+          user: supabaseAuthState.session?.user,
+        );
+      });
+    } catch (e) {
+      print('⚠️ AuthProvider: Erro ao escutar mudanças de auth, usando estado local: $e');
+      // Se não conseguir escutar o Supabase, usa apenas estado local
+    }
   }
 
   /// Faz login com email e senha
@@ -140,6 +148,16 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
   /// Limpa o erro
   void clearError() {
     state = state.copyWith(error: null);
+  }
+  
+  /// Força autenticação local (para desenvolvimento)
+  void forceLocalAuth() {
+    _authService.forceLocalAuth();
+    state = AppAuthState(
+      isAuthenticated: true,
+      user: null, // Usuário mock para desenvolvimento
+      isLoading: false,
+    );
   }
 }
 

@@ -33,11 +33,38 @@ class GoogleMapsConfig {
   static Future<void> _initializeWeb(String apiKey) async {
     if (kIsWeb) {
       try {
+        if (kDebugMode) {
+          print('🔄 Iniciando carregamento do Google Maps...');
+          print('📍 API Key: ${apiKey.substring(0, 8)}...');
+        }
+        
         await web_impl.initializeGoogleMaps(apiKey);
+        
+        if (kDebugMode) {
+          print('✅ Google Maps inicializado com sucesso');
+          print('🌐 Status da API: ${isAvailable ? "Disponível" : "Indisponível"}');
+        }
       } catch (e) {
         if (kDebugMode) {
-          print('⚠️ Erro ao inicializar Google Maps: $e');
+          print('❌ Erro ao inicializar Google Maps: $e');
+          print('🔍 Tipo do erro: ${e.runtimeType}');
+          
+          // Diagnóstico adicional
+          if (e.toString().contains('API key')) {
+            print('🔑 Problema relacionado à API key detectado');
+            print('💡 Verifique se a API key está correta e tem as permissões necessárias');
+          } else if (e.toString().contains('network') || e.toString().contains('timeout')) {
+            print('🌐 Problema de conectividade detectado');
+            print('💡 Verifique sua conexão com a internet');
+          } else if (e.toString().contains('CORS') || e.toString().contains('blocked')) {
+            print('🚫 Problema de CORS ou bloqueio detectado');
+            print('💡 Verifique as configurações de CSP no index.html');
+          }
+          
+          print('🔄 Aplicação continuará com fallback (mapa não disponível)');
         }
+        // Não relança a exceção para permitir que a aplicação continue
+        // com fallback quando o mapa não estiver disponível
       }
     }
   }
@@ -64,6 +91,27 @@ class GoogleMapsConfig {
   /// Obtém a API key configurada
   static String get apiKey => EnvironmentConfig.googleMapsApiKey;
   
+  /// Força uma nova tentativa de inicialização
+  static Future<void> retryInitialization() async {
+    _isInitialized = false;
+    await initialize();
+  }
+  
+  /// Verifica se há problemas conhecidos com a configuração
+  static List<String> get configurationIssues {
+    final issues = <String>[];
+    
+    if (!hasValidApiKey) {
+      issues.add('API key não configurada ou inválida');
+    }
+    
+    if (kIsWeb && !isAvailable && hasValidApiKey) {
+      issues.add('Google Maps API não está disponível (possível problema de rede ou restrições)');
+    }
+    
+    return issues;
+  }
+  
   /// Status da configuração para debug
   static Map<String, dynamic> get debugInfo {
     if (!kDebugMode) return {};
@@ -74,6 +122,77 @@ class GoogleMapsConfig {
       'hasValidApiKey': hasValidApiKey,
       'platform': kIsWeb ? 'web' : 'mobile',
       'apiKey': hasValidApiKey ? '${apiKey.substring(0, 8)}...' : 'not_configured',
+      'issues': configurationIssues,
+      'timestamp': DateTime.now().toIso8601String(),
+      'userAgent': kIsWeb ? 'web_browser' : 'mobile_app',
     };
+  }
+  
+  /// Executa um diagnóstico completo da configuração
+  static Future<Map<String, dynamic>> runDiagnostics() async {
+    final diagnostics = <String, dynamic>{
+      'timestamp': DateTime.now().toIso8601String(),
+      'platform': kIsWeb ? 'web' : 'mobile',
+    };
+    
+    // Teste da API key
+    diagnostics['apiKey'] = {
+      'configured': hasValidApiKey,
+      'value': hasValidApiKey ? '${apiKey.substring(0, 8)}...' : 'not_configured',
+    };
+    
+    // Teste de inicialização
+    diagnostics['initialization'] = {
+      'completed': _isInitialized,
+      'available': isAvailable,
+    };
+    
+    // Teste de conectividade (apenas web)
+    if (kIsWeb && hasValidApiKey) {
+      try {
+        diagnostics['connectivity'] = await _testConnectivity();
+      } catch (e) {
+        diagnostics['connectivity'] = {
+          'status': 'error',
+          'error': e.toString(),
+        };
+      }
+    }
+    
+    // Issues conhecidos
+    diagnostics['issues'] = configurationIssues;
+    
+    if (kDebugMode) {
+      print('🔍 Diagnóstico completo do Google Maps:');
+      diagnostics.forEach((key, value) {
+        print('  $key: $value');
+      });
+    }
+    
+    return diagnostics;
+  }
+  
+  /// Testa a conectividade com a API do Google Maps
+  static Future<Map<String, dynamic>> _testConnectivity() async {
+    if (!kIsWeb) {
+      return {'status': 'skipped', 'reason': 'not_web_platform'};
+    }
+    
+    try {
+      // Tenta verificar se a API está acessível
+      final isAccessible = web_impl.isGoogleMapsAvailable();
+      
+      return {
+        'status': isAccessible ? 'success' : 'failed',
+        'accessible': isAccessible,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'error': e.toString(),
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+    }
   }
 }

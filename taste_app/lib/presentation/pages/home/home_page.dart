@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'home_provider.dart';
 
 /// Página principal (Home) conforme referência visual
 class HomePage extends ConsumerStatefulWidget {
@@ -12,14 +14,30 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  bool _isNavigationReady = false;
   
   @override
   void initState() {
     super.initState();
+    _initializeNavigation();
+  }
+
+  /// Aguarda o router estar pronto antes de habilitar navegação
+  void _initializeNavigation() async {
+    // Pequeno delay para garantir que o contexto do GoRouter esteja disponível
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {
+        _isNavigationReady = true;
+      });
+    }
   }
   
   @override
   Widget build(BuildContext context) {
+    final homeState = ref.watch(homeProvider);
+    final homeNotifier = ref.read(homeProvider.notifier);
+
     return Scaffold(
       backgroundColor: const Color(0xFF2c3b83), // Nova cor de fundo solicitada
       body: SafeArea(
@@ -111,7 +129,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildMapSection() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -124,120 +141,19 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Container(
-          color: Colors.grey[200],
-          child: Stack(
-            children: [
-              // Placeholder do mapa com ícones simulados
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF5F5F5),
-                ),
-                child: Stack(
-                  children: [
-                    // Simulação de ruas
-                    Positioned(
-                      top: 50,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 2,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Positioned(
-                      top: 120,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 2,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      left: 80,
-                      child: Container(
-                        width: 2,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      right: 60,
-                      child: Container(
-                        width: 2,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    // Ícones de restaurantes
-                    const Positioned(
-                      top: 30,
-                      left: 60,
-                      child: Icon(
-                        Icons.restaurant,
-                        color: Color(0xFFFF6B35),
-                        size: 20,
-                      ),
-                    ),
-                    const Positioned(
-                      top: 80,
-                      right: 80,
-                      child: Icon(
-                        Icons.local_pizza,
-                        color: Color(0xFFFF6B35),
-                        size: 20,
-                      ),
-                    ),
-                    const Positioned(
-                      bottom: 40,
-                      left: 100,
-                      child: Icon(
-                        Icons.fastfood,
-                        color: Color(0xFFFF6B35),
-                        size: 20,
-                      ),
-                    ),
-                    const Positioned(
-                      top: 60,
-                      right: 40,
-                      child: Icon(
-                        Icons.coffee,
-                        color: Color(0xFFFF6B35),
-                        size: 20,
-                      ),
-                    ),
-                    // Parques simulados
-                    Positioned(
-                      bottom: 20,
-                      left: 20,
-                      child: Container(
-                        width: 40,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.green[300],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Hyde Park',
-                            style: TextStyle(
-                              fontSize: 8,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        child: SizedBox(
+          height: 180,
+          child: GoogleMap(
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(-25.4372, -49.2695), // Curitiba
+              zoom: 14.0,
+            ),
+            onMapCreated: (GoogleMapController controller) {
+              // Controller criado
+            },
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            mapType: MapType.normal,
           ),
         ),
       ),
@@ -280,14 +196,46 @@ class _HomePageState extends ConsumerState<HomePage> {
             mainAxisSpacing: 6,
             childAspectRatio: 1.2, // Ajuste da proporção para 4 colunas menores
             children: [
-              _buildMoodCard('Date night', const Color(0xFFFFA726), 'pizza'),
-              _buildMoodCard('Para curar\na ressaca', const Color(0xFFFF7043), 'burger'),
-              _buildMoodCard('Com vibe\nleve', const Color(0xFF42A5F5), 'healthy'),
-              _buildMoodCard('Clássicos\nPOA', const Color(0xFF5C6BC0), 'pizza'),
-              _buildMoodCard('Vontade\nde doce', const Color(0xFF9C27B0), 'dessert'),
-              _buildMoodCard('Almoço\nde domingo', const Color(0xFFFFCA28), 'pizza'),
-              _buildMoodCard('Happy hour\nde firma', const Color(0xFF26C6DA), 'burger'),
-              _buildMoodCard('Para\ncomemorar\naniversário', const Color(0xFFFF5722), 'dessert'),
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('32555c5c-b206-4c31-9e4d-1cf5d68d1e8d', 'Date night'), 
+                const Color(0xFFFFA726), 
+                '32555c5c-b206-4c31-9e4d-1cf5d68d1e8d'
+              ), // Italiana
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('45a122d2-d5fd-4e20-ab17-2d1a1699c3e0', 'Para curar\na ressaca'), 
+                const Color(0xFFFF7043), 
+                '45a122d2-d5fd-4e20-ab17-2d1a1699c3e0'
+              ), // Hambúrguer  
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('0a575266-ee8e-4c72-82e9-2a85359682cb', 'Com vibe\nleve'), 
+                const Color(0xFF42A5F5), 
+                '0a575266-ee8e-4c72-82e9-2a85359682cb'
+              ), // Saudável
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('dfadf4da-3c7b-4d85-b6da-5b0bddd60195', 'Clássicos\nCuritiba'), 
+                const Color(0xFF5C6BC0), 
+                'dfadf4da-3c7b-4d85-b6da-5b0bddd60195'
+              ), // Pizzaria
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('a945c6bb-0554-4181-831c-17928864ee52', 'Vontade\nde doce'), 
+                const Color(0xFF9C27B0), 
+                'a945c6bb-0554-4181-831c-17928864ee52'
+              ), // Doceria
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('c9fdb068-aff4-4fe1-84ff-10974d62fba9', 'Almoço\nde domingo'), 
+                const Color(0xFFFFCA28), 
+                'c9fdb068-aff4-4fe1-84ff-10974d62fba9'
+              ), // Buffet
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('948a606b-78ff-4bcd-9d37-f14ec5654e25', 'Happy hour\nde firma'), 
+                const Color(0xFF26C6DA), 
+                '948a606b-78ff-4bcd-9d37-f14ec5654e25'
+              ), // Café
+              _buildMoodCard(
+                ref.read(homeProvider.notifier).getRestaurantNameForCategory('1417ab7f-338c-4dd4-96d7-87bcaa8099bf', 'Sushi fresh'), 
+                const Color(0xFFFF5722), 
+                '1417ab7f-338c-4dd4-96d7-87bcaa8099bf'
+              ), // Japonesa
             ],
           ),
         ],
@@ -296,31 +244,34 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
   
   Widget _buildMoodCard(String text, Color color, String categoryId) {
-    return GestureDetector(
-      onTap: () {
-        context.go('/discovery?category=$categoryId');
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: GoogleFonts.crimsonText(
-            textStyle: TextStyle(
-              color: Color(0xFF2c3b83),
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isNavigationReady ? () => _navigateTo('/discovery/$categoryId') : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(12),
           ),
-            textAlign: TextAlign.center,
+          child: Center(
+            child: Text(
+              text,
+              style: GoogleFonts.crimsonText(
+              textStyle: const TextStyle(
+                color: Color(0xFF2c3b83),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
     );
   }
+  
   
   Widget _buildBottomNavigation() {
     return Container(
@@ -349,22 +300,26 @@ class _HomePageState extends ConsumerState<HomePage> {
   
   Widget _buildBottomNavItem(String label, bool isSelected) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () => _onBottomNavTap(label),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _isNavigationReady ? () => _onBottomNavTap(label) : null,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
+              borderRadius: BorderRadius.circular(20),
             ),
-            textAlign: TextAlign.center,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
@@ -374,14 +329,33 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _onBottomNavTap(String label) {
     switch (label) {
       case 'Descubra':
-        context.go('/discovery?category=todos');
+        _navigateTo('/discovery/todos');
         break;
       case 'Mapa':
-        context.go('/search');
+        _navigateTo('/search');
         break;
       case 'Perfil':
-        context.go('/profile');
+        _navigateTo('/profile');
         break;
+    }
+  }
+
+  /// Método seguro para navegação que verifica se o contexto está pronto
+  void _navigateTo(String path) {
+    if (!_isNavigationReady || !mounted) return;
+    
+    try {
+      // Verificar se o GoRouter está disponível no contexto
+      if (GoRouter.maybeOf(context) != null) {
+        context.go(path);
+      } else {
+        debugPrint('GoRouter não disponível no contexto, tentando novamente em 100ms');
+        Future.delayed(const Duration(milliseconds: 100), () => _navigateTo(path));
+      }
+    } catch (e) {
+      debugPrint('Erro na navegação: $e');
+      // Tentar novamente após um pequeno delay
+      Future.delayed(const Duration(milliseconds: 200), () => _navigateTo(path));
     }
   }
 }

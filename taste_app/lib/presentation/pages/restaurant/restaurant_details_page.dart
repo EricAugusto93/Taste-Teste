@@ -14,6 +14,7 @@ import '../../../data/models/menu_item_model.dart';
 import '../../../data/repositories/review_repository.dart';
 import '../../../data/repositories/menu_repository.dart';
 import '../../../data/repositories/restaurant_repository.dart';
+import '../../../core/di/injection_container.dart';
 import '../../widgets/widgets.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget.dart';
@@ -30,6 +31,7 @@ import '../../../data/services/cart_service.dart';
 import '../../../core/enums/delivery_type.dart';
 import '../../widgets/connectivity_banner.dart';
 import '../../widgets/enhanced_error_widget.dart';
+import '../../../data/services/auth_service.dart';
 
 /// Página de detalhes do restaurante
 class RestaurantDetailsPage extends ConsumerStatefulWidget {
@@ -54,7 +56,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
   
   final ReviewRepository _reviewRepository = ReviewRepository();
   final MenuRepository _menuRepository = MenuRepository();
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
 
   RestaurantModel? _restaurant;
   List<ReviewModel> _reviews = [];
@@ -196,9 +198,9 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
       // Criar nova avaliação
       final newReview = ReviewModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: 'current_user_id', // TODO: Pegar do auth
+        userId: AuthService.instance.userId ?? 'anonymous',
         restaurantId: _restaurant!.id,
-        userName: 'Usuário Atual', // TODO: Pegar do auth
+        userName: AuthService.instance.userEmail ?? 'Usuário Anônimo',
         userAvatar: null,
         rating: rating,
         comment: comment,

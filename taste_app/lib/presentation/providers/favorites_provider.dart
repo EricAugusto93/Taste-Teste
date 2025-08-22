@@ -7,6 +7,7 @@ import '../../data/repositories/favorites_repository.dart';
 import '../../data/services/favorites_sync_service.dart';
 import '../../data/services/favorites_service.dart';
 import '../../data/services/offline_favorites_service.dart';
+import '../../data/services/auth_service.dart';
 
 /// Provider para o repositório de favoritos
 final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
@@ -111,7 +112,7 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
             state.whenData((favorites) {
               final newFavorite = FavoriteModel(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
-                userId: 'current_user', // TODO: Obter do auth
+                userId: AuthService.instance.userId ?? 'anonymous', // TODO: Obter do auth
                 restaurantId: restaurant.id,
                 createdAt: DateTime.now(),
                 restaurant: restaurant.toEntity(),
@@ -214,8 +215,10 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
       // Usar o serviço de sincronização do repositório
       if (_repository is FavoritesRepositoryImpl) {
         final repo = _repository as FavoritesRepositoryImpl;
-        // TODO: Obter userId do auth
-        await repo.syncService.performFullSync('current_user');
+        final userId = AuthService.instance.userId;
+        if (userId != null) {
+          await repo.syncService.performFullSync(userId);
+        }
       }
       await loadFavorites(); // Recarrega após sincronização
     } catch (error) {

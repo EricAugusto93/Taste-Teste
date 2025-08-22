@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/utils/location_utils.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/search_provider.dart';
 import '../../widgets/enhanced_map_widget.dart';
-import '../../widgets/loading_widget.dart';
 import '../../widgets/restaurant_card.dart';
 
-/// Página de mapa completa
+/// Página de mapa com layout da imagem de referência
 class MapPage extends ConsumerStatefulWidget {
   final double? initialLat;
   final double? initialLng;
@@ -39,8 +33,19 @@ class _MapPageState extends ConsumerState<MapPage>
   late Animation<double> _bottomSheetAnimation;
   
   RestaurantModel? _selectedRestaurant;
-  bool _showRestaurantList = false;
-  final PageController _pageController = PageController();
+  String _selectedCategory = '';
+
+  // Categorias com cores baseadas na imagem de referência
+  final List<Map<String, dynamic>> _categories = [
+    {'name': 'Date night', 'color': const Color(0xFFE67E22)},
+    {'name': 'Para curar\na ressaca', 'color': const Color(0xFFE74C3C)},
+    {'name': 'Com vibe\nleve', 'color': const Color(0xFF87CEEB)},
+    {'name': 'Clássicos\nPOA', 'color': const Color(0xFF95A5A6)},
+    {'name': 'Vontade\nde doce', 'color': const Color(0xFF9B59B6)},
+    {'name': 'Almoço\nde domingo', 'color': const Color(0xFFF39C12)},
+    {'name': 'Happy hour\nde firma', 'color': const Color(0xFF3498DB)},
+    {'name': 'Para\ncomentar\nno insta', 'color': const Color(0xFFE67E22)},
+  ];
 
   @override
   void initState() {
@@ -63,7 +68,6 @@ class _MapPageState extends ConsumerState<MapPage>
   @override
   void dispose() {
     _bottomSheetController.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -81,15 +85,20 @@ class _MapPageState extends ConsumerState<MapPage>
     });
   }
 
-  void _toggleRestaurantList() {
+  void _onCategoryTap(String category) {
     setState(() {
-      _showRestaurantList = !_showRestaurantList;
+      _selectedCategory = category;
     });
+    // Aqui você pode implementar a lógica de filtro por categoria
   }
 
   void _navigateToRestaurant(RestaurantModel restaurant) {
     context.push('/restaurant/${restaurant.id}');
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -101,386 +110,284 @@ class _MapPageState extends ConsumerState<MapPage>
     }));
 
     return Scaffold(
-      body: Stack(
+      backgroundColor: AppColors.background,
+      body: Column(
         children: [
-          // Mapa principal
-          restaurantsAsync.when(
-            data: (restaurants) => EnhancedMapWidget(
-              userLocation: locationState.currentLocation,
-              restaurants: restaurants,
-              onRestaurantTap: _onRestaurantTap,
-              height: MediaQuery.of(context).size.height,
-              showUserLocation: true,
-              enableInteraction: true,
-              selectedRestaurantId: _selectedRestaurant?.id,
-            ),
-            loading: () => const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-              ),
-            ),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Erro ao carregar mapa',
-                    style: AppTextStyles.h3,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    style: AppTextStyles.bodySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(nearbyRestaurantsProvider({
-                      'latitude': locationState.currentLocation?.latitude ?? 0.0,
-                      'longitude': locationState.currentLocation?.longitude ?? 0.0,
-                      'maxDistance': 5.0,
-                    })),
-                    child: const Text('Tentar novamente'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // AppBar customizada
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+          // Header azul/roxo com gradiente
+          Flexible(
+            flex: 3,
             child: Container(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top,
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.transparent,
+                    Color(0xFF4A5FBF), // Azul
+                    Color(0xFF6B73D9), // Roxo claro
                   ],
                 ),
               ),
-              child: Row(
-                children: [
-                  // Botão voltar
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 16),
-                  
-                  // Título
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Logo/Título estilizado
+                      const Center(
+                        child: Text(
+                          'tl',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w300,
+                            fontStyle: FontStyle.italic,
                           ),
-                        ],
-                      ),
-                      child: Text(
-                        'Restaurantes próximos',
-                        style: AppTextStyles.h3.copyWith(
-                          color: AppColors.textPrimary,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 16),
-                  
-                  // Botão lista
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Pergunta principal
+                      const Text(
+                        'Qual a sua vibe hoje?',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: _toggleRestaurantList,
-                      icon: Icon(
-                        _showRestaurantList ? Icons.map : Icons.list,
-                        color: AppColors.primary,
                       ),
-                    ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Botão laranja
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE67E22),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: const Text(
+                          'um ramen quentinho no Bom Fim',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 8),
+                      
+                      // Texto pequeno
+                      const Center(
+                        child: Text(
+                          'Veja dicas e os melhores locais da cidade',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-
-          // Lista de restaurantes (slide up)
-          if (_showRestaurantList)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.6,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+          
+          // Mapa
+          Expanded(
+            flex: 2,
+            child: Stack(
+              children: [
+                restaurantsAsync.when(
+                  data: (restaurants) => EnhancedMapWidget(
+                    userLocation: locationState.currentLocation,
+                    restaurants: restaurants,
+                    onRestaurantTap: _onRestaurantTap,
+                    height: MediaQuery.of(context).size.height,
+                    showUserLocation: true,
+                    enableInteraction: true,
+                    selectedRestaurantId: _selectedRestaurant?.id,
+                  ),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  ),
+                  error: (error, stack) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: AppColors.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Erro ao carregar mapa',
+                          style: AppTextStyles.h3,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          error.toString(),
+                          style: AppTextStyles.bodySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => ref.refresh(nearbyRestaurantsProvider({
+                            'latitude': locationState.currentLocation?.latitude ?? 0.0,
+                            'longitude': locationState.currentLocation?.longitude ?? 0.0,
+                            'maxDistance': 5.0,
+                          })),
+                          child: const Text('Tentar novamente'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    // Handle
-                    Container(
-                      margin: const EdgeInsets.only(top: 12),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.textSecondary.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Restaurantes',
-                            style: AppTextStyles.h3,
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              // Primeiro fecha a lista
-                              setState(() {
-                                _showRestaurantList = false;
-                              });
-                              // Depois volta para a página anterior
-                              context.pop();
-                            },
-                            icon: const Icon(Icons.close),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Lista
-                    Expanded(
-                      child: restaurantsAsync.when(
-                        data: (restaurants) => ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: restaurants.length,
-                          itemBuilder: (context, index) {
-                            final restaurant = restaurants[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: RestaurantCard(
-                                restaurant: restaurant,
-                                onTap: () => _navigateToRestaurant(restaurant),
-                                showDistance: true,
-                              ),
-                            );
-                          },
-                        ),
-                        loading: () => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        error: (error, stack) => Center(
-                          child: Text(
-                            'Erro ao carregar restaurantes',
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
-          // Bottom sheet do restaurante selecionado
-          if (_selectedRestaurant != null)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: AnimatedBuilder(
-                animation: _bottomSheetAnimation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(
-                      0,
-                      (1 - _bottomSheetAnimation.value) * 300,
+
+
+              ],
+            ),
+          ),
+          
+          // Seção de categorias
+          Flexible(
+            flex: 2,
+            child: Container(
+              color: const Color(0xFF4A5FBF),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Descubra por clima',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, -5),
-                          ),
-                        ],
+                  ),
+                  const Text(
+                    'ocasião ou desejo',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Grid de categorias
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 0.8,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Handle
-                          Container(
-                            width: 40,
-                            height: 4,
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final category = _categories[index];
+                        final isSelected = _selectedCategory == category['name'];
+                        
+                        return GestureDetector(
+                          onTap: () => _onCategoryTap(category['name']),
+                          child: Container(
                             decoration: BoxDecoration(
-                              color: AppColors.textSecondary.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(2),
+                              color: category['color'],
+                              borderRadius: BorderRadius.circular(12),
+                              border: isSelected 
+                                  ? Border.all(color: Colors.white, width: 2)
+                                  : null,
+                            ),
+                            child: Center(
+                              child: Text(
+                                category['name'],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
-                          
-                          const SizedBox(height: 16),
-                          
-                          // Card do restaurante
-                          RestaurantCard(
-                            restaurant: _selectedRestaurant!,
-                            onTap: () => _navigateToRestaurant(_selectedRestaurant!),
-                            showDistance: true,
-                          ),
-                          
-                          const SizedBox(height: 16),
-                          
-                          // Botões de ação
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: _closeBottomSheet,
-                                  child: const Text('Fechar'),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => _navigateToRestaurant(_selectedRestaurant!),
-                                  child: const Text('Ver detalhes'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-
-          // Barra de navegação
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildBottomNavigation(),
           ),
+          
+          // Barra de navegação inferior laranja
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFE67E22),
+            ),
+            child: SafeArea(
+              child: Container(
+                height: 60,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavItem('Descubra', Icons.explore, false),
+                    _buildNavItem('Mapa', Icons.map, true),
+                    _buildNavItem('Perfil', Icons.person, false),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+
         ],
       ),
     );
   }
 
-  Widget _buildBottomNavigation() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFFF6B35),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildBottomNavItem('Descubra', false),
-              _buildBottomNavItem('Mapa', true),
-              _buildBottomNavItem('Perfil', false),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavItem(String label, bool isSelected) {
+  Widget _buildNavItem(String label, IconData icon, bool isSelected) {
     return Expanded(
       child: GestureDetector(
         onTap: () => _onBottomNavTap(label),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),
