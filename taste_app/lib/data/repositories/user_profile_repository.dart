@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/config/supabase_config.dart';
 import '../../domain/entities/user_profile.dart';
-import '../services/auth_service.dart';
+import '../services/auth/auth_service.dart';
 
 /// Repositório para gerenciar dados do perfil do usuário
 class UserProfileRepository {

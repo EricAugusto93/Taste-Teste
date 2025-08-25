@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/services/auth_service.dart';
+import '../../data/services/auth/auth_service.dart';
 
 /// Guard de autenticação para proteger rotas
 class AuthGuard {

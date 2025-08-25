@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// Stub implementation for non-web platforms
 Future<void> initializeGoogleMaps(String apiKey) async {
   if (kDebugMode) {
-    print('Google Maps initialization skipped (non-web platform)');
+    debugPrint('Google Maps initialization skipped (non-web platform)');
   }
 }
 

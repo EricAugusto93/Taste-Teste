@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:taste_app/core/theme/app_colors.dart';
 import 'package:taste_app/presentation/widgets/custom_button.dart';
+import 'package:taste_app/presentation/widgets/enhanced_error_widget.dart';
 
+@Deprecated('Use EnhancedErrorWidget instead')
 class CustomErrorWidget extends StatelessWidget {
   final String title;
   final String message;
@@ -152,7 +154,7 @@ class CustomErrorWidget extends StatelessWidget {
 
 // Widget para exibir erro em tela cheia
 class FullScreenErrorWidget extends StatelessWidget {
-  final CustomErrorWidget errorWidget;
+  final EnhancedErrorWidget errorWidget;
   final bool showAppBar;
   final String? appBarTitle;
 

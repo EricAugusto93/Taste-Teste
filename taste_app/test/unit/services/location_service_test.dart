@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taste_app/data/services/location_service.dart' as app_location;
+import 'package:taste_app/data/services/location/location_service.dart' as app_location;
 import 'package:taste_app/data/models/location_model.dart';
 
 void main() {

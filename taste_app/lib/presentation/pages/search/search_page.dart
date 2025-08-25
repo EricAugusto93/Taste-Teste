@@ -3,16 +3,16 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
-import '../../../core/constants/app_icons.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/animations/animation_service.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../../data/models/search_history_model.dart';
-import '../../../data/services/search_service.dart';
-import '../../../data/services/ai_search_service.dart';
-import '../../../data/services/search_analytics_service.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../core/services/analytics_service.dart';
+import '../../../data/services/search/search_service.dart';
+import '../../../data/services/search/ai_search_service.dart';
+import '../../../data/services/search/search_analytics_service.dart';
+import '../../../data/services/auth/auth_service.dart';
+import '../../../services/analytics_service.dart';
 import '../../../data/repositories/search_repository.dart';
 import '../../widgets/widgets.dart';
 import '../../widgets/loading_widget.dart';
@@ -689,12 +689,7 @@ class _SearchPageState extends State<SearchPage> {
     final suggestionIndex = _searchSuggestions.indexOf(search);
     
     if (suggestionIndex >= 0) {
-      _searchAnalytics.trackSuggestionSelected(
-        originalQuery: originalQuery,
-        selectedSuggestion: search,
-        suggestionIndex: suggestionIndex,
-        wasAIGenerated: true, // Assumindo que veio da IA
-      );
+      _searchAnalytics.trackSuggestionSelected(search, originalQuery);
     }
     
     _searchController.text = search;
@@ -779,13 +774,7 @@ class _SearchPageState extends State<SearchPage> {
                   
                   // Rastrear uso de correção
                   if (_currentInterpretation != null) {
-                    await _searchAnalytics.trackCorrectionUsed(
-                      originalQuery: _searchController.text,
-                      correctedQuery: correction,
-                      confidence: _currentInterpretation!.confidence,
-                      originalResultsCount: _restaurants.length,
-                      correctedResultsCount: 0, // Será atualizado após a busca
-                    );
+                    await _searchAnalytics.trackCorrectionUsed(correction, _searchController.text);
                   }
                   
                   _searchController.text = correction;

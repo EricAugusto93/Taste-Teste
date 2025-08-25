@@ -197,20 +197,20 @@ class _HomePageState extends ConsumerState<HomePage> {
             childAspectRatio: 1.2, // Ajuste da proporção para 4 colunas menores
             children: [
               _buildMoodCard(
-                ref.read(homeProvider.notifier).getRestaurantNameForCategory('32555c5c-b206-4c31-9e4d-1cf5d68d1e8d', 'Date night'), 
+                'Date Night\n🍝', 
                 const Color(0xFFFFA726), 
                 '32555c5c-b206-4c31-9e4d-1cf5d68d1e8d'
-              ), // Italiana
+              ), // Italiana - Romantic dinners
               _buildMoodCard(
-                ref.read(homeProvider.notifier).getRestaurantNameForCategory('45a122d2-d5fd-4e20-ab17-2d1a1699c3e0', 'Para curar\na ressaca'), 
+                'Para curar\na ressaca 🍔', 
                 const Color(0xFFFF7043), 
                 '45a122d2-d5fd-4e20-ab17-2d1a1699c3e0'
-              ), // Hambúrguer  
+              ), // Hambúrguer - Perfect for hangover food  
               _buildMoodCard(
-                ref.read(homeProvider.notifier).getRestaurantNameForCategory('0a575266-ee8e-4c72-82e9-2a85359682cb', 'Com vibe\nleve'), 
+                'Com vibe\nleve 🥗', 
                 const Color(0xFF42A5F5), 
                 '0a575266-ee8e-4c72-82e9-2a85359682cb'
-              ), // Saudável
+              ), // Saudável - Light and healthy food
               _buildMoodCard(
                 ref.read(homeProvider.notifier).getRestaurantNameForCategory('dfadf4da-3c7b-4d85-b6da-5b0bddd60195', 'Clássicos\nCuritiba'), 
                 const Color(0xFF5C6BC0), 

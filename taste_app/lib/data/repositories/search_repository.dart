@@ -2,12 +2,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/restaurant_model.dart';
 import '../models/category_model.dart';
 import '../models/search_params.dart';
-import '../services/search_service.dart';
-import '../services/location_service.dart';
+import '../services/search/search_service.dart';
+import '../services/location/location_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/models/cache_item.dart';
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 
 /// Resultado de busca com metadados
 class SearchResult {

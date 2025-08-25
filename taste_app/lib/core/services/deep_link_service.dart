@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:taste_app/core/services/analytics_service.dart';
-import 'package:taste_app/domain/entities/restaurant.dart';
+import 'package:taste_app/services/analytics_service.dart';
 
 /// Tipos de deep link
 enum DeepLinkType {
@@ -90,8 +89,7 @@ class RestaurantDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'deep_link_restaurant',
+      'deep_link_restaurant',
       parameters: {
         'restaurant_id': restaurantId,
         'source': 'deep_link',
@@ -128,8 +126,7 @@ class SearchDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.search,
-      name: 'deep_link_search',
+      'deep_link_search',
       parameters: {
         'query': query ?? '',
         'category': category ?? '',
@@ -163,8 +160,7 @@ class CategoryDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'deep_link_category',
+      'deep_link_category',
       parameters: {
         'category': categoryName,
         'source': 'deep_link',
@@ -195,8 +191,7 @@ class ProfileDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'deep_link_profile',
+      'deep_link_profile',
       parameters: {
         'user_id': userId ?? 'current',
         'source': 'deep_link',
@@ -222,8 +217,7 @@ class FavoritesDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'deep_link_favorites',
+      'deep_link_favorites',
       parameters: {'source': 'deep_link'},
     );
   }
@@ -257,8 +251,7 @@ class MapDeepLinkHandler extends DeepLinkHandler {
     
     // Registra analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'deep_link_map',
+      'deep_link_map',
       parameters: {
         'lat': lat ?? '',
         'lng': lng ?? '',
@@ -463,8 +456,7 @@ class DeepLinkService {
       
       // Registra analytics
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'deep_link_handled',
+        'deep_link_handled',
         parameters: {
           'type': linkData.type.name,
           'path': linkData.path,
@@ -477,9 +469,11 @@ class DeepLinkService {
       debugPrint('Error handling deep link: $e');
       
       // Registra erro no analytics
-      AnalyticsService.instance.trackError(
-        'deep_link_error',
-        parameters: {
+      AnalyticsService.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'deep_link_error',
+        customKeys: {
           'url': url,
           'error': e.toString(),
         },
@@ -571,8 +565,7 @@ class DeepLinkService {
       
       // Registra analytics
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'deep_link_shared',
+        'deep_link_shared',
         parameters: {
           'url': url,
           'subject': subject ?? '',
@@ -590,8 +583,7 @@ class DeepLinkService {
       
       // Registra analytics
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'deep_link_copied',
+        'deep_link_copied',
         parameters: {'url': url},
       );
     } catch (e) {

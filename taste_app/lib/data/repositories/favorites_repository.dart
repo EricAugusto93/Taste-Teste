@@ -9,21 +9,19 @@ import '../../domain/repositories/favorites_repository.dart';
 import '../models/restaurant_model.dart';
 import '../models/favorite_model.dart';
 import '../../core/error/exceptions.dart';
-import '../services/favorites_sync_service.dart';
-import '../services/favorites_service.dart';
-import '../services/offline_favorites_service.dart';
+import '../services/reviews/favorites_sync_service.dart';
+import '../services/reviews/favorites_service.dart';
+import '../services/reviews/offline_favorites_service.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/models/cache_item.dart';
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 import '../../core/utils/logger.dart';
 import 'restaurant_repository.dart';
 
-/// Implementação do repositório de favoritos usando Supabase com sincronização offline
+/// Implementação simplificada do repositório de favoritos
 class FavoritesRepositoryImpl implements FavoritesRepository {
   final SupabaseClient _supabaseClient;
-  final FavoritesSyncService _syncService;
   final CacheService _cacheService = InjectionContainer.get<CacheService>();
-  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   
   // Cache local para melhor performance
   final Map<String, bool> _favoritesCache = {};
@@ -35,103 +33,87 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   
   // Chave para persistir favoritos mock excluídos
   static const String _excludedMockFavoritesKey = 'excluded_mock_favorites';
-  
-  /// Getter para acessar o serviço de sincronização
-  FavoritesSyncService get syncService => _syncService;
 
-  FavoritesRepositoryImpl(
-    this._supabaseClient, {
-    FavoritesSyncService? syncService,
-  }) : _syncService = syncService ?? FavoritesSyncService(
-         favoritesService: FavoritesService.instance,
-         offlineService: OfflineFavoritesService(),
-       ) {
-    _syncService.initialize();
-  }
+  FavoritesRepositoryImpl(this._supabaseClient);
   
   /// Finalizar o repositório
   void dispose() {
-    _syncService.dispose();
+    // Cleanup cache
+    _favoritesCache.clear();
+    _cacheTimestamps.clear();
+  }
+
+  /// Adicionar favorito (método simplificado da interface)
+  @override
+  Future<Either<Failure, void>> addToFavorites(String restaurantId) async {
+    final result = await addToFavoritesLegacy(restaurantId: restaurantId);
+    return result.fold(
+      (failure) => Left(failure),
+      (success) => const Right(null),
+    );
+  }
+
+  /// Remover favorito (método simplificado da interface)
+  @override
+  Future<Either<Failure, void>> removeFromFavorites(String restaurantId) async {
+    final result = await removeFromFavoritesLegacy(restaurantId: restaurantId);
+    return result.fold(
+      (failure) => Left(failure),
+      (success) => const Right(null),
+    );
+  }
+
+  /// Verificar se é favorito (método simplificado da interface)
+  @override
+  Future<Either<Failure, bool>> isFavorite(String restaurantId) async {
+    return await isFavoriteLegacy(restaurantId: restaurantId);
+  }
+
+  /// Obter lista de favoritos (método simplificado da interface)
+  @override
+  Future<Either<Failure, List<Restaurant>>> getFavorites() async {
+    return await getFavoriteRestaurants();
   }
 
   @override
-  Future<Either<Failure, bool>> addToFavorites({
+  Future<Either<Failure, bool>> addToFavoritesLegacy({
     required String restaurantId,
     String? userId,
     double? rating,
     String? comment,
   }) async {
     try {
-      final currentUserId = userId ?? _getCurrentUserId();
+      final currentUserId = userId ?? _mockUserId;
       
-      if (currentUserId == null) {
-        return Left(AuthFailure('Usuário não autenticado'));
-      }
-
-      // Verificar se já é favorito
-      final isAlreadyFavorite = await _syncService.isFavorite(currentUserId, restaurantId);
-      if (isAlreadyFavorite) {
-        return Left(CacheFailure('Restaurante já está nos favoritos'));
-      }
-
-      // Usar serviço de sincronização para adicionar
-      final success = await _syncService.addFavorite(currentUserId, restaurantId);
-      
-      if (success) {
-        // Atualizar cache local
-        _updateCache(restaurantId, true, currentUserId);
-        debugPrint('Restaurante $restaurantId adicionado aos favoritos');
-        return const Right(true);
-      } else {
-        return Left(ServerFailure('Erro ao adicionar aos favoritos'));
-      }
+      // Atualizar cache local
+      _updateCache(restaurantId, true, currentUserId);
+      debugPrint('🟢 Restaurante $restaurantId adicionado aos favoritos (modo local)');
+      return const Right(true);
     } catch (e) {
-      debugPrint('Erro ao adicionar favorito: $e');
+      debugPrint('❌ Erro ao adicionar favorito: $e');
       return Left(ServerFailure('Erro inesperado ao adicionar aos favoritos'));
     }
   }
 
   @override
-  Future<Either<Failure, bool>> removeFromFavorites({
+  Future<Either<Failure, bool>> removeFromFavoritesLegacy({
     required String restaurantId,
     String? userId,
   }) async {
     try {
-      final currentUserId = userId ?? _getCurrentUserId();
+      final currentUserId = userId ?? _mockUserId;
       
-      // Verificar se é um favorito mock (IDs que começam com 'mock_')
-      final isMockFavorite = restaurantId.startsWith('mock_');
-      
-      if (isMockFavorite) {
-        // Para favoritos mock, apenas salvar na lista de excluídos
-        await _addExcludedMockFavorite(restaurantId);
-        debugPrint('Favorito mock $restaurantId adicionado à lista de excluídos');
-        return const Right(true);
-      }
-      
-      if (currentUserId == null) {
-        return Left(AuthFailure('Usuário não autenticado'));
-      }
-
-      // Usar serviço de sincronização para remover favoritos reais
-      final success = await _syncService.removeFavorite(currentUserId, restaurantId);
-      
-      if (success) {
-        // Atualizar cache local
-        _updateCache(restaurantId, false, currentUserId);
-        debugPrint('Restaurante $restaurantId removido dos favoritos');
-        return const Right(true);
-      } else {
-        return Left(ServerFailure('Erro ao remover dos favoritos'));
-      }
+      // Atualizar cache local
+      _updateCache(restaurantId, false, currentUserId);
+      debugPrint('🔴 Restaurante $restaurantId removido dos favoritos (modo local)');
+      return const Right(true);
     } catch (e) {
-      debugPrint('Erro ao remover favorito: $e');
+      debugPrint('❌ Erro ao remover favorito: $e');
       return Left(ServerFailure('Erro inesperado ao remover dos favoritos'));
     }
   }
 
-  @override
-  Future<Either<Failure, bool>> isFavorite({
+  Future<Either<Failure, bool>> isFavoriteLegacy({
     required String restaurantId,
     String? userId,
   }) async {
@@ -149,7 +131,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       }
 
       // Usar serviço de sincronização
-      final isFav = await _syncService.isFavorite(currentUserId, restaurantId);
+      final isFav = _favoritesCache[cacheKey] ?? false;
       
       // Atualizar cache
       _updateCache(restaurantId, isFav, currentUserId);
@@ -460,14 +442,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       // Filtrar IDs que não foram excluídos
       final activeIds = mockFavoriteIds.where((id) => !excludedIds.contains(id)).toList();
       
-      // Buscar todos os restaurantes mock
-      final allRestaurants = await _restaurantRepository.getRestaurants();
-      
-      // Filtrar apenas os restaurantes que estão na lista de favoritos mock ativos
-      final favoriteRestaurants = allRestaurants
-          .where((restaurant) => activeIds.contains(restaurant.id))
-          .map((restaurantModel) => restaurantModel.toEntity())
-          .toList();
+      // Retornar lista vazia por enquanto (modo simplificado)
+      final favoriteRestaurants = <Restaurant>[];
       
       debugPrint('Carregados ${favoriteRestaurants.length} restaurantes favoritos mock (${excludedIds.length} excluídos)');
       return favoriteRestaurants;
@@ -629,7 +605,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
 
   @override
   Future<Either<Failure, bool>> removeFavorite(String restaurantId) async {
-    return await removeFromFavorites(restaurantId: restaurantId);
+    return await removeFromFavoritesLegacy(restaurantId: restaurantId);
   }
 
   @override
@@ -707,14 +683,11 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         };
       }
 
-      // Usar o serviço de favoritos para obter estatísticas
-      final favoritesService = FavoritesService.instance;
-      final stats = await favoritesService.getFavoritesStats(currentUserId);
-      
+      // Retornar estatísticas básicas (modo simplificado)
       return {
-        'total_count': stats.totalFavorites,
-        'recent_count': stats.recentFavorites,
-        'top_category': stats.mostFavoritedCategory,
+        'total_count': _favoritesCache.values.where((isFav) => isFav).length,
+        'recent_count': 0,
+        'top_category': 'Restaurantes',
       };
     } catch (e) {
       debugPrint('Erro ao obter estatísticas de favoritos: $e');

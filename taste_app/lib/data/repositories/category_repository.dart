@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/category_model.dart';
 import '../../core/config/supabase_config.dart';
 import '../../core/utils/logger.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 import 'predefined_categories.dart';
 
 /// Repositório para operações com categorias
@@ -37,8 +37,7 @@ class CategoryRepository {
       if (_isCacheValid && _cachedCategories != null) {
         Logger.info('CategoryRepository: Retornando categorias do cache local');
         AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'categories_cache_hit',
+        'categories_cache_hit',
         parameters: {
           'source': 'local_cache',
           'count': _cachedCategories!.length,
@@ -69,8 +68,7 @@ class CategoryRepository {
         });
         
         AnalyticsService.instance.trackEvent(
-           type: AnalyticsEventType.custom,
-           name: 'categories_loaded',
+           'categories_loaded',
            parameters: {
              'source': 'supabase',
              'count': categories.length,
@@ -88,8 +86,7 @@ class CategoryRepository {
           _lastCacheUpdate = DateTime.now();
           
           AnalyticsService.instance.trackEvent(
-             type: AnalyticsEventType.custom,
-             name: 'categories_cache_hit',
+             'categories_cache_hit',
              parameters: {
                'source': 'persistent_cache',
                'count': _persistentCache!.length,
@@ -107,8 +104,7 @@ class CategoryRepository {
         _lastCacheUpdate = DateTime.now();
         
         AnalyticsService.instance.trackEvent(
-           type: AnalyticsEventType.custom,
-           name: 'categories_fallback_used',
+           'categories_fallback_used',
            parameters: {
              'count': predefinedCategories.length,
              'error': supabaseError.toString(),
@@ -121,8 +117,7 @@ class CategoryRepository {
       Logger.error('CategoryRepository: Erro geral ao buscar categorias', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.error,
-         name: 'categories_error',
+         'categories_error',
          parameters: {
            'error': e.toString(),
          },
@@ -171,8 +166,7 @@ class CategoryRepository {
         Logger.info('CategoryRepository: Categoria encontrada no Supabase');
         
         AnalyticsService.instance.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: 'category_found',
+            'category_found',
             parameters: {
               'source': 'supabase',
               'category_id': id,
@@ -188,8 +182,7 @@ class CategoryRepository {
         
         if (predefined != null) {
           AnalyticsService.instance.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: 'category_found',
+            'category_found',
             parameters: {
               'source': 'predefined',
               'category_id': id,
@@ -203,8 +196,7 @@ class CategoryRepository {
       Logger.error('CategoryRepository: Erro ao buscar categoria por ID', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.error,
-        name: 'category_error',
+        'category_error',
         parameters: {
           'method': 'getCategoryById',
           'category_id': id,
@@ -233,8 +225,7 @@ class CategoryRepository {
       });
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.search,
-        name: 'categories_search',
+        'categories_search',
         parameters: {
           'query_length': query.length,
           'results_count': filtered.length,
@@ -259,8 +250,7 @@ class CategoryRepository {
       await getCategories();
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.custom,
-         name: 'categories_cache_refreshed',
+         'categories_cache_refreshed',
        );
     } catch (e, stackTrace) {
       Logger.error('CategoryRepository: Erro ao atualizar cache', e, stackTrace);
@@ -274,8 +264,7 @@ class CategoryRepository {
     _lastCacheUpdate = null;
     
     AnalyticsService.instance.trackEvent(
-       type: AnalyticsEventType.custom,
-       name: 'categories_cache_cleared',
+       'categories_cache_cleared',
      );
   }
 
@@ -313,8 +302,7 @@ class CategoryRepository {
       clearCache();
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.custom,
-         name: 'category_created',
+         'category_created',
          parameters: {
            'category_id': createdCategory.id,
            'category_name': createdCategory.name,
@@ -326,8 +314,7 @@ class CategoryRepository {
       Logger.error('CategoryRepository: Erro ao criar categoria', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.error,
-         name: 'category_create_error',
+         'category_create_error',
          parameters: {
            'error': e.toString(),
          },
@@ -357,8 +344,7 @@ class CategoryRepository {
       clearCache();
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.custom,
-         name: 'category_updated',
+         'category_updated',
          parameters: {
            'category_id': updatedCategory.id,
          },
@@ -369,8 +355,7 @@ class CategoryRepository {
       Logger.error('CategoryRepository: Erro ao atualizar categoria', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.error,
-         name: 'category_update_error',
+         'category_update_error',
          parameters: {
            'category_id': category.id,
            'error': e.toString(),
@@ -396,8 +381,7 @@ class CategoryRepository {
       clearCache();
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.custom,
-         name: 'category_deactivated',
+         'category_deactivated',
          parameters: {
            'category_id': categoryId,
          },
@@ -408,8 +392,7 @@ class CategoryRepository {
       Logger.error('CategoryRepository: Erro ao desativar categoria', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-         type: AnalyticsEventType.error,
-         name: 'category_deactivate_error',
+         'category_deactivate_error',
          parameters: {
            'category_id': categoryId,
            'error': e.toString(),

@@ -6,7 +6,7 @@ import 'package:taste_app/presentation/providers/auth_provider.dart';
 import 'package:taste_app/presentation/providers/user_profile_provider.dart';
 import 'package:taste_app/presentation/pages/profile/profile_page.dart';
 import 'package:taste_app/data/repositories/user_profile_repository.dart';
-import 'package:taste_app/data/services/auth_service.dart';
+import 'package:taste_app/data/services/auth/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mockito/mockito.dart';
 

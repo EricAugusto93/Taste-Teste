@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/services/interaction_service.dart';
+import '../../core/services/ui/interaction_service.dart';
 
 /// Widget para transições suaves entre diferentes estados
 class SmoothTransitionWidget extends StatelessWidget {

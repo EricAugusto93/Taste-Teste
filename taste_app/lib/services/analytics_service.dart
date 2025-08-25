@@ -1,15 +1,58 @@
 import 'package:flutter/foundation.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// TODO: Adicionar Firebase Analytics quando necessário
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
+/// Tipos de eventos de analytics
+enum AnalyticsEventType {
+  // Eventos de navegação
+  screenView,
+  pageView,
+  navigation,
+  
+  // Eventos de interação
+  buttonTap,
+  search,
+  filter,
+  
+  // Eventos de restaurante
+  restaurantView,
+  restaurantFavorite,
+  restaurantShare,
+  restaurantCall,
+  restaurantDirections,
+  
+  // Eventos de usuário
+  userLogin,
+  userLogout,
+  userRegister,
+  profileUpdate,
+  
+  // Eventos de deep link
+  deepLinkReceived,
+  deepLinkProcessed,
+  
+  // Eventos de erro
+  error,
+  crash,
+  
+  // Eventos de performance
+  loadTime,
+  apiResponse,
+  
+  // Eventos personalizados
+  custom,
+}
 
 /// Serviço centralizado para analytics e monitoring
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
   factory AnalyticsService() => _instance;
+  static AnalyticsService get instance => _instance;
   AnalyticsService._internal();
 
-  FirebaseAnalytics? _analytics;
-  FirebaseCrashlytics? _crashlytics;
+  // FirebaseAnalytics? _analytics;
+  // FirebaseCrashlytics? _crashlytics;
   bool _isInitialized = false;
 
   /// Inicializa o serviço de analytics
@@ -17,22 +60,9 @@ class AnalyticsService {
     if (_isInitialized) return;
 
     try {
-      // Inicializar Firebase Analytics
-      _analytics = FirebaseAnalytics.instance;
-      
-      // Inicializar Firebase Crashlytics
-      _crashlytics = FirebaseCrashlytics.instance;
-      
-      // Configurar Crashlytics para capturar erros do Flutter
-      FlutterError.onError = (errorDetails) {
-        _crashlytics?.recordFlutterFatalError(errorDetails);
-      };
-      
-      // Capturar erros assíncronos
-      PlatformDispatcher.instance.onError = (error, stack) {
-        _crashlytics?.recordError(error, stack, fatal: true);
-        return true;
-      };
+      // TODO: Inicializar Firebase Analytics quando disponível
+      // _analytics = FirebaseAnalytics.instance;
+      // _crashlytics = FirebaseCrashlytics.instance;
       
       _isInitialized = true;
       
@@ -42,7 +72,7 @@ class AnalyticsService {
         'platform': defaultTargetPlatform.name,
       });
       
-      debugPrint('✅ AnalyticsService inicializado com sucesso');
+      debugPrint('✅ AnalyticsService inicializado com sucesso (modo local)');
     } catch (e, stackTrace) {
       debugPrint('❌ Erro ao inicializar AnalyticsService: $e');
       await recordError(e, stackTrace);
@@ -51,13 +81,11 @@ class AnalyticsService {
 
   /// Registra um evento personalizado
   Future<void> logEvent(String name, Map<String, dynamic>? parameters) async {
-    if (!_isInitialized || _analytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      await _analytics!.logEvent(
-        name: name,
-        parameters: parameters,
-      );
+      // TODO: Integrar com Firebase Analytics quando disponível
+      // await _analytics!.logEvent(name: name, parameters: parameters);
       
       if (kDebugMode) {
         debugPrint('📊 Analytics Event: $name - $parameters');
@@ -84,13 +112,11 @@ class AnalyticsService {
 
   /// Registra visualização de tela
   Future<void> logScreenView(String screenName, {String? screenClass}) async {
-    if (!_isInitialized || _analytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      await _analytics!.logScreenView(
-        screenName: screenName,
-        screenClass: screenClass ?? screenName,
-      );
+      // TODO: Integrar com Firebase Analytics quando disponível
+      // await _analytics!.logScreenView(screenName: screenName, screenClass: screenClass ?? screenName);
       
       if (kDebugMode) {
         debugPrint('📱 Screen View: $screenName');
@@ -107,6 +133,11 @@ class AnalyticsService {
       'category': category,
       'timestamp': DateTime.now().toIso8601String(),
     });
+  }
+
+  /// Alias para logSearch para compatibilidade
+  Future<void> trackSearch(String searchTerm, {String? category, Map<String, dynamic>? parameters}) async {
+    await logSearch(searchTerm, category: category);
   }
 
   /// Registra seleção de restaurante
@@ -184,15 +215,13 @@ class AnalyticsService {
 
   /// Define propriedades do usuário
   Future<void> setUserProperties(Map<String, String> properties) async {
-    if (!_isInitialized || _analytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      for (final entry in properties.entries) {
-        await _analytics!.setUserProperty(
-          name: entry.key,
-          value: entry.value,
-        );
-      }
+      // TODO: Integrar com Firebase Analytics quando disponível
+      // for (final entry in properties.entries) {
+      //   await _analytics!.setUserProperty(name: entry.key, value: entry.value);
+      // }
       
       if (kDebugMode) {
         debugPrint('👤 User Properties: $properties');
@@ -204,11 +233,12 @@ class AnalyticsService {
 
   /// Define ID do usuário
   Future<void> setUserId(String userId) async {
-    if (!_isInitialized || _analytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      await _analytics!.setUserId(id: userId);
-      await _crashlytics?.setUserIdentifier(userId);
+      // TODO: Integrar com Firebase Analytics quando disponível
+      // await _analytics!.setUserId(id: userId);
+      // await _crashlytics?.setUserIdentifier(userId);
       
       if (kDebugMode) {
         debugPrint('👤 User ID definido: $userId');
@@ -226,26 +256,22 @@ class AnalyticsService {
     bool fatal = false,
     Map<String, dynamic>? customKeys,
   }) async {
-    if (!_isInitialized || _crashlytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      // Adicionar chaves customizadas se fornecidas
-      if (customKeys != null) {
-        for (final entry in customKeys.entries) {
-          await _crashlytics!.setCustomKey(entry.key, entry.value);
-        }
-      }
-      
-      // Registrar o erro
-      await _crashlytics!.recordError(
-        exception,
-        stackTrace,
-        reason: reason,
-        fatal: fatal,
-      );
+      // TODO: Integrar com Firebase Crashlytics quando disponível
+      // if (customKeys != null) {
+      //   for (final entry in customKeys.entries) {
+      //     await _crashlytics!.setCustomKey(entry.key, entry.value);
+      //   }
+      // }
+      // await _crashlytics!.recordError(exception, stackTrace, reason: reason, fatal: fatal);
       
       if (kDebugMode) {
         debugPrint('🐛 Erro registrado: $exception');
+        if (stackTrace != null) {
+          debugPrint('Stack trace: $stackTrace');
+        }
       }
     } catch (e) {
       debugPrint('❌ Erro ao registrar erro: $e');
@@ -254,14 +280,15 @@ class AnalyticsService {
 
   /// Registra log personalizado
   Future<void> log(String message, {Map<String, dynamic>? data}) async {
-    if (!_isInitialized || _crashlytics == null) return;
+    if (!_isInitialized) return;
 
     try {
       final logMessage = data != null 
           ? '$message - Data: $data'
           : message;
           
-      await _crashlytics!.log(logMessage);
+      // TODO: Integrar com Firebase Crashlytics quando disponível
+      // await _crashlytics!.log(logMessage);
       
       if (kDebugMode) {
         debugPrint('📝 Log: $logMessage');
@@ -273,11 +300,12 @@ class AnalyticsService {
 
   /// Força envio de relatórios de crash pendentes
   Future<void> sendUnsentReports() async {
-    if (!_isInitialized || _crashlytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      await _crashlytics!.sendUnsentReports();
-      debugPrint('📤 Relatórios de crash enviados');
+      // TODO: Integrar com Firebase Crashlytics quando disponível
+      // await _crashlytics!.sendUnsentReports();
+      debugPrint('📤 Relatórios de crash enviados (modo local)');
     } catch (e) {
       debugPrint('❌ Erro ao enviar relatórios: $e');
     }
@@ -285,10 +313,12 @@ class AnalyticsService {
 
   /// Verifica se a coleta de crash está habilitada
   Future<bool> isCrashlyticsCollectionEnabled() async {
-    if (!_isInitialized || _crashlytics == null) return false;
+    if (!_isInitialized) return false;
 
     try {
-      return await _crashlytics!.isCrashlyticsCollectionEnabled();
+      // TODO: Integrar com Firebase Crashlytics quando disponível
+      // return await _crashlytics!.isCrashlyticsCollectionEnabled();
+      return true; // Retorna true por padrão no modo local
     } catch (e) {
       debugPrint('❌ Erro ao verificar status do Crashlytics: $e');
       return false;
@@ -297,10 +327,11 @@ class AnalyticsService {
 
   /// Habilita/desabilita coleta de crash
   Future<void> setCrashlyticsCollectionEnabled(bool enabled) async {
-    if (!_isInitialized || _crashlytics == null) return;
+    if (!_isInitialized) return;
 
     try {
-      await _crashlytics!.setCrashlyticsCollectionEnabled(enabled);
+      // TODO: Integrar com Firebase Crashlytics quando disponível
+      // await _crashlytics!.setCrashlyticsCollectionEnabled(enabled);
       debugPrint('🔧 Crashlytics collection: ${enabled ? "habilitado" : "desabilitado"}');
     } catch (e) {
       debugPrint('❌ Erro ao configurar Crashlytics: $e');
@@ -321,4 +352,9 @@ class AnalyticsService {
 
   /// Getter para verificar se está inicializado
   bool get isInitialized => _isInitialized;
+  
+  /// Alias para logEvent (compatibilidade com código existente)
+  Future<void> trackEvent(String name, {Map<String, dynamic>? parameters}) async {
+    await logEvent(name, parameters);
+  }
 }

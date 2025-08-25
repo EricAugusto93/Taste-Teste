@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/services/interaction_service.dart';
+import '../../core/services/ui/interaction_service.dart';
 import '../../data/models/menu_item_model.dart';
 // MenuCategoryModel is defined in menu_item_model.dart
 import 'cached_image_widget.dart';

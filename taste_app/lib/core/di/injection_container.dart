@@ -1,14 +1,21 @@
 import 'package:get_it/get_it.dart';
-import '../../data/services/location_service.dart';
-import '../../data/services/auth_service.dart';
-import '../../data/services/connectivity_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../data/services/location/location_service.dart';
+import '../../data/services/auth/auth_service.dart';
+import '../services/connectivity_service.dart';
 import '../../data/services/onboarding_service.dart';
-import '../../data/services/search_service.dart';
+import '../../data/services/search/search_service.dart';
 import '../../data/repositories/location_repository.dart';
 import '../../data/repositories/restaurant_repository.dart';
 import '../../data/repositories/search_repository.dart';
+import '../../data/repositories/search_history_repository.dart';
+import '../../data/repositories/category_repository_impl.dart';
 import '../../data/repositories/category_repository.dart';
+import '../../data/repositories/favorites_repository.dart';
+import '../../domain/repositories/favorites_repository.dart' as domain_favorites;
+import '../../domain/repositories/category_repository.dart' as domain_category;
 import '../../data/datasources/restaurant_remote_datasource.dart';
+import '../../data/datasources/category_remote_data_source.dart';
 import '../services/cache_service.dart';
 
 /// Container de injeção de dependência usando GetIt
@@ -61,6 +68,10 @@ class InjectionContainer {
       () => RestaurantRemoteDataSourceImpl(),
     );
     
+    getIt.registerLazySingleton<CategoryRemoteDataSource>(
+      () => CategoryRemoteDataSourceImpl(),
+    );
+    
     // ============================================================================
     // REPOSITORIES
     // ============================================================================
@@ -78,18 +89,45 @@ class InjectionContainer {
        ),
      );
     
-    // Category Repository
+    // Category Repository (implementation)
+    getIt.registerLazySingleton<CategoryRepositoryImpl>(
+      () => CategoryRepositoryImpl(remoteDataSource: getIt<CategoryRemoteDataSource>()),
+    );
+    
+    // Category Repository (interface)
+    getIt.registerLazySingleton<domain_category.CategoryRepository>(
+      () => getIt<CategoryRepositoryImpl>(),
+    );
+    
+    // Category Repository (singleton legacy)
     getIt.registerLazySingleton<CategoryRepository>(
       () => CategoryRepository.instance,
     );
-    
+
     // Restaurant Repository
-      getIt.registerLazySingleton<RestaurantRepository>(
-        () => RestaurantRepository(
-          getIt<RestaurantRemoteDataSource>(),
-          getIt<CacheService>(),
-        ),
-      );
+    getIt.registerLazySingleton<RestaurantRepository>(
+      () => RestaurantRepository(
+        getIt<RestaurantRemoteDataSource>(),
+        getIt<CacheService>(),
+      ),
+    );
+    
+    // Search History Repository
+    getIt.registerLazySingleton<SearchHistoryRepository>(
+      () => SearchHistoryRepository(),
+    );
+    
+    // Favorites Repository (implementation)
+    getIt.registerLazySingleton<FavoritesRepositoryImpl>(
+      () => FavoritesRepositoryImpl(
+        Supabase.instance.client,
+      ),
+    );
+    
+    // Favorites Repository (interface)
+    getIt.registerLazySingleton<domain_favorites.FavoritesRepository>(
+      () => getIt<FavoritesRepositoryImpl>(),
+    );
   }
   
   /// Limpa todas as dependências registradas

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import '../services/deep_link_service.dart';
 import '../config/environment_config.dart';
-import '../services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 
 /// Serviço centralizado para navegação e deep linking
 class NavigationService {
@@ -226,8 +226,7 @@ class NavigationService {
     // Envia para analytics se habilitado
     if (EnvironmentConfig.enableAnalytics) {
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'navigation',
+        'navigation',
         parameters: {
           'action': action,
           'route': route,

@@ -10,7 +10,7 @@ import '../../../data/repositories/restaurant_repository.dart';
 import '../../../core/di/injection_container.dart';
 import '../../providers/category_provider.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart';
+import '../../widgets/enhanced_error_widget.dart';
 import '../../widgets/restaurant_card.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/empty_state_widget.dart';
@@ -127,9 +127,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
         appBar: AppBar(
           title: Text(widget.categoryName ?? 'Categoria'),
         ),
-        body: CustomErrorWidget.general(
+        body: EnhancedErrorWidget(
+          title: 'Erro ao carregar categoria',
           message: error.toString(),
           onRetry: () => ref.invalidate(categoryByIdProvider(widget.categoryId)),
+          errorType: ErrorType.general,
         ),
       ),
       data: (category) => Scaffold(

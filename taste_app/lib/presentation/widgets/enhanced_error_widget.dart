@@ -3,7 +3,7 @@ import 'package:taste_app/core/theme/app_colors.dart';
 import 'package:taste_app/core/theme/app_text_styles.dart';
 import 'package:taste_app/core/theme/app_dimensions.dart';
 import 'package:taste_app/core/theme/app_icons.dart';
-import 'package:taste_app/core/services/interaction_service.dart';
+import 'package:taste_app/core/services/ui/interaction_service.dart';
 import 'package:taste_app/core/services/cache_service.dart';
 import 'package:get_it/get_it.dart';
 

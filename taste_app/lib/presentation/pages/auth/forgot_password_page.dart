@@ -6,7 +6,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../../core/utils/auth_validators.dart';
-import '../../../data/services/auth_service.dart';
+import '../../../data/services/auth/auth_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../../core/utils/auth_validators.dart';

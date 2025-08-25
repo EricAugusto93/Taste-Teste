@@ -14,7 +14,7 @@ import '../../widgets/review_card.dart';
 import '../../widgets/rating_widget.dart';
 import '../../widgets/dialogs.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart';
+import '../../widgets/enhanced_error_widget.dart';
 import '../../widgets/optimized_list_view.dart';
 
 /// Página para exibir todas as avaliações de um restaurante
@@ -204,9 +204,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
     }
 
     if (_error != null) {
-      return CustomErrorWidget.general(
+      return EnhancedErrorWidget(
+        title: 'Erro ao carregar avaliações',
         message: _error!,
         onRetry: _loadData,
+        errorType: ErrorType.general,
       );
     }
 

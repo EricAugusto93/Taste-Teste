@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:taste_app/data/services/cart_service.dart';
+import 'package:taste_app/data/services/cart/cart_service.dart';
 import 'package:taste_app/data/models/cart_model.dart';
 import 'package:taste_app/data/models/cart_item_model.dart';
 import 'package:taste_app/data/models/menu_item_model.dart';

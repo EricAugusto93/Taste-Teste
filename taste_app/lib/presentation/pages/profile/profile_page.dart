@@ -10,7 +10,7 @@ import '../../../core/utils/navigation_helper.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart' as custom;
+import '../../widgets/enhanced_error_widget.dart';
 import '../../widgets/auth_button.dart';
 
 /// Página de perfil conforme referência visual
@@ -49,11 +49,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         child: isLoading && profileState.profile == null
             ? const LoadingWidget()
             : error != null
-                ? custom.CustomErrorWidget.general(
+                ? EnhancedErrorWidget(
+                    title: 'Erro ao carregar perfil',
                     message: error,
                     onRetry: () {
                       ref.read(userProfileProvider.notifier).loadCurrentUserProfile();
                     },
+                    errorType: ErrorType.general,
                   )
                 : _buildProfileContent(profileState.profile, authState.user),
       ),
@@ -125,11 +127,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   /// Layout da página de perfil conforme referência visual
-  Widget _buildProfileContent(profile, user) {
-    final displayName = profile?.fullName ?? 
-                       user?.userMetadata?['full_name'] ?? 
-                       user?.userMetadata?['display_name'] ??
-                       'Luisa';
+  Widget _buildProfileContent(dynamic profile, dynamic user) {
+    // Obtém o nome para exibir usando apenas propriedades seguras
+    String displayName = 'Usuário';
+    
+    try {
+      if (profile != null && profile.fullName != null) {
+        displayName = profile.fullName;
+      } else if (user != null && user.email != null) {
+        // Extrai a primeira parte do email (antes do @)
+        final emailParts = user.email.split('@');
+        if (emailParts.isNotEmpty && emailParts.first.isNotEmpty) {
+          displayName = emailParts.first;
+        }
+      }
+    } catch (e) {
+      print('❌ Erro ao obter displayName: $e');
+      displayName = 'Usuário';
+    }
     
     return Container(
       width: double.infinity,
@@ -452,14 +467,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+              onPressed: () => context.pop(false),
               child: const Text(
                 'Cancelar',
                 style: TextStyle(color: Colors.grey),
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => context.pop(true),
               child: const Text(
                 'Sair',
                 style: TextStyle(color: Colors.red),

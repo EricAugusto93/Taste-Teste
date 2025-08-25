@@ -4,11 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/constants/app_icons.dart';
-import '../../core/services/interaction_service.dart';
+import '../../core/theme/app_icons.dart';
+import '../../core/services/ui/interaction_service.dart';
 import '../../core/extensions/widget_extensions.dart';
 import '../../data/models/restaurant_model.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 import '../providers/favorites_provider.dart';
 import 'favorite_button.dart';
 import 'cached_image_widget.dart';
@@ -458,8 +458,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
         
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'favorite_action',
+          'favorite_action',
           parameters: {
             'restaurant_id': widget.restaurant.id,
             'action': isFavorite ? 'add' : 'remove',
@@ -838,8 +837,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
         
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'favorite_action',
+          'favorite_action',
           parameters: {
             'restaurant_id': widget.restaurant.id,
             'action': isFavorite ? 'add' : 'remove',

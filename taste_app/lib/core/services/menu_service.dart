@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'cache_service.dart';
-import 'connectivity_service.dart';
-import 'supabase_service.dart';
+import '../cache_service.dart';
+import '../connectivity_service.dart';
+import '../supabase_service.dart';
 
 /// Tipos de item do menu
 enum MenuItemType {

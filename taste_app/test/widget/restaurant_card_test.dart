@@ -12,7 +12,27 @@ import 'package:taste_app/domain/entities/restaurant.dart';
 // Mock implementation for testing
 class MockFavoritesRepository implements FavoritesRepository {
   @override
-  Future<Either<Failure, bool>> addToFavorites({
+  Future<Either<Failure, void>> addToFavorites(String restaurantId) async {
+    return const Right(null);
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromFavorites(String restaurantId) async {
+    return const Right(null);
+  }
+
+  @override
+  Future<Either<Failure, bool>> isFavorite(String restaurantId) async {
+    return const Right(false);
+  }
+
+  @override
+  Future<Either<Failure, List<Restaurant>>> getFavorites() async {
+    return const Right([]);
+  }
+
+  @override
+  Future<Either<Failure, bool>> addToFavoritesLegacy({
     required String restaurantId,
     String? userId,
     double? rating,
@@ -22,19 +42,11 @@ class MockFavoritesRepository implements FavoritesRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> removeFromFavorites({
+  Future<Either<Failure, bool>> removeFromFavoritesLegacy({
     required String restaurantId,
     String? userId,
   }) async {
     return const Right(true);
-  }
-
-  @override
-  Future<Either<Failure, bool>> isFavorite({
-    required String restaurantId,
-    String? userId,
-  }) async {
-    return const Right(false);
   }
 
   @override

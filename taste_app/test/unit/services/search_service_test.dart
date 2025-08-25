@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:taste_app/data/services/search_service.dart';
+import 'package:taste_app/data/services/search/search_service.dart';
 
 void main() {
   group('SearchService Tests', () {

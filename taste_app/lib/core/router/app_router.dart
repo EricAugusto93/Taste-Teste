@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../utils/navigation_helper.dart';
 import '../../presentation/pages/splash/splash_page.dart';
 import '../../presentation/pages/onboarding/onboarding_page.dart';
 import '../../features/navigation/presentation/pages/main_navigation_page.dart';
@@ -20,8 +19,6 @@ import '../../presentation/pages/auth/register_page.dart';
 import '../../presentation/pages/auth/forgot_password_page.dart';
 import '../../presentation/pages/auth/edit_profile_page.dart';
 import '../../data/services/onboarding_service.dart';
-import '../../data/services/auth_service.dart';
-import '../services/deep_link_service.dart';
 import '../config/environment_config.dart';
 import '../guards/auth_guard.dart';
 import 'navigation_service.dart';
@@ -147,13 +144,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const HomePage(),
           ),
           
-          // Search - Redireciona para busca dentro da página home por enquanto
+          // Search
           GoRoute(
             path: '/search',
             name: 'search',
-            redirect: (context, state) {
-              final query = state.uri.queryParameters['q'] ?? '';
-              return '/home${query.isNotEmpty ? '?search=$query' : ''}';
+            builder: (context, state) {
+              final query = state.uri.queryParameters['q'];
+              return SearchPage(initialQuery: query);
             },
           ),
           
@@ -164,12 +161,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ProfilePage(),
           ),
           
-          // Main route redirect
-          GoRoute(
-            path: '/main',
-            name: 'main',
-            builder: (context, state) => const HomePage(),
-          ),
           
           // Restaurant Details
           GoRoute(
@@ -229,39 +220,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const NotSureReturnPage(),
           ),
           
-          // Settings - Redireciona para perfil por enquanto
-          GoRoute(
-            path: '/settings',
-            name: 'settings',
-            redirect: (context, state) => '/profile',
-          ),
-          
-          // User Profile - Redireciona para perfil principal
-          GoRoute(
-            path: '/user/:userId',
-            name: 'user_profile',
-            redirect: (context, state) => '/profile',
-          ),
-          
-          // Restaurant Menu - Redireciona para detalhes do restaurante
-          GoRoute(
-            path: '/restaurant/:id/menu',
-            name: 'restaurant_menu',
-            redirect: (context, state) {
-              final restaurantId = state.pathParameters['id']!;
-              return '/restaurant/$restaurantId';
-            },
-          ),
-          
-          // Restaurant Reviews - Redireciona para detalhes do restaurante
-          GoRoute(
-            path: '/restaurant/:id/reviews',
-            name: 'restaurant_reviews',
-            redirect: (context, state) {
-              final restaurantId = state.pathParameters['id']!;
-              return '/restaurant/$restaurantId';
-            },
-          ),
           
           // Discovery - Suporte unificado para path parameter e query parameter
           GoRoute(
@@ -323,12 +281,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-/// Configuração de rotas do aplicativo com go_router
-/// Use goRouterProvider ao invés de AppRouter.router
-class AppRouter {
-  // Classe mantida para compatibilidade, mas uso não recomendado
-  // Use goRouterProvider para obter a instância do router
-}
 
 
 

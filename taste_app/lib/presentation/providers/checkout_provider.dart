@@ -3,7 +3,7 @@ import '../../data/models/address_model.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/order_model.dart';
 import '../../data/services/checkout_service.dart';
-import '../../data/services/auth_service.dart';
+import '../../data/services/auth/auth_service.dart';
 import 'cart_provider.dart';
 
 /// Estado do checkout

@@ -5,7 +5,7 @@ import '../../data/models/restaurant_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/search_filters.dart';
 import '../../data/models/search_params.dart' as search_params;
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 
 /// Estado da busca
 class SearchState {

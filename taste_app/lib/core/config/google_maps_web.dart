@@ -19,7 +19,7 @@ bool isGoogleMapsAvailable() {
     return mapClass != null;
   } catch (e) {
     if (kDebugMode) {
-      print('! Erro durante verificação: $e');
+      debugPrint('! Erro durante verificação: $e');
     }
     return false;
   }
@@ -30,7 +30,7 @@ Future<void> initializeGoogleMaps(String apiKey) async {
   // Verifica se o Google Maps já está carregado
   if (isGoogleMapsAvailable()) {
     if (kDebugMode) {
-      print('✅ Google Maps API já está disponível');
+      debugPrint('✅ Google Maps API já está disponível');
     }
     return;
   }
@@ -38,7 +38,7 @@ Future<void> initializeGoogleMaps(String apiKey) async {
   // Verifica conectividade antes de tentar carregar
   if (!await _checkConnectivity()) {
     if (kDebugMode) {
-      print('❌ Sem conectividade com a internet. Não é possível carregar Google Maps.');
+      debugPrint('❌ Sem conectividade com a internet. Não é possível carregar Google Maps.');
     }
     throw Exception('Sem conectividade com a internet');
   }
@@ -48,7 +48,7 @@ Future<void> initializeGoogleMaps(String apiKey) async {
   for (final script in existingScripts) {
     script.remove();
     if (kDebugMode) {
-      print('🗑️ Script do Google Maps removido: ${script.getAttribute('src')}');
+      debugPrint('🗑️ Script do Google Maps removido: ${script.getAttribute('src')}');
     }
   }
   
@@ -68,17 +68,17 @@ Future<void> initializeGoogleMaps(String apiKey) async {
   // Observa eventos de carregamento/erro do script para facilitar diagnóstico
   script.onLoad.listen((_) {
     if (kDebugMode) {
-      print('⬇️ Script do Google Maps baixado (onLoad emitido)');
+      debugPrint('⬇️ Script do Google Maps baixado (onLoad emitido)');
     }
   });
   script.onError.listen((event) {
     if (kDebugMode) {
-      print('❌ Erro ao carregar script do Google Maps: $event');
+      debugPrint('❌ Erro ao carregar script do Google Maps: $event');
     }
   });
   
   if (kDebugMode) {
-    print('📍 Carregando Google Maps API: ${script.src}');
+    debugPrint('📍 Carregando Google Maps API: ${script.src}');
   }
   
   html.document.head?.append(script);
@@ -94,13 +94,13 @@ Future<bool> _checkConnectivity() async {
     final isOnline = html.window.navigator.onLine ?? true; // Assume online por padrão
     
     if (kDebugMode) {
-      print('🌐 Status de conectividade (navigator.onLine): $isOnline');
+      debugPrint('🌐 Status de conectividade (navigator.onLine): $isOnline');
     }
     
     return isOnline;
   } catch (e) {
     if (kDebugMode) {
-      print('🌐 Erro ao verificar conectividade: $e');
+      debugPrint('🌐 Erro ao verificar conectividade: $e');
     }
     // Em caso de erro, assume que há conectividade
     return true;
@@ -117,14 +117,14 @@ Future<void> _waitForGoogleMapsLoadWithRetry(String apiKey) async {
       return; // Sucesso, sai da função
     } catch (e) {
       if (kDebugMode) {
-        print('🔄 Tentativa ${retry + 1}/$maxRetries falhou: $e');
+        debugPrint('🔄 Tentativa ${retry + 1}/$maxRetries falhou: $e');
       }
       
       if (retry < maxRetries - 1) {
         // Backoff exponencial: 2s, 4s, 8s
         final delaySeconds = 2 << retry;
         if (kDebugMode) {
-          print('⏳ Aguardando ${delaySeconds}s antes da próxima tentativa...');
+          debugPrint('⏳ Aguardando ${delaySeconds}s antes da próxima tentativa...');
         }
         await Future.delayed(Duration(seconds: delaySeconds));
         
@@ -155,7 +155,7 @@ Future<void> _waitForGoogleMapsLoad() async {
           final mapClass = js.context['google']['maps']['Map'];
           if (mapClass != null) {
             if (kDebugMode) {
-              print('✅ Google Maps API carregada com sucesso');
+              debugPrint('✅ Google Maps API carregada com sucesso');
             }
             return;
           }
@@ -167,7 +167,7 @@ Future<void> _waitForGoogleMapsLoad() async {
       
     } catch (e) {
       if (kDebugMode) {
-        print('⚠️ Erro durante verificação: $e');
+        debugPrint('⚠️ Erro durante verificação: $e');
       }
       // Se for erro de API key, não vale a pena continuar tentando
       if (e.toString().contains('API key') || e.toString().contains('InvalidKeyMapError')) {
@@ -180,7 +180,7 @@ Future<void> _waitForGoogleMapsLoad() async {
 
     if (kDebugMode && attempts % 20 == 0) {
       // Log a cada ~2s para depuração sem poluir demais o console
-      print('⏳ Aguardando Google Maps API... (${attempts ~/ 10}s)');
+      debugPrint('⏳ Aguardando Google Maps API... (${attempts ~/ 10}s)');
     }
   }
   
@@ -193,7 +193,6 @@ Future<void> _waitForGoogleMapsLoad() async {
 Future<void> _checkForApiKeyErrors() async {
   try {
     // Verifica se há erros no console relacionados à API key
-    final errors = html.window.console;
     // Nota: Não é possível acessar diretamente os logs do console via Dart
     // mas podemos verificar o estado do objeto google
     
@@ -203,7 +202,7 @@ Future<void> _checkForApiKeyErrors() async {
       if (maps == null) {
         // Google object existe mas maps não - possível erro de API key
         if (kDebugMode) {
-          print('🔍 Google object existe mas maps é null - possível erro de API key');
+          debugPrint('🔍 Google object existe mas maps é null - possível erro de API key');
         }
       }
     }
@@ -216,43 +215,43 @@ Future<void> _checkForApiKeyErrors() async {
 Future<void> _performDetailedDiagnosis() async {
   if (!kDebugMode) return;
   
-  print('🔍 === DIAGNÓSTICO DETALHADO ===');
+  debugPrint('🔍 === DIAGNÓSTICO DETALHADO ===');
   
   // Verifica conectividade
   final hasConnectivity = await _checkConnectivity();
-  print('🌐 Conectividade: ${hasConnectivity ? "OK" : "FALHA"}');
+  debugPrint('🌐 Conectividade: ${hasConnectivity ? "OK" : "FALHA"}');
   
   // Verifica se o script foi carregado
   final scripts = html.document.querySelectorAll('script[src*="maps.googleapis.com"]');
-  print('📜 Scripts do Google Maps encontrados: ${scripts.length}');
+  debugPrint('📜 Scripts do Google Maps encontrados: ${scripts.length}');
   
   for (final script in scripts) {
-    print('   - ${script.getAttribute("src")}');
+    debugPrint('   - ${script.getAttribute("src")}');
   }
   
   // Verifica o estado do objeto google
   try {
     final google = js.context['google'];
-    print('🗺️ Objeto google: ${google != null ? "existe" : "null"}');
+    debugPrint('🗺️ Objeto google: ${google != null ? "existe" : "null"}');
     if (google != null) {
       final maps = js.context['google']['maps'];
-      print('   - google.maps: ${maps != null ? "existe" : "null"}');
+      debugPrint('   - google.maps: ${maps != null ? "existe" : "null"}');
       if (maps != null) {
         final mapClass = js.context['google']['maps']['Map'];
-        print('   - google.maps.Map: ${mapClass != null ? "existe" : "null"}');
+        debugPrint('   - google.maps.Map: ${mapClass != null ? "existe" : "null"}');
       }
     }
   } catch (e) {
-    print('❌ Erro ao verificar objeto google: $e');
+    debugPrint('❌ Erro ao verificar objeto google: $e');
   }
   
   // Verifica erros de rede
-  print('🔗 Verifique o console do navegador para erros de rede ou API key');
-  print('💡 Possíveis causas:');
-  print('   - API key inválida ou expirada');
-  print('   - Restrições de domínio na API key');
-  print('   - Serviços não habilitados (Maps JavaScript API, Places API)');
-  print('   - Cota da API excedida');
-  print('   - Problemas de conectividade');
-  print('🔍 === FIM DO DIAGNÓSTICO ===');
+  debugPrint('🔗 Verifique o console do navegador para erros de rede ou API key');
+  debugPrint('💡 Possíveis causas:');
+  debugPrint('   - API key inválida ou expirada');
+  debugPrint('   - Restrições de domínio na API key');
+  debugPrint('   - Serviços não habilitados (Maps JavaScript API, Places API)');
+  debugPrint('   - Cota da API excedida');
+  debugPrint('   - Problemas de conectividade');
+  debugPrint('🔍 === FIM DO DIAGNÓSTICO ===');
 }

@@ -4,9 +4,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
-import '../../../data/services/ai_search_service.dart';
-import '../../../core/services/analytics_service.dart';
-import '../../../core/services/animation_service.dart';
+import '../../../data/services/search/ai_search_service.dart';
+import '../../../services/analytics_service.dart';
+import '../../../core/animations/animation_service.dart';
 import '../../extensions/widget_extensions.dart';
 
 /// Widget para exibir a confiança da IA e coletar feedback do usuário
@@ -379,8 +379,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
     // Enviar analytics
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'ai_search_feedback',
+      'ai_search_feedback',
       parameters: {
         'query': widget.interpretation.originalQuery,
         'confidence': widget.interpretation.confidence,

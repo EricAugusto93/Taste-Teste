@@ -1,28 +1,50 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/models/favorite_model.dart';
 import '../../data/models/restaurant_model.dart';
-import '../../domain/repositories/favorites_repository.dart';
-import '../../data/repositories/favorites_repository.dart';
-import '../../data/services/favorites_sync_service.dart';
-import '../../data/services/favorites_service.dart';
-import '../../data/services/offline_favorites_service.dart';
-import '../../data/services/auth_service.dart';
+import '../../domain/repositories/favorites_repository.dart' as domain_favorites;
+import '../../domain/usecases/favorites/add_favorite_usecase.dart';
+import '../../domain/usecases/favorites/remove_favorite_usecase.dart';
+import '../../domain/usecases/favorites/get_favorites_usecase.dart';
+import '../../domain/usecases/usecase.dart';
+import '../../../core/di/injection_container.dart';
+import '../../data/services/auth/auth_service.dart';
 
-/// Provider para o repositório de favoritos
-final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
-  final supabaseClient = Supabase.instance.client;
-  final favoritesService = FavoritesService.instance;
-  final offlineService = OfflineFavoritesService();
-  final syncService = FavoritesSyncService(
-    favoritesService: favoritesService,
-    offlineService: offlineService,
-  );
-  
-  return FavoritesRepositoryImpl(
-    supabaseClient,
-    syncService: syncService,
-  );
+/// Estatísticas dos favoritos
+class FavoritesStats {
+  final int totalFavorites;
+  final int totalRestaurants;
+  final double averageRating;
+  final String mostFavoriteCategory;
+  final int recentFavorites;
+
+  const FavoritesStats({
+    required this.totalFavorites,
+    required this.totalRestaurants,
+    required this.averageRating,
+    required this.mostFavoriteCategory,
+    required this.recentFavorites,
+  });
+}
+
+/// Provider para o repositório de favoritos (via GetIt)
+final favoritesRepositoryProvider = Provider<domain_favorites.FavoritesRepository>((ref) {
+  return getIt<domain_favorites.FavoritesRepository>();
+});
+
+/// Provider para Use Cases de favoritos
+final addFavoriteUseCaseProvider = Provider<AddFavoriteUseCase>((ref) {
+  final repository = ref.watch(favoritesRepositoryProvider);
+  return AddFavoriteUseCase(repository);
+});
+
+final removeFavoriteUseCaseProvider = Provider<RemoveFavoriteUseCase>((ref) {
+  final repository = ref.watch(favoritesRepositoryProvider);
+  return RemoveFavoriteUseCase(repository);
+});
+
+final getFavoritesUseCaseProvider = Provider<GetFavoritesUseCase>((ref) {
+  final repository = ref.watch(favoritesRepositoryProvider);
+  return GetFavoritesUseCase(repository);
 });
 
 /// Provider para a lista de favoritos do usuário
@@ -48,8 +70,10 @@ final favoritesStatsProvider = FutureProvider<FavoritesStats>((ref) async {
   
   return FavoritesStats(
     totalFavorites: statsMap['total_count'] as int,
+    totalRestaurants: statsMap['total_restaurants'] as int? ?? 0,
+    averageRating: statsMap['average_rating'] as double? ?? 0.0,
     recentFavorites: statsMap['recent_count'] as int? ?? 0,
-    mostFavoritedCategory: statsMap['top_category'] as String?,
+    mostFavoriteCategory: statsMap['top_category'] as String? ?? 'Geral',
   );
 });
 
@@ -70,7 +94,7 @@ final favoritesByCategoryProvider = Provider.family<List<FavoriteModel>, String?
 
 /// Notifier para gerenciar o estado dos favoritos
 class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
-  final FavoritesRepository _repository;
+  final domain_favorites.FavoritesRepository _repository;
   
   FavoritesNotifier(this._repository) : super(const AsyncValue.loading()) {
     loadFavorites();
@@ -103,24 +127,22 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
   /// Adiciona um restaurante aos favoritos
   Future<bool> addFavorite(RestaurantModel restaurant) async {
     try {
-      final result = await _repository.addToFavorites(restaurantId: restaurant.id);
+      final result = await _repository.addToFavorites(restaurant.id);
       return result.fold(
         (failure) => false,
-        (success) {
-          if (success) {
-            // Atualiza o estado local
-            state.whenData((favorites) {
-              final newFavorite = FavoriteModel(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                userId: AuthService.instance.userId ?? 'anonymous', // TODO: Obter do auth
-                restaurantId: restaurant.id,
-                createdAt: DateTime.now(),
-                restaurant: restaurant.toEntity(),
-              );
-              state = AsyncValue.data([...favorites, newFavorite]);
-            });
-          }
-          return success;
+        (_) {
+          // Atualiza o estado local
+          state.whenData((favorites) {
+            final newFavorite = FavoriteModel(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              userId: AuthService.instance.userId ?? 'anonymous',
+              restaurantId: restaurant.id,
+              createdAt: DateTime.now(),
+              restaurant: restaurant.toEntity(),
+            );
+            state = AsyncValue.data([...favorites, newFavorite]);
+          });
+          return true;
         },
       );
     } catch (error) {
@@ -212,14 +234,8 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
   /// Sincroniza favoritos com o servidor
   Future<void> syncFavorites() async {
     try {
-      // Usar o serviço de sincronização do repositório
-      if (_repository is FavoritesRepositoryImpl) {
-        final repo = _repository as FavoritesRepositoryImpl;
-        final userId = AuthService.instance.userId;
-        if (userId != null) {
-          await repo.syncService.performFullSync(userId);
-        }
-      }
+      // Recarregar favoritos
+      await loadFavorites();
       await loadFavorites(); // Recarrega após sincronização
     } catch (error) {
       // Falha silenciosa na sincronização

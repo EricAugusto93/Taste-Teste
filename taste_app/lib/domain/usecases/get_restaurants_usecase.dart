@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../entities/restaurant.dart';
-import '../repositories/restaurant_repository.dart';
+import '../../repositories/restaurant_repository.dart';
 import '../../core/error/failures.dart';
 import 'usecase.dart';
 

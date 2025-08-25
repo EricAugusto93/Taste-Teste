@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/constants/app_icons.dart';
+import '../../core/theme/app_icons.dart';
 import '../../core/animations/animation_service.dart';
 import '../../data/models/category_model.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 
 /// Classe para representar filtros de busca
 class SearchFilters {
@@ -677,8 +677,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
     
     // Analytics: rastrear limpeza de filtros
     AnalyticsService.instance.trackEvent(
-      type: AnalyticsEventType.custom,
-      name: 'search_filters_cleared',
+      'search_filters_cleared',
       parameters: {
         'source': 'filters_widget',
       },

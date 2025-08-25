@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../data/services/auth_service.dart';
+import '../../data/services/auth/auth_service.dart';
 
 /// Estado da autenticação
 class AppAuthState {
   final bool isAuthenticated;
-  final User? user;
+  final AppUser? user;
   final bool isLoading;
   final String? error;
 
@@ -18,7 +17,7 @@ class AppAuthState {
 
   AppAuthState copyWith({
     bool? isAuthenticated,
-    User? user,
+    AppUser? user,
     bool? isLoading,
     String? error,
   }) {
@@ -52,10 +51,10 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
 
     // Escuta mudanças no estado de autenticação do Supabase
     try {
-      _authService.authStateChanges.listen((supabaseAuthState) {
+      _authService.authStateChanges.listen((appUser) {
         state = AppAuthState(
-          isAuthenticated: supabaseAuthState.session != null || _authService.isAuthenticated,
-          user: supabaseAuthState.session?.user,
+          isAuthenticated: _authService.isAuthenticated,
+          user: appUser,
         );
       });
     } catch (e) {
@@ -69,10 +68,7 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
       
-      final response = await _authService.signInWithEmail(
-        email: email,
-        password: password,
-      );
+      final response = await _authService.signInWithEmail(email, password);
       
       if (response.user != null) {
         state = AppAuthState(
@@ -107,10 +103,7 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
       
-      final response = await _authService.signUpWithEmail(
-        email: email,
-        password: password,
-      );
+      final response = await _authService.signUpWithEmail(email, password);
       
       if (response.user != null) {
         state = AppAuthState(
@@ -179,7 +172,7 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 /// Provider para obter o usuário atual
-final currentUserProvider = Provider<User?>((ref) {
+final currentUserProvider = Provider<AppUser?>((ref) {
   final authState = ref.watch(authProvider);
   return authState.user;
 });

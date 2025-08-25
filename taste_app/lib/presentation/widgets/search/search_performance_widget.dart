@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
-import '../../../data/services/ai_search_service.dart';
+import '../../../data/services/search/ai_search_service.dart';
 import '../../extensions/widget_extensions.dart';
 
 /// Widget para exibir métricas de performance da busca (apenas em modo debug)

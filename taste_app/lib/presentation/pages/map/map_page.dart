@@ -5,8 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/restaurant_model.dart';
+import '../../../data/models/location_model.dart';
 import '../../providers/location_provider.dart';
-import '../../providers/search_provider.dart';
+import '../../providers/restaurant_provider.dart';
 import '../../widgets/enhanced_map_widget.dart';
 import '../../widgets/restaurant_card.dart';
 
@@ -103,11 +104,12 @@ class _MapPageState extends ConsumerState<MapPage>
   @override
   Widget build(BuildContext context) {
     final locationState = ref.watch(locationProvider);
-    final restaurantsAsync = ref.watch(nearbyRestaurantsProvider({
-      'latitude': locationState.currentLocation?.latitude ?? 0.0,
-      'longitude': locationState.currentLocation?.longitude ?? 0.0,
-      'maxDistance': 5.0,
-    }));
+    final restaurantState = ref.watch(restaurantProvider);
+    
+    // Usar os restaurantes já carregados ou dados de amostra se vazio
+    final nearbyRestaurants = restaurantState.restaurants.isEmpty 
+        ? _getSampleRestaurants(locationState.currentLocation) 
+        : restaurantState.restaurants;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -206,54 +208,50 @@ class _MapPageState extends ConsumerState<MapPage>
             flex: 2,
             child: Stack(
               children: [
-                restaurantsAsync.when(
-                  data: (restaurants) => EnhancedMapWidget(
-                    userLocation: locationState.currentLocation,
-                    restaurants: restaurants,
-                    onRestaurantTap: _onRestaurantTap,
-                    height: MediaQuery.of(context).size.height,
-                    showUserLocation: true,
-                    enableInteraction: true,
-                    selectedRestaurantId: _selectedRestaurant?.id,
-                  ),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
-                  ),
-                  error: (error, stack) => Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: AppColors.error,
+                restaurantState.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    )
+                  : restaurantState.hasError
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: AppColors.error,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Erro ao carregar mapa',
+                              style: AppTextStyles.h3,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              restaurantState.error ?? 'Erro desconhecido',
+                              style: AppTextStyles.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => ref.refresh(restaurantProvider),
+                              child: const Text('Tentar novamente'),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Erro ao carregar mapa',
-                          style: AppTextStyles.h3,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          error.toString(),
-                          style: AppTextStyles.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => ref.refresh(nearbyRestaurantsProvider({
-                            'latitude': locationState.currentLocation?.latitude ?? 0.0,
-                            'longitude': locationState.currentLocation?.longitude ?? 0.0,
-                            'maxDistance': 5.0,
-                          })),
-                          child: const Text('Tentar novamente'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      )
+                    : EnhancedMapWidget(
+                        userLocation: locationState.currentLocation,
+                        restaurants: nearbyRestaurants,
+                        onRestaurantTap: _onRestaurantTap,
+                        height: MediaQuery.of(context).size.height,
+                        showUserLocation: true,
+                        enableInteraction: true,
+                        selectedRestaurantId: _selectedRestaurant?.id,
+                      ),
 
 
 
@@ -406,5 +404,100 @@ class _MapPageState extends ConsumerState<MapPage>
         context.go('/profile');
         break;
     }
+  }
+
+  /// Obter restaurantes de amostra perto da localização
+  List<RestaurantModel> _getSampleRestaurants(LocationModel? userLocation) {
+    // Se não há localização, usar coordenadas padrão de Curitiba
+    final baseLat = userLocation?.latitude ?? -25.4469953;
+    final baseLng = userLocation?.longitude ?? -49.1708302;
+    
+    return [
+      RestaurantModel(
+        id: 'sample-1',
+        name: 'Maki Sushi',
+        description: 'Comida japonesa autêntica',
+        rating: 4.5,
+        deliveryTime: '30-45 min',
+        deliveryFee: 5.90,
+        latitude: baseLat + 0.002,
+        longitude: baseLng + 0.002,
+        address: 'Rua das Flores, 123',
+        emoji: '🍣',
+        isOpen: true,
+        isFeatured: true,
+        category: 'Japonês',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      RestaurantModel(
+        id: 'sample-2',
+        name: 'Pizzaria Italiana',
+        description: 'Pizza tradicional italiana',
+        rating: 4.2,
+        deliveryTime: '25-40 min',
+        deliveryFee: 4.50,
+        latitude: baseLat - 0.003,
+        longitude: baseLng + 0.001,
+        address: 'Av. Central, 456',
+        emoji: '🍕',
+        isOpen: true,
+        isFeatured: false,
+        category: 'Pizza',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      RestaurantModel(
+        id: 'sample-3',
+        name: 'Burguer House',
+        description: 'Hambúrgueres artesanais',
+        rating: 4.7,
+        deliveryTime: '20-35 min',
+        deliveryFee: 3.99,
+        latitude: baseLat + 0.001,
+        longitude: baseLng - 0.002,
+        address: 'Rua dos Sabores, 789',
+        emoji: '🍔',
+        isOpen: true,
+        isFeatured: true,
+        category: 'Hambúrguer',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      RestaurantModel(
+        id: 'sample-4',
+        name: 'Cantina do Nono',
+        description: 'Comida caseira italiana',
+        rating: 4.3,
+        deliveryTime: '35-50 min',
+        deliveryFee: 6.50,
+        latitude: baseLat - 0.001,
+        longitude: baseLng - 0.003,
+        address: 'Praça da Saudade, 321',
+        emoji: '🍝',
+        isOpen: true,
+        isFeatured: false,
+        category: 'Italiano',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      RestaurantModel(
+        id: 'sample-5',
+        name: 'Açaí da Praia',
+        description: 'Açaí e lanches naturais',
+        rating: 4.1,
+        deliveryTime: '15-25 min',
+        deliveryFee: 2.99,
+        latitude: baseLat + 0.003,
+        longitude: baseLng - 0.001,
+        address: 'Rua das Palmeiras, 654',
+        emoji: '🥤',
+        isOpen: true,
+        isFeatured: false,
+        category: 'Açaí',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    ];
   }
 }

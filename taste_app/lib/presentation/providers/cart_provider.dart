@@ -3,7 +3,7 @@ import '../../data/models/cart_model.dart';
 import '../../data/models/cart_item_model.dart';
 import '../../data/models/menu_item_model.dart';
 import '../../data/models/restaurant_model.dart';
-import '../../data/services/cart_service.dart';
+import '../../data/services/cart/cart_service.dart';
 
 /// Estado do carrinho
 class CartState {

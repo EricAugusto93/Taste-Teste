@@ -16,6 +16,7 @@ class Restaurant extends Equatable {
   final bool isOpen;
   final bool isFeatured;
   final String? imageUrl;
+  final String? emoji;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -34,6 +35,7 @@ class Restaurant extends Equatable {
     required this.isOpen,
     required this.isFeatured,
     this.imageUrl,
+    this.emoji,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -54,6 +56,7 @@ class Restaurant extends Equatable {
         isOpen,
         isFeatured,
         imageUrl,
+        emoji,
         createdAt,
         updatedAt,
       ];

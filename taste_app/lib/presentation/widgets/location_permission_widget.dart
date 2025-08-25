@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/repositories/location_repository.dart';
 import '../../core/utils/logger.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 import '../../core/utils/navigation_helper.dart';
 
 /// Widget para gerenciar permissões de localização
@@ -90,7 +90,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
         _currentStatus = status;
       });
       
-      AnalyticsService.instance.trackEvent('location_permission_dialog_result', {
+      AnalyticsService.instance.trackEvent('location_permission_dialog_result', parameters: {
         'status': status.toString(),
         'source': 'permission_widget',
       });
@@ -149,7 +149,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
               
-              AnalyticsService.instance.trackEvent('location_permission_denied_dialog', {
+              AnalyticsService.instance.trackEvent('location_permission_denied_dialog', parameters: {
                 'action': 'cancel',
               });
             },

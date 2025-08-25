@@ -78,10 +78,12 @@ class AppIcons {
   /// Ícones de favoritos
   static const IconData heartEmpty = LucideIcons.heart;
   static const IconData heartFilled = LucideIcons.heart;
+  static const IconData heart = LucideIcons.heart;
   static const IconData bookmark = LucideIcons.bookmark;
   static const IconData bookmarkFilled = LucideIcons.bookmark;
   static const IconData list = LucideIcons.list;
   static const IconData grid = LucideIcons.grid;
+  static const IconData discount = LucideIcons.tag;
   
   // ==========================================
   // COMUNICAÇÃO E CONTATO
@@ -152,6 +154,20 @@ class AppIcons {
   static const IconData pause = LucideIcons.pause;
   
   // ==========================================
+  // PAGAMENTO E ENTREGA
+  // ==========================================
+  
+  /// Ícones de entrega e pagamento
+  static const IconData delivery = LucideIcons.truck;
+  static const IconData receipt = LucideIcons.receipt;
+  static const IconData payment = LucideIcons.creditCard;
+  static const IconData money = LucideIcons.dollarSign;
+  static const IconData creditCard = LucideIcons.creditCard;
+  static const IconData pix = LucideIcons.qrCode;
+  static const IconData ticket = LucideIcons.ticket;
+  static const IconData checkCircle = LucideIcons.checkCircle;
+  
+  // ==========================================
   // CONFIGURAÇÕES E PREFERÊNCIAS
   // ==========================================
   
@@ -163,6 +179,8 @@ class AppIcons {
   static const IconData notificationsOff = LucideIcons.bellOff;
   static const IconData privacy = LucideIcons.shield;
   static const IconData help = LucideIcons.helpCircle;
+  static const IconData category = LucideIcons.list;
+  static const IconData wifi = LucideIcons.wifi;
   
   // ==========================================
   // MÉTODOS UTILITÁRIOS

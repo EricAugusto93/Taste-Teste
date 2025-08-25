@@ -7,6 +7,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget.dart' as custom;
+import '../../../data/services/user_lists_service.dart';
 
 /// Página "Não sei se eu volto" - Lista de lugares com experiências duvidosas
 class NotSureReturnPage extends ConsumerStatefulWidget {
@@ -17,41 +18,58 @@ class NotSureReturnPage extends ConsumerStatefulWidget {
 }
 
 class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
-  final List<NotSureReturnItem> _mockItems = [
-    NotSureReturnItem(
-      id: '1',
-      name: 'Restaurante do Centro',
-      category: 'Brasileira',
-      location: 'Centro, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      visitDate: DateTime.now().subtract(const Duration(days: 15)),
-      reason: 'Atendimento demorado e comida fria',
-      rating: 2,
-    ),
-    NotSureReturnItem(
-      id: '2',
-      name: 'Pizzaria da Esquina',
-      category: 'Italiana',
-      location: 'Vila Olímpia, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      visitDate: DateTime.now().subtract(const Duration(days: 30)),
-      reason: 'Pizza muito salgada, ambiente barulhento',
-      rating: 2,
-    ),
-    NotSureReturnItem(
-      id: '3',
-      name: 'Lanchonete Express',
-      category: 'Fast Food',
-      location: 'Paulista, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      visitDate: DateTime.now().subtract(const Duration(days: 7)),
-      reason: 'Preço alto para a qualidade oferecida',
-      rating: 2,
-    ),
-  ];
+  List<NotSureReturnItem> _items = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  /// Carrega os items da lista
+  Future<void> _loadItems() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final items = await UserListsService.getNotSureReturnItems();
+      setState(() {
+        _items = items;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _items = [];
+        _isLoading = false;
+      });
+      debugPrint('❌ Erro ao carregar itens: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text(
+            'Não sei se eu volto',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: const Color(0xFF4A5FBF),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: const LoadingWidget(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -72,7 +90,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
   }
 
   Widget _buildBody() {
-    if (_mockItems.isEmpty) {
+    if (_items.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -128,7 +146,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                       ),
                     ),
                     Text(
-                      '${_mockItems.length} lugares visitados',
+                      '${_items.length} lugares visitados',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 14,
@@ -147,9 +165,9 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
   Widget _buildItemsList() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _mockItems.length,
+      itemCount: _items.length,
       itemBuilder: (context, index) {
-        final item = _mockItems[index];
+        final item = _items[index];
         return _buildItemCard(item);
       },
     );
@@ -399,17 +417,47 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
     );
   }
 
-  void _removeItem(String itemId) {
-    setState(() {
-      _mockItems.removeWhere((item) => item.id == itemId);
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Item removido da lista'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  Future<void> _removeItem(String itemId) async {
+    try {
+      final success = await UserListsService.removeNotSureReturnItem(itemId);
+      
+      if (success) {
+        setState(() {
+          _items.removeWhere((item) => item.id == itemId);
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Item removido da lista'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erro ao remover item da lista'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao remover item: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao remover item da lista'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String _getTimeAgo(DateTime date) {
@@ -424,27 +472,4 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
       return 'agora';
     }
   }
-}
-
-/// Modelo para itens da lista "Não sei se eu volto"
-class NotSureReturnItem {
-  final String id;
-  final String name;
-  final String category;
-  final String location;
-  final String imageUrl;
-  final DateTime visitDate;
-  final String reason;
-  final int rating;
-
-  NotSureReturnItem({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.location,
-    required this.imageUrl,
-    required this.visitDate,
-    required this.reason,
-    required this.rating,
-  });
 }

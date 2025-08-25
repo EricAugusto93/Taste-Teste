@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/repositories/location_repository.dart';
 import '../../data/models/location_model.dart';
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 
 /// Estado da localização
 class LocationState {

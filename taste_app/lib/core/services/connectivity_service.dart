@@ -30,6 +30,9 @@ class ConnectivityService {
   /// Verifica se está offline
   bool get isOffline => status == ConnectivityStatus.disconnected;
 
+  /// Verifica se tem conexão com internet (alias para isOnline)
+  bool get hasInternetConnection => isOnline;
+
   /// Inicializa o serviço de conectividade
   Future<void> initialize() async {
     if (_isInitialized) return;
@@ -198,6 +201,18 @@ class ConnectivityService {
     } catch (e) {
       debugPrint('Erro ao verificar conectividade: $e');
       return ConnectivityStatus.unknown;
+    }
+  }
+
+  /// Obtém descrição textual da conexão atual
+  String getConnectionDescription() {
+    switch (status) {
+      case ConnectivityStatus.connected:
+        return 'Conectado à internet';
+      case ConnectivityStatus.disconnected:
+        return 'Sem conexão com a internet';
+      case ConnectivityStatus.unknown:
+        return 'Status de conexão desconhecido';
     }
   }
 

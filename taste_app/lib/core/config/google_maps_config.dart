@@ -17,7 +17,7 @@ class GoogleMapsConfig {
     
     if (apiKey.isEmpty || apiKey == 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
       if (kDebugMode) {
-        print('⚠️ Google Maps API Key não configurada. Usando fallback.');
+        debugPrint('⚠️ Google Maps API Key não configurada. Usando fallback.');
       }
       return;
     }
@@ -34,34 +34,34 @@ class GoogleMapsConfig {
     if (kIsWeb) {
       try {
         if (kDebugMode) {
-          print('🔄 Iniciando carregamento do Google Maps...');
-          print('📍 API Key: ${apiKey.substring(0, 8)}...');
+          debugPrint('🔄 Iniciando carregamento do Google Maps...');
+          debugPrint('📍 API Key: ${apiKey.substring(0, 8)}...');
         }
         
         await web_impl.initializeGoogleMaps(apiKey);
         
         if (kDebugMode) {
-          print('✅ Google Maps inicializado com sucesso');
-          print('🌐 Status da API: ${isAvailable ? "Disponível" : "Indisponível"}');
+          debugPrint('✅ Google Maps inicializado com sucesso');
+          debugPrint('🌐 Status da API: ${isAvailable ? "Disponível" : "Indisponível"}');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('❌ Erro ao inicializar Google Maps: $e');
-          print('🔍 Tipo do erro: ${e.runtimeType}');
+          debugPrint('❌ Erro ao inicializar Google Maps: $e');
+          debugPrint('🔍 Tipo do erro: ${e.runtimeType}');
           
           // Diagnóstico adicional
           if (e.toString().contains('API key')) {
-            print('🔑 Problema relacionado à API key detectado');
-            print('💡 Verifique se a API key está correta e tem as permissões necessárias');
+            debugPrint('🔑 Problema relacionado à API key detectado');
+            debugPrint('💡 Verifique se a API key está correta e tem as permissões necessárias');
           } else if (e.toString().contains('network') || e.toString().contains('timeout')) {
-            print('🌐 Problema de conectividade detectado');
-            print('💡 Verifique sua conexão com a internet');
+            debugPrint('🌐 Problema de conectividade detectado');
+            debugPrint('💡 Verifique sua conexão com a internet');
           } else if (e.toString().contains('CORS') || e.toString().contains('blocked')) {
-            print('🚫 Problema de CORS ou bloqueio detectado');
-            print('💡 Verifique as configurações de CSP no index.html');
+            debugPrint('🚫 Problema de CORS ou bloqueio detectado');
+            debugPrint('💡 Verifique as configurações de CSP no index.html');
           }
           
-          print('🔄 Aplicação continuará com fallback (mapa não disponível)');
+          debugPrint('🔄 Aplicação continuará com fallback (mapa não disponível)');
         }
         // Não relança a exceção para permitir que a aplicação continue
         // com fallback quando o mapa não estiver disponível
@@ -163,9 +163,9 @@ class GoogleMapsConfig {
     diagnostics['issues'] = configurationIssues;
     
     if (kDebugMode) {
-      print('🔍 Diagnóstico completo do Google Maps:');
+      debugPrint('🔍 Diagnóstico completo do Google Maps:');
       diagnostics.forEach((key, value) {
-        print('  $key: $value');
+        debugPrint('  $key: $value');
       });
     }
     

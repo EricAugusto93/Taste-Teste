@@ -69,6 +69,17 @@ class PredefinedCategories {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ),
+    CategoryModel(
+      id: '32555c5c-b206-4c31-9e4d-1cf5d68d1e8d',
+      name: 'Date Night',
+      description: 'Restaurantes românticos perfeitos para encontros',
+      icon: 'romantic',
+      color: '#E91E63',
+      isActive: true,
+      sortOrder: 7,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    ),
   ];
 
   /// Retorna todas as categorias predefinidas

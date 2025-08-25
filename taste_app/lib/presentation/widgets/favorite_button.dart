@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/utils/navigation_helper.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/constants/app_icons.dart';
+import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/services/interaction_service.dart';
+import '../../core/services/ui/interaction_service.dart';
 import '../../data/models/restaurant_model.dart';
 import '../../data/models/review_model.dart';
 import '../../data/repositories/review_repository.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/custom_button.dart';
@@ -195,8 +195,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
         }
         
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'favorite_action',
+          'favorite_action',
           parameters: {
             'restaurant_id': widget.restaurant.id,
             'restaurant_name': widget.restaurant.name,
@@ -585,8 +584,7 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
         
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'favorite_action',
+          'favorite_action',
           parameters: {
             'restaurant_id': widget.restaurant.id,
             'action': isFavorite ? 'add' : 'remove',
@@ -859,8 +857,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
         
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'favorite_action',
+          'favorite_action',
           parameters: {
             'restaurant_id': widget.restaurant.id,
             'action': isFavorite ? 'add' : 'remove',
@@ -1038,8 +1035,8 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
         id: '',
         restaurantId: widget.restaurant.id,
         userId: user.user?.id ?? '',
-        userName: user.user?.userMetadata?['name'] ?? 'Usuário',
-        userAvatar: user.user?.userMetadata?['avatar'],
+        userName: user.user?.email.split('@').first ?? 'Usuário',
+        userAvatar: null,
         rating: _selectedRating,
         comment: null,
         createdAt: DateTime.now(),
@@ -1071,8 +1068,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       
       // Analytics
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'quick_rating_submitted',
+        'quick_rating_submitted',
         parameters: {
           'restaurant_id': widget.restaurant.id,
           'restaurant_name': widget.restaurant.name,

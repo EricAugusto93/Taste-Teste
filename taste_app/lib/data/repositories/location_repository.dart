@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/location_model.dart';
-import '../services/location_service.dart';
+import '../services/location/location_service.dart';
 import '../../core/utils/logger.dart';
-import '../../core/services/analytics_service.dart';
+import '../../services/analytics_service.dart';
 
 /// Repository para gerenciar dados de localização
 /// Abstrai o acesso aos serviços de localização e fornece uma interface limpa
@@ -47,8 +47,7 @@ class LocationRepository {
         });
         
         AnalyticsService.instance.trackEvent(
-          type: AnalyticsEventType.custom,
-          name: 'location_repository_success',
+          'location_repository_success',
           parameters: {
             'method': 'getCurrentLocation',
             'accuracy': position.accuracy,
@@ -66,8 +65,7 @@ class LocationRepository {
       Logger.error('LocationRepository: Erro ao obter localização', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_repository_error',
+        'location_repository_error',
         parameters: {
           'method': 'getCurrentLocation',
           'error': e.toString(),
@@ -125,8 +123,7 @@ class LocationRepository {
       });
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_permission_requested',
+        'location_permission_requested',
       );
       
       return status;
@@ -134,8 +131,7 @@ class LocationRepository {
       Logger.error('LocationRepository: Erro ao solicitar permissão', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_permission_error',
+        'location_permission_error',
       );
       
       return PermissionStatus.denied;
@@ -247,15 +243,13 @@ class LocationRepository {
       // await _locationService.startLocationTracking();
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_tracking_started_repo',
+        'location_tracking_started_repo',
       );
     } catch (e, stackTrace) {
       Logger.error('LocationRepository: Erro ao iniciar rastreamento', e, stackTrace);
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_tracking_error_repo',
+        'location_tracking_error_repo',
       );
       
       rethrow;
@@ -271,8 +265,7 @@ class LocationRepository {
       // await _locationService.stopLocationTracking();
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_tracking_stopped_repo',
+        'location_tracking_stopped_repo',
       );
     } catch (e, stackTrace) {
       Logger.error('LocationRepository: Erro ao parar rastreamento', e, stackTrace);
@@ -322,8 +315,7 @@ class LocationRepository {
       final result = false;
       
       AnalyticsService.instance.trackEvent(
-        type: AnalyticsEventType.custom,
-        name: 'location_settings_opened',
+        'location_settings_opened',
       );
       
       return result;

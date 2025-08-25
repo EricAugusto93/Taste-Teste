@@ -3,8 +3,8 @@ import '../../core/services/connectivity_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/constants/app_icons.dart';
-import '../../core/services/interaction_service.dart';
+import '../../core/theme/app_icons.dart';
+import '../../core/services/ui/interaction_service.dart';
 
 /// Banner que exibe o status de conectividade
 class ConnectivityBanner extends StatefulWidget {

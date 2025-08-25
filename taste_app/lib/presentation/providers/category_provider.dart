@@ -1,25 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/category.dart';
-import '../../domain/repositories/category_repository.dart';
-import '../../data/repositories/category_repository_impl.dart';
-import '../../data/datasources/category_remote_data_source.dart';
-import '../../core/di/injection_container.dart';
+import '../../domain/repositories/category_repository.dart' as domain_category;
+import '../../domain/usecases/category/get_all_categories_usecase.dart';
+import '../../domain/usecases/category/get_active_categories_usecase.dart';
+import '../../domain/usecases/category/get_category_by_id_usecase.dart';
+import '../../domain/usecases/usecase.dart';
+import '../../../core/di/injection_container.dart';
 
-/// Provider do data source remoto de categorias
-final categoryRemoteDataSourceProvider = Provider<CategoryRemoteDataSource>((ref) {
-  return CategoryRemoteDataSourceImpl();
+/// Provider do repositório de categorias (via GetIt)
+final categoryRepositoryProvider = Provider<domain_category.CategoryRepository>((ref) {
+  return getIt<domain_category.CategoryRepository>();
 });
 
-/// Provider do repositório de categorias
-final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
-  final remoteDataSource = ref.watch(categoryRemoteDataSourceProvider);
-  return CategoryRepositoryImpl(remoteDataSource: remoteDataSource);
+/// Provider para Use Cases de categoria
+final getAllCategoriesUseCaseProvider = Provider<GetAllCategoriesUseCase>((ref) {
+  final repository = ref.watch(categoryRepositoryProvider);
+  return GetAllCategoriesUseCase(repository);
+});
+
+final getActiveCategoriesUseCaseProvider = Provider<GetActiveCategoriesUseCase>((ref) {
+  final repository = ref.watch(categoryRepositoryProvider);
+  return GetActiveCategoriesUseCase(repository);
+});
+
+final getCategoryByIdUseCaseProvider = Provider<GetCategoryByIdUseCase>((ref) {
+  final repository = ref.watch(categoryRepositoryProvider);
+  return GetCategoryByIdUseCase(repository);
 });
 
 /// Provider para todas as categorias
 final categoriesProvider = FutureProvider<List<Category>>((ref) async {
-  final repository = ref.watch(categoryRepositoryProvider);
-  final result = await repository.getAllCategories();
+  final useCase = ref.watch(getAllCategoriesUseCaseProvider);
+  final result = await useCase(NoParams());
   
   return result.fold(
     (failure) => throw Exception(failure.message),
@@ -29,8 +41,8 @@ final categoriesProvider = FutureProvider<List<Category>>((ref) async {
 
 /// Provider para categorias ativas
 final activeCategoriesProvider = FutureProvider<List<Category>>((ref) async {
-  final repository = ref.watch(categoryRepositoryProvider);
-  final result = await repository.getActiveCategories();
+  final useCase = ref.watch(getActiveCategoriesUseCaseProvider);
+  final result = await useCase(NoParams());
   
   return result.fold(
     (failure) => throw Exception(failure.message),
@@ -40,8 +52,8 @@ final activeCategoriesProvider = FutureProvider<List<Category>>((ref) async {
 
 /// Provider para uma categoria específica por ID
 final categoryByIdProvider = FutureProvider.family<Category, String>((ref, id) async {
-  final repository = ref.watch(categoryRepositoryProvider);
-  final result = await repository.getCategoryById(id);
+  final useCase = ref.watch(getCategoryByIdUseCaseProvider);
+  final result = await useCase(GetCategoryByIdParams(id: id));
   
   return result.fold(
     (failure) => throw Exception(failure.message),

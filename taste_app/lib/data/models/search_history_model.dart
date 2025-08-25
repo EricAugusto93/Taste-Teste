@@ -14,6 +14,9 @@ class SearchHistoryModel {
     required this.searchedAt,
   });
 
+  /// Getter para compatibilidade com timestamp
+  DateTime get timestamp => searchedAt;
+
   /// Criar instância a partir de JSON
   factory SearchHistoryModel.fromJson(Map<String, dynamic> json) {
     return SearchHistoryModel(
@@ -34,6 +37,14 @@ class SearchHistoryModel {
       'results_count': resultsCount,
       'searched_at': searchedAt.toIso8601String(),
     };
+  }
+
+  /// Alias para toJson para compatibilidade
+  Map<String, dynamic> toMap() => toJson();
+
+  /// Factory constructor para compatibilidade
+  factory SearchHistoryModel.fromMap(Map<String, dynamic> map) {
+    return SearchHistoryModel.fromJson(map);
   }
 
   /// Criar cópia com modificações

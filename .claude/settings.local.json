@@ -25,7 +25,17 @@
       "WebSearch",
       "Bash(npm run start:*)",
       "Bash(curl:*)",
-      "Bash(copy .env.development.proxy .env.development)"
+      "Bash(copy .env.development.proxy .env.development)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(mkdir:*)",
+      "Bash(move:*)",
+      "Bash(move voice_search_service.dart search)",
+      "Bash(mv:*)",
+      "Bash(del \"lib\\data\\services\\analytics\\ai_search_service.dart\")",
+      "Bash(dart:*)",
+      "Bash(del \"C:\\Users\\Eric\\Desktop\\Taste-Oficial\\admin-panel\\cadastrar_restaurantes.js\")",
+      "Bash(del sync-categories.js)"
     ],
     "deny": [],
     "ask": []

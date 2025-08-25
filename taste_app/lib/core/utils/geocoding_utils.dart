@@ -1,6 +1,6 @@
 import 'package:geocoding/geocoding.dart';
 import '../../data/models/location_model.dart';
-import '../../data/services/location_service.dart';
+import '../../data/services/location/location_service.dart';
 import 'logger.dart';
 
 /// Utilitários para geocoding e geocoding reverso

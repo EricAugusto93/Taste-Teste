@@ -7,6 +7,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget.dart' as custom;
+import '../../../data/services/user_lists_service.dart';
 
 /// Página "Quero conhecer" - Lista de lugares que o usuário quer visitar
 class WantToKnowPage extends ConsumerStatefulWidget {
@@ -17,35 +18,58 @@ class WantToKnowPage extends ConsumerStatefulWidget {
 }
 
 class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
-  final List<WantToKnowItem> _mockItems = [
-    WantToKnowItem(
-      id: '1',
-      name: 'Restaurante Italiano Nonna',
-      category: 'Italiana',
-      location: 'Vila Madalena, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      addedDate: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    WantToKnowItem(
-      id: '2',
-      name: 'Sushi Bar Yamamoto',
-      category: 'Japonesa',
-      location: 'Liberdade, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      addedDate: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-    WantToKnowItem(
-      id: '3',
-      name: 'Churrascaria Gaúcha',
-      category: 'Brasileira',
-      location: 'Moema, São Paulo',
-      imageUrl: 'https://via.placeholder.com/300x200',
-      addedDate: DateTime.now().subtract(const Duration(days: 10)),
-    ),
-  ];
+  List<WantToKnowItem> _items = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  /// Carrega os items da lista
+  Future<void> _loadItems() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final items = await UserListsService.getWantToKnowItems();
+      setState(() {
+        _items = items;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _items = [];
+        _isLoading = false;
+      });
+      debugPrint('❌ Erro ao carregar itens: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text(
+            'Quero conhecer',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          backgroundColor: const Color(0xFF4A5FBF),
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: const LoadingWidget(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -66,7 +90,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
   }
 
   Widget _buildBody() {
-    if (_mockItems.isEmpty) {
+    if (_items.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -122,7 +146,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                       ),
                     ),
                     Text(
-                      '${_mockItems.length} lugares salvos',
+                      '${_items.length} lugares salvos',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 14,
@@ -141,9 +165,9 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
   Widget _buildItemsList() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _mockItems.length,
+      itemCount: _items.length,
       itemBuilder: (context, index) {
-        final item = _mockItems[index];
+        final item = _items[index];
         return _buildItemCard(item);
       },
     );
@@ -335,17 +359,47 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
     );
   }
 
-  void _removeItem(String itemId) {
-    setState(() {
-      _mockItems.removeWhere((item) => item.id == itemId);
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Item removido da lista'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  Future<void> _removeItem(String itemId) async {
+    try {
+      final success = await UserListsService.removeWantToKnowItem(itemId);
+      
+      if (success) {
+        setState(() {
+          _items.removeWhere((item) => item.id == itemId);
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Item removido da lista'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erro ao remover item da lista'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao remover item: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao remover item da lista'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String _getTimeAgo(DateTime date) {
@@ -360,23 +414,4 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
       return 'agora';
     }
   }
-}
-
-/// Modelo para itens da lista "Quero conhecer"
-class WantToKnowItem {
-  final String id;
-  final String name;
-  final String category;
-  final String location;
-  final String imageUrl;
-  final DateTime addedDate;
-
-  WantToKnowItem({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.location,
-    required this.imageUrl,
-    required this.addedDate,
-  });
 }

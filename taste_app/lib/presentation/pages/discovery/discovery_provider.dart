@@ -4,7 +4,7 @@ import '../../../data/models/restaurant_model.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/repositories/restaurant_repository.dart';
 import '../../../data/repositories/category_repository.dart';
-import '../../../data/services/location_service.dart';
+import '../../../data/services/location/location_service.dart';
 import '../../../core/di/injection_container.dart';
 
 // Estados da página de descoberta
@@ -92,49 +92,25 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
     try {
       final position = await _locationService.getCurrentPosition();
       if (position != null) {
-        print('📍 Discovery: Localização obtida: ${position.latitude}, ${position.longitude}');
+        print('📍 Discovery: Localização real obtida: ${position.latitude}, ${position.longitude}');
         state = state.copyWith(
           userLocation: position,
           hasLocationPermission: true,
         );
       } else {
-        print('⚠️ Discovery: Não foi possível obter localização, usando Curitiba como padrão');
-        // Usa Curitiba como localização padrão se não conseguir obter GPS
-        final defaultPosition = Position(
-          latitude: -25.4372, // Curitiba
-          longitude: -49.2695, // Curitiba
-          timestamp: DateTime.now(),
-          accuracy: 0,
-          altitude: 0,
-          altitudeAccuracy: 0,
-          heading: 0,
-          headingAccuracy: 0,
-          speed: 0,
-          speedAccuracy: 0,
-        );
+        print('⚠️ Discovery: Não foi possível obter localização real do usuário');
+        // Não usa localização falsa - deixa null para indicar que localização é necessária
         state = state.copyWith(
-          userLocation: defaultPosition,
-          hasLocationPermission: true, // Considera como tendo permissão para não bloquear
+          userLocation: null,
+          hasLocationPermission: false, // Indica que não tem permissão ou falha
         );
       }
     } catch (e) {
-      print('❌ Discovery: Erro ao obter localização, usando Curitiba: $e');
-      // Em caso de erro, usa Curitiba como fallback
-      final defaultPosition = Position(
-        latitude: -25.4372, // Curitiba
-        longitude: -49.2695, // Curitiba
-        timestamp: DateTime.now(),
-        accuracy: 0,
-        altitude: 0,
-        altitudeAccuracy: 0,
-        heading: 0,
-        headingAccuracy: 0,
-        speed: 0,
-        speedAccuracy: 0,
-      );
+      print('❌ Discovery: Erro ao obter localização: $e');
+      // Não usa fallback falso - deixa null para indicar que localização é necessária
       state = state.copyWith(
-        userLocation: defaultPosition,
-        hasLocationPermission: true,
+        userLocation: null,
+        hasLocationPermission: false,
       );
     }
   }
@@ -192,8 +168,8 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
         final userLat = state.userLocation!.latitude;
         final userLng = state.userLocation!.longitude;
         
-        // Tenta diferentes raios até encontrar restaurantes - ajustado para Pinhais
-        const radiusOptions = [5000.0, 10000.0, 15000.0, 20000.0]; // 5km, 10km, 15km, 20km
+        // Tenta diferentes raios até encontrar restaurantes
+        const radiusOptions = [5000.0, 10000.0, 15000.0, 20000.0, 50000.0]; // 5km, 10km, 15km, 20km, 50km
         
         for (final radiusInMeters in radiusOptions) {
           filteredRestaurants = categoryRestaurants.where((restaurant) {
@@ -206,7 +182,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
             );
           }).toList();
           
-          print('📍 Discovery: Localização do usuário: $userLat, $userLng (raio: ${(radiusInMeters/1000).toInt()}km)');
+          print('📍 Discovery: Localização real do usuário: $userLat, $userLng (raio: ${(radiusInMeters/1000).toInt()}km)');
           print('🗺️ Discovery: Com raio de ${(radiusInMeters/1000).toInt()}km: ${filteredRestaurants.length} restaurantes');
           
           // Se encontrou restaurantes, para de procurar
@@ -230,7 +206,9 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
           return distanceA.compareTo(distanceB);
         });
       } else {
-        print('❌ Discovery: Sem localização do usuário, mostrando todos os restaurantes da categoria');
+        print('⚠️ Discovery: Sem localização real do usuário, mostrando todos os restaurantes da categoria ordenados por nome');
+        // Ordena por nome quando não há localização
+        filteredRestaurants.sort((a, b) => a.name.compareTo(b.name));
       }
 
       print('✅ Discovery: Total final de restaurantes: ${filteredRestaurants.length}');

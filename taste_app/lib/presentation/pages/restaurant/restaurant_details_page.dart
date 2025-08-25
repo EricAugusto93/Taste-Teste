@@ -17,7 +17,7 @@ import '../../../data/repositories/restaurant_repository.dart';
 import '../../../core/di/injection_container.dart';
 import '../../widgets/widgets.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart';
+import '../../widgets/enhanced_error_widget.dart';
 import '../../widgets/favorite_button.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/review_card.dart';
@@ -27,11 +27,11 @@ import '../../widgets/menu_item_card.dart';
 import '../../widgets/reusable_map_view.dart';
 import '../../../data/models/location_model.dart';
 import '../../providers/cart_provider.dart';
-import '../../../data/services/cart_service.dart';
+import '../../../data/services/cart/cart_service.dart';
 import '../../../core/enums/delivery_type.dart';
 import '../../widgets/connectivity_banner.dart';
 import '../../widgets/enhanced_error_widget.dart';
-import '../../../data/services/auth_service.dart';
+import '../../../data/services/auth/auth_service.dart';
 
 /// Página de detalhes do restaurante
 class RestaurantDetailsPage extends ConsumerStatefulWidget {
@@ -482,10 +482,9 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           title: const Text('Não encontrado'),
         ),
         body: const ConnectivityBanner(
-          child: CustomErrorWidget(
-            emoji: '🔍',
-            title: 'Não encontrado',
-            message: 'Restaurante não encontrado',
+          child: EnhancedErrorWidget.notFound(
+            title: 'Restaurante não encontrado',
+            message: 'O restaurante que você está procurando não existe ou foi removido.',
           ),
         ),
       );
@@ -535,11 +534,12 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
       );
     }
 
-    return CustomErrorWidget(
-      emoji: '😕',
-      title: 'Erro',
+    return EnhancedErrorWidget(
+      title: 'Erro ao carregar restaurante',
       message: _error!,
       onRetry: _loadRestaurantDetails,
+      errorType: ErrorType.general,
+      enableAutoRetry: true,
     );
   }
 

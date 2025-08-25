@@ -11,6 +11,8 @@ import '../models/cache_item.dart';
 /// Serviço de cache usando Hive com suporte a TTL e estatísticas
 @singleton
 class CacheService {
+  static CacheService? _instance;
+  static CacheService get instance => _instance ??= CacheService();
   static const String _cacheBoxName = 'taste_cache';
   static const String _statsBoxName = 'cache_stats';
   

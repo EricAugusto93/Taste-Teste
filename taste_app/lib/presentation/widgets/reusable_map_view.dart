@@ -8,7 +8,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/utils/logger.dart';
 import 'advanced_map_marker.dart';
-import 'advanced_info_window.dart';
+// import 'advanced_info_window.dart';
 import 'map_fallback_widget.dart';
 import 'map_cluster_widget.dart';
 
@@ -83,7 +83,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
   Set<gmaps.Marker> _markers = {};
   bool _isLoading = true;
   String? _selectedMarkerId;
-  InfoWindowOverlay? _activeInfoWindow;
+  // InfoWindowOverlay? _activeInfoWindow;
   final GlobalKey _mapKey = GlobalKey();
   late AnimationController _markerAnimationController;
   late AnimationController _userLocationAnimationController;
@@ -205,34 +205,36 @@ class _ReusableMapViewState extends State<ReusableMapView>
     
     _hideInfoWindow();
     
-    setState(() {
-      _activeInfoWindow = InfoWindowOverlay(
-        restaurant: restaurant,
-        distance: _restaurantDistances[restaurant.id],
-        position: position,
-        compact: widget.compactInfoWindow,
-        onTap: () {
-          _hideInfoWindow();
-          widget.onRestaurantTap?.call(restaurant);
-        },
-        onClose: _hideInfoWindow,
-        onFavorite: () {
-          widget.onRestaurantFavorite?.call(restaurant);
-        },
-        onDirections: () {
-          widget.onRestaurantDirections?.call(restaurant);
-        },
-      );
-    });
+    // Comentado temporariamente até implementar InfoWindowOverlay
+    // setState(() {
+    //   _activeInfoWindow = InfoWindowOverlay(
+    //     restaurant: restaurant,
+    //     distance: _restaurantDistances[restaurant.id],
+    //     position: position,
+    //     compact: widget.compactInfoWindow,
+    //     onTap: () {
+    //       _hideInfoWindow();
+    //       widget.onRestaurantTap?.call(restaurant);
+    //     },
+    //     onClose: _hideInfoWindow,
+    //     onFavorite: () {
+    //       widget.onRestaurantFavorite?.call(restaurant);
+    //     },
+    //     onDirections: () {
+    //       widget.onRestaurantDirections?.call(restaurant);
+    //     },
+    //   );
+    // });
   }
 
   /// Esconder InfoWindow
   void _hideInfoWindow() {
-    if (_activeInfoWindow != null) {
-      setState(() {
-        _activeInfoWindow = null;
-      });
-    }
+    // Comentado temporariamente até implementar InfoWindowOverlay
+    // if (_activeInfoWindow != null) {
+    //   setState(() {
+    //     _activeInfoWindow = null;
+    //   });
+    // }
   }
 
   /// Converter coordenadas do mapa para posição na tela
@@ -573,41 +575,42 @@ class _ReusableMapViewState extends State<ReusableMapView>
   }
 
   void _onCameraIdle() {
-    // Atualizar InfoWindow se necessário
-    if (_activeInfoWindow != null && _selectedMarkerId != null) {
-      final restaurant = widget.restaurants.firstWhere(
-        (r) => r.id == _selectedMarkerId,
-        orElse: () => widget.restaurants.first,
-      );
-      
-      if (restaurant.latitude != null && restaurant.longitude != null) {
-        _getScreenPosition(
-          gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
-        ).then((position) {
-          if (position != null && mounted) {
-            setState(() {
-              _activeInfoWindow = InfoWindowOverlay(
-                restaurant: restaurant,
-                distance: _restaurantDistances[restaurant.id],
-                position: position,
-                compact: widget.compactInfoWindow,
-                onTap: () {
-                  _hideInfoWindow();
-                  widget.onRestaurantTap?.call(restaurant);
-                },
-                onClose: _hideInfoWindow,
-                onFavorite: () {
-                  widget.onRestaurantFavorite?.call(restaurant);
-                },
-                onDirections: () {
-                  widget.onRestaurantDirections?.call(restaurant);
-                },
-              );
-            });
-          }
-        });
-      }
-    }
+    // Comentado temporariamente até implementar InfoWindowOverlay
+    // // Atualizar InfoWindow se necessário
+    // if (_activeInfoWindow != null && _selectedMarkerId != null) {
+    //   final restaurant = widget.restaurants.firstWhere(
+    //     (r) => r.id == _selectedMarkerId,
+    //     orElse: () => widget.restaurants.first,
+    //   );
+    //   
+    //   if (restaurant.latitude != null && restaurant.longitude != null) {
+    //     _getScreenPosition(
+    //       gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+    //     ).then((position) {
+    //       if (position != null && mounted) {
+    //         setState(() {
+    //           _activeInfoWindow = InfoWindowOverlay(
+    //             restaurant: restaurant,
+    //             distance: _restaurantDistances[restaurant.id],
+    //             position: position,
+    //             compact: widget.compactInfoWindow,
+    //             onTap: () {
+    //               _hideInfoWindow();
+    //               widget.onRestaurantTap?.call(restaurant);
+    //             },
+    //             onClose: _hideInfoWindow,
+    //             onFavorite: () {
+    //               widget.onRestaurantFavorite?.call(restaurant);
+    //             },
+    //             onDirections: () {
+    //               widget.onRestaurantDirections?.call(restaurant);
+    //             },
+    //           );
+    //         });
+    //       }
+    //     });
+    //   }
+    // }
   }
 
   double _getClusterSize(int count) {
@@ -699,9 +702,9 @@ class _ReusableMapViewState extends State<ReusableMapView>
                   ),
                 ),
               
-              // InfoWindow personalizada
-              if (_activeInfoWindow != null)
-                _activeInfoWindow!.build(context),
+              // InfoWindow personalizada - comentado temporariamente
+              // if (_activeInfoWindow != null)
+              //   _activeInfoWindow!.build(context),
               
               // Botão de localização personalizado
               if (widget.showMyLocationButton)

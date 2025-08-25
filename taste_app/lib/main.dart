@@ -61,7 +61,7 @@ Future<void> _initializeApp() async {
   await InjectionContainer.init();
   
   // Inicializar cache service
-  await InjectionContainer.get<CacheService>().initialize();
+  await getIt<CacheService>().initialize();
   
   // Inicializar router notifier
   await RouterNotifier.instance.initialize();

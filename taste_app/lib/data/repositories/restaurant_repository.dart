@@ -5,7 +5,7 @@ import '../datasources/restaurant_remote_datasource.dart';
 import '../../core/config/supabase_config.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/models/cache_item.dart';
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 import '../../core/utils/logger.dart';
 
 /// Extensão para conversão de graus para radianos

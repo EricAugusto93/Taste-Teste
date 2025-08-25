@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/restaurant_model.dart';
 import '../../data/models/location_model.dart';
 import '../../data/repositories/restaurant_repository.dart';
-import '../../core/di/injection_container.dart';
+import '../../../core/di/injection_container.dart';
 import '../../core/utils/logger.dart';
 import 'location_provider.dart';
 

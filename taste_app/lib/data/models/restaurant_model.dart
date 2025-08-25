@@ -247,7 +247,7 @@ class RestaurantModel extends Equatable {
       phone: entity.phone,
       isOpen: entity.isOpen,
       isFeatured: entity.isFeatured,
-      emoji: null, // Valor padrão para entidade
+      emoji: entity.emoji,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -270,6 +270,7 @@ class RestaurantModel extends Equatable {
       isOpen: isOpen,
       isFeatured: isFeatured,
       imageUrl: imageUrl,
+      emoji: emoji,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

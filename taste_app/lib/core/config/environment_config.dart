@@ -71,12 +71,12 @@ class EnvironmentConfig {
       try {
         await dotenv.load(fileName: envFile);
         if (kDebugMode) {
-          print('✅ Arquivo de ambiente carregado: $envFile');
+          debugPrint('✅ Arquivo de ambiente carregado: $envFile');
         }
         return; // Sucesso, para a busca
       } catch (e) {
         if (kDebugMode) {
-          print('⚠️ Não foi possível carregar $envFile: $e');
+          debugPrint('⚠️ Não foi possível carregar $envFile: $e');
         }
         continue; // Tenta o próximo arquivo
       }
@@ -84,7 +84,7 @@ class EnvironmentConfig {
     
     // Se chegou aqui, nenhum arquivo foi carregado
     if (kDebugMode) {
-      print('❌ Nenhum arquivo de ambiente encontrado');
+      debugPrint('❌ Nenhum arquivo de ambiente encontrado');
     }
   }
 

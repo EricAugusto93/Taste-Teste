@@ -4,27 +4,33 @@ import '../entities/restaurant.dart';
 
 /// Interface do repositório de favoritos
 abstract class FavoritesRepository {
-  /// Adicionar restaurante aos favoritos
-  Future<Either<Failure, bool>> addToFavorites({
+  /// Adicionar restaurante aos favoritos (simplificado para Use Case)
+  Future<Either<Failure, void>> addToFavorites(String restaurantId);
+
+  /// Remover restaurante dos favoritos (simplificado para Use Case)
+  Future<Either<Failure, void>> removeFromFavorites(String restaurantId);
+
+  /// Verificar se restaurante é favorito
+  Future<Either<Failure, bool>> isFavorite(String restaurantId);
+
+  /// Obter lista de restaurantes favoritos (simplificado para Use Case)
+  Future<Either<Failure, List<Restaurant>>> getFavorites();
+
+  /// Adicionar restaurante aos favoritos (método legado com parâmetros completos)
+  Future<Either<Failure, bool>> addToFavoritesLegacy({
     required String restaurantId,
     String? userId,
     double? rating,
     String? comment,
   });
 
-  /// Remover restaurante dos favoritos
-  Future<Either<Failure, bool>> removeFromFavorites({
+  /// Remover restaurante dos favoritos (método legado)
+  Future<Either<Failure, bool>> removeFromFavoritesLegacy({
     required String restaurantId,
     String? userId,
   });
 
-  /// Verificar se restaurante é favorito
-  Future<Either<Failure, bool>> isFavorite({
-    required String restaurantId,
-    String? userId,
-  });
-
-  /// Obter lista de restaurantes favoritos
+  /// Obter lista de restaurantes favoritos (método legado)
   Future<Either<Failure, List<Restaurant>>> getFavoriteRestaurants({
     String? userId,
     int? limit,

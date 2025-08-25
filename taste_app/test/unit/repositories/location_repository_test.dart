@@ -6,7 +6,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:taste_app/data/repositories/location_repository.dart';
 import 'package:taste_app/data/models/location_model.dart';
-import 'package:taste_app/data/services/location_service.dart';
+import 'package:taste_app/data/services/location/location_service.dart';
 
 import 'location_repository_test.mocks.dart';
 

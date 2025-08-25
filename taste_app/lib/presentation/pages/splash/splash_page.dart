@@ -7,9 +7,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../data/services/onboarding_service.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../data/services/location_service.dart';
-import '../../../data/services/connectivity_service.dart';
+import '../../../data/services/auth/auth_service.dart';
+import '../../../data/services/location/location_service.dart';
+import '../../../core/services/connectivity_service.dart';
 import '../../../core/config/supabase_config.dart';
 import '../../widgets/widgets.dart';
 

@@ -124,8 +124,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'element_click',
+            'element_click',
             parameters: {
               'elementId': elementId,
               'elementType': elementType,
@@ -150,8 +149,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'element_click',
+            'element_click',
             parameters: metadata,
           ),
           completes,
@@ -167,8 +165,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: eventName,
+            eventName,
           ),
           completes,
         );
@@ -187,8 +184,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: eventName,
+            eventName,
             parameters: parameters,
           ),
           completes,
@@ -239,8 +235,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: eventName,
+            eventName,
           ),
           completes,
         );
@@ -258,8 +253,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.pageView,
-            name: eventName,
+            eventName,
             parameters: parameters,
           ),
           completes,
@@ -277,8 +271,7 @@ void main() {
         
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'button_click',
+            'button_click',
             parameters: {'elementId': '', 'elementType': ''},
           ),
           completes,
@@ -286,8 +279,7 @@ void main() {
         
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: '',
+            '',
           ),
           completes,
         );
@@ -302,8 +294,7 @@ void main() {
         
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'button_click',
+            'button_click',
             parameters: {'elementId': 'test', 'elementType': 'test'},
           ),
           completes,
@@ -314,8 +305,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: 'test',
+            'test',
             parameters: {},
           ),
           completes,
@@ -323,8 +313,7 @@ void main() {
         
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'button_click',
+            'button_click',
             parameters: {'elementId': 'test', 'elementType': 'test'},
           ),
           completes,
@@ -359,8 +348,7 @@ void main() {
         // Act & Assert - Should not throw
         for (int i = 0; i < 10; i++) {
           await analyticsService.trackEvent(
-            type: AnalyticsEventType.buttonTap,
-            name: 'button_click',
+            'button_click',
             parameters: {
               'elementId': 'button_$i',
               'elementType': 'button',
@@ -398,8 +386,7 @@ void main() {
         // Act & Assert - Should not throw
         await expectLater(
           analyticsService.trackEvent(
-            type: AnalyticsEventType.custom,
-            name: 'complex_user_action',
+            'complex_user_action',
             parameters: complexMetadata,
           ),
           completes,

@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'dart:math';
 
 void main() {
   final file = File('coverage/lcov.info');
   if (!file.existsSync()) {
-    print('Arquivo de cobertura não encontrado!');
+    print('Arquivo de cobertura não encontrado!'); // Mantém print para scripts de análise
     return;
   }
 

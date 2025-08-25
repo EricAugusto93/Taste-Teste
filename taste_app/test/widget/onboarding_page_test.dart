@@ -107,6 +107,9 @@ void main() {
       // Verificar que a página carrega normalmente mesmo com callback
       expect(find.byType(OnboardingPage), findsOneWidget);
       expect(find.text('Descubra os melhores\nrestaurantes'), findsOneWidget);
+      
+      // Usar a variável para evitar warning de não utilizada
+      expect(callbackCalled, isFalse); // callback não foi chamado ainda na inicialização
     });
 
     testWidgets('should display dots indicator', (tester) async {

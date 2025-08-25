@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Configurações de build para diferentes ambientes
 class BuildConfig {
   static const String _environment = String.fromEnvironment(
@@ -124,14 +126,14 @@ class BuildConfig {
   /// Imprime informações do build no console
   static void printBuildInfo() {
     if (enableLogging) {
-      print('🏗️ Build Configuration:');
-      print('   Environment: $environment');
-      print('   Build Mode: ${isDebug ? 'Debug' : 'Release'}');
-      print('   App Name: $appName');
-      print('   API URL: $apiBaseUrl');
-      print('   Logging: $enableLogging');
-      print('   Analytics: $enableAnalytics');
-      print('   Crash Reporting: $enableCrashReporting');
+      debugPrint('🏗️ Build Configuration:');
+      debugPrint('   Environment: $environment');
+      debugPrint('   Build Mode: ${isDebug ? 'Debug' : 'Release'}');
+      debugPrint('   App Name: $appName');
+      debugPrint('   API URL: $apiBaseUrl');
+      debugPrint('   Logging: $enableLogging');
+      debugPrint('   Analytics: $enableAnalytics');
+      debugPrint('   Crash Reporting: $enableCrashReporting');
     }
   }
 }
