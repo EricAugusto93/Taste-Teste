@@ -119,7 +119,7 @@ class _QuickFiltersState extends State<QuickFilters> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _filters.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        separatorBuilder: (context, index) => SizedBox(width: 8),
         itemBuilder: (context, index) {
           final filter = _filters[index];
           return QuickFilterChip(
@@ -185,7 +185,7 @@ class QuickFilterChip extends StatelessWidget {
               size: 16,
               color: isSelected ? Colors.white : color,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(
               filter.label,
               style: TextStyle(

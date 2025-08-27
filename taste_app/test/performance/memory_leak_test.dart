@@ -35,7 +35,7 @@ void main() {
       // Ciclo de criação e destruição de widgets
       for (int i = 0; i < 50; i++) {
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: RestaurantCard(
                 restaurant: restaurant,
@@ -88,7 +88,7 @@ void main() {
       for (int i = 0; i < 20; i++) {
         // Navegar para página de detalhes
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: RestaurantDetailsPage(restaurant: restaurant),
           ),
         );
@@ -152,7 +152,7 @@ void main() {
         ));
 
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: ListView.builder(
                 itemCount: restaurants.length,
@@ -227,7 +227,7 @@ void main() {
       // Testar animações para vazamentos de memória
       for (int i = 0; i < 30; i++) {
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
@@ -266,7 +266,7 @@ void main() {
       // Testar streams e listeners para vazamentos
       for (int i = 0; i < 20; i++) {
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: StreamBuilder<int>(
                 stream: Stream.periodic(
@@ -303,7 +303,7 @@ void main() {
       // Testar widgets de imagem para vazamentos
       for (int i = 0; i < 25; i++) {
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: Column(
                 children: [

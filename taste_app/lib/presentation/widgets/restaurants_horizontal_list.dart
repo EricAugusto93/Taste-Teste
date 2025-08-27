@@ -65,7 +65,7 @@ class RestaurantsHorizontalList extends StatelessWidget {
           ),
         ),
         
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         
         // Lista horizontal de restaurantes
         SizedBox(
@@ -85,7 +85,6 @@ class RestaurantsHorizontalList extends StatelessWidget {
                   restaurant: restaurant,
                   onTap: () => onRestaurantTap?.call(restaurant),
                   onFavoriteChanged: onFavoriteChanged,
-                  showDeliveryInfo: true,
                   isCompact: true,
                 ),
               );
@@ -106,7 +105,7 @@ class RestaurantsHorizontalList extends StatelessWidget {
             size: 48,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Nenhum restaurante encontrado',
             style: AppTextStyles.bodyMedium.copyWith(

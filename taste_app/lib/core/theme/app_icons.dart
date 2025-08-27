@@ -37,7 +37,7 @@ class AppIcons {
   /// Ícones relacionados a restaurantes
   static const IconData restaurant = LucideIcons.utensils;
   static const IconData chef = LucideIcons.chefHat;
-  static const IconData menu_card = LucideIcons.bookOpen;
+  static const IconData menuCard = LucideIcons.bookOpen;
   static const IconData plate = LucideIcons.circle;
   static const IconData cooking = LucideIcons.flame;
   

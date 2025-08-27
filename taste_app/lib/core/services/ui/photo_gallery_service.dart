@@ -1,7 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import '../utils/navigation_helper.dart';
+import '../../utils/navigation_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -276,7 +275,7 @@ class PhotoGalleryService {
       await _cacheService.set(
         'gallery_config',
         _config.toJson(),
-        duration: const Duration(days: 30),
+        ttl: const Duration(days: 30),
       );
     } catch (e) {
       debugPrint('Error saving gallery config: $e');
@@ -311,7 +310,7 @@ class PhotoGalleryService {
       await _cacheService.set(
         'photo_cache',
         cacheData,
-        duration: _config.cacheDuration,
+        ttl: _config.cacheDuration,
       );
     } catch (e) {
       debugPrint('Error saving photo cache: $e');
@@ -698,7 +697,7 @@ class _PhotoGalleryWidgetState extends State<PhotoGalleryWidget> {
                   color: Colors.grey,
                 ),
               ),
-              if (widget.allowUpload) ..[
+              if (widget.allowUpload) ...[
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: _showUploadOptions,

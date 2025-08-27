@@ -196,7 +196,7 @@ class EmptyStateWidget extends StatelessWidget {
             ),
           ),
           
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Título
           Text(
@@ -208,7 +208,7 @@ class EmptyStateWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           
           // Subtítulo
           Text(
@@ -222,7 +222,7 @@ class EmptyStateWidget extends StatelessWidget {
           
           // Botão de ação
           if (showAction && actionText != null && onActionTap != null) ...[
-            const SizedBox(height: AppDimensions.paddingXLarge),
+            SizedBox(height: AppDimensions.paddingXLarge),
             CustomButton(
               text: actionText!,
               onPressed: onActionTap,
@@ -267,7 +267,7 @@ class LoadingStateWidget extends StatelessWidget {
           ),
           
           if (showMessage) ...[
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             Text(
               message ?? 'Carregando...',
               style: AppTextStyles.bodyLarge.copyWith(
@@ -370,7 +370,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check,
                     color: Colors.white,
                     size: 40,
@@ -380,7 +380,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
             },
           ),
           
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Título
           Text(
@@ -392,7 +392,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           
           // Subtítulo
           Text(
@@ -406,7 +406,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
           
           // Botão de ação
           if (widget.actionText != null && widget.onActionTap != null) ...[
-            const SizedBox(height: AppDimensions.paddingXLarge),
+            SizedBox(height: AppDimensions.paddingXLarge),
             CustomButton(
               text: widget.actionText!,
               onPressed: widget.onActionTap,

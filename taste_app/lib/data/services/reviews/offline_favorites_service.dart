@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/favorite_model.dart';
 
 /// Serviço para gerenciar favoritos offline usando SharedPreferences
 class OfflineFavoritesService {

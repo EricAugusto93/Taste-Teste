@@ -58,7 +58,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       onTap: onTap,
-      prefixIcon: prefixIcon ?? const Icon(
+      prefixIcon: prefixIcon ?? Icon(
         Icons.search,
         color: AppColors.textLight,
         size: AppDimensions.iconMedium,
@@ -168,14 +168,14 @@ class SearchField extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         onTap: onTap,
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.search,
           color: AppColors.textLight,
           size: AppDimensions.iconMedium,
         ),
         suffixIcon: controller?.text.isNotEmpty == true
             ? IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.clear,
                   color: AppColors.textLight,
                   size: AppDimensions.iconMedium,

@@ -58,7 +58,7 @@ class MapFallbackWidget extends StatelessWidget {
             size: 48,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             message ?? defaultMessage,
             textAlign: TextAlign.center,
@@ -69,11 +69,11 @@ class MapFallbackWidget extends StatelessWidget {
             ),
           ),
           if (onRetry != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Tentar novamente'),
+              icon: Icon(Icons.refresh, size: 18),
+              label: Text('Tentar novamente'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -82,7 +82,7 @@ class MapFallbackWidget extends StatelessWidget {
             ),
           ],
           if (kIsWeb && !GoogleMapsConfig.hasValidApiKey) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -101,7 +101,7 @@ class MapFallbackWidget extends StatelessWidget {
                     color: AppColors.primary,
                     size: 20,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'Para usar o mapa, configure a\nGOOGLE_MAPS_API_KEY no arquivo .env',
                     textAlign: TextAlign.center,
@@ -115,7 +115,7 @@ class MapFallbackWidget extends StatelessWidget {
               ),
             ),
           ],
-          if (kDebugMode) ...[            const SizedBox(height: 8),
+          if (kDebugMode) ...[            SizedBox(height: 8),
             Text(
               'Debug: ${GoogleMapsConfig.debugInfo}',
               textAlign: TextAlign.center,
@@ -183,7 +183,7 @@ class _SafeGoogleMapState extends State<SafeGoogleMap> {
       _checkMapAvailability();
     } catch (e) {
       if (kDebugMode) {
-        print('Erro durante retry: $e');
+        debugPrint('Erro durante retry: $e');
       }
       _checkMapAvailability();
     }

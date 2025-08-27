@@ -247,7 +247,7 @@ class DetailedRatingWidget extends StatelessWidget {
                           color: AppColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.paddingSmall),
+                      SizedBox(height: AppDimensions.paddingSmall),
                       Row(
                         children: [
                           Text(
@@ -257,7 +257,7 @@ class DetailedRatingWidget extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: AppDimensions.paddingSmall),
+                          SizedBox(width: AppDimensions.paddingSmall),
                           RatingWidget(
                             rating: rating,
                             size: RatingSize.medium,
@@ -266,7 +266,7 @@ class DetailedRatingWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         '${_formatReviewCount(reviewCount)} avaliações',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -285,7 +285,7 @@ class DetailedRatingWidget extends StatelessWidget {
               ],
             ),
             if (ratingDistribution != null) ...[
-              const SizedBox(height: AppDimensions.paddingMedium),
+              SizedBox(height: AppDimensions.paddingMedium),
               _buildRatingDistribution(),
             ],
           ],
@@ -314,13 +314,13 @@ class DetailedRatingWidget extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Icon(
                 Icons.star,
                 size: 12,
                 color: AppColors.warning,
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Container(
                   height: 6,
@@ -340,7 +340,7 @@ class DetailedRatingWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               SizedBox(
                 width: 30,
                 child: Text(
@@ -406,7 +406,7 @@ class CompactRatingWidget extends StatelessWidget {
             size: 12,
             color: AppColors.warning,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             rating.toStringAsFixed(1),
             style: AppTextStyles.bodySmall.copyWith(
@@ -415,7 +415,7 @@ class CompactRatingWidget extends StatelessWidget {
             ),
           ),
           if (reviewCount != null && reviewCount! > 0) ...[
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               '(${_formatReviewCount(reviewCount!)})',
               style: AppTextStyles.bodySmall.copyWith(

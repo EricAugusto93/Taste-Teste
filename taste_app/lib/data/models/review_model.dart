@@ -84,6 +84,19 @@ class ReviewModel {
     };
   }
 
+  /// Converte para Map apenas com campos necessários para criar uma review no banco
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'restaurant_id': restaurantId,
+      'user_id': userId,
+      'user_name': userName,
+      'user_avatar': userAvatar,
+      'rating': rating,
+      'comment': comment,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
   /// Cria uma cópia da instância com alguns campos alterados
   ReviewModel copyWith({
     String? id,

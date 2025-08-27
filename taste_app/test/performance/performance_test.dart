@@ -44,9 +44,9 @@ void main() {
             home: Scaffold(
               body: Column(
                 children: [
-                  Icon(Icons.image, size: 50),
-                  Icon(Icons.photo, size: 50),
-                  Icon(Icons.picture_in_picture, size: 50),
+                  const Icon(Icons.image, size: 50),
+                  const Icon(Icons.photo, size: 50),
+                  const Icon(Icons.picture_in_picture, size: 50),
                 ],
               ),
             ),
@@ -140,9 +140,9 @@ void main() {
                   Expanded(
                     child: ListView(
                       children: [
-                        ListTile(title: Text('Result 1')),
-                        ListTile(title: Text('Result 2')),
-                        ListTile(title: Text('Result 3')),
+                        const ListTile(title: Text('Result 1')),
+                        const ListTile(title: Text('Result 2')),
+                        const ListTile(title: Text('Result 3')),
                       ],
                     ),
                   ),

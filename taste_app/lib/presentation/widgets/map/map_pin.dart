@@ -35,7 +35,7 @@ class MapPin extends StatelessWidget {
             // Info card (se selecionado)
             if (showInfo && isSelected) ..[
               _buildInfoCard(),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
             
             // Pin principal
@@ -134,7 +134,7 @@ class MapPin extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             
             // Rating e categoria
             Row(
@@ -145,7 +145,7 @@ class MapPin extends StatelessWidget {
                     size: 12,
                     color: AppColors.warning,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     restaurant.rating!.toStringAsFixed(1),
                     style: const TextStyle(
@@ -157,7 +157,7 @@ class MapPin extends StatelessWidget {
                 ],
                 
                 if (restaurant.rating != null && restaurant.category != null) ..[
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Container(
                     width: 2,
                     height: 2,
@@ -166,7 +166,7 @@ class MapPin extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                 ],
                 
                 if (restaurant.category != null)
@@ -184,7 +184,7 @@ class MapPin extends StatelessWidget {
               ],
             ),
             
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             
             // Status e distância
             Row(
@@ -200,7 +200,7 @@ class MapPin extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Text(
                   (restaurant.isOpen ?? false) ? 'Aberto' : 'Fechado',
                   style: TextStyle(
@@ -219,7 +219,7 @@ class MapPin extends StatelessWidget {
                     size: 10,
                     color: AppColors.textSecondary,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '${restaurant.distance!.toStringAsFixed(1)} km',
                     style: const TextStyle(

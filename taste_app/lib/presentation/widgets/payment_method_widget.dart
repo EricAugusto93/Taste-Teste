@@ -81,7 +81,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                       horizontal: AppDimensions.paddingMedium,
                     ),
                     itemCount: paymentMethods.length,
-                    separatorBuilder: (context, index) => const SizedBox(
+                    separatorBuilder: (context, index) => SizedBox(
                       height: AppDimensions.paddingSmall,
                     ),
                     itemBuilder: (context, index) {
@@ -93,7 +93,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                   ),
           ),
           
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
         ],
       ),
     );
@@ -110,14 +110,14 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
             size: 64,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           Text(
             'Nenhum método de pagamento',
             style: AppTextStyles.headingSmall.copyWith(
               color: AppColors.textLight,
             ),
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Adicione um método de pagamento para continuar',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -125,7 +125,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           CustomButton(
             text: 'Adicionar método',
             onPressed: _showAddPaymentMethodDialog,
@@ -176,7 +176,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
               ),
             ),
             
-            const SizedBox(width: AppDimensions.paddingMedium),
+            SizedBox(width: AppDimensions.paddingMedium),
             
             // Informações do método de pagamento
             Expanded(
@@ -195,7 +195,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     ),
                   ),
                   if (paymentMethod.description.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       paymentMethod.description,
                       style: AppTextStyles.bodyMedium.copyWith(
@@ -208,7 +208,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     ),
                   ],
                   if (!paymentMethod.isEnabled) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       'Indisponível',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -244,7 +244,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     ),
                 ],
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
             ],
             
             // Indicador de seleção
@@ -377,12 +377,12 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
               style: AppTextStyles.headingMedium,
             ),
             
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             
             // Seleção do tipo
             _buildPaymentTypeSelector(),
             
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             
             // Formulário baseado no tipo
             if (_selectedType == PaymentMethodType.creditCard || 
@@ -391,7 +391,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             else
               _buildOtherPaymentForm(),
             
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             
             // Botões
             Row(
@@ -403,7 +403,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                     variant: ButtonVariant.outlined,
                   ),
                 ),
-                const SizedBox(width: AppDimensions.paddingMedium),
+                SizedBox(width: AppDimensions.paddingMedium),
                 Expanded(
                   child: CustomButton(
                     text: _isLoading ? 'Salvando...' : 'Salvar',
@@ -436,7 +436,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           children: types.map((type) {
@@ -469,7 +469,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                       size: AppDimensions.iconSmall,
                       color: isSelected ? AppColors.primary : AppColors.textLight,
                     ),
-                    const SizedBox(width: AppDimensions.paddingSmall),
+                    SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       PaymentMethodType.getLabel(type),
                       style: AppTextStyles.bodyMedium.copyWith(
@@ -509,7 +509,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             },
           ),
           
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           
           // Nome do portador
           CustomTextField(
@@ -525,7 +525,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             },
           ),
           
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           
           // Data de validade e CVV
           Row(
@@ -547,7 +547,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                   },
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingMedium),
+              SizedBox(width: AppDimensions.paddingMedium),
               Expanded(
                 child: CustomTextField(
                   controller: _cvvController,
@@ -601,7 +601,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             color: AppColors.primary,
             size: AppDimensions.iconMedium,
           ),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Text(
               description,

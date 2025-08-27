@@ -13,7 +13,6 @@ import '../providers/favorites_provider.dart';
 import 'favorite_button.dart';
 import 'cached_image_widget.dart';
 import 'rating_widget.dart';
-import 'delivery_info_widget.dart';
 
 /// Card de restaurante para exibição em lista
 class RestaurantCard extends ConsumerStatefulWidget {
@@ -22,7 +21,6 @@ class RestaurantCard extends ConsumerStatefulWidget {
   final Function(bool)? onFavoriteChanged;
   final Function(int)? onRatingChanged;
   final bool showDistance;
-  final bool showDeliveryInfo;
   final bool isCompact;
   final bool showFavoriteButton;
   final bool enableQuickRating;
@@ -35,7 +33,6 @@ class RestaurantCard extends ConsumerStatefulWidget {
     this.onFavoriteChanged,
     this.onRatingChanged,
     this.showDistance = true,
-    this.showDeliveryInfo = true,
     this.isCompact = false,
     this.showFavoriteButton = true,
     this.enableQuickRating = false,
@@ -89,14 +86,10 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: AppDimensions.paddingSmall),
+              SizedBox(height: AppDimensions.paddingSmall),
               _buildRatingAndCategory(),
-              if (widget.showDeliveryInfo) ...[
-                const SizedBox(height: AppDimensions.paddingSmall),
-                _buildDeliveryInfo(),
-              ],
               if (widget.showDistance && widget.restaurant.distance != null) ...[
-                const SizedBox(height: AppDimensions.paddingSmall),
+                SizedBox(height: AppDimensions.paddingSmall),
                 _buildDistanceInfo(),
               ],
             ],
@@ -112,18 +105,14 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
       child: Row(
         children: [
           _buildCompactImage(),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: AppDimensions.paddingSmall),
+                SizedBox(height: AppDimensions.paddingSmall),
                 _buildRatingAndCategory(),
-                if (widget.showDeliveryInfo) ...[
-                  const SizedBox(height: AppDimensions.paddingSmall),
-                  _buildDeliveryInfo(),
-                ],
               ],
             ),
           ),
@@ -153,7 +142,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: double.infinity,
               height: 180,
               color: AppColors.background,
-              child: const Icon(
+              child: Icon(
                 AppIcons.restaurant,
                 size: 48,
                 color: AppColors.textLight,
@@ -163,7 +152,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: double.infinity,
               height: 180,
               color: AppColors.background,
-              child: const Icon(
+              child: Icon(
                 AppIcons.restaurant,
                 size: 48,
                 color: AppColors.textLight,
@@ -211,7 +200,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: 80,
               height: 80,
               color: AppColors.background,
-              child: const Icon(
+              child: Icon(
                 AppIcons.restaurant,
                 size: 24,
                 color: AppColors.textLight,
@@ -221,7 +210,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: 80,
               height: 80,
               color: AppColors.background,
-              child: const Icon(
+              child: Icon(
                 AppIcons.restaurant,
                 size: 24,
                 color: AppColors.textLight,
@@ -293,7 +282,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
           reviewCount: widget.restaurant.reviewCount,
           size: RatingSize.small,
         ),
-        const SizedBox(width: AppDimensions.paddingMedium),
+        SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           child: Text(
             widget.restaurant.category,
@@ -308,14 +297,6 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
     );
   }
 
-  Widget _buildDeliveryInfo() {
-    return DeliveryInfoWidget(
-      deliveryTime: widget.restaurant.deliveryTime,
-      deliveryFee: widget.restaurant.deliveryFee,
-      minOrderValue: widget.restaurant.minOrderValue,
-      isCompact: widget.isCompact,
-    );
-  }
 
   Widget _buildDistanceInfo() {
     if (widget.restaurant.distance == null) {
@@ -329,7 +310,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
           size: AppDimensions.iconSmall,
           color: AppColors.textLight,
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Text(
           '${widget.restaurant.distance!.toStringAsFixed(1)} km',
           style: AppTextStyles.bodySmall.copyWith(
@@ -426,7 +407,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
             size: 12,
             color: AppColors.surface,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             'PROMOÇÃO',
             style: AppTextStyles.bodySmall.copyWith(
@@ -493,7 +474,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erro ao alterar favorito. Tente novamente.'),
+            content: Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -592,10 +573,9 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeader(),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           _buildRatingAndCategory(),
                           const Spacer(),
-                          _buildDeliveryInfo(),
                         ],
                       ),
                     ),
@@ -626,7 +606,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
               width: double.infinity,
               height: double.infinity,
               color: AppColors.background,
-              child: const Icon(
+              child: Icon(
                 AppIcons.restaurant,
                 size: 32,
                 color: AppColors.textLight,
@@ -676,7 +656,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
           reviewCount: widget.restaurant.reviewCount,
           size: RatingSize.small,
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(
           widget.restaurant.category,
           style: AppTextStyles.bodySmall.copyWith(
@@ -690,43 +670,6 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
     );
   }
 
-  Widget _buildDeliveryInfo() {
-    return Row(
-      children: [
-        Icon(
-          AppIcons.clock,
-          size: 12,
-          color: AppColors.textLight,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          widget.restaurant.deliveryTime,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textLight,
-            fontSize: 11,
-          ),
-        ),
-        const Spacer(),
-        if (widget.restaurant.deliveryFee > 0)
-          Text(
-            'R\$ ${widget.restaurant.deliveryFee.toStringAsFixed(2)}',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textLight,
-              fontSize: 11,
-            ),
-          )
-        else
-          Text(
-            'Grátis',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.success,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-      ],
-    );
-  }
 
   Widget _buildFavoriteButton() {
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
@@ -805,7 +748,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
             size: 8,
             color: AppColors.surface,
           ),
-          const SizedBox(width: 2),
+          SizedBox(width: 2),
           Text(
             'PROMO',
             style: AppTextStyles.bodySmall.copyWith(

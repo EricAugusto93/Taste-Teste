@@ -1,7 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../supabase_service.dart';
 import '../cache_service.dart';
 
 /// Provedores de autenticação social
@@ -244,7 +241,6 @@ class SocialAuthService {
   static SocialAuthService get instance => _instance ??= SocialAuthService._();
   SocialAuthService._();
 
-  final SupabaseService _supabaseService = SupabaseService.instance;
   final CacheService _cacheService = CacheService.instance;
 
   SocialAuthConfig _config = const SocialAuthConfig();
@@ -729,7 +725,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
         
         if (result.success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Login realizado com sucesso!'),
               backgroundColor: Colors.green,
             ),

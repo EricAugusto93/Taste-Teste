@@ -18,7 +18,7 @@ class CorsProxyService {
       throw UnsupportedError('Proxy apenas para web em desenvolvimento');
     }
     
-    print('🔄 CorsProxy: Fazendo requisição GET para $endpoint');
+    debugPrint('🔄 CorsProxy: Fazendo requisição GET para $endpoint');
     
     try {
       // Construir URL do proxy
@@ -29,7 +29,7 @@ class CorsProxyService {
         },
       );
       
-      print('📡 CorsProxy: URL final: $uri');
+      debugPrint('📡 CorsProxy: URL final: $uri');
       
       final response = await http.get(
         uri,
@@ -39,11 +39,11 @@ class CorsProxyService {
         },
       );
       
-      print('✅ CorsProxy: Resposta ${response.statusCode}: ${response.body.substring(0, 200)}...');
+      debugPrint('✅ CorsProxy: Resposta ${response.statusCode}: ${response.body.substring(0, 200)}...');
       
       return response;
     } catch (e) {
-      print('❌ CorsProxy: Erro na requisição: $e');
+      debugPrint('❌ CorsProxy: Erro na requisição: $e');
       rethrow;
     }
   }
@@ -59,7 +59,7 @@ class CorsProxyService {
       throw UnsupportedError('Proxy apenas para web em desenvolvimento');
     }
     
-    print('🔄 CorsProxy: Fazendo requisição POST para $endpoint');
+    debugPrint('🔄 CorsProxy: Fazendo requisição POST para $endpoint');
     
     try {
       final uri = Uri.parse(_proxyBaseUrl).replace(
@@ -78,11 +78,11 @@ class CorsProxyService {
         body: body != null ? jsonEncode(body) : null,
       );
       
-      print('✅ CorsProxy: Resposta POST ${response.statusCode}');
+      debugPrint('✅ CorsProxy: Resposta POST ${response.statusCode}');
       
       return response;
     } catch (e) {
-      print('❌ CorsProxy: Erro na requisição POST: $e');
+      debugPrint('❌ CorsProxy: Erro na requisição POST: $e');
       rethrow;
     }
   }

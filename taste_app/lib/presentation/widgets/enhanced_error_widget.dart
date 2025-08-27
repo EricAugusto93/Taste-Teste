@@ -220,7 +220,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
                   color: AppColors.warning,
                   size: AppDimensions.iconSmall,
                 ),
-                const SizedBox(width: AppDimensions.paddingSmall),
+                SizedBox(width: AppDimensions.paddingSmall),
                 Expanded(
                   child: Text(
                     'Exibindo dados salvos (offline)',
@@ -271,11 +271,11 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildErrorIcon(),
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             _buildErrorTitle(),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             _buildErrorMessage(),
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             _buildActionButtons(),
             if (widget.enableAutoRetry && _retryAttempts < widget.maxRetryAttempts)
               _buildAutoRetryIndicator(),
@@ -409,7 +409,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Text(
             'Tentativa ${_retryAttempts + 1} de ${widget.maxRetryAttempts}...',
             style: AppTextStyles.bodySmall.copyWith(
@@ -518,7 +518,7 @@ class ContextualErrorWidget extends StatelessWidget {
             color: AppColors.error,
             size: AppDimensions.iconSmall,
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

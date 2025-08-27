@@ -10,7 +10,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               hintText: 'Enter text',
@@ -30,7 +30,7 @@ void main() {
       String? changedValue;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               controller: controller,
@@ -49,7 +49,7 @@ void main() {
       bool wasTapped = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               onTap: () => wasTapped = true,
@@ -66,7 +66,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               controller: controller,
@@ -87,7 +87,7 @@ void main() {
     
     testWidgets('should obscure text when obscureText is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               obscureText: true,
@@ -103,7 +103,7 @@ void main() {
     
     testWidgets('should display label text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               labelText: 'Test Label',
@@ -117,7 +117,7 @@ void main() {
     
     testWidgets('should display prefix and suffix icons', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               prefixIcon: const Icon(Icons.person),
@@ -133,7 +133,7 @@ void main() {
     
     testWidgets('should handle different keyboard types', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               keyboardType: TextInputType.emailAddress,
@@ -149,7 +149,7 @@ void main() {
     
     testWidgets('should handle multiline text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               maxLines: 3,
@@ -167,7 +167,7 @@ void main() {
       final formKey = GlobalKey<FormState>();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Form(
               key: formKey,
@@ -198,7 +198,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField.search(
               controller: controller,
@@ -214,7 +214,7 @@ void main() {
     
     testWidgets('should apply custom fill color', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               fillColor: Colors.red,
@@ -232,7 +232,7 @@ void main() {
       const customRadius = 20.0;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               borderRadius: customRadius,
@@ -250,7 +250,7 @@ void main() {
       const customPadding = EdgeInsets.all(20.0);
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               contentPadding: customPadding,
@@ -266,7 +266,7 @@ void main() {
     
     testWidgets('should use search field styling when isSearchField is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               isSearchField: true,
@@ -282,7 +282,7 @@ void main() {
     
     testWidgets('should show focused border when field is focused', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(),
           ),
@@ -302,7 +302,7 @@ void main() {
       final formKey = GlobalKey<FormState>();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Form(
               key: formKey,
@@ -327,7 +327,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               controller: controller,
@@ -346,7 +346,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               controller: controller,
@@ -371,7 +371,7 @@ void main() {
       String? changedValue;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               controller: controller,
@@ -390,7 +390,7 @@ void main() {
     
     testWidgets('should handle custom hint text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               hintText: 'Custom hint',
@@ -406,7 +406,7 @@ void main() {
       bool wasTapped = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               onTap: () => wasTapped = true,
@@ -423,7 +423,7 @@ void main() {
       final controller = TextEditingController();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               controller: controller,
@@ -440,7 +440,7 @@ void main() {
     
     testWidgets('should have max width constraint', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(),
           ),

@@ -40,7 +40,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Row(
         children: [
-          const SizedBox(
+          SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
@@ -48,7 +48,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Text(
             'Buscando sugestões...',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -70,7 +70,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
             size: AppDimensions.iconSmall,
             color: AppColors.textLight,
           ),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Text(
             'Digite para buscar restaurantes...',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -136,7 +136,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
             size: AppDimensions.iconSmall,
             color: AppColors.textLight,
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Text(
             '${suggestions.length} sugestão${suggestions.length != 1 ? 'ões' : ''}',
             style: AppTextStyles.bodySmall.copyWith(
@@ -188,7 +188,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
                   size: AppDimensions.iconSmall,
                   color: AppColors.textLight,
                 ),
-                const SizedBox(width: AppDimensions.paddingMedium),
+                SizedBox(width: AppDimensions.paddingMedium),
                 Expanded(
                   child: highlightedText,
                 ),
@@ -364,7 +364,7 @@ class QuickSearchHistoryWidget extends StatelessWidget {
                 size: AppDimensions.iconSmall,
                 color: AppColors.textLight,
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Text(
                 'Buscas Recentes',
                 style: AppTextStyles.bodySmall.copyWith(
@@ -374,7 +374,7 @@ class QuickSearchHistoryWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Wrap(
             spacing: AppDimensions.paddingSmall,
             runSpacing: AppDimensions.paddingSmall,
@@ -415,7 +415,7 @@ class QuickSearchHistoryWidget extends StatelessWidget {
                           ),
                         ),
                         if (onRemoveSearch != null) ...[
-                          const SizedBox(width: AppDimensions.paddingSmall),
+                          SizedBox(width: AppDimensions.paddingSmall),
                           GestureDetector(
                             onTap: () {
                               AnimationService.lightHaptic();

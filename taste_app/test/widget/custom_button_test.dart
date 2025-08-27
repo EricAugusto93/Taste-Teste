@@ -10,7 +10,7 @@ void main() {
       bool wasPressed = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Test Button',
@@ -32,7 +32,7 @@ void main() {
     
     testWidgets('should render outlined button when isOutlined is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Outlined Button',
@@ -49,7 +49,7 @@ void main() {
     
     testWidgets('should render text button when isSecondary is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Secondary Button',
@@ -66,7 +66,7 @@ void main() {
     
     testWidgets('should show loading indicator when isLoading is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Loading Button',
@@ -85,7 +85,7 @@ void main() {
       bool wasPressed = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Loading Button',
@@ -105,7 +105,7 @@ void main() {
     
     testWidgets('should disable button when onPressed is null', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Disabled Button',
@@ -121,7 +121,7 @@ void main() {
     
     testWidgets('should render button with icon when icon is provided', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Icon Button',
@@ -142,7 +142,7 @@ void main() {
       const customHeight = 60.0;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Custom Size',
@@ -163,7 +163,7 @@ void main() {
       const customPadding = EdgeInsets.all(20.0);
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Custom Padding',
@@ -180,7 +180,7 @@ void main() {
     
     testWidgets('should use default height when not specified', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Default Height',
@@ -196,7 +196,7 @@ void main() {
     
     testWidgets('should handle outlined button with loading state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Outlined Loading',
@@ -217,7 +217,7 @@ void main() {
     
     testWidgets('should handle secondary button with loading state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Secondary Loading',
@@ -238,7 +238,7 @@ void main() {
     
     testWidgets('should handle icon with outlined button', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Outlined Icon',
@@ -257,7 +257,7 @@ void main() {
     
     testWidgets('should handle icon with secondary button', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Secondary Icon',
@@ -276,7 +276,7 @@ void main() {
     
     testWidgets('should prioritize outlined over secondary when both are true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Both Flags',
@@ -295,7 +295,7 @@ void main() {
     
     testWidgets('should show loading indicator with correct properties', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Loading Test',

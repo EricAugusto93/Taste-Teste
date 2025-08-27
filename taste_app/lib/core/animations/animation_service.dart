@@ -1,6 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Widget helper para implementar delay em animações
+class _DelayedAnimation extends StatefulWidget {
+  final Duration delay;
+  final Widget child;
+
+  const _DelayedAnimation({
+    required this.delay,
+    required this.child,
+  });
+
+  @override
+  State<_DelayedAnimation> createState() => _DelayedAnimationState();
+}
+
+class _DelayedAnimationState extends State<_DelayedAnimation> {
+  bool _showChild = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.delay, () {
+      if (mounted) {
+        setState(() {
+          _showChild = true;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _showChild ? widget.child : const SizedBox.shrink();
+  }
+}
+
 /// Serviço centralizado para animações da aplicação
 class AnimationService {
   AnimationService._();
@@ -137,6 +172,24 @@ class AnimationService {
     Curve curve = easeInOut,
     Duration delay = Duration.zero,
   }) {
+    if (delay != Duration.zero) {
+      return _DelayedAnimation(
+        delay: delay,
+        child: TweenAnimationBuilder<double>(
+          duration: duration,
+          tween: Tween(begin: 0.0, end: 1.0),
+          curve: curve,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: child,
+            );
+          },
+          child: child,
+        ),
+      );
+    }
+    
     return TweenAnimationBuilder<double>(
       duration: duration,
       tween: Tween(begin: 0.0, end: 1.0),
@@ -147,9 +200,7 @@ class AnimationService {
           child: child,
         );
       },
-      child: delay == Duration.zero
-          ? child
-          : Future.delayed(delay, () => child) as Widget,
+      child: child,
     );
   }
 
@@ -161,6 +212,24 @@ class AnimationService {
     Curve curve = fastOutSlowIn,
     Duration delay = Duration.zero,
   }) {
+    if (delay != Duration.zero) {
+      return _DelayedAnimation(
+        delay: delay,
+        child: TweenAnimationBuilder<Offset>(
+          duration: duration,
+          tween: Tween(begin: begin, end: Offset.zero),
+          curve: curve,
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: value,
+              child: child,
+            );
+          },
+          child: child,
+        ),
+      );
+    }
+    
     return TweenAnimationBuilder<Offset>(
       duration: duration,
       tween: Tween(begin: begin, end: Offset.zero),
@@ -171,9 +240,7 @@ class AnimationService {
           child: child,
         );
       },
-      child: delay == Duration.zero
-          ? child
-          : Future.delayed(delay, () => child) as Widget,
+      child: child,
     );
   }
 
@@ -185,6 +252,24 @@ class AnimationService {
     Curve curve = elasticOut,
     Duration delay = Duration.zero,
   }) {
+    if (delay != Duration.zero) {
+      return _DelayedAnimation(
+        delay: delay,
+        child: TweenAnimationBuilder<double>(
+          duration: duration,
+          tween: Tween(begin: begin, end: 1.0),
+          curve: curve,
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: value,
+              child: child,
+            );
+          },
+          child: child,
+        ),
+      );
+    }
+    
     return TweenAnimationBuilder<double>(
       duration: duration,
       tween: Tween(begin: begin, end: 1.0),
@@ -195,9 +280,7 @@ class AnimationService {
           child: child,
         );
       },
-      child: delay == Duration.zero
-          ? child
-          : Future.delayed(delay, () => child) as Widget,
+      child: child,
     );
   }
 
@@ -209,6 +292,24 @@ class AnimationService {
     Curve curve = elasticOut,
     Duration delay = Duration.zero,
   }) {
+    if (delay != Duration.zero) {
+      return _DelayedAnimation(
+        delay: delay,
+        child: TweenAnimationBuilder<double>(
+          duration: duration,
+          tween: Tween(begin: begin, end: 0.0),
+          curve: curve,
+          builder: (context, value, child) {
+            return Transform.rotate(
+              angle: value,
+              child: child,
+            );
+          },
+          child: child,
+        ),
+      );
+    }
+    
     return TweenAnimationBuilder<double>(
       duration: duration,
       tween: Tween(begin: begin, end: 0.0),
@@ -219,9 +320,7 @@ class AnimationService {
           child: child,
         );
       },
-      child: delay == Duration.zero
-          ? child
-          : Future.delayed(delay, () => child) as Widget,
+      child: child,
     );
   }
 
@@ -238,7 +337,7 @@ class AnimationService {
     final delay = Duration(milliseconds: index * staggerDelay.inMilliseconds);
     
     return AnimatedBuilder(
-      animation: AlwaysStoppedAnimation(0),
+      animation: const AlwaysStoppedAnimation(0),
       builder: (context, _) {
         return TweenAnimationBuilder<double>(
           duration: duration + delay,

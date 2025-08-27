@@ -17,6 +17,7 @@ class ConnectivityService {
   
   StreamSubscription<ConnectivityResult>? _subscription;
   bool _isInitialized = false;
+  bool _isWifiConnection = false;
 
   /// Status atual da conectividade
   ConnectivityStatus get status => _statusNotifier.value;
@@ -32,6 +33,9 @@ class ConnectivityService {
 
   /// Verifica se tem conexão com internet (alias para isOnline)
   bool get hasInternetConnection => isOnline;
+  
+  /// Verifica se está conectado via WiFi
+  bool get isWifi => status == ConnectivityStatus.connected && _isWifiConnection;
 
   /// Inicializa o serviço de conectividade
   Future<void> initialize() async {
@@ -82,6 +86,9 @@ class ConnectivityService {
 
   /// Mapeia o resultado da conectividade para nosso enum
   ConnectivityStatus _mapConnectivityResult(ConnectivityResult result) {
+    // Atualiza se é conexão WiFi
+    _isWifiConnection = result == ConnectivityResult.wifi;
+    
     switch (result) {
       case ConnectivityResult.wifi:
       case ConnectivityResult.mobile:

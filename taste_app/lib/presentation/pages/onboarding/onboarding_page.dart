@@ -54,7 +54,7 @@ class OnboardingPage extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingLarge),
+                SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Subtítulo principal
                 Text(
@@ -78,7 +78,7 @@ class OnboardingPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Imagem de comida centralizada
                 Container(
@@ -104,7 +104,7 @@ class OnboardingPage extends StatelessWidget {
                   ),
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Seção "Busca inteligente"
                 Column(
@@ -118,7 +118,7 @@ class OnboardingPage extends StatelessWidget {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: AppDimensions.paddingSmall),
+                    SizedBox(height: AppDimensions.paddingSmall),
                     Text(
                       'Você diz o que quer. A gente entende.\nEx: "um jantar romântico no Morumbi" e pronto —\nsugestões com a sua cara.',
                       style: AppTextStyles.bodyMedium.copyWith(
@@ -144,7 +144,7 @@ class OnboardingPage extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Container(
                       width: 8,
                       height: 8,
@@ -153,7 +153,7 @@ class OnboardingPage extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Container(
                       width: 8,
                       height: 8,
@@ -165,7 +165,7 @@ class OnboardingPage extends StatelessWidget {
                   ],
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingLarge),
+                SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Botões Login e Cadastro divididos verticalmente
                 Row(
@@ -179,7 +179,7 @@ class OnboardingPage extends StatelessWidget {
                         },
                       ),
                     ),
-                    const SizedBox(width: 1),
+                    SizedBox(width: 1),
                     Expanded(
                       child: CustomButton(
                         text: 'Cadastro',
@@ -192,7 +192,7 @@ class OnboardingPage extends StatelessWidget {
                   ],
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingLarge),
+                SizedBox(height: AppDimensions.paddingLarge),
               ],
             ),
           ),

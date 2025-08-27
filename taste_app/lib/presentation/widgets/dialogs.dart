@@ -87,7 +87,7 @@ class ConfirmationDialog extends StatelessWidget {
                   color: confirmColor ?? AppColors.primary,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
             },
             
             // Título
@@ -99,7 +99,7 @@ class ConfirmationDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             
             // Mensagem
             Text(
@@ -110,7 +110,7 @@ class ConfirmationDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Botões
             Row(
@@ -126,7 +126,7 @@ class ConfirmationDialog extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: confirmText,
@@ -213,7 +213,7 @@ class _RatingDialogState extends State<RatingDialog> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Estrelas de avaliação
             Row(
@@ -236,7 +236,7 @@ class _RatingDialogState extends State<RatingDialog> {
                 );
               }),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Texto da avaliação
             if (_rating > 0) ...{
@@ -247,7 +247,7 @@ class _RatingDialogState extends State<RatingDialog> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
             },
             
             // Campo de comentário
@@ -266,7 +266,7 @@ class _RatingDialogState extends State<RatingDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Botões
             Row(
@@ -279,7 +279,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: 'Enviar',
@@ -367,7 +367,7 @@ class LocationPermissionDialog extends StatelessWidget {
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Título
             Text(
@@ -378,7 +378,7 @@ class LocationPermissionDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             
             // Mensagem
             Text(
@@ -389,7 +389,7 @@ class LocationPermissionDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Botões
             Row(
@@ -403,7 +403,7 @@ class LocationPermissionDialog extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: 'Configurar',

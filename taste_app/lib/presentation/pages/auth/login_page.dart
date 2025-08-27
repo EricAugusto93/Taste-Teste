@@ -50,7 +50,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (_emailController.text.trim() == 'user@example.com' && 
           _passwordController.text == 'password123') {
         
-        print('🔓 LoginPage: Usando login local de desenvolvimento');
+        debugPrint('🔓 LoginPage: Usando login local de desenvolvimento');
         // Força autenticação local
         authNotifier.forceLocalAuth();
         
@@ -93,7 +93,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: AppDimensions.paddingXXLarge),
+                      SizedBox(height: AppDimensions.paddingXXLarge),
                       
                       // Logo e título
                       Center(
@@ -121,7 +121,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: AppDimensions.paddingLarge),
+                            SizedBox(height: AppDimensions.paddingLarge),
                             Text(
                               'Bem-vindo de volta!',
                               style: AppTextStyles.headingMedium.copyWith(
@@ -129,7 +129,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: AppDimensions.paddingSmall),
+                            SizedBox(height: AppDimensions.paddingSmall),
                             Text(
                               'Entre na sua conta para continuar',
                               style: AppTextStyles.bodyLarge.copyWith(
@@ -141,7 +141,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingXXLarge),
+                      SizedBox(height: AppDimensions.paddingXXLarge),
                       
                       // Formulário de login
                       AuthTextField(
@@ -157,7 +157,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         autofocus: true,
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Senha',
@@ -171,7 +171,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingMedium),
+                      SizedBox(height: AppDimensions.paddingMedium),
                       
                       // Lembrar-me e esqueceu senha
                       Row(
@@ -205,7 +205,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ],
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingXXLarge),
+                      SizedBox(height: AppDimensions.paddingXXLarge),
                       
                       // Botão de login
                       AuthButton(
@@ -216,7 +216,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       
 
                       
-                      const SizedBox(height: AppDimensions.paddingXXLarge),
+                      SizedBox(height: AppDimensions.paddingXXLarge),
                       
                       // Link para registro
                       Center(
@@ -239,7 +239,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                     ],
                   ),
                 ),

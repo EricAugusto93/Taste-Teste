@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../models/favorite_model.dart';
 
 /// Interface para operações remotas de favoritos
@@ -153,10 +154,10 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
 
       return response != null;
     } on PostgrestException catch (e) {
-      print('Erro ao verificar favorito: ${e.message}');
+      debugPrint('Erro ao verificar favorito: ${e.message}');
       return false;
     } catch (e) {
-      print('Erro inesperado ao verificar favorito: $e');
+      debugPrint('Erro inesperado ao verificar favorito: $e');
       return false;
     }
   }

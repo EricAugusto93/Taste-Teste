@@ -48,7 +48,7 @@ class SearchPerformanceWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           _buildMetrics(),
           if (interpretation != null) ...[_buildAIMetrics()],
         ],
@@ -64,7 +64,7 @@ class SearchPerformanceWidget extends StatelessWidget {
           color: AppColors.textLight,
           size: AppDimensions.iconSmall,
         ),
-        const SizedBox(width: AppDimensions.paddingSmall),
+        SizedBox(width: AppDimensions.paddingSmall),
         Text(
           'Performance Debug',
           style: AppTextStyles.bodyMedium.copyWith(
@@ -132,9 +132,9 @@ class SearchPerformanceWidget extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         const Divider(color: AppColors.divider),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         _buildMetricRow(
           'Confiança IA',
           '${(interpretation!.confidence * 100).toStringAsFixed(1)}%',
@@ -178,7 +178,7 @@ class SearchPerformanceWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Expanded(
             child: Text(
               value,

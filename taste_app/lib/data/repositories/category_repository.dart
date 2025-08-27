@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import '../models/category_model.dart';
 import '../../core/config/supabase_config.dart';
 import '../../core/utils/logger.dart';

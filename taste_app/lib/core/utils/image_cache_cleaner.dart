@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+// import 'package:flutter_cache_manager/flutter_cache_manager.dart'; // Package not available
 import 'package:get_it/get_it.dart';
 import '../services/cache_service.dart';
 
@@ -11,8 +10,8 @@ class ImageCacheCleaner {
   /// Limpa todo o cache de imagens
   static Future<void> clearAllImageCache() async {
     try {
-      // Limpar cache do CachedNetworkImage
-      await DefaultCacheManager().emptyCache();
+      // Limpar cache do CachedNetworkImage - Package not available
+      // await DefaultCacheManager().emptyCache();
       
       // Limpar cache interno do app
       await _cacheService.clear();
@@ -26,8 +25,8 @@ class ImageCacheCleaner {
   /// Limpa cache de uma imagem específica
   static Future<void> clearImageCache(String imageUrl) async {
     try {
-      // Remover do cache do CachedNetworkImage
-      await DefaultCacheManager().removeFile(imageUrl);
+      // Remover do cache do CachedNetworkImage - Package not available
+      // await DefaultCacheManager().removeFile(imageUrl);
       
       debugPrint('Cache da imagem removido: $imageUrl');
     } catch (e) {

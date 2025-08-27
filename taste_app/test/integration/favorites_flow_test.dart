@@ -19,7 +19,7 @@ void main() {
                     index: currentIndex,
                     children: [
                       // Home page with restaurant card
-                      Center(
+                      const Center(
                         child: Card(
                           key: const Key('restaurant_card'),
                           child: Column(
@@ -35,13 +35,13 @@ void main() {
                         ),
                       ),
                       // Favorites page
-                      Center(
+                      const Center(
                         child: isFavorite
                             ? Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Text('Favoritos'),
-                                  Card(
+                                  const Card(
                                     key: const Key('favorite_item'),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -59,8 +59,8 @@ void main() {
                             : const Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('Favoritos'),
-                                  Text('Nenhum favorito ainda'),
+                                  const Text('Favoritos'),
+                                  const Text('Nenhum favorito ainda'),
                                 ],
                               ),
                       ),
@@ -140,16 +140,16 @@ void main() {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Restaurante Teste'),
-                          Row(
+                          const Text('Restaurante Teste'),
+                          const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.star),
-                              Text('4.5'),
+                              const Icon(Icons.star),
+                              const Text('4.5'),
                             ],
                           ),
-                          Text('Avaliações'),
-                          Text('Cardápio'),
+                          const Text('Avaliações'),
+                          const Text('Cardápio'),
                         ],
                       ),
                     ),
@@ -161,7 +161,7 @@ void main() {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Favoritos'),
+                        const Text('Favoritos'),
                       ],
                     ),
                   ),
@@ -218,8 +218,8 @@ void main() {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Favoritos'),
-                    Text('Nenhum favorito ainda'),
+                    const Text('Favoritos'),
+                    const Text('Nenhum favorito ainda'),
                   ],
                 ),
               ),
@@ -261,13 +261,13 @@ void main() {
                         child: Text('Home'),
                       ),
                       // Favorites page
-                      Center(
+                      const Center(
                         child: hasFavorites
                             ? Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Text('Favoritos'),
-                                  Card(
+                                  const Card(
                                     key: const Key('favorite_item'),
                                     child: const Text('Restaurante Favorito'),
                                   ),
@@ -276,8 +276,8 @@ void main() {
                             : const Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('Favoritos'),
-                                  Text('Nenhum favorito ainda'),
+                                  const Text('Favoritos'),
+                                  const Text('Nenhum favorito ainda'),
                                 ],
                               ),
                       ),

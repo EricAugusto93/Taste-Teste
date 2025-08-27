@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/navigation_helper.dart';
-import '../../../data/models/restaurant_model.dart';
 import '../../../domain/entities/restaurant.dart';
-import '../../../data/services/real_favorites_service.dart';
-import '../../widgets/restaurant_card.dart';
+import '../../../data/models/favorite_model.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/enhanced_error_widget.dart';
-import '../../widgets/custom_button.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../providers/favorites_provider.dart';
 
 /// Página para exibir os restaurantes favoritos do usuário
 class FavoritesPage extends ConsumerStatefulWidget {
@@ -23,185 +16,23 @@ class FavoritesPage extends ConsumerStatefulWidget {
 }
 
 class _FavoritesPageState extends ConsumerState<FavoritesPage> {
-  List<Restaurant> _favorites = [];
-  List<Restaurant> _allRestaurants = [];
-  bool _isLoading = true;
-  String? _error;
-  
   @override
   void initState() {
     super.initState();
-    _loadData();
-  }
-
-  /// Dados de fallback quando o proxy não funciona
-  List<Restaurant> _getLocalFallbackRestaurants() {
-    return [
-      Restaurant(
-        id: 'local-1',
-        name: 'Maki Sushi',
-        description: 'Sushis fresquinhos, toque contemporâneo e a vibe perfeita para um jantar! O Maki entrega sabor e frescor em cada peça.',
-        address: 'Rua General, 285, Rio Branco, Porto Alegre',
-        latitude: -30.0346,
-        longitude: -51.2177,
-        categoryId: '1',
-        rating: 4.5,
-        deliveryFee: 5.0,
-        deliveryTime: '30-45 min',
-        isOpen: true,
-        isFeatured: true,
-        imageUrl: null,
-        emoji: '🍣',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-      Restaurant(
-        id: 'local-2',
-        name: 'Tangamandápio',
-        description: 'Tacos autorais, drinks vibrantes e uma alma latina que não se esconde. A taqueria que começou no delivery hoje tem garagem aberta.',
-        address: 'Av. Plínio Brasil Milano, 20, Auxiliadora, Porto Alegre',
-        latitude: -30.0346,
-        longitude: -51.2177,
-        categoryId: '2',
-        rating: 4.5,
-        deliveryFee: 5.0,
-        deliveryTime: '30-45 min',
-        isOpen: true,
-        isFeatured: false,
-        imageUrl: null,
-        emoji: '🌮',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-      Restaurant(
-        id: 'local-3',
-        name: 'A Cantina do Press',
-        description: 'Clássicos italianos com pegada moderna, drinks incríveis e uma energia que faz querer voltar.',
-        address: 'Av. João Wallig, 1800 - loja 2264, Passo D\'areia, Porto Alegre',
-        latitude: -30.0346,
-        longitude: -51.2177,
-        categoryId: '3',
-        rating: 4.5,
-        deliveryFee: 5.0,
-        deliveryTime: '30-45 min',
-        isOpen: true,
-        isFeatured: false,
-        imageUrl: null,
-        emoji: '🍝',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-      Restaurant(
-        id: 'local-4',
-        name: 'You Yi',
-        description: 'Receitas típicas, sabores intensos e uma história que atravessa gerações. No You Yi, a gastronomia chinesa ganha vida.',
-        address: 'Rua Cândido Silveira, 242, Auxiliadora, Porto Alegre',
-        latitude: -30.0346,
-        longitude: -51.2177,
-        categoryId: '4',
-        rating: 4.5,
-        deliveryFee: 5.0,
-        deliveryTime: '30-45 min',
-        isOpen: true,
-        isFeatured: false,
-        imageUrl: null,
-        emoji: '🥟',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-      Restaurant(
-        id: 'local-5',
-        name: 'Green Station',
-        description: 'Saladas feitas na hora, wraps fresquinhos e praticidade sem abrir mão do sabor.',
-        address: 'Rua Comendador Caminha, 358, Moinhos de Vento, Porto Alegre',
-        latitude: -30.0346,
-        longitude: -51.2177,
-        categoryId: '5',
-        rating: 4.5,
-        deliveryFee: 5.0,
-        deliveryTime: '30-45 min',
-        isOpen: true,
-        isFeatured: false,
-        imageUrl: null,
-        emoji: '🥗',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-    ];
-  }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
+    // Carregará favoritos automaticamente via provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(favoritesProvider.notifier).loadFavorites();
     });
-
-    try {
-      debugPrint('🔍 Carregando dados de favoritos...');
-      
-      final currentUser = Supabase.instance.client.auth.currentUser;
-      final String? userId = currentUser?.id;
-      
-      debugPrint('👤 Usuário atual: $userId');
-      
-      // Tentar buscar dados do proxy primeiro, com fallback para dados locais
-      if (userId == null || userId == 'anonymous') {
-        debugPrint('⚠️ Usuário não autenticado ou anônimo, tentando buscar amostra de restaurantes');
-        try {
-          _favorites = await RealFavoritesService.getSampleRestaurants(limit: 8);
-          _allRestaurants = await RealFavoritesService.getAllRestaurants();
-        } catch (e) {
-          debugPrint('❌ Erro no proxy, usando dados de fallback locais: $e');
-          _favorites = _getLocalFallbackRestaurants();
-          _allRestaurants = _getLocalFallbackRestaurants();
-        }
-      } else {
-        debugPrint('✅ Usuário autenticado, buscando favoritos reais');
-        try {
-          _favorites = await RealFavoritesService.getFavoritesByUser(userId);
-          if (_favorites.isEmpty) {
-            debugPrint('📋 Nenhum favorito real, buscando amostra');
-            try {
-              _favorites = await RealFavoritesService.getSampleRestaurants(limit: 8);
-            } catch (e) {
-              debugPrint('❌ Erro no proxy para amostra, usando dados locais: $e');
-              _favorites = _getLocalFallbackRestaurants();
-            }
-          }
-        } catch (e) {
-          debugPrint('⚠️ Erro ao buscar favoritos reais, usando dados locais: $e');
-          _favorites = _getLocalFallbackRestaurants();
-        }
-        
-        try {
-          _allRestaurants = await RealFavoritesService.getAllRestaurants();
-        } catch (e) {
-          debugPrint('⚠️ Erro ao buscar todos os restaurantes, usando dados locais: $e');
-          _allRestaurants = _getLocalFallbackRestaurants();
-        }
-      }
-      
-      debugPrint('✅ ${_favorites.length} favoritos carregados');
-      debugPrint('✅ ${_allRestaurants.length} restaurantes totais disponíveis');
-    } catch (e) {
-      debugPrint('❌ Erro ao carregar dados: $e');
-      _error = e.toString();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
   }
-
 
   @override
   Widget build(BuildContext context) {
+    final favoritesAsync = ref.watch(favoritesProvider);
+    
     return Scaffold(
       backgroundColor: const Color(0xFF4A5FBF),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Meus Favoritos',
           style: TextStyle(
             color: Colors.white,
@@ -213,39 +44,35 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _buildBody(),
+      body: favoritesAsync.when(
+        data: (favorites) => _buildBody(favorites),
+        loading: () => const LoadingWidget(),
+        error: (error, stackTrace) => EnhancedErrorWidget(
+          title: 'Erro ao carregar favoritos',
+          message: error.toString(),
+          onRetry: () => ref.read(favoritesProvider.notifier).loadFavorites(),
+          errorType: ErrorType.general,
+        ),
+      ),
     );
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const LoadingWidget();
-    }
-
-    if (_error != null) {
-      return EnhancedErrorWidget(
-        title: 'Erro ao carregar favoritos',
-        message: _error!,
-        onRetry: _loadData,
-        errorType: ErrorType.general,
-      );
-    }
-
-    if (_favorites.isEmpty) {
+  Widget _buildBody(List<FavoriteModel> favorites) {
+    if (favorites.isEmpty) {
       return _buildEmptyState();
     }
 
     return Column(
       children: [
-        _buildHeader(),
+        _buildHeader(favorites.length),
         Expanded(
-          child: _buildFavoritesList(),
+          child: _buildFavoritesList(favorites),
         ),
       ],
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int count) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -267,18 +94,18 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   color: const Color(0xFFFFD700).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.favorite,
                   color: Color(0xFFFFD700),
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Seus favoritos',
                       style: TextStyle(
                         color: Colors.white,
@@ -287,7 +114,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       ),
                     ),
                     Text(
-                      '${_favorites.length} restaurantes salvos',
+                      '$count restaurantes salvos',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 14,
@@ -303,18 +130,21 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
     );
   }
 
-  Widget _buildFavoritesList() {
+  Widget _buildFavoritesList(List<FavoriteModel> favorites) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _favorites.length,
+      itemCount: favorites.length,
       itemBuilder: (context, index) {
-        final restaurant = _favorites[index];
+        final favorite = favorites[index];
+        final restaurant = favorite.restaurant;
+        if (restaurant == null) return const SizedBox.shrink();
+        
         return _buildRestaurantCard(restaurant);
       },
     );
   }
 
-  Widget _buildRestaurantCard(Restaurant restaurant) {
+  Widget _buildRestaurantCard(dynamic restaurant) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -341,7 +171,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
               height: 160,
               width: double.infinity,
               color: Colors.grey[300],
-              child: restaurant.imageUrl != null
+              child: restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty
                   ? Image.network(
                       restaurant.imageUrl!,
                       fit: BoxFit.cover,
@@ -377,66 +207,93 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       restaurant.emoji ?? '🍽️',
                       style: const TextStyle(fontSize: 20),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         restaurant.name,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
                         ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _removeFavorite(restaurant),
+                      icon: Icon(
+                        Icons.favorite,
+                        color: Colors.red,
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 8),
-
-                if (restaurant.description != null)
-                  Text(
-                    restaurant.description!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                
+                SizedBox(height: 8),
+                
+                Text(
+                  restaurant.description ?? 'Restaurante',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
                   ),
-
-                const SizedBox(height: 8),
-
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                
+                SizedBox(height: 12),
+                
                 Row(
                   children: [
-                    Icon(
-                      Icons.star,
-                      size: 16,
-                      color: Colors.amber,
+                    // Rating
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Colors.amber,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          restaurant.rating.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${restaurant.rating?.toStringAsFixed(1) ?? 'N/A'}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        restaurant.address ?? 'Endereço não informado',
-                        style: TextStyle(
-                          fontSize: 14,
+                    
+                    SizedBox(width: 16),
+                    
+                    // Tempo de entrega
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time,
+                          size: 16,
                           color: Colors.grey[600],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        SizedBox(width: 4),
+                        Text(
+                          restaurant.deliveryTime ?? '30 min',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const Spacer(),
+                    
+                    // Taxa de entrega
+                    Text(
+                      (restaurant.deliveryFee == null || restaurant.deliveryFee == 0)
+                          ? 'Grátis' 
+                          : 'R\$ ${restaurant.deliveryFee?.toStringAsFixed(2) ?? "0.00"}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: (restaurant.deliveryFee == null || restaurant.deliveryFee == 0) ? Colors.green : Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -462,32 +319,31 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                 color: const Color(0xFFFFD700).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.favorite_border,
                 size: 64,
                 color: Color(0xFFFFD700),
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
+            SizedBox(height: 24),
+            Text(
               'Nenhum favorito ainda',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
-              'Explore restaurantes e adicione os que você gosta aos favoritos!',
+              'Explore restaurantes e adicione seus favoritos para vê-los aqui!',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.8),
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -503,7 +359,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -514,5 +370,31 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _removeFavorite(dynamic restaurant) async {
+    try {
+      final success = await ref.read(favoritesProvider.notifier).removeFavorite(restaurant.id);
+      
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${restaurant.name} removido dos favoritos'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao remover favorito'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 }

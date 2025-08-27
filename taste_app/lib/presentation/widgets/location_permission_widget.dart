@@ -153,11 +153,11 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
                 'action': 'cancel',
               });
             },
-            child: const Text('Não Permitir'),
+            child: Text('Não Permitir'),
           ),
           ElevatedButton(
             onPressed: _requestPermission,
-            child: const Text('Permitir'),
+            child: Text('Permitir'),
           ),
         ],
       ),
@@ -171,14 +171,14 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
+        title: Text(
           'Serviço de Localização Desabilitado',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
+        content: Text(
           'O serviço de localização está desabilitado no seu dispositivo. '
           'Por favor, habilite-o nas configurações para usar recursos baseados em localização.',
           style: TextStyle(fontSize: 16),
@@ -189,7 +189,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
             },
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -197,7 +197,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               // Tenta abrir as configurações
               await _locationRepository.openAppSettings();
             },
-            child: const Text('Abrir Configurações'),
+            child: Text('Abrir Configurações'),
           ),
         ],
       ),
@@ -211,14 +211,14 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
+        title: Text(
           'Permissão Negada',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
+        content: Text(
           'A permissão de localização foi permanentemente negada. '
           'Para usar recursos baseados em localização, você precisa habilitar '
           'a permissão manualmente nas configurações do app.',
@@ -230,14 +230,14 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
             },
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
               NavigationHelper.safeGoBack(context);
               await _locationRepository.openAppSettings();
             },
-            child: const Text('Abrir Configurações'),
+            child: Text('Abrir Configurações'),
           ),
         ],
       ),
@@ -390,7 +390,7 @@ class _LocationPermissionButtonState extends State<LocationPermissionButton> {
       onPressed: _isLoading ? null : _handlePress,
       style: widget.style,
       icon: _isLoading 
-        ? const SizedBox(
+        ? SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(strokeWidth: 2),

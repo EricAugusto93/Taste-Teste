@@ -76,7 +76,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingXSmall),
+        SizedBox(height: AppDimensions.paddingXSmall),
         TextFormField(
           controller: widget.controller,
           focusNode: _focusNode,

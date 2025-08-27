@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../data/models/restaurant_model.dart';
@@ -56,7 +57,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       // Carrega restaurantes próximos
       await _loadNearbyRestaurants();
     } catch (e) {
-      print('❌ HomePage: Erro na inicialização: $e');
+      debugPrint('❌ HomePage: Erro na inicialização: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Erro ao carregar dados',
@@ -68,15 +69,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       final position = await _locationService.getCurrentPosition();
       if (position != null) {
-        print('📍 HomePage: Localização real obtida: ${position.latitude}, ${position.longitude}');
+        debugPrint('📍 HomePage: Localização real obtida: ${position.latitude}, ${position.longitude}');
         state = state.copyWith(userLocation: position);
       } else {
-        print('⚠️ HomePage: Não foi possível obter localização real do usuário');
+        debugPrint('⚠️ HomePage: Não foi possível obter localização real do usuário');
         // Não define localização falsa - deixa null para que o usuário saiba que precisa permitir localização
         state = state.copyWith(userLocation: null);
       }
     } catch (e) {
-      print('❌ HomePage: Erro ao obter localização: $e');
+      debugPrint('❌ HomePage: Erro ao obter localização: $e');
       // Não usa fallback falso - deixa null para indicar que localização é necessária
       state = state.copyWith(userLocation: null);
     }
@@ -84,10 +85,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> _loadNearbyRestaurants() async {
     try {
-      print('🏠 HomePage: Carregando restaurantes...');
+      debugPrint('🏠 HomePage: Carregando restaurantes...');
       
       final allRestaurants = await _restaurantRepository.getRestaurants();
-      print('📊 HomePage: ${allRestaurants.length} restaurantes carregados');
+      debugPrint('📊 HomePage: ${allRestaurants.length} restaurantes carregados');
       
       List<RestaurantModel> finalRestaurants = allRestaurants;
       
@@ -107,10 +108,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
           );
         }).toList();
 
-        print('🗺️ HomePage: ${nearbyRestaurants.length} restaurantes próximos encontrados');
+        debugPrint('🗺️ HomePage: ${nearbyRestaurants.length} restaurantes próximos encontrados');
         finalRestaurants = nearbyRestaurants;
       } else {
-        print('⚠️ HomePage: Sem localização do usuário, mostrando todos os restaurantes');
+        debugPrint('⚠️ HomePage: Sem localização do usuário, mostrando todos os restaurantes');
       }
 
       // Agrupa por categoria
@@ -147,9 +148,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
         });
       }
 
-      print('✅ HomePage: Restaurantes organizados por categoria');
+      debugPrint('✅ HomePage: Restaurantes organizados por categoria');
       for (final entry in restaurantsByCategory.entries) {
-        print('  ${entry.key}: ${entry.value.length} restaurantes');
+        debugPrint('  ${entry.key}: ${entry.value.length} restaurantes');
       }
 
       state = state.copyWith(
@@ -157,7 +158,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         isLoading: false,
       );
     } catch (e) {
-      print('❌ HomePage: Erro ao carregar restaurantes: $e');
+      debugPrint('❌ HomePage: Erro ao carregar restaurantes: $e');
       state = state.copyWith(
         isLoading: false,
         error: 'Erro ao carregar restaurantes',

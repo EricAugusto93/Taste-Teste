@@ -172,7 +172,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
               color: bannerData.textColor,
               size: AppDimensions.iconSmall,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: Text(
                 bannerData.message,
@@ -295,7 +295,7 @@ class ConnectivityIndicator extends StatelessWidget {
               size: iconSize,
             ),
             if (showLabel) ...[
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
                 data.label,
                 style: AppTextStyles.caption.copyWith(

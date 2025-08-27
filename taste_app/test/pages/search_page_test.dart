@@ -74,7 +74,7 @@ void main() {
   group('SearchPage Basic Tests', () {
     testWidgets('should create SearchPage widget', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             appBar: AppBar(
               title: Text('Buscar'),
@@ -92,11 +92,11 @@ void main() {
     
     testWidgets('should display search field', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.all(16),
                   child: TextField(
                     key: Key('search_field'),
@@ -126,7 +126,7 @@ void main() {
     
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -149,7 +149,7 @@ void main() {
     
     testWidgets('should display search suggestions', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
@@ -161,17 +161,17 @@ void main() {
                 Expanded(
                   child: ListView(
                     children: [
-                      ListTile(
+                      const ListTile(
                         leading: Icon(Icons.history),
                         title: Text('pizza'),
                         subtitle: Text('Busca recente'),
                       ),
-                      ListTile(
+                      const ListTile(
                         leading: Icon(Icons.trending_up),
                         title: Text('hambúrguer'),
                         subtitle: Text('Popular'),
                       ),
-                      ListTile(
+                      const ListTile(
                         leading: Icon(Icons.restaurant),
                         title: Text('sushi'),
                         subtitle: Text('Sugestão'),
@@ -195,7 +195,7 @@ void main() {
     
     testWidgets('should display search results', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: mockRestaurants.length,
@@ -216,13 +216,13 @@ void main() {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (restaurant.description != null)
-                          Text(restaurant.description!),
-                        Row(
+                          const Text(restaurant.description!),
+                        const Row(
                           children: [
-                            Icon(Icons.star, size: 16, color: Colors.amber),
-                            Text('${restaurant.rating}'),
-                            SizedBox(width: 8),
-                            Text(restaurant.deliveryTime),
+                            const Icon(Icons.star, size: 16, color: Colors.amber),
+                            const Text('${restaurant.rating}'),
+                            const SizedBox(width: 8),
+                            const Text(restaurant.deliveryTime),
                           ],
                         ),
                       ],
@@ -246,27 +246,27 @@ void main() {
     
     testWidgets('should display empty state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.search_off,
                     size: 64,
                     color: Colors.grey,
                   ),
-                  SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 16),
+                  const Text(
                     'Nenhum resultado encontrado',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'Tente buscar por outro termo',
                     style: TextStyle(
                       color: Colors.grey,
@@ -288,7 +288,7 @@ void main() {
       bool filterTapped = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: IconButton(
               icon: Icon(Icons.filter_list),
@@ -310,18 +310,18 @@ void main() {
   group('Search Filters Tests', () {
     testWidgets('should display filter options', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                Text(
+                const Text(
                   'Filtros',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Wrap(
                   spacing: 8,
                   children: [
@@ -359,7 +359,7 @@ void main() {
       bool filterSelected = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: FilterChip(
               label: Text('Entrega grátis'),
@@ -384,24 +384,24 @@ void main() {
       final searchHistory = ['pizza', 'hambúrguer', 'sushi', 'japonês'];
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Buscas recentes',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TextButton(
+                      const TextButton(
                         onPressed: () {},
                         child: Text('Limpar'),
                       ),
@@ -443,7 +443,7 @@ void main() {
       bool historyCleard = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextButton(
               onPressed: () {

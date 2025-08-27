@@ -273,7 +273,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
       backgroundColor: AppColors.surface,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           AppIcons.back,
           color: AppColors.textDark,
         ),
@@ -314,7 +314,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
           tooltip: _getViewModeTooltip(),
         ),
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             AppIcons.search,
             color: AppColors.textDark,
           ),
@@ -351,7 +351,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
             ),
           ),
           _buildFilterButton(),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           _buildSortButton(),
         ],
       ),
@@ -386,7 +386,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
               size: AppDimensions.iconSmall,
               color: hasActiveFilters ? AppColors.surface : AppColors.textDark,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Filtros',
               style: AppTextStyles.bodySmall.copyWith(
@@ -395,7 +395,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
               ),
             ),
             if (hasActiveFilters) ...[
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(
@@ -447,7 +447,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
               size: AppDimensions.iconSmall,
               color: AppColors.textDark,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Text(
               currentSort['label']!,
               style: AppTextStyles.bodySmall.copyWith(
@@ -455,7 +455,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Icon(
               _showSortOptions ? AppIcons.chevronUp : AppIcons.chevronDown,
               size: AppDimensions.iconSmall,
@@ -524,7 +524,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: AppDimensions.paddingSmall),
+                SizedBox(height: AppDimensions.paddingSmall),
                 Wrap(
                   spacing: AppDimensions.paddingSmall,
                   runSpacing: AppDimensions.paddingSmall,

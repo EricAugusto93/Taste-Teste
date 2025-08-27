@@ -1,4 +1,57 @@
 // Serviço de Geocodificação usando Google Maps API
+
+// Declaração global para Google Maps
+declare global {
+  interface Window {
+    google: typeof google;
+  }
+  
+  namespace google {
+    namespace maps {
+      class Geocoder {
+        geocode(
+          request: google.maps.GeocoderRequest,
+          callback: (
+            results: google.maps.GeocoderResult[] | null,
+            status: google.maps.GeocoderStatus
+          ) => void
+        ): void;
+      }
+      
+      interface GeocoderRequest {
+        address?: string;
+        componentRestrictions?: {
+          country?: string;
+        };
+      }
+      
+      interface GeocoderResult {
+        geometry: {
+          location: {
+            lat(): number;
+            lng(): number;
+          };
+        };
+        formatted_address: string;
+        address_components?: Array<{
+          long_name: string;
+          short_name: string;
+          types: string[];
+        }>;
+      }
+      
+      enum GeocoderStatus {
+        OK = 'OK',
+        ZERO_RESULTS = 'ZERO_RESULTS',
+        OVER_QUERY_LIMIT = 'OVER_QUERY_LIMIT',
+        REQUEST_DENIED = 'REQUEST_DENIED',
+        INVALID_REQUEST = 'INVALID_REQUEST',
+        UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+      }
+    }
+  }
+}
+
 export interface GeocodeResult {
   lat: number
   lng: number

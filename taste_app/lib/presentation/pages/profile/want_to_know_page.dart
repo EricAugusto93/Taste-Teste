@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/theme/app_dimensions.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart' as custom;
 import '../../../data/services/user_lists_service.dart';
 
 /// Página "Quero conhecer" - Lista de lugares que o usuário quer visitar
@@ -54,7 +51,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Quero conhecer',
             style: TextStyle(
               color: Colors.white,
@@ -73,7 +70,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Quero conhecer',
           style: TextStyle(
             color: Colors.white,
@@ -126,18 +123,18 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   color: const Color(0xFFFF8C00).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.restaurant_menu,
                   color: Color(0xFFFF8C00),
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Lugares para descobrir',
                       style: TextStyle(
                         color: Colors.white,
@@ -196,16 +193,35 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: Container(
-              height: 160,
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.restaurant,
-                size: 48,
-                color: Colors.grey,
-              ),
-            ),
+            child: item.imageUrl != null && item.imageUrl.isNotEmpty
+                ? Image.network(
+                    item.imageUrl,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 160,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.restaurant,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    height: 160,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: Icon(
+                      Icons.restaurant,
+                      size: 48,
+                      color: Colors.grey,
+                    ),
+                  ),
           ),
           
           // Conteúdo
@@ -226,7 +242,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     ),
                     IconButton(
                       onPressed: () => _removeItem(item.id),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close,
                         color: Colors.grey,
                         size: 20,
@@ -235,7 +251,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 
                 Row(
                   children: [
@@ -259,7 +275,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Row(
                   children: [
@@ -268,7 +284,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                       size: 16,
                       color: AppColors.textLight,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         item.location,
@@ -280,7 +296,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Text(
                   'Adicionado há ${_getTimeAgo(item.addedDate)}',
@@ -309,20 +325,20 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                 color: const Color(0xFFFF8C00).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.restaurant_menu,
                 size: 64,
                 color: Color(0xFFFF8C00),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               'Nenhum lugar salvo ainda',
               style: AppTextStyles.headingMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Explore restaurantes e adicione os que você quer conhecer à sua lista!',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -330,7 +346,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -346,7 +362,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,

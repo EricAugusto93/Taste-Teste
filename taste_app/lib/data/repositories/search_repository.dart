@@ -6,7 +6,6 @@ import '../services/search/search_service.dart';
 import '../services/location/location_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/cache_service.dart';
-import '../../core/models/cache_item.dart';
 import '../../../core/di/injection_container.dart';
 
 /// Resultado de busca com metadados
@@ -69,9 +68,9 @@ abstract class SearchRepository {
 
 /// Implementação do repositório de busca com Supabase
 class SearchRepositoryImpl implements SearchRepository {
-  final SearchService _searchService;
   final SupabaseClient _supabase;
   final LocationService _locationService;
+  final SearchService _searchService;
   final _cacheService = InjectionContainer.get<CacheService>();
   
   SearchRepositoryImpl(

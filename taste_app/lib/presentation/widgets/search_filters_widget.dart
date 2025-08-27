@@ -186,9 +186,9 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
               ),
           ],
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         _buildQuickFilters(),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         _buildApplyButton(),
       ],
     );
@@ -200,15 +200,15 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildCategoryFilter(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildDistanceFilter(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildRatingFilter(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildOpenNowFilter(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildActionButtons(),
         ],
       ),
@@ -258,7 +258,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
@@ -308,7 +308,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
@@ -340,7 +340,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                       size: AppDimensions.iconSmall,
                       color: isSelected ? AppColors.surface : AppColors.textLight,
                     ),
-                    const SizedBox(width: AppDimensions.paddingSmall),
+                    SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       '${distance.toInt()} km',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -369,7 +369,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
@@ -401,7 +401,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                       size: AppDimensions.iconSmall,
                       color: isSelected ? AppColors.surface : AppColors.warning,
                     ),
-                    const SizedBox(width: AppDimensions.paddingSmall),
+                    SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       rating.toString(),
                       style: AppTextStyles.bodySmall.copyWith(
@@ -409,7 +409,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
-                    const SizedBox(width: 2),
+                    SizedBox(width: 2),
                     Text(
                       '+',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -477,7 +477,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: _buildQuickFilterChip(
                 label: 'Perto',
@@ -488,7 +488,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: _buildQuickFilterChip(
                 label: 'Top rated',
@@ -535,7 +535,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
               size: AppDimensions.iconSmall,
               color: isSelected ? AppColors.surface : AppColors.textLight,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
@@ -610,7 +610,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             ),
           ),
         if (_currentFilters.hasActiveFilters)
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           flex: _currentFilters.hasActiveFilters ? 2 : 1,
           child: ElevatedButton(
@@ -776,7 +776,7 @@ class ActiveFiltersWidget extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Wrap(
             spacing: AppDimensions.paddingSmall,
             runSpacing: AppDimensions.paddingSmall,
@@ -812,7 +812,7 @@ class ActiveFiltersWidget extends StatelessWidget {
             size: 12,
             color: AppColors.primary,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             label,
             style: AppTextStyles.bodySmall.copyWith(
@@ -821,13 +821,13 @@ class ActiveFiltersWidget extends StatelessWidget {
               fontSize: 11,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           GestureDetector(
             onTap: () {
               AnimationService.lightHaptic();
               onRemove();
             },
-            child: const Icon(
+            child: Icon(
               AppIcons.close,
               size: 12,
               color: AppColors.primary,

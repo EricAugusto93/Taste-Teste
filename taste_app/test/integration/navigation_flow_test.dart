@@ -167,10 +167,10 @@ void main() {
                             body: const SingleChildScrollView(
                               child: Column(
                                 children: [
-                                  Text('Nome do Restaurante'),
-                                  Text('Descrição do restaurante'),
-                                  SizedBox(height: 1000), // Para testar scroll
-                                  Text('Final da página'),
+                                  const Text('Nome do Restaurante'),
+                                  const Text('Descrição do restaurante'),
+                                  const SizedBox(height: 1000), // Para testar scroll
+                                  const Text('Final da página'),
                                 ],
                               ),
                             ),
@@ -278,7 +278,7 @@ void main() {
                     index: currentIndex,
                     children: [
                       const Center(child: Text('Home Page')),
-                      Center(child: TextField(controller: searchController, decoration: const InputDecoration(hintText: 'Search'))),
+                      const Center(child: TextField(controller: searchController, decoration: const InputDecoration(hintText: 'Search'))),
                       const Center(child: Text('Favoritos')),
                     ],
                   ),

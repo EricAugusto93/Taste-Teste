@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/navigation_helper.dart';
 
 import '../../providers/auth_provider.dart';
@@ -79,14 +76,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_outline,
                   size: 80,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 32),
-              const Text(
+              SizedBox(height: 32),
+              Text(
                 'Acesse sua conta',
                 style: TextStyle(
                   color: Colors.white,
@@ -95,7 +92,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 'Faça login para acessar seu perfil, favoritos e muito mais',
                 style: TextStyle(
@@ -104,7 +101,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               AuthButton(
                 text: 'Fazer Login',
                 onPressed: () {
@@ -112,7 +109,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 },
                 isLoading: false,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               AuthTextButton(
                 text: 'Criar conta',
                 onPressed: () {
@@ -142,7 +139,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         }
       }
     } catch (e) {
-      print('❌ Erro ao obter displayName: $e');
+      debugPrint('❌ Erro ao obter displayName: $e');
       displayName = 'Usuário';
     }
     
@@ -188,7 +185,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
                     size: 20,
@@ -209,7 +206,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               child: IconButton(
                 onPressed: _handleLogout,
-                icon: const Icon(
+                icon: Icon(
                   Icons.logout,
                   color: Colors.white,
                   size: 20,
@@ -225,7 +222,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 80), // Aumentado para dar espaço aos botões
+                SizedBox(height: 80), // Aumentado para dar espaço aos botões
                 
                 // Saudação personalizada
                 Text(
@@ -237,10 +234,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Texto explicativo
-                const Text(
+                Text(
                   'Aqui ficam os seus lugares favoritos, experiências salvas e descobertas que você quer viver.',
                   style: TextStyle(
                     color: Colors.white,
@@ -249,9 +246,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ),
                 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 
-                const Text(
+                Text(
                   'Organize do seu jeito e volte quando quiser — o Taste Test guarda tudo pra você. ✨',
                   style: TextStyle(
                     color: Colors.white,
@@ -260,10 +257,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ),
                 
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 
                 // Seção "Minhas listas"
-                const Text(
+                Text(
                   'Minhas listas:',
                   style: TextStyle(
                     color: Color(0xFFFFB366), // Cor laranja da referência
@@ -272,7 +269,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Lista de opções com espaçamento ajustado
                 Expanded(
@@ -285,7 +282,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         () => context.push('/want-to-know'),
                       ),
                       
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       
                       _buildListOption(
                         Icons.favorite,
@@ -294,7 +291,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         () => context.push('/favorites'),
                       ),
                       
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       
                       _buildListOption(
                         Icons.sentiment_neutral,
@@ -303,7 +300,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         () => context.push('/not-sure-return'),
                       ),
                       
-                      const SizedBox(height: 40), // Espaço para não sobrepor a área bege
+                      SizedBox(height: 40), // Espaço para não sobrepor a área bege
                     ],
                   ),
                 ),
@@ -417,7 +414,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 size: 24,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Text(
               title,
               style: GoogleFonts.dancingScript(
@@ -457,25 +454,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: Colors.white,
-          title: const Text(
+          title: Text(
             'Sair da conta',
             style: TextStyle(color: Colors.black87),
           ),
-          content: const Text(
+          content: Text(
             'Tem certeza que deseja sair da sua conta?',
             style: TextStyle(color: Colors.black54),
           ),
           actions: [
             TextButton(
               onPressed: () => context.pop(false),
-              child: const Text(
+              child: Text(
                 'Cancelar',
                 style: TextStyle(color: Colors.grey),
               ),
             ),
             TextButton(
               onPressed: () => context.pop(true),
-              child: const Text(
+              child: Text(
                 'Sair',
                 style: TextStyle(color: Colors.red),
               ),

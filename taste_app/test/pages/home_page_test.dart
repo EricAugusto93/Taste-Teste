@@ -31,7 +31,7 @@ void main() {
   group('HomePage Basic Tests', () {
     testWidgets('should create HomePage widget', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: Text('HomePage Test'),
@@ -45,14 +45,14 @@ void main() {
     
     testWidgets('should display basic UI elements', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             appBar: AppBar(
               title: Text('Taste'),
             ),
             body: Column(
               children: [
-                Container(
+                const Container(
                   padding: EdgeInsets.all(16),
                   child: TextField(
                     decoration: InputDecoration(
@@ -63,19 +63,19 @@ void main() {
                 Expanded(
                   child: ListView(
                     children: [
-                      ListTile(
+                      const ListTile(
                         title: Text('Categorias'),
                       ),
-                      ListTile(
+                      const ListTile(
                         title: Text('Perto de você'),
                       ),
-                      ListTile(
+                      const ListTile(
                         title: Text('Populares perto de você'),
                       ),
-                      ListTile(
+                      const ListTile(
                         title: Text('Recomendados para você'),
                       ),
-                      ListTile(
+                      const ListTile(
                         title: Text('Mais restaurantes'),
                       ),
                     ],
@@ -98,7 +98,7 @@ void main() {
     
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -123,7 +123,7 @@ void main() {
       bool refreshCalled = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: RefreshIndicator(
               onRefresh: () async {
@@ -131,9 +131,9 @@ void main() {
               },
               child: ListView(
                 children: [
-                  ListTile(title: Text('Item 1')),
-                  ListTile(title: Text('Item 2')),
-                  ListTile(title: Text('Item 3')),
+                  const ListTile(title: Text('Item 1')),
+                  const ListTile(title: Text('Item 2')),
+                  const ListTile(title: Text('Item 3')),
                 ],
               ),
             ),
@@ -155,7 +155,7 @@ void main() {
     
     testWidgets('should display loading state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -169,7 +169,7 @@ void main() {
     
     testWidgets('should handle scroll behavior', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: 20,
@@ -197,31 +197,31 @@ void main() {
   group('HomeSection Tests', () {
     testWidgets('should render section with title', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
+                const Padding(
                   padding: EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Test Section',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      TextButton(
+                      const TextButton(
                         onPressed: () {},
                         child: Text('Ver todos'),
                       ),
                     ],
                   ),
                 ),
-                Container(
+                const Container(
                   height: 100,
                   color: Colors.blue,
                 ),
@@ -240,7 +240,7 @@ void main() {
       bool actionTapped = false;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextButton(
               onPressed: () {
@@ -262,7 +262,7 @@ void main() {
   group('Category Tests', () {
     testWidgets('should display categories', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -275,8 +275,8 @@ void main() {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.restaurant),
-                      Text(category.name),
+                      const Icon(Icons.restaurant),
+                      const Text(category.name),
                     ],
                   ),
                 );

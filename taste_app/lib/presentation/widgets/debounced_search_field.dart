@@ -230,7 +230,7 @@ class _DebouncedSearchFieldState extends State<DebouncedSearchField> {
     // Mostrar botão de limpar se há texto
     if (_controller.text.isNotEmpty) {
       return IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.clear,
           size: 20,
         ),
@@ -338,7 +338,7 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
               ),
             ),
             if (widget.onFiltersToggle != null) ...[
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               IconButton(
                 icon: Icon(
                   AppIcons.filter,
@@ -374,7 +374,7 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
                 final suggestion = widget.suggestions![index];
                 return ListTile(
                   dense: true,
-                  leading: const Icon(
+                  leading: Icon(
                     AppIcons.search,
                     size: 16,
                     color: AppColors.textLight,

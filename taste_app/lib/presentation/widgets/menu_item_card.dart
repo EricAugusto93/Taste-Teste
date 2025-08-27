@@ -37,7 +37,7 @@ class MenuItemCard extends StatelessWidget {
             children: [
               // Imagem do item
               _buildItemImage(),
-              const SizedBox(width: AppDimensions.paddingMedium),
+              SizedBox(width: AppDimensions.paddingMedium),
               // Informações do item
               Expanded(
                 child: _buildItemInfo(),
@@ -79,7 +79,7 @@ class MenuItemCard extends StatelessWidget {
       width: 80,
       height: 80,
       color: AppColors.surface,
-      child: const Icon(
+      child: Icon(
         Icons.restaurant,
         color: AppColors.textLight,
         size: 32,
@@ -101,7 +101,7 @@ class MenuItemCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         if (item.description != null) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             item.description!,
             style: AppTextStyles.bodySmall.copyWith(
@@ -111,7 +111,7 @@ class MenuItemCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         // Preço
         Text(
           item.formattedPrice,
@@ -122,12 +122,12 @@ class MenuItemCard extends StatelessWidget {
         ),
         // Alérgenos (se houver)
         if (item.allergens.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           _buildAllergenInfo(),
         ],
         // Status de disponibilidade
         if (!item.isAvailable) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 8,
@@ -194,7 +194,7 @@ class MenuItemCard extends StatelessWidget {
                 InteractionService.lightHaptic();
                 onAddToCart?.call();
               },
-              icon: const Icon(
+              icon: Icon(
                 Icons.add,
                 color: AppColors.surface,
                 size: 20,
@@ -214,7 +214,7 @@ class MenuItemCard extends StatelessWidget {
               color: AppColors.textLight.withOpacity(0.3),
               borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.block,
               color: AppColors.surface,
               size: 20,
@@ -254,7 +254,7 @@ class MenuCategorySection extends StatelessWidget {
                 style: AppTextStyles.headingMedium,
               ),
               if (category.description != null) ...[
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   category.description!,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -280,7 +280,7 @@ class MenuCategorySection extends StatelessWidget {
             }).toList(),
           ),
         ),
-        const SizedBox(height: AppDimensions.paddingLarge),
+        SizedBox(height: AppDimensions.paddingLarge),
       ],
     );
   }

@@ -112,7 +112,7 @@ class CustomErrorWidget extends StatelessWidget {
             emoji,
             style: const TextStyle(fontSize: 64),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           // Título
           Text(
@@ -123,7 +123,7 @@ class CustomErrorWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           // Mensagem
           Text(
@@ -137,7 +137,7 @@ class CustomErrorWidget extends StatelessWidget {
           
           // Botão (se fornecido)
           if (buttonText != null && onRetry != null) ...{
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: CustomButton(
@@ -213,7 +213,7 @@ class InlineErrorWidget extends StatelessWidget {
             size: 32,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             message,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -222,7 +222,7 @@ class InlineErrorWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...{
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             TextButton(
               onPressed: onRetry,
               child: Text(

@@ -133,7 +133,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
           color: _getConfidenceColor(),
           size: AppDimensions.iconSmall,
         ),
-        const SizedBox(width: AppDimensions.paddingSmall),
+        SizedBox(width: AppDimensions.paddingSmall),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
           ),
         ),
         _buildConfidenceIndicator(),
-        const SizedBox(width: AppDimensions.paddingSmall),
+        SizedBox(width: AppDimensions.paddingSmall),
         if (!_feedbackSubmitted)
           GestureDetector(
             onTap: () {
@@ -197,7 +197,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildEntitiesInfo() {
     return [
-      const SizedBox(height: AppDimensions.paddingSmall),
+      SizedBox(height: AppDimensions.paddingSmall),
       Wrap(
         spacing: AppDimensions.paddingSmall,
         runSpacing: AppDimensions.paddingXSmall,
@@ -226,16 +226,16 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildFeedbackSection() {
     return [
-      const SizedBox(height: AppDimensions.paddingMedium),
+      SizedBox(height: AppDimensions.paddingMedium),
       const Divider(color: AppColors.divider),
-      const SizedBox(height: AppDimensions.paddingSmall),
+      SizedBox(height: AppDimensions.paddingSmall),
       Text(
         'Os resultados foram úteis?',
         style: AppTextStyles.bodyMedium.copyWith(
           fontWeight: FontWeight.w600,
         ),
       ),
-      const SizedBox(height: AppDimensions.paddingSmall),
+      SizedBox(height: AppDimensions.paddingSmall),
       Row(
         children: [
           _buildFeedbackButton(
@@ -244,7 +244,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
             AppColors.success,
             AppIcons.thumbsUp,
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           _buildFeedbackButton(
             'Não muito',
             'negative',
@@ -290,7 +290,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
                 color: isSelected ? color : AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              const SizedBox(width: AppDimensions.paddingXSmall),
+              SizedBox(width: AppDimensions.paddingXSmall),
               Text(
                 text,
                 style: AppTextStyles.bodySmall.copyWith(
@@ -307,9 +307,9 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildThankYouMessage() {
     return [
-      const SizedBox(height: AppDimensions.paddingMedium),
+      SizedBox(height: AppDimensions.paddingMedium),
       const Divider(color: AppColors.divider),
-      const SizedBox(height: AppDimensions.paddingSmall),
+      SizedBox(height: AppDimensions.paddingSmall),
       Row(
         children: [
           Icon(
@@ -317,7 +317,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
             color: AppColors.success,
             size: AppDimensions.iconSmall,
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Text(
             'Obrigado pelo feedback!',
             style: AppTextStyles.bodyMedium.copyWith(

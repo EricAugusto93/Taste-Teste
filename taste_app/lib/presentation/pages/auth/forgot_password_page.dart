@@ -6,7 +6,6 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../../core/utils/auth_validators.dart';
-import '../../../data/services/auth/auth_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth_text_field.dart';
 import '../../../core/utils/auth_validators.dart';
@@ -50,7 +49,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('E-mail de recuperação enviado com sucesso!'),
+            content: Text('E-mail de recuperação enviado com sucesso!'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -94,7 +93,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Ícone e título
                 Center(
@@ -113,7 +112,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                           color: AppColors.primary,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       Text(
                         _emailSent ? 'E-mail Enviado!' : 'Esqueceu a Senha?',
                         style: AppTextStyles.headingMedium.copyWith(
@@ -121,7 +120,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.paddingSmall),
+                      SizedBox(height: AppDimensions.paddingSmall),
                       Text(
                         _emailSent
                             ? 'Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.'
@@ -135,7 +134,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   ),
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingXXLarge),
+                SizedBox(height: AppDimensions.paddingXXLarge),
                 
                 if (!_emailSent) ...[
                   // Campo de e-mail
@@ -152,7 +151,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                     autofocus: true,
                   ),
                   
-                  const SizedBox(height: AppDimensions.paddingXLarge),
+                  SizedBox(height: AppDimensions.paddingXLarge),
                   
                   // Botão de enviar
                   AuthButton(
@@ -182,7 +181,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                               color: AppColors.success,
                               size: 20,
                             ),
-                            const SizedBox(width: AppDimensions.paddingSmall),
+                            SizedBox(width: AppDimensions.paddingSmall),
                             Text(
                               'Próximos passos:',
                               style: AppTextStyles.bodyMedium.copyWith(
@@ -192,7 +191,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppDimensions.paddingSmall),
+                        SizedBox(height: AppDimensions.paddingSmall),
                         Text(
                           '1. Verifique sua caixa de entrada\n2. Clique no link recebido\n3. Defina uma nova senha\n4. Faça login com a nova senha',
                           style: AppTextStyles.bodyMedium.copyWith(
@@ -203,7 +202,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                     ),
                   ),
                   
-                  const SizedBox(height: AppDimensions.paddingXLarge),
+                  SizedBox(height: AppDimensions.paddingXLarge),
                   
                   // Botão para reenviar
                   AuthButton(
@@ -217,7 +216,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   ),
                 ],
                 
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Botões de navegação
                 Row(
@@ -231,7 +230,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                         isSecondary: true,
                       ),
                     ),
-                    const SizedBox(width: AppDimensions.paddingMedium),
+                    SizedBox(width: AppDimensions.paddingMedium),
                     Expanded(
                       child: AuthButton(
                         text: 'Criar Conta',
@@ -244,7 +243,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   ],
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Informações de suporte
                 Container(
@@ -260,7 +259,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                         color: AppColors.textSecondary,
                         size: 24,
                       ),
-                      const SizedBox(height: AppDimensions.paddingSmall),
+                      SizedBox(height: AppDimensions.paddingSmall),
                       Text(
                         'Precisa de ajuda?',
                         style: AppTextStyles.bodyMedium.copyWith(
@@ -268,7 +267,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: AppDimensions.paddingXSmall),
+                      SizedBox(height: AppDimensions.paddingXSmall),
                       Text(
                         'Entre em contato conosco se não receber o e-mail em alguns minutos.',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -276,7 +275,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: AppDimensions.paddingSmall),
+                      SizedBox(height: AppDimensions.paddingSmall),
                       AuthTextButton(
                         text: 'Falar com Suporte',
                         onPressed: () {
@@ -292,7 +291,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   ),
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingLarge),
+                SizedBox(height: AppDimensions.paddingLarge),
               ],
             ),
           ),

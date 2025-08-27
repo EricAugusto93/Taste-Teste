@@ -18,8 +18,8 @@ void main() {
                 return Scaffold(
                   body: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
                         child: TextField(
                           key: const Key('search_field'),
                           decoration: const InputDecoration(
@@ -36,7 +36,7 @@ void main() {
                         child: showResults && searchTerm.isNotEmpty
                             ? ListView(
                                 children: [
-                                  Card(
+                                  const Card(
                                     key: const Key('restaurant_card'),
                                     child: ListTile(
                                       title: Text('Pizzaria $searchTerm'),
@@ -91,8 +91,8 @@ void main() {
                 return Scaffold(
                   body: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
                         child: TextField(
                           key: const Key('search_field'),
                           decoration: const InputDecoration(
@@ -151,8 +151,8 @@ void main() {
                 return Scaffold(
                   body: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
                         child: TextField(
                           key: const Key('search_field'),
                           decoration: const InputDecoration(

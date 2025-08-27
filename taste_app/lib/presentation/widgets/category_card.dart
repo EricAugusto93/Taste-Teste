@@ -101,7 +101,7 @@ class CategoryCard extends StatelessWidget {
               ),
             ),
             
-            const SizedBox(height: AppDimensions.paddingSmall),
+            SizedBox(height: AppDimensions.paddingSmall),
             
             // Nome da categoria
             Text(
@@ -252,7 +252,7 @@ class CategoryChip extends StatelessWidget {
               size: AppDimensions.iconSmall,
               color: isSelected ? AppColors.surface : _getColorFromString(category.color),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Text(
               category.name,
               style: AppTextStyles.bodySmall.copyWith(

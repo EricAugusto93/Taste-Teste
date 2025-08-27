@@ -79,7 +79,6 @@ class AutocompleteService {
   final CacheService _cacheService = CacheService.instance;
   
   static const String _cacheKey = 'autocomplete_suggestions';
-  static const Duration _cacheDuration = Duration(hours: 6);
   
   // Cache em memória para sugestões frequentes
   final Map<String, List<AutocompleteSuggestion>> _memoryCache = {};

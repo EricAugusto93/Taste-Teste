@@ -22,6 +22,8 @@ class RestaurantState {
     this.selectedCategory,
   });
 
+  bool get hasError => error != null;
+
   RestaurantState copyWith({
     List<RestaurantModel>? restaurants,
     List<RestaurantModel>? nearbyRestaurants,
@@ -106,10 +108,10 @@ class RestaurantNotifier extends StateNotifier<RestaurantState> {
 
     try {
       final userLocation = locationState.currentLocation!;
-      final restaurantsWithDistance = await _repository.getRestaurantsWithDistance(
-        userLocation.latitude,
-        userLocation.longitude,
-        radiusInKm: 10, // 10km de raio
+      final restaurantsWithDistance = await _repository.getNearbyRestaurants(
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        radiusKm: 10, // 10km de raio
       );
 
       Logger.info('RestaurantProvider: ${restaurantsWithDistance.length} restaurantes próximos encontrados');
@@ -135,7 +137,7 @@ class RestaurantNotifier extends StateNotifier<RestaurantState> {
     return state.restaurants
         .where((restaurant) => 
           restaurant.name.toLowerCase().contains(query.toLowerCase()) ||
-          restaurant.description.toLowerCase().contains(query.toLowerCase()))
+          restaurant.description?.toLowerCase().contains(query.toLowerCase()) == true)
         .toList();
   }
 
@@ -233,7 +235,7 @@ final searchRestaurantsProvider = Provider.family<List<RestaurantModel>, String>
   return restaurantState.restaurants
       .where((restaurant) => 
         restaurant.name.toLowerCase().contains(query.toLowerCase()) ||
-        restaurant.description.toLowerCase().contains(query.toLowerCase()))
+        restaurant.description?.toLowerCase().contains(query.toLowerCase()) == true)
       .toList();
 });
 

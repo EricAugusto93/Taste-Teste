@@ -504,7 +504,7 @@ class CustomInfoWindow extends StatelessWidget {
                     return Container(
                       height: 80,
                       color: AppColors.surfaceVariant,
-                      child: const Icon(
+                      child: Icon(
                         Icons.restaurant,
                         color: AppColors.textSecondary,
                       ),
@@ -512,7 +512,7 @@ class CustomInfoWindow extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
             
             // Título
@@ -528,7 +528,7 @@ class CustomInfoWindow extends StatelessWidget {
             
             // Subtítulo
             if (subtitle != null) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 subtitle!,
                 style: AppTextStyles.bodySmall.copyWith(
@@ -539,7 +539,7 @@ class CustomInfoWindow extends StatelessWidget {
               ),
             ],
             
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             
             // Informações adicionais
             Row(
@@ -558,12 +558,12 @@ class CustomInfoWindow extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.star,
                           size: 12,
                           color: Colors.white,
                         ),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Text(
                           rating!.toStringAsFixed(1),
                           style: const TextStyle(
@@ -575,7 +575,7 @@ class CustomInfoWindow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                 ],
                 
                 // Tempo de entrega
@@ -585,14 +585,14 @@ class CustomInfoWindow extends StatelessWidget {
                     size: 12,
                     color: AppColors.textSecondary,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     deliveryTime!,
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                 ],
                 
                 // Distância
@@ -602,7 +602,7 @@ class CustomInfoWindow extends StatelessWidget {
                     size: 12,
                     color: AppColors.textSecondary,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     distance!,
                     style: AppTextStyles.caption.copyWith(

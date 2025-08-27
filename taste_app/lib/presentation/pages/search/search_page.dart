@@ -251,7 +251,7 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           IconButton(
             onPressed: () {
               AnimationService.mediumHaptic();
@@ -278,23 +278,23 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             // Categorias
             _buildSectionTitle('Categorias'),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             _buildCategoriesChips(),
             
-            const SizedBox(height: AppDimensions.paddingLarge),
+            SizedBox(height: AppDimensions.paddingLarge),
             
             // Buscas recentes
             if (_searchHistory.isNotEmpty) ...[
               _buildSectionTitle('Buscas Recentes'),
-              const SizedBox(height: AppDimensions.paddingMedium),
+              SizedBox(height: AppDimensions.paddingMedium),
               _buildSearchList(_searchHistory, isRecent: true),
               
-              const SizedBox(height: AppDimensions.paddingLarge),
+              SizedBox(height: AppDimensions.paddingLarge),
             ],
             
             // Buscas populares
             _buildSectionTitle('Buscas Populares'),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             _buildSearchList(_popularSearches),
           ],
         ),
@@ -404,12 +404,12 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             if (_searchHistory.isNotEmpty) ...[
               _buildSectionTitle('Buscas Recentes'),
-              const SizedBox(height: AppDimensions.paddingMedium),
+              SizedBox(height: AppDimensions.paddingMedium),
               ...(_searchHistory.take(5).map((search) {
                 return AnimationService.staggeredListItem(
                   index: _searchHistory.indexOf(search),
                   child: ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       AppIcons.clock,
                       color: AppColors.textLight,
                       size: AppDimensions.iconMedium,
@@ -421,7 +421,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                     trailing: IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         AppIcons.close,
                         color: AppColors.textLight,
                         size: AppDimensions.iconSmall,
@@ -441,12 +441,12 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 );
               }).toList()),
-              const SizedBox(height: AppDimensions.paddingLarge),
+              SizedBox(height: AppDimensions.paddingLarge),
             ],
             
             if (_popularSearches.isNotEmpty) ...[
               _buildSectionTitle('Buscas Populares'),
-              const SizedBox(height: AppDimensions.paddingMedium),
+              SizedBox(height: AppDimensions.paddingMedium),
               Wrap(
                 spacing: AppDimensions.paddingSmall,
                 runSpacing: AppDimensions.paddingSmall,
@@ -509,7 +509,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
             trailing: isRecent
                 ? IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       AppIcons.close,
                       color: AppColors.textLight,
                       size: AppDimensions.iconSmall,
@@ -519,7 +519,7 @@ class _SearchPageState extends State<SearchPage> {
                       _removeRecentSearch(search);
                     },
                   )
-                : const Icon(
+                : Icon(
                     Icons.chevron_right,
                     color: AppColors.textLight,
                     size: AppDimensions.iconSmall,
@@ -753,7 +753,7 @@ class _SearchPageState extends State<SearchPage> {
                  color: AppColors.warning,
                  size: AppDimensions.iconSmall,
                ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Text(
                 'Você quis dizer:',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -763,7 +763,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Wrap(
             spacing: AppDimensions.paddingSmall,
             runSpacing: AppDimensions.paddingSmall,

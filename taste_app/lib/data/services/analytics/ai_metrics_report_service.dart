@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import '../../services/analytics_service.dart';
-import 'search_analytics_service.dart';
+// import '../../services/analytics_service.dart'; // File not found
+// import 'search_analytics_service.dart'; // File not found
 
 /// Serviço para gerar relatórios de métricas de IA
 class AIMetricsReportService {
@@ -11,7 +11,6 @@ class AIMetricsReportService {
 
   static AIMetricsReportService get instance => _instance;
 
-  final SearchAnalyticsService _searchAnalytics = SearchAnalyticsService.instance;
 
   /// Gerar relatório completo de métricas de IA
   Future<AIMetricsReport> generateReport({

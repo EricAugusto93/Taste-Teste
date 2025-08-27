@@ -107,6 +107,65 @@ class AdvancedMapMarker {
     return byteData!.buffer.asUint8List();
   }
 
+  /// Criar marcador de emoji simples para restaurante
+  static Future<Uint8List> createEmojiMarker({
+    required String emoji,
+    bool isSelected = false,
+    double size = 60,
+    double animationValue = 0.0,
+    bool showRating = false,
+    double? rating,
+  }) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final markerSize = Size(size, size + (showRating ? 25 : 0));
+    final center = Offset(markerSize.width / 2, markerSize.height / 2 - (showRating ? 12 : 0));
+
+    // Animação de pulso para selecionado
+    if (isSelected && animationValue > 0) {
+      final pulseRadius = (size / 2) + (animationValue * 20);
+      final pulseOpacity = 0.3 * (1 - animationValue);
+      
+      final pulsePaint = Paint()
+        ..color = AppColors.primary.withOpacity(pulseOpacity)
+        ..style = PaintingStyle.fill;
+      
+      canvas.drawCircle(center, pulseRadius, pulsePaint);
+    }
+
+    // Sombra do emoji para destacar no mapa
+    final shadowOffset = Offset(center.dx + 2, center.dy + 3);
+    await _drawEmojiText(
+      canvas, 
+      emoji, 
+      shadowOffset, 
+      size * 0.8,
+      color: Colors.black.withOpacity(0.3),
+    );
+
+    // Emoji principal
+    await _drawEmojiText(canvas, emoji, center, size * 0.8);
+
+    // Badge de rating se habilitado
+    if (showRating && rating != null && rating > 0) {
+      await _drawCompactRatingBadge(
+        canvas,
+        Offset(markerSize.width / 2, markerSize.height - 15),
+        rating,
+      );
+    }
+
+    // Converter para imagem
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+      markerSize.width.toInt(),
+      markerSize.height.toInt(),
+    );
+    
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
   /// Criar marcador de localização do usuário com animação
   static Future<Uint8List> createAnimatedUserMarker({
     double size = 70,
@@ -563,5 +622,86 @@ class AdvancedMapMarker {
     if (count >= 100) return markerSize * 0.25;
     if (count >= 10) return markerSize * 0.3;
     return markerSize * 0.35;
+  }
+
+  /// Desenhar emoji como texto simples (sem efeito 3D)
+  static Future<void> _drawEmojiText(
+    Canvas canvas, 
+    String emoji, 
+    Offset center, 
+    double size, {
+    Color? color,
+  }) async {
+    final emojiPainter = TextPainter(
+      text: TextSpan(
+        text: emoji,
+        style: TextStyle(
+          fontSize: size,
+          fontFamily: 'NotoColorEmoji',
+          color: color,
+          foreground: color != null ? (Paint()..color = color) : null,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    
+    emojiPainter.layout();
+    emojiPainter.paint(
+      canvas,
+      Offset(
+        center.dx - emojiPainter.width / 2,
+        center.dy - emojiPainter.height / 2,
+      ),
+    );
+  }
+
+  /// Desenhar badge compacto de rating
+  static Future<double> _drawCompactRatingBadge(
+    Canvas canvas,
+    Offset position,
+    double rating,
+  ) async {
+    final badgeSize = 20.0;
+    final radius = badgeSize / 2;
+
+    // Background do badge
+    final backgroundPaint = Paint()
+      ..color = _getRatingColor(rating)
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawCircle(position, radius, backgroundPaint);
+
+    // Borda do badge
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    
+    canvas.drawCircle(position, radius, borderPaint);
+
+    // Texto do rating
+    final ratingText = rating.toStringAsFixed(1);
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: ratingText,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        position.dx - textPainter.width / 2,
+        position.dy - textPainter.height / 2,
+      ),
+    );
+
+    return badgeSize;
   }
 }

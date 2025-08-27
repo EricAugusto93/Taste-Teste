@@ -255,7 +255,7 @@ class RealTimeSearchService {
       await _cacheService.set(
         cacheKey,
         result.toJson(),
-        expiration: _config.cacheExpiration,
+        ttl: _config.cacheExpiration,
       );
     } catch (e) {
       debugPrint('Error caching result: $e');
@@ -268,7 +268,7 @@ class RealTimeSearchService {
       _memoryCache.clear();
       
       // Remove caches persistentes relacionados à busca
-      final keys = await _cacheService.getKeys();
+      final keys = _cacheService.getAllKeys();
       final searchKeys = keys.where((key) => key.startsWith('search_'));
       
       for (final key in searchKeys) {
@@ -475,7 +475,7 @@ class _RealTimeSearchStatusState extends State<RealTimeSearchStatus> {
                   )
                 else if (_lastResult != null)
                   Icon(
-                    _lastResult!.isFromCache ? Icons.cached : Icons.search,
+                    _lastResult?.isFromCache == true ? Icons.cached : Icons.search,
                     size: 16,
                     color: Colors.grey[600],
                   ),

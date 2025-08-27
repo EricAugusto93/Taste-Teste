@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/restaurant_model.dart';
 import '../../data/models/location_model.dart';
@@ -10,9 +9,7 @@ import '../../core/theme/app_dimensions.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/navigation_helper.dart';
-import '../widgets/reusable_map_view.dart';
 import '../widgets/rating_stars_widget.dart';
-import '../widgets/loading_widget.dart';
 import '../widgets/error_widget.dart';
 
 /// Página de detalhes do restaurante
@@ -37,14 +34,11 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   late ScrollController _scrollController;
   late AnimationController _headerAnimationController;
   late AnimationController _fabAnimationController;
-  late Animation<double> _headerOpacity;
   late Animation<double> _fabScale;
   
   bool _isHeaderCollapsed = false;
   bool _isFavorite = false;
-  bool _isLoading = false;
   String? _distance;
-  String? _estimatedTime;
   
   static const double _headerHeight = 300.0;
   static const double _collapsedHeaderHeight = 100.0;
@@ -298,7 +292,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
           borderRadius: BorderRadius.circular(20),
         ),
         child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => NavigationHelper.safeGoBack(context),
         ),
       ),
@@ -310,7 +304,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             borderRadius: BorderRadius.circular(20),
           ),
           child: IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
+            icon: Icon(Icons.share, color: Colors.white),
             onPressed: () {
               _showSnackBar('Funcionalidade de compartilhamento em desenvolvimento');
             },
@@ -381,7 +375,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   if (widget.restaurant.description != null)
                     Text(
                       widget.restaurant.description!,
@@ -391,7 +385,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     children: [
                       RatingStarsWidget(
@@ -399,7 +393,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                         size: 20,
                         color: AppColors.warning,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         widget.restaurant.rating.toStringAsFixed(1),
                         style: AppTextStyles.bodyMedium.copyWith(
@@ -407,14 +401,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       if (_distance != null) ...[
                         Icon(
                           Icons.location_on,
                           size: 16,
                           color: Colors.white.withOpacity(0.9),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           _distance!,
                           style: AppTextStyles.bodyMedium.copyWith(
@@ -462,7 +456,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             _buildMapSection(),
             _buildMenuSection(),
             _buildReviewsSection(),
-            const SizedBox(height: 100),
+            SizedBox(height: 100),
           ],
         ),
       ),
@@ -493,7 +487,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInfoRow(
             Icons.access_time,
             'Status',
@@ -561,7 +555,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 size: 20,
                 color: AppColors.textSecondary,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -583,7 +577,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 ),
               ),
               if (onTap != null)
-                const Icon(
+                Icon(
                   Icons.chevron_right,
                   color: AppColors.textSecondary,
                 ),
@@ -646,7 +640,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.directions,
                   size: 20,
                   color: AppColors.primary,
@@ -693,12 +687,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 onPressed: () {
                   // TODO: Navegar para página completa do cardápio
                 },
-                child: const Text('Ver tudo'),
+                child: Text('Ver tudo'),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Cardápio completo disponível em breve',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -743,11 +737,11 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 onPressed: () {
                   // TODO: Navegar para página de avaliações
                 },
-                child: const Text('Ver todas'),
+                child: Text('Ver todas'),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               RatingStarsWidget(
@@ -755,14 +749,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 size: 24,
                 color: AppColors.warning,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 widget.restaurant.rating.toStringAsFixed(1),
                 style: AppTextStyles.h3.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 '(${widget.restaurant.reviewCount ?? 0} avaliações)',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -771,8 +765,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Avaliações detalhadas disponíveis em breve',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -799,7 +793,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         ScaleTransition(
           scale: _fabScale,
           child: FloatingActionButton.extended(
@@ -810,8 +804,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             },
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
-            icon: const Icon(Icons.shopping_cart),
-            label: const Text('Pedir'),
+            icon: Icon(Icons.shopping_cart),
+            label: Text('Pedir'),
           ),
         ),
       ],

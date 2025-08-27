@@ -5,7 +5,6 @@ import '../datasources/restaurant_remote_datasource.dart';
 import '../../core/config/supabase_config.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/models/cache_item.dart';
-import '../../../core/di/injection_container.dart';
 import '../../core/utils/logger.dart';
 
 /// Extensão para conversão de graus para radianos
@@ -34,20 +33,20 @@ class RestaurantRepository {
     int? offset,
   }) async {
     try {
-      print('🔍 RestaurantRepository: Buscando restaurantes - categoria: $category');
+      debugPrint('🔍 RestaurantRepository: Buscando restaurantes - categoria: $category');
       List<RestaurantModel> restaurants;
       
       if (category != null && category.isNotEmpty) {
         // Busca por categoria específica
-        print('📂 RestaurantRepository: Buscando por categoria específica: $category');
+        debugPrint('📂 RestaurantRepository: Buscando por categoria específica: $category');
         restaurants = await _remoteDataSource.getRestaurantsByCategory(category);
       } else {
         // Busca todos os restaurantes
-        print('📋 RestaurantRepository: Buscando TODOS os restaurantes');
+        debugPrint('📋 RestaurantRepository: Buscando TODOS os restaurantes');
         restaurants = await _remoteDataSource.getAllRestaurants();
       }
       
-      print('✅ RestaurantRepository: ${restaurants.length} restaurantes encontrados');
+      debugPrint('✅ RestaurantRepository: ${restaurants.length} restaurantes encontrados');
       
       // Aplica limit e offset se especificados
       if (offset != null && offset > 0) {
@@ -204,7 +203,7 @@ class RestaurantRepository {
           .order('rating', ascending: false)
           .limit(limit);
 
-      final restaurants = (response as List<Map<String, dynamic>>)
+      final restaurants = (response)
           .map((data) => RestaurantModel.fromSupabase(data))
           .toList();
       
@@ -244,7 +243,7 @@ class RestaurantRepository {
           .eq('is_open', true)
           .order('rating', ascending: false);
 
-      final allRestaurants = (response as List<Map<String, dynamic>>)
+      final allRestaurants = (response)
           .map((data) => RestaurantModel.fromSupabase(data))
           .toList();
 
@@ -336,7 +335,7 @@ class RestaurantRepository {
           .order('rating', ascending: false)
           .limit(limit * 2); // Buscar mais para filtrar por distância
 
-      final allRestaurants = (response as List<Map<String, dynamic>>)
+      final allRestaurants = (response)
           .map((data) => RestaurantModel.fromSupabase(data))
           .toList();
 

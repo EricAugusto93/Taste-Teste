@@ -1,6 +1,5 @@
 import 'package:geocoding/geocoding.dart';
 import '../../data/models/location_model.dart';
-import '../../data/services/location/location_service.dart';
 import 'logger.dart';
 
 /// Utilitários para geocoding e geocoding reverso
@@ -325,6 +324,29 @@ class AddressComponents {
   String toString() {
     return 'AddressComponents(street: $street, city: $city, state: $state, country: $country, postalCode: $postalCode)';
   }
+}
+
+/// Resultado de geocoding
+class GeocodingResult {
+  final String? address;
+  final String? street;
+  final String? city;
+  final String? state;
+  final String? country;
+  final String? postalCode;
+  final double latitude;
+  final double longitude;
+
+  const GeocodingResult({
+    this.address,
+    this.street,
+    this.city,
+    this.state,
+    this.country,
+    this.postalCode,
+    required this.latitude,
+    required this.longitude,
+  });
 }
 
 /// Extensões úteis para GeocodingResult

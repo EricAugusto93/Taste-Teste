@@ -31,7 +31,7 @@ abstract class RestaurantRemoteDataSource {
 class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
   @override
   Future<List<RestaurantModel>> getAllRestaurants() async {
-    print('🌐 RestaurantDataSource: Carregando TODOS os restaurantes');
+    debugPrint('🌐 RestaurantDataSource: Carregando TODOS os restaurantes');
     
     // Em web development, usar proxy para contornar CORS
     if (kIsWeb && kDebugMode) {
@@ -45,7 +45,7 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
   /// Método para buscar via proxy (Web Development)
   Future<List<RestaurantModel>> _getRestaurantsViaProxy() async {
     try {
-      print('🔄 RestaurantDataSource: Usando CORS proxy para web development');
+      debugPrint('🔄 RestaurantDataSource: Usando CORS proxy para web development');
       
       final response = await CorsProxyService.get(
         'restaurants',
@@ -61,23 +61,23 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
             .map((json) => RestaurantModel.fromSupabase(json as Map<String, dynamic>))
             .toList();
         
-        print('✅ RestaurantDataSource: ${restaurants.length} restaurantes carregados via proxy');
+        debugPrint('✅ RestaurantDataSource: ${restaurants.length} restaurantes carregados via proxy');
         
         // Log dos primeiros restaurantes
         if (restaurants.isNotEmpty) {
           for (int i = 0; i < (restaurants.length > 3 ? 3 : restaurants.length); i++) {
             final r = restaurants[i];
-            print('🏪 RestaurantDataSource: ${r.name} (${r.categoryId})');
+            debugPrint('🏪 RestaurantDataSource: ${r.name} (${r.categoryId})');
           }
         }
         
         return restaurants;
       } else {
-        print('❌ RestaurantDataSource: Erro no proxy: ${response.statusCode}');
+        debugPrint('❌ RestaurantDataSource: Erro no proxy: ${response.statusCode}');
         throw Exception('Erro no proxy: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ RestaurantDataSource: Erro no proxy: $e');
+      debugPrint('❌ RestaurantDataSource: Erro no proxy: $e');
       return await _getFallbackData();
     }
   }
@@ -89,27 +89,27 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
     
     while (retryCount < maxRetries) {
       try {
-        print('🌐 RestaurantDataSource: Tentativa direta ${retryCount + 1}/$maxRetries');
+        debugPrint('🌐 RestaurantDataSource: Tentativa direta ${retryCount + 1}/$maxRetries');
         
         final response = await SupabaseDatabase.restaurants
             .select('id, name, description, category_id, image_url, rating, review_count, delivery_time, delivery_fee, min_order_value, distance, has_promotion, price_range, latitude, longitude, address, phone, is_open, is_featured, emoji, created_at, updated_at')
             .order('name', ascending: true)
             .timeout(const Duration(seconds: 30));
 
-        if (response == null || (response as List).isEmpty) {
+        if (response == null || response.isEmpty) {
           throw Exception('Resposta vazia do servidor');
         }
         
-        final restaurants = (response as List<Map<String, dynamic>>)
+        final restaurants = response
             .map((json) => RestaurantModel.fromSupabase(json))
             .toList();
         
-        print('✅ RestaurantDataSource: ${restaurants.length} restaurantes carregados diretamente');
+        debugPrint('✅ RestaurantDataSource: ${restaurants.length} restaurantes carregados diretamente');
         return restaurants;
         
       } catch (e) {
         retryCount++;
-        print('❌ RestaurantDataSource: Erro na tentativa $retryCount: $e');
+        debugPrint('❌ RestaurantDataSource: Erro na tentativa $retryCount: $e');
         
         if (retryCount >= maxRetries) {
           return await _getFallbackData();
@@ -124,7 +124,7 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
 
   /// Método de fallback - retorna lista vazia para forçar conexão real
   Future<List<RestaurantModel>> _getFallbackData() async {
-    print('🚨 RestaurantDataSource: FALLBACK REMOVIDO - Sem dados mockados');
+    debugPrint('🚨 RestaurantDataSource: FALLBACK REMOVIDO - Sem dados mockados');
     return []; // Sempre retorna vazio para forçar dados reais
   }
 
@@ -150,7 +150,7 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
           .ilike('name', '%$query%')
           .order('rating', ascending: false);
 
-      return (response as List<Map<String, dynamic>>)
+      return (response)
           .map((json) => RestaurantModel.fromSupabase(json))
           .toList();
     } catch (e) {
@@ -161,20 +161,20 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
   @override
   Future<List<RestaurantModel>> getRestaurantsByCategory(String categoryId) async {
     try {
-      print('🔍 RestaurantDataSource: Buscando restaurantes para categoria: $categoryId');
+      debugPrint('🔍 RestaurantDataSource: Buscando restaurantes para categoria: $categoryId');
       final response = await SupabaseDatabase.restaurants
           .select()
           .eq('category_id', categoryId)
           .order('rating', ascending: false);
 
-      final restaurants = (response as List<Map<String, dynamic>>)
+      final restaurants = (response)
           .map((json) => RestaurantModel.fromSupabase(json))
           .toList();
           
-      print('📊 RestaurantDataSource: Encontrados ${restaurants.length} restaurantes para categoria $categoryId');
+      debugPrint('📊 RestaurantDataSource: Encontrados ${restaurants.length} restaurantes para categoria $categoryId');
       return restaurants;
     } catch (e) {
-      print('❌ RestaurantDataSource: Erro ao buscar por categoria: $e');
+      debugPrint('❌ RestaurantDataSource: Erro ao buscar por categoria: $e');
       throw ServerException('Erro ao buscar restaurantes por categoria: $e');
     }
   }
@@ -193,7 +193,7 @@ class RestaurantRemoteDataSourceImpl implements RestaurantRemoteDataSource {
           .not('longitude', 'is', null)
           .order('rating', ascending: false);
 
-      return (response as List<Map<String, dynamic>>)
+      return (response)
           .map((json) => RestaurantModel.fromSupabase(json))
           .toList();
     } catch (e) {

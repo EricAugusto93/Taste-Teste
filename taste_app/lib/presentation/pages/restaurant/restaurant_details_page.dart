@@ -25,9 +25,7 @@ import '../../widgets/rating_widget.dart';
 import '../../widgets/dialogs.dart';
 import '../../widgets/menu_item_card.dart';
 import '../../widgets/reusable_map_view.dart';
-import '../../../data/models/location_model.dart';
 import '../../providers/cart_provider.dart';
-import '../../../data/services/cart/cart_service.dart';
 import '../../../core/enums/delivery_type.dart';
 import '../../widgets/connectivity_banner.dart';
 import '../../widgets/enhanced_error_widget.dart';
@@ -70,7 +68,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _restaurant = widget.restaurant;
     _scrollController.addListener(_onScroll);
     _loadRestaurantDetails();
@@ -128,14 +126,15 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
 
   Future<void> _loadReviews() async {
     try {
-      final reviews = await _reviewRepository.getReviewsByRestaurant(widget.restaurantId);
+      // Usar método combinado que busca local e servidor
+      final reviews = await _reviewRepository.getReviewsByRestaurantCombined(widget.restaurantId);
       
       setState(() {
         _reviews = reviews;
       });
     } catch (e) {
       // Log do erro mas não quebra o carregamento da página
-      print('Erro ao carregar avaliações: $e');
+      debugPrint('Erro ao carregar avaliações: $e');
       setState(() {
         _reviews = [];
       });
@@ -155,7 +154,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
         _isLoadingMenu = false;
       });
     } catch (e) {
-      print('Erro ao carregar cardápio: $e');
+      debugPrint('Erro ao carregar cardápio: $e');
       setState(() {
         _menuCategories = [];
         _isLoadingMenu = false;
@@ -187,6 +186,21 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
 
   Future<void> _submitReview(int rating, String comment) async {
     try {
+      // Validar se usuário está autenticado
+      final userId = AuthService.instance.userId;
+      if (userId == null || userId == 'anonymous') {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Faça login para enviar uma avaliação'),
+              backgroundColor: AppColors.warning,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+        return;
+      }
+
       // Mostrar loading
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -197,25 +211,27 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
 
       // Criar nova avaliação
       final newReview = ReviewModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: AuthService.instance.userId ?? 'anonymous',
-        restaurantId: _restaurant!.id,
-        userName: AuthService.instance.userEmail ?? 'Usuário Anônimo',
+        id: '', // Será gerado no repositório
+        userId: userId,
+        restaurantId: widget.restaurantId,
+        userName: AuthService.instance.userEmail?.split('@').first ?? 'Usuário',
         userAvatar: null,
         rating: rating,
-        comment: comment,
+        comment: comment.isNotEmpty ? comment : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: false,
         helpfulCount: 0,
-        restaurant: null,
+        replies: [],
       );
 
-      // Salvar no repositório
-      await _reviewRepository.createReview(newReview);
+      // Salvar no repositório (local e servidor)
+      final savedReview = await _reviewRepository.createReview(newReview);
 
-      // Recarregar avaliações
-      await _loadReviews();
+      // Atualizar lista local imediatamente
+      setState(() {
+        _reviews = [savedReview, ..._reviews];
+      });
 
       // Mostrar sucesso
       if (mounted) {
@@ -228,13 +244,20 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
         );
       }
     } catch (e) {
-      // Mostrar erro
+      debugPrint('Erro ao enviar avaliação: $e');
+      
+      // Mostrar erro mais específico
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar avaliação: $e'),
+            content: Text('Erro ao enviar avaliação. Tente novamente.'),
             backgroundColor: AppColors.error,
             duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'Tentar novamente',
+              textColor: Colors.white,
+              onPressed: () => _showRatingDialog(),
+            ),
           ),
         );
       }
@@ -330,7 +353,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                     'Como você gostaria de fazer o pedido?',
                     style: AppTextStyles.headingMedium,
                   ),
-                  const SizedBox(height: AppDimensions.paddingLarge),
+                  SizedBox(height: AppDimensions.paddingLarge),
                   
                   // Opção Delivery
                   _buildOrderOption(
@@ -343,7 +366,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                     },
                   ),
                   
-                  const SizedBox(height: AppDimensions.paddingMedium),
+                  SizedBox(height: AppDimensions.paddingMedium),
                   
                   // Opção Retirada
                   _buildOrderOption(
@@ -356,7 +379,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                     },
                   ),
                   
-                  const SizedBox(height: AppDimensions.paddingLarge),
+                  SizedBox(height: AppDimensions.paddingLarge),
                   
                   // Botão de cancelar
                   SizedBox(
@@ -407,7 +430,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                 size: AppDimensions.iconMedium,
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingMedium),
+            SizedBox(width: AppDimensions.paddingMedium),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +441,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: AppTextStyles.bodySmall.copyWith(
@@ -468,7 +491,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
     if (_error != null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Erro'),
+          title: Text('Erro'),
         ),
         body: ConnectivityBanner(
           child: _buildErrorContent(),
@@ -479,7 +502,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
     if (_restaurant == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Não encontrado'),
+          title: Text('Não encontrado'),
         ),
         body: const ConnectivityBanner(
           child: EnhancedErrorWidget.notFound(
@@ -507,7 +530,6 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                   controller: _tabController,
                   children: [
                     _buildOverviewTab(),
-                    _buildMenuTab(),
                     _buildReviewsTab(),
                   ],
                 ),
@@ -551,9 +573,9 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
       pinned: true,
       backgroundColor: AppColors.primary,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back,
-          color: AppColors.surface,
+          color: Colors.white,
         ),
         onPressed: () {
           NavigationHelper.safeGoBack(context);
@@ -580,7 +602,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
         ),
         IconButton(
           onPressed: () => _shareRestaurant(),
-          icon: const Icon(
+          icon: Icon(
             Icons.share,
             color: AppColors.surface,
           ),
@@ -605,7 +627,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: AppColors.surface,
-                      child: const Icon(
+                      child: Icon(
                         Icons.image,
                         size: 64,
                         color: AppColors.textLight,
@@ -667,7 +689,6 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
         indicatorColor: AppColors.primary,
         tabs: const [
           Tab(text: 'Visão Geral'),
-          Tab(text: 'Cardápio'),
           Tab(text: 'Avaliações'),
         ],
       ),
@@ -682,18 +703,16 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
         children: [
           // Informações básicas
           _buildBasicInfo(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Horário de funcionamento
           _buildOpeningHours(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Localização
           _buildLocation(),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
-          // Informações de entrega
-          _buildDeliveryInfo(),
         ],
       ),
     );
@@ -717,7 +736,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: _restaurant!.isOpen ? AppColors.success : AppColors.error,
+                color: _restaurant!.isOpen ? AppColors.timeHighlight : AppColors.error,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
               ),
               child: Text(
@@ -730,7 +749,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
             ),
           ],
         ),
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         
         if (_restaurant!.description != null) ...[
           Text(
@@ -739,7 +758,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               color: AppColors.textLight,
             ),
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
         ],
         
         Row(
@@ -749,14 +768,14 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               size: AppDimensions.iconSmall,
               color: AppColors.warning,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               _restaurant!.rating.toStringAsFixed(1),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               '(${_reviews.length} avaliações)',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -769,7 +788,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               size: AppDimensions.iconSmall,
               color: AppColors.textLight,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               '${_restaurant!.deliveryTime} min',
               style: AppTextStyles.bodyMedium,
@@ -788,7 +807,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           'Horário de Funcionamento',
           style: AppTextStyles.headingMedium,
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         // Mock data - em produção viria do modelo
         ...[
@@ -803,12 +822,15 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                 Icon(
                   Icons.access_time,
                   size: AppDimensions.iconSmall,
-                  color: AppColors.textLight,
+                  color: AppColors.timeHighlight,
                 ),
-                const SizedBox(width: AppDimensions.paddingSmall),
+                SizedBox(width: AppDimensions.paddingSmall),
                 Text(
                   hour,
-                  style: AppTextStyles.bodyMedium,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.timeHighlight,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -826,7 +848,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           'Localização',
           style: AppTextStyles.headingMedium,
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         Row(
           children: [
@@ -835,7 +857,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               size: AppDimensions.iconSmall,
               color: AppColors.primary,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: Text(
                 _restaurant!.address ?? 'Endereço não informado',
@@ -845,7 +867,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           ],
         ),
         
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         // Mapa do restaurante
         if (_restaurant!.latitude != null && _restaurant!.longitude != null)
@@ -903,7 +925,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           'Informações de Entrega',
           style: AppTextStyles.headingMedium,
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         Row(
           children: [
@@ -916,7 +938,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                     : 'R\$ ${_restaurant!.deliveryFee.toStringAsFixed(2)}',
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingMedium),
+            SizedBox(width: AppDimensions.paddingMedium),
             Expanded(
               child: _buildInfoCard(
                 icon: Icons.access_time,
@@ -927,7 +949,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
           ],
         ),
         
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         Row(
           children: [
@@ -938,7 +960,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                 value: 'R\$ 15,00',
               ),
             ),
-            const SizedBox(width: AppDimensions.paddingMedium),
+            SizedBox(width: AppDimensions.paddingMedium),
             Expanded(
               child: _buildInfoCard(
                 icon: Icons.credit_card,
@@ -971,7 +993,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
             size: AppDimensions.iconMedium,
             color: AppColors.primary,
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Text(
             title,
             style: AppTextStyles.bodySmall.copyWith(
@@ -979,7 +1001,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             value,
             style: AppTextStyles.bodyMedium.copyWith(
@@ -1009,12 +1031,12 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               size: 64,
               color: AppColors.textLight,
             ),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             Text(
               'Cardápio não disponível',
               style: AppTextStyles.headingMedium,
             ),
-            const SizedBox(height: AppDimensions.paddingSmall),
+            SizedBox(height: AppDimensions.paddingSmall),
             Text(
               'Este restaurante ainda não\ncadastrou seu cardápio',
               style: AppTextStyles.bodyMedium,
@@ -1027,19 +1049,6 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
 
     return Column(
       children: [
-        // Botão ver cardápio completo
-        Padding(
-          padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-          child: SizedBox(
-            width: double.infinity,
-            child: CustomButton(
-              text: 'Ver Cardápio Completo',
-              onPressed: _navigateToFullMenu,
-              isOutlined: true,
-              icon: Icons.restaurant_menu,
-            ),
-          ),
-        ),
         
         // Lista de categorias do menu
         Expanded(
@@ -1116,7 +1125,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                                   width: double.infinity,
                                   height: 200,
                                   color: AppColors.surface,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.image,
                                     size: 64,
                                     color: AppColors.textLight,
@@ -1126,7 +1135,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                             ),
                           ),
                         
-                        const SizedBox(height: AppDimensions.paddingMedium),
+                        SizedBox(height: AppDimensions.paddingMedium),
                         
                         // Nome e preço
                         Row(
@@ -1148,7 +1157,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                           ],
                         ),
                         
-                        const SizedBox(height: AppDimensions.paddingSmall),
+                        SizedBox(height: AppDimensions.paddingSmall),
                         
                         // Descrição
                         if (item.description != null)
@@ -1159,7 +1168,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                             ),
                           ),
                         
-                        const SizedBox(height: AppDimensions.paddingMedium),
+                        SizedBox(height: AppDimensions.paddingMedium),
                         
                         // Alérgenos
                         if (item.allergens.isNotEmpty) ...[
@@ -1167,7 +1176,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                             'Alérgenos',
                             style: AppTextStyles.headingSmall,
                           ),
-                          const SizedBox(height: AppDimensions.paddingSmall),
+                          SizedBox(height: AppDimensions.paddingSmall),
                           Wrap(
                             spacing: 8,
                             runSpacing: 4,
@@ -1196,7 +1205,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                               );
                             }).toList(),
                           ),
-                          const SizedBox(height: AppDimensions.paddingMedium),
+                          SizedBox(height: AppDimensions.paddingMedium),
                         ],
                         
                         // Disponibilidade
@@ -1224,7 +1233,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                           ),
                         ),
                         
-                        const SizedBox(height: AppDimensions.paddingLarge),
+                        SizedBox(height: AppDimensions.paddingLarge),
                         
                         // Botão adicionar
                         SizedBox(
@@ -1270,7 +1279,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                 color: AppColors.surface,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Expanded(
                 child: Text('${item.name} adicionado ao carrinho'),
               ),
@@ -1319,7 +1328,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               if (_reviews.isNotEmpty) ...[
                 // Estatísticas de avaliação
                 _buildReviewStats(),
-                const SizedBox(height: AppDimensions.paddingMedium),
+                SizedBox(height: AppDimensions.paddingMedium),
               ],
               // Botão para avaliar
               SizedBox(
@@ -1354,12 +1363,12 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
             size: 64,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           Text(
             'Nenhuma avaliação ainda',
             style: AppTextStyles.headingMedium,
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Seja o primeiro a avaliar este restaurante',
             style: AppTextStyles.bodyMedium,
@@ -1413,7 +1422,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                         color: AppColors.primary,
                         size: AppDimensions.iconSmall,
                       ),
-                      const SizedBox(width: AppDimensions.paddingSmall),
+                      SizedBox(width: AppDimensions.paddingSmall),
                       Text(
                         'Ver todas as ${_reviews.length} avaliações',
                         style: AppTextStyles.bodyMedium.copyWith(
@@ -1477,7 +1486,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                   onPressed: _callRestaurant,
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: _buildActionButton(
                   icon: Icons.directions,
@@ -1485,7 +1494,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
                   onPressed: _getDirections,
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: _buildActionButton(
                   icon: Icons.share,
@@ -1495,28 +1504,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               ),
             ],
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
-          // Botões principais
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: 'Ver Cardápio',
-                  onPressed: () {
-                    context.push('/restaurant/${_restaurant!.id}/menu');
-                  },
-                  isOutlined: true,
-                ),
-              ),
-              const SizedBox(width: AppDimensions.paddingMedium),
-              Expanded(
-                child: CustomButton(
-                  text: 'Fazer Pedido',
-                  onPressed: _makeOrder,
-                ),
-              ),
-            ],
-          ),
+          SizedBox(height: AppDimensions.paddingMedium),
         ],
       ),
     );
@@ -1543,7 +1531,7 @@ class _RestaurantDetailsPageState extends ConsumerState<RestaurantDetailsPage>
               size: AppDimensions.iconMedium,
               color: AppColors.primary,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(

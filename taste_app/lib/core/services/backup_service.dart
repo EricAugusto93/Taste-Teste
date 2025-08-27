@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:taste_app/core/services/cache_service.dart';
 import 'package:taste_app/core/services/connectivity_service.dart';
-import 'package:taste_app/core/services/supabase_service.dart';
 
 /// Status do backup
 enum BackupStatus {
@@ -207,7 +206,6 @@ class BackupService {
   
   final CacheService _cacheService = CacheService.instance;
   final ConnectivityService _connectivityService = ConnectivityService.instance;
-  final SupabaseService _supabaseService = SupabaseService.instance;
   
   static const String _configKey = 'backup_config';
   static const String _backupsKey = 'backup_list';

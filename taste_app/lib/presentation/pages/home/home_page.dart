@@ -83,9 +83,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Texto "Qual a sua vibe hoje?"
-          const Text(
+          Text(
             'Qual a sua vibe hoje?',
             style: TextStyle(
               color: Colors.white,
@@ -93,7 +93,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Botão laranja
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -101,7 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               color: const Color(0xFFFF6B35),
               borderRadius: BorderRadius.circular(25),
             ),
-            child: const Text(
+            child: Text(
               'um ramen quentinho no Bom Fim',
               style: TextStyle(
                 color: Colors.white,
@@ -110,9 +110,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // Texto pequeno abaixo do botão
-          const Text(
+          Text(
             'Vou direto e só mando qual é bom.',
             style: TextStyle(
               color: Colors.white70,
@@ -171,7 +171,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Descubra por clima,',
             style: TextStyle(
               color: Colors.white,
@@ -179,7 +179,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Text(
+          Text(
             'ocasião ou desejo',
             style: TextStyle(
               color: Colors.white,
@@ -187,7 +187,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

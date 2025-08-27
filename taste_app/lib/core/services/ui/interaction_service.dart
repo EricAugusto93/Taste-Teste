@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 class InteractionService {
   static const Duration _fastDuration = Duration(milliseconds: 150);
   static const Duration _mediumDuration = Duration(milliseconds: 250);
-  static const Duration _slowDuration = Duration(milliseconds: 350);
 
   /// Feedback háptico leve para interações sutis
   static Future<void> lightHaptic() async {

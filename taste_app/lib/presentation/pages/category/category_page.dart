@@ -12,7 +12,6 @@ import '../../providers/category_provider.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/enhanced_error_widget.dart';
 import '../../widgets/restaurant_card.dart';
-import '../../widgets/custom_app_bar.dart';
 import '../../widgets/empty_state_widget.dart';
 
 /// Página de exploração por categoria temática
@@ -37,8 +36,6 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
   final ScrollController _scrollController = ScrollController();
 
   List<RestaurantModel> _restaurants = [];
-  bool _isLoading = true;
-  String? _error;
   String _sortBy = 'rating'; // rating, distance, name, price
   bool _showFilters = false;
 
@@ -57,21 +54,10 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
   }
 
   Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
     try {
       await _loadRestaurants();
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // Error handling can be done in _loadRestaurants if needed
     }
   }
 
@@ -188,13 +174,13 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
                 Icon(
                   _getCategoryIconFromString(category.icon),
                   size: 60,
                   color: Colors.white,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '${_restaurants.length} restaurantes',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -208,7 +194,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.filter_list, color: Colors.white),
+          icon: Icon(Icons.filter_list, color: Colors.white),
           onPressed: () {
             setState(() {
               _showFilters = !_showFilters;
@@ -298,7 +284,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8,
             children: [
@@ -342,11 +328,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle('Categorias Relacionadas'),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           _buildRelatedCategories(activeCategoriesAsync),
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           _buildSectionTitle('Dicas da Categoria'),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           _buildCategoryTips(category),
         ],
       ),
@@ -427,7 +413,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 size: 32,
                 color: Colors.white,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 category.name,
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -469,7 +455,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 size: 20,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,7 +467,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                       color: AppColors.textDark,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     tip['description']!,
                     style: AppTextStyles.bodyMedium.copyWith(

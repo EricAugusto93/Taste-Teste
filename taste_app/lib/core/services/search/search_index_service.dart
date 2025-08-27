@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:taste_app/core/services/cache_service.dart';
 import 'package:taste_app/data/models/restaurant_model.dart';
@@ -182,13 +181,13 @@ class SearchIndexService {
       case 'name':
         return restaurant.name;
       case 'cuisine':
-        return restaurant.cuisine;
+        return restaurant.category;
       case 'description':
-        return restaurant.description;
+        return restaurant.description ?? '';
       case 'address':
-        return restaurant.address;
+        return restaurant.address ?? '';
       case 'tags':
-        return restaurant.tags.join(' ');
+        return ''; // Tags not available in RestaurantModel
       default:
         return '';
     }
@@ -211,7 +210,7 @@ class SearchIndexService {
     
     // Cria entrada principal
     final mainEntry = SearchIndexEntry(
-      id: '${restaurantId}_${field}',
+      id: '${restaurantId}_$field',
       field: field,
       value: value,
       normalizedValue: normalizedValue,
@@ -434,7 +433,7 @@ class SearchIndexService {
       await _cacheService.set(
         'search_index',
         indexData,
-        expiration: const Duration(hours: 24),
+        ttl: const Duration(hours: 24),
       );
       
       debugPrint('Search index saved to cache');

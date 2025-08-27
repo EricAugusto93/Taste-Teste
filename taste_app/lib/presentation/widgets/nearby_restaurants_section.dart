@@ -63,7 +63,7 @@ class NearbyRestaurantsSection extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         
         // Lista horizontal de restaurantes
         SizedBox(
@@ -100,7 +100,7 @@ class NearbyRestaurantsSection extends StatelessWidget {
             size: 64,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             'Nenhum restaurante próximo',
             style: TextStyle(
@@ -109,7 +109,7 @@ class NearbyRestaurantsSection extends StatelessWidget {
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Ative sua localização para encontrar restaurantes perto de você',
             textAlign: TextAlign.center,
@@ -243,7 +243,7 @@ class NearbyRestaurantCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     
                     // Categoria
                     Text(
@@ -255,17 +255,17 @@ class NearbyRestaurantCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     
                     // Rating e tempo de entrega
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.star,
                           size: 14,
                           color: AppColors.primary,
                         ),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Text(
                           restaurant.rating.toString(),
                           style: const TextStyle(
@@ -273,13 +273,13 @@ class NearbyRestaurantCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(
+                        SizedBox(width: 8),
+                        Icon(
                           Icons.access_time,
                           size: 14,
                           color: AppColors.textLight,
                         ),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Expanded(
                           child: Text(
                             restaurant.deliveryTime,

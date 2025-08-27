@@ -78,7 +78,7 @@ class LoadingWidget extends StatelessWidget {
         children: [
           _buildLoadingIndicator(),
           if (showMessage && message != null) ...[
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             Text(
               message!,
               style: AppTextStyles.bodyMedium,

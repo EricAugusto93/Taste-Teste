@@ -47,17 +47,17 @@ class _ReviewCardState extends State<ReviewCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              const SizedBox(height: AppDimensions.paddingSmall),
+              SizedBox(height: AppDimensions.paddingSmall),
               _buildRating(),
               if (review.comment?.isNotEmpty == true) ...[
-                const SizedBox(height: AppDimensions.paddingSmall),
+                SizedBox(height: AppDimensions.paddingSmall),
                 _buildComment(),
               ],
               if (showRestaurantName && review.restaurant != null) ...[
-                const SizedBox(height: AppDimensions.paddingSmall),
+                SizedBox(height: AppDimensions.paddingSmall),
                 _buildRestaurantInfo(),
               ],
-              const SizedBox(height: AppDimensions.paddingSmall),
+              SizedBox(height: AppDimensions.paddingSmall),
               _buildFooter(),
             ],
           ),
@@ -86,7 +86,7 @@ class _ReviewCardState extends State<ReviewCard> {
                 )
               : _buildDefaultAvatar(),
         ),
-        const SizedBox(width: AppDimensions.paddingMedium),
+        SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +111,7 @@ class _ReviewCardState extends State<ReviewCard> {
   }
 
   Widget _buildDefaultAvatar() {
-    return const Icon(
+    return Icon(
       Icons.person,
       size: AppDimensions.iconMedium,
       color: AppColors.primary,
@@ -129,7 +129,7 @@ class _ReviewCardState extends State<ReviewCard> {
             color: isFilled ? AppColors.warning : Colors.grey[300],
           );
         }),
-        const SizedBox(width: AppDimensions.paddingSmall),
+        SizedBox(width: AppDimensions.paddingSmall),
         Text(
           review.rating.toString(),
           style: AppTextStyles.bodyMedium.copyWith(
@@ -164,12 +164,12 @@ class _ReviewCardState extends State<ReviewCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.store,
             size: AppDimensions.iconSmall,
             color: AppColors.primary,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             review.restaurant!.name,
             style: AppTextStyles.bodySmall.copyWith(
@@ -198,12 +198,12 @@ class _ReviewCardState extends State<ReviewCard> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle,
                   size: 12,
                   color: AppColors.success,
                 ),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(
                   'Verificado',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -214,19 +214,19 @@ class _ReviewCardState extends State<ReviewCard> {
               ],
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
         ],
         
         if (review.helpfulCount > 0) ...[
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.thumb_up,
                 size: AppDimensions.iconSmall,
                 color: AppColors.textLight,
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
                 review.helpfulCount.toString(),
                 style: AppTextStyles.bodySmall.copyWith(
@@ -248,13 +248,13 @@ class _ReviewCardState extends State<ReviewCard> {
               label: 'Útil',
               onPressed: () => _onHelpfulPressed(),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             _buildActionButton(
               icon: Icons.reply,
               label: 'Responder',
               onPressed: () => _onReplyPressed(),
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             _buildActionButton(
               icon: Icons.flag_outlined,
               label: 'Reportar',
@@ -265,7 +265,7 @@ class _ReviewCardState extends State<ReviewCard> {
         
         // Respostas
          if (widget.review.replies.isNotEmpty) ...[
-           const SizedBox(height: AppDimensions.paddingMedium),
+           SizedBox(height: AppDimensions.paddingMedium),
            _buildReplies(),
          ],
       ],
@@ -293,7 +293,7 @@ class _ReviewCardState extends State<ReviewCard> {
               size: AppDimensions.iconSmall,
               color: AppColors.textLight,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
@@ -389,7 +389,7 @@ class _ReviewCardState extends State<ReviewCard> {
                fontWeight: FontWeight.w600,
              ),
            ),
-           const SizedBox(height: AppDimensions.paddingSmall),
+           SizedBox(height: AppDimensions.paddingSmall),
            ...widget.review.replies.map((reply) => _buildReplyItem(reply)),
          ],
        ),
@@ -409,7 +409,7 @@ class _ReviewCardState extends State<ReviewCard> {
                  size: 16,
                  color: AppColors.primary,
                ),
-               const SizedBox(width: AppDimensions.paddingSmall),
+               SizedBox(width: AppDimensions.paddingSmall),
                Text(
                  reply.userName,
                  style: AppTextStyles.bodySmall.copyWith(
@@ -418,7 +418,7 @@ class _ReviewCardState extends State<ReviewCard> {
                  ),
                ),
                if (reply.isRestaurantOwner) ...[
-                 const SizedBox(width: 4),
+                 SizedBox(width: 4),
                  Container(
                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                    decoration: BoxDecoration(
@@ -443,7 +443,7 @@ class _ReviewCardState extends State<ReviewCard> {
                ),
              ],
            ),
-           const SizedBox(height: 4),
+           SizedBox(height: 4),
            Padding(
              padding: const EdgeInsets.only(left: AppDimensions.paddingLarge),
              child: Text(
@@ -523,7 +523,7 @@ class ReviewStatsWidget extends StatelessWidget {
                         );
                       }),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       '$totalReviews avaliações',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -533,7 +533,7 @@ class ReviewStatsWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingLarge),
+              SizedBox(width: AppDimensions.paddingLarge),
               Expanded(
                 flex: 2,
                 child: Column(
@@ -550,13 +550,13 @@ class ReviewStatsWidget extends StatelessWidget {
                             '$rating',
                             style: AppTextStyles.bodySmall,
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(
+                          SizedBox(width: 4),
+                          Icon(
                             Icons.star,
                             size: 12,
                             color: AppColors.warning,
                           ),
-                          const SizedBox(width: AppDimensions.paddingSmall),
+                          SizedBox(width: AppDimensions.paddingSmall),
                           Expanded(
                             child: LinearProgressIndicator(
                               value: percentage,
@@ -566,7 +566,7 @@ class ReviewStatsWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: AppDimensions.paddingSmall),
+                          SizedBox(width: AppDimensions.paddingSmall),
                           SizedBox(
                             width: 30,
                             child: Text(
@@ -618,7 +618,7 @@ class _ReplyDialogState extends State<_ReplyDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Responder Avaliação'),
+      title: Text('Responder Avaliação'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -636,19 +636,19 @@ class _ReplyDialogState extends State<_ReplyDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => NavigationHelper.safeGoBack(context),
-          child: const Text('Cancelar'),
+          child: Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: _isSubmitting || _controller.text.trim().isEmpty
               ? null
               : _submitReply,
           child: _isSubmitting
-              ? const SizedBox(
+              ? SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Enviar'),
+              : Text('Enviar'),
         ),
       ],
     );
@@ -685,12 +685,12 @@ class _ReportDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Reportar Avaliação'),
+      title: Text('Reportar Avaliação'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Por que você está reportando esta avaliação?'),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          Text('Por que você está reportando esta avaliação?'),
+          SizedBox(height: AppDimensions.paddingMedium),
           ..._reportReasons.map(
             (reason) => ListTile(
               title: Text(reason),
@@ -703,7 +703,7 @@ class _ReportDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => NavigationHelper.safeGoBack(context),
-          child: const Text('Cancelar'),
+          child: Text('Cancelar'),
         ),
       ],
     );

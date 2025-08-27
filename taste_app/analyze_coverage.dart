@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 void main() {
   final file = File('coverage/lcov.info');
   if (!file.existsSync()) {
-    print('Arquivo de cobertura não encontrado!'); // Mantém print para scripts de análise
+    debugPrint('Arquivo de cobertura não encontrado!'); // Mantém print para scripts de análise
     return;
   }
 
@@ -45,27 +46,27 @@ void main() {
   // Ordenar por cobertura (menor primeiro)
   reports.sort((a, b) => a.percentage.compareTo(b.percentage));
 
-  print('\n=== RELATÓRIO DE COBERTURA DE TESTES ===\n');
-  print('Cobertura Geral: $overallPercentage% ($totalCovered/$totalLines linhas)');
-  print('\n=== ARQUIVOS COM BAIXA COBERTURA (<80%) ===\n');
+  debugPrint('\n=== RELATÓRIO DE COBERTURA DE TESTES ===\n');
+  debugPrint('Cobertura Geral: $overallPercentage% ($totalCovered/$totalLines linhas)');
+  debugPrint('\n=== ARQUIVOS COM BAIXA COBERTURA (<80%) ===\n');
 
   final lowCoverage = reports.where((r) => r.percentage < 80).toList();
   if (lowCoverage.isEmpty) {
-    print('✅ Todos os arquivos têm cobertura >= 80%!');
+    debugPrint('✅ Todos os arquivos têm cobertura >= 80%!');
   } else {
     for (final report in lowCoverage) {
       final status = report.percentage < 50 ? '🔴' : '🟡';
-      print('$status ${report.file}: ${report.percentage}% (${report.covered}/${report.total})');
+      debugPrint('$status ${report.file}: ${report.percentage}% (${report.covered}/${report.total})');
     }
   }
 
-  print('\n=== ARQUIVOS COM BOA COBERTURA (>=80%) ===\n');
+  debugPrint('\n=== ARQUIVOS COM BOA COBERTURA (>=80%) ===\n');
   final goodCoverage = reports.where((r) => r.percentage >= 80).toList();
   for (final report in goodCoverage) {
-    print('✅ ${report.file}: ${report.percentage}% (${report.covered}/${report.total})');
+    debugPrint('✅ ${report.file}: ${report.percentage}% (${report.covered}/${report.total})');
   }
 
-  print('\n=== RESUMO POR CATEGORIA ===\n');
+  debugPrint('\n=== RESUMO POR CATEGORIA ===\n');
   
   final categories = {
     'Models': reports.where((r) => r.file.contains('/models/')),
@@ -79,23 +80,23 @@ void main() {
   categories.forEach((category, files) {
     if (files.isNotEmpty) {
       final avgCoverage = files.map((f) => f.percentage).reduce((a, b) => a + b) ~/ files.length;
-      print('$category: $avgCoverage% média (${files.length} arquivos)');
+      debugPrint('$category: $avgCoverage% média (${files.length} arquivos)');
     }
   });
 
-  print('\n=== RECOMENDAÇÕES ===\n');
+  debugPrint('\n=== RECOMENDAÇÕES ===\n');
   if (overallPercentage < 85) {
-    print('🎯 Meta: Atingir 85% de cobertura geral');
-    print('📈 Atual: $overallPercentage%');
-    print('📊 Faltam: ${((totalLines * 0.85) - totalCovered).round()} linhas para cobrir');
+    debugPrint('🎯 Meta: Atingir 85% de cobertura geral');
+    debugPrint('📈 Atual: $overallPercentage%');
+    debugPrint('📊 Faltam: ${((totalLines * 0.85) - totalCovered).round()} linhas para cobrir');
   } else {
-    print('🎉 Meta de 85% de cobertura atingida!');
+    debugPrint('🎉 Meta de 85% de cobertura atingida!');
   }
 
   if (lowCoverage.isNotEmpty) {
-    print('\n🔧 Priorizar testes para:');
+    debugPrint('\n🔧 Priorizar testes para:');
     lowCoverage.take(5).forEach((report) {
-      print('   • ${report.file} (${report.percentage}%)');
+      debugPrint('   • ${report.file} (${report.percentage}%)');
     });
   }
 }

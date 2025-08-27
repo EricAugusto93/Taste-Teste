@@ -11,7 +11,7 @@ class AppColors {
   // Cores de Fundo
   static const Color background = Color(0xFF2c3b83);   // Azul escuro personalizado
   static const Color backgroundLight = Color(0xFFFDFDFD);
-  static const Color surface = Color(0xFFFFFFFF);      // Branco
+  static const Color surface = Color(0xFF3D4B8F);      // Azul mais escuro para contraste com texto branco
   static const Color surfaceVariant = Color(0xFFF5F5F5);
   static const Color cardBackground = Color(0xFFFAFAFA); // Cinza muito claro
   static const Color emptyStateBlue = Color(0xFF6BB6FF); // Azul estado vazio
@@ -19,8 +19,9 @@ class AppColors {
   // Cores de Texto
   static const Color textPrimary = Color(0xFFFFFFFF);  // Branco
   static const Color textSecondary = Color(0xFFFFFFFF); // Branco
-  static const Color textDark = Color(0xFF2C2C2C);     // Cinza escuro
-  static const Color textLight = Color(0xFFB0B0B0);    // Cinza claro
+  static const Color textDark = Color(0xFFFFFFFF);     // Branco (alterado de cinza escuro)
+  static const Color textLight = Color(0xFFFFFFFF);    // Branco (alterado de cinza claro)
+  static const Color timeHighlight = Color(0xFFFF6B47); // Laranja para destacar horários
   
   // Cores de divisores
   static const Color divider = Color(0xFFE0E0E0);

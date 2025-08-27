@@ -7,21 +7,12 @@ import '../../core/error/failures.dart';
 import '../../domain/entities/restaurant.dart';
 import '../../domain/repositories/favorites_repository.dart';
 import '../models/restaurant_model.dart';
-import '../models/favorite_model.dart';
-import '../../core/error/exceptions.dart';
-import '../services/reviews/favorites_sync_service.dart';
-import '../services/reviews/favorites_service.dart';
-import '../services/reviews/offline_favorites_service.dart';
 import '../../core/services/cache_service.dart';
-import '../../core/models/cache_item.dart';
-import '../../../core/di/injection_container.dart';
-import '../../core/utils/logger.dart';
-import 'restaurant_repository.dart';
 
 /// Implementação simplificada do repositório de favoritos
 class FavoritesRepositoryImpl implements FavoritesRepository {
   final SupabaseClient _supabaseClient;
-  final CacheService _cacheService = InjectionContainer.get<CacheService>();
+  final CacheService _cacheService = CacheService();
   
   // Cache local para melhor performance
   final Map<String, bool> _favoritesCache = {};
@@ -49,7 +40,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     final result = await addToFavoritesLegacy(restaurantId: restaurantId);
     return result.fold(
       (failure) => Left(failure),
-      (success) => const Right(null),
+      (success) => Right(null),
     );
   }
 
@@ -59,7 +50,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     final result = await removeFromFavoritesLegacy(restaurantId: restaurantId);
     return result.fold(
       (failure) => Left(failure),
-      (success) => const Right(null),
+      (success) => Right(null),
     );
   }
 
@@ -88,7 +79,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       // Atualizar cache local
       _updateCache(restaurantId, true, currentUserId);
       debugPrint('🟢 Restaurante $restaurantId adicionado aos favoritos (modo local)');
-      return const Right(true);
+      return Right(true);
     } catch (e) {
       debugPrint('❌ Erro ao adicionar favorito: $e');
       return Left(ServerFailure('Erro inesperado ao adicionar aos favoritos'));
@@ -106,7 +97,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       // Atualizar cache local
       _updateCache(restaurantId, false, currentUserId);
       debugPrint('🔴 Restaurante $restaurantId removido dos favoritos (modo local)');
-      return const Right(true);
+      return Right(true);
     } catch (e) {
       debugPrint('❌ Erro ao remover favorito: $e');
       return Left(ServerFailure('Erro inesperado ao remover dos favoritos'));
@@ -121,7 +112,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       final currentUserId = userId ?? _getCurrentUserId();
       
       if (currentUserId == null) {
-        return const Right(false);
+        return Right(false);
       }
 
       // Verificar cache primeiro
@@ -342,7 +333,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       _updateCache(restaurantId, true, currentUserId);
 
       debugPrint('Avaliação rápida adicionada para restaurante $restaurantId');
-      return const Right(true);
+      return Right(true);
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao adicionar avaliação: ${e.message}');
       return Left(ServerFailure('Erro ao adicionar avaliação: ${e.message}'));
@@ -358,7 +349,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       final currentUserId = userId ?? _getCurrentUserId();
       
       if (currentUserId == null) {
-        return const Right(0);
+        return Right(0);
       }
 
       final response = await _supabaseClient
@@ -383,7 +374,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       final currentUserId = userId ?? _getCurrentUserId();
       
       if (currentUserId == null) {
-        return const Right([]);
+        return Right([]);
       }
 
       // Gerar chave de cache
@@ -545,7 +536,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       
       await _removeExcludedMockFavorite(restaurantId);
       debugPrint('Favorito mock $restaurantId foi restaurado');
-      return const Right(true);
+      return Right(true);
     } catch (e) {
       debugPrint('Erro ao restaurar favorito mock: $e');
       return Left(ServerFailure('Erro ao restaurar favorito mock'));
@@ -570,7 +561,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         (failure) => Left(failure),
         (ids) {
           debugPrint('Sincronizados ${ids.length} favoritos');
-          return const Right(true);
+          return Right(true);
         },
       );
     } catch (e) {
@@ -590,7 +581,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       final currentUserId = userId ?? _getCurrentUserId();
       
       if (currentUserId == null) {
-        return const Right([]);
+        return Right([]);
       }
 
       // TODO: Implementar busca por proximidade usando PostGIS
@@ -663,7 +654,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       }
 
       clearCache();
-      return const Right(true);
+      return Right(true);
     } catch (e) {
       debugPrint('Erro ao importar favoritos: $e');
       return Left(ServerFailure('Erro ao importar favoritos'));

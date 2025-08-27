@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/utils/navigation_helper.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/theme/app_dimensions.dart';
 import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart' as custom;
 import '../../../data/services/user_lists_service.dart';
 
 /// Página "Não sei se eu volto" - Lista de lugares com experiências duvidosas
@@ -54,7 +51,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Não sei se eu volto',
             style: TextStyle(
               color: Colors.white,
@@ -73,7 +70,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Não sei se eu volto',
           style: TextStyle(
             color: Colors.white,
@@ -126,18 +123,18 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   color: const Color(0xFF87CEEB).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.sentiment_neutral,
                   color: Color(0xFF87CEEB),
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Experiências duvidosas',
                       style: TextStyle(
                         color: Colors.white,
@@ -196,16 +193,35 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: Container(
-              height: 160,
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.restaurant,
-                size: 48,
-                color: Colors.grey,
-              ),
-            ),
+            child: item.imageUrl != null && item.imageUrl.isNotEmpty
+                ? Image.network(
+                    item.imageUrl,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 160,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.restaurant,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    height: 160,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: Icon(
+                      Icons.restaurant,
+                      size: 48,
+                      color: Colors.grey,
+                    ),
+                  ),
           ),
           
           // Conteúdo
@@ -226,7 +242,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     ),
                     IconButton(
                       onPressed: () => _removeItem(item.id),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close,
                         color: Colors.grey,
                         size: 20,
@@ -235,7 +251,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 
                 Row(
                   children: [
@@ -261,7 +277,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Row(
                   children: [
@@ -270,7 +286,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                       size: 16,
                       color: AppColors.textLight,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         item.location,
@@ -282,7 +298,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   ],
                 ),
                 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -304,7 +320,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                             size: 16,
                             color: Colors.orange[700],
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             'Motivo da dúvida:',
                             style: AppTextStyles.bodySmall.copyWith(
@@ -314,7 +330,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         item.reason,
                         style: AppTextStyles.bodySmall.copyWith(
@@ -325,7 +341,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   ),
                 ),
                 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 Text(
                   'Visitado há ${_getTimeAgo(item.visitDate)}',
@@ -367,20 +383,20 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                 color: const Color(0xFF87CEEB).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.sentiment_satisfied,
                 size: 64,
                 color: Color(0xFF87CEEB),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               'Que bom!',
               style: AppTextStyles.headingMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Você ainda não teve experiências duvidosas. Continue explorando novos lugares!',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -388,7 +404,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -404,7 +420,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,

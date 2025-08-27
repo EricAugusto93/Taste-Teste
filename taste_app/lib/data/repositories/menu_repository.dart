@@ -1,13 +1,10 @@
 import '../models/menu_item_model.dart';
-import '../../core/database/supabase_database.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/cache_service.dart';
-import '../../core/models/cache_item.dart';
 import '../../../core/di/injection_container.dart';
 
 /// Repositório para gerenciar itens do cardápio
 class MenuRepository {
-  static const String _logTag = 'MenuRepository';
   final _cacheService = InjectionContainer.get<CacheService>();
 
   /// Busca todas as categorias e itens do cardápio de um restaurante

@@ -326,6 +326,33 @@ class CacheService {
     return count;
   }
   
+  /// Obtém todos os dados do cache (usado para backup)
+  Future<Map<String, dynamic>> getAllData() async {
+    try {
+      final Map<String, dynamic> allData = {};
+      
+      _cacheBox?.toMap().forEach((key, item) {
+        if (!item.isExpired()) {
+          allData[key] = {
+            'data': item.data,
+            'expirationTime': item.expirationTime?.toIso8601String(),
+            'dataType': item.dataType,
+            'createdAt': item.createdAt.toIso8601String(),
+            'lastAccessed': item.lastAccessed.toIso8601String(),
+          };
+        }
+      });
+      
+      developer.log('getAllData: ${allData.length} itens válidos retornados', 
+          name: 'CacheService');
+      
+      return allData;
+    } catch (e) {
+      developer.log('Erro ao obter todos os dados do cache: $e', name: 'CacheService');
+      return {};
+    }
+  }
+  
   Future<void> _evictOldestItems() async {
     try {
       final items = _cacheBox?.toMap().entries.toList() ?? [];

@@ -98,7 +98,7 @@ class OrderSummaryWidget extends ConsumerWidget {
             ],
           ),
           
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           
           // Lista de itens (limitada a 3 para não ocupar muito espaço)
           ...cart.items.take(3).map((item) => Padding(
@@ -117,7 +117,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                       width: 40,
                       height: 40,
                       color: AppColors.border,
-                      child: const Icon(
+                      child: Icon(
                         AppIcons.image,
                         color: AppColors.textLight,
                         size: 20,
@@ -126,7 +126,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                   ),
                 ),
                 
-                const SizedBox(width: AppDimensions.paddingSmall),
+                SizedBox(width: AppDimensions.paddingSmall),
                 
                 // Informações do item
                 Expanded(
@@ -219,7 +219,7 @@ class OrderSummaryWidget extends ConsumerWidget {
             ],
           ),
           
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           
           Row(
             children: [
@@ -228,7 +228,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 color: AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +283,7 @@ class OrderSummaryWidget extends ConsumerWidget {
             ],
           ),
           
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           
           Row(
             children: [
@@ -292,7 +292,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 color: AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              const SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,9 +355,9 @@ class OrderSummaryWidget extends ConsumerWidget {
               valueColor: AppColors.success,
             ),
           
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           const Divider(),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           
           // Total
           _buildSummaryRow(
@@ -485,7 +485,7 @@ class CompactOrderSummary extends ConsumerWidget {
               ),
             ),
             
-            const SizedBox(width: AppDimensions.paddingMedium),
+            SizedBox(width: AppDimensions.paddingMedium),
             
             // Informações do pedido
             Expanded(

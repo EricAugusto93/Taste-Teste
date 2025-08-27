@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -398,7 +397,7 @@ class _SplashPageState extends State<SplashPage>
                   },
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingXLarge),
+                SizedBox(height: AppDimensions.paddingXLarge),
                 
                 // Nome do app
                 AnimatedBuilder(
@@ -418,7 +417,7 @@ class _SplashPageState extends State<SplashPage>
                   },
                 ),
                 
-                const SizedBox(height: AppDimensions.paddingMedium),
+                SizedBox(height: AppDimensions.paddingMedium),
                 
                 // Slogan
                 AnimatedBuilder(
@@ -442,7 +441,7 @@ class _SplashPageState extends State<SplashPage>
                 // Status e loading
         _buildStatusSection(),
                 
-                const SizedBox(height: AppDimensions.paddingXXLarge),
+                SizedBox(height: AppDimensions.paddingXXLarge),
               ],
             ),
           ),
@@ -472,7 +471,7 @@ class _SplashPageState extends State<SplashPage>
           'assets/images/logo_bege.png',
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
-            return const Icon(
+            return Icon(
               Icons.restaurant_menu,
               size: 60,
               color: AppColors.primary,
@@ -489,12 +488,12 @@ class _SplashPageState extends State<SplashPage>
         onTap: _retryInitialization,
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.refresh,
               color: AppColors.textPrimary,
               size: AppDimensions.iconLarge,
             ),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             Text(
               _currentStatus,
               style: AppTextStyles.bodyMedium,
@@ -511,7 +510,7 @@ class _SplashPageState extends State<SplashPage>
           size: AppDimensions.iconLarge,
           color: AppColors.textPrimary,
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         Text(
           _currentStatus,
           style: AppTextStyles.bodyMedium,
@@ -555,7 +554,7 @@ class SimpleSplashScreen extends StatelessWidget {
             children: [
               if (logo != null) logo!,
               if (title != null) ...[
-                const SizedBox(height: AppDimensions.paddingLarge),
+                SizedBox(height: AppDimensions.paddingLarge),
                 Text(
                   title!,
                   style: AppTextStyles.h1,
@@ -563,7 +562,7 @@ class SimpleSplashScreen extends StatelessWidget {
                 ),
               ],
               if (subtitle != null) ...[
-                const SizedBox(height: AppDimensions.paddingMedium),
+                SizedBox(height: AppDimensions.paddingMedium),
                 Text(
                   subtitle!,
                   style: AppTextStyles.bodyLarge,

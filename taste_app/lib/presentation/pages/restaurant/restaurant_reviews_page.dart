@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -9,7 +8,6 @@ import '../../../data/models/review_model.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../../data/repositories/review_repository.dart';
 import '../../../data/repositories/restaurant_repository.dart';
-import '../../widgets/custom_button.dart';
 import '../../widgets/review_card.dart';
 import '../../widgets/rating_widget.dart';
 import '../../widgets/dialogs.dart';
@@ -174,11 +172,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
         actions: [
           IconButton(
             onPressed: _showSortOptions,
-            icon: const Icon(Icons.sort),
+            icon: Icon(Icons.sort),
           ),
           IconButton(
             onPressed: _showFilterOptions,
-            icon: const Icon(Icons.filter_list),
+            icon: Icon(Icons.filter_list),
           ),
         ],
       ),
@@ -186,7 +184,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showRatingDialog,
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.star_border, color: AppColors.surface),
+        icon: Icon(Icons.star_border, color: AppColors.surface),
         label: Text(
           'Avaliar',
           style: AppTextStyles.bodyMedium.copyWith(
@@ -257,7 +255,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           if (_selectedRating != null) ...[
             _buildFilterChip(
               label: '$_selectedRating estrelas',
@@ -268,7 +266,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
                 _applyFiltersAndSort();
               },
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
           ],
           if (_sortOption != ReviewSortOption.newest)
             _buildFilterChip(
@@ -309,7 +307,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           GestureDetector(
             onTap: onRemove,
             child: Icon(
@@ -333,7 +331,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
             size: 64,
             color: AppColors.textLight,
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           Text(
             _selectedRating != null
                 ? 'Nenhuma avaliação com $_selectedRating estrelas'
@@ -341,7 +339,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
             style: AppTextStyles.headingMedium,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppDimensions.paddingSmall),
+          SizedBox(height: AppDimensions.paddingSmall),
           Text(
             _selectedRating != null
                 ? 'Tente remover os filtros para ver mais avaliações'
@@ -458,7 +456,7 @@ class _SortOptionsSheet extends StatelessWidget {
             'Ordenar por',
             style: AppTextStyles.headingMedium,
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           ...ReviewSortOption.values.map((option) => ListTile(
             title: Text(option.label),
             trailing: currentOption == option
@@ -496,9 +494,9 @@ class _FilterOptionsSheet extends StatelessWidget {
             'Filtrar por avaliação',
             style: AppTextStyles.headingMedium,
           ),
-          const SizedBox(height: AppDimensions.paddingMedium),
+          SizedBox(height: AppDimensions.paddingMedium),
           ListTile(
-            title: const Text('Todas as avaliações'),
+            title: Text('Todas as avaliações'),
             trailing: currentRating == null
                 ? Icon(Icons.check, color: AppColors.primary)
                 : null,
@@ -521,7 +519,7 @@ class _FilterOptionsSheet extends StatelessWidget {
                     size: 16,
                     color: AppColors.textLight,
                   )),
-                  const SizedBox(width: AppDimensions.paddingSmall),
+                  SizedBox(width: AppDimensions.paddingSmall),
                   Text(
                     '($count)',
                     style: AppTextStyles.bodySmall.copyWith(

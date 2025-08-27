@@ -123,10 +123,10 @@ class FuzzySearchService {
     }
     
     // Busca na culinária
-    if (config.fieldWeights.containsKey('cuisine') && restaurant.cuisine.isNotEmpty) {
+    if (config.fieldWeights.containsKey('cuisine') && restaurant.category.isNotEmpty) {
       final cuisineMatch = _fuzzyMatch(
         query,
-        _normalizeString(restaurant.cuisine, config.caseSensitive),
+        _normalizeString(restaurant.category, config.caseSensitive),
         config,
       );
       
@@ -134,7 +134,7 @@ class FuzzySearchService {
         final weight = config.fieldWeights['cuisine']!;
         matches.add(FuzzyMatch(
           field: 'cuisine',
-          value: restaurant.cuisine,
+          value: restaurant.category,
           score: cuisineMatch.score,
           matchedIndices: cuisineMatch.indices,
         ));
@@ -144,10 +144,10 @@ class FuzzySearchService {
     }
     
     // Busca na descrição
-    if (config.fieldWeights.containsKey('description') && restaurant.description.isNotEmpty) {
+    if (config.fieldWeights.containsKey('description') && restaurant.description?.isNotEmpty == true) {
       final descriptionMatch = _fuzzyMatch(
         query,
-        _normalizeString(restaurant.description, config.caseSensitive),
+        _normalizeString(restaurant.description!, config.caseSensitive),
         config,
       );
       
@@ -155,7 +155,7 @@ class FuzzySearchService {
         final weight = config.fieldWeights['description']!;
         matches.add(FuzzyMatch(
           field: 'description',
-          value: restaurant.description,
+          value: restaurant.description!,
           score: descriptionMatch.score,
           matchedIndices: descriptionMatch.indices,
         ));
@@ -165,10 +165,10 @@ class FuzzySearchService {
     }
     
     // Busca no endereço
-    if (config.fieldWeights.containsKey('address') && restaurant.address.isNotEmpty) {
+    if (config.fieldWeights.containsKey('address') && restaurant.address?.isNotEmpty == true) {
       final addressMatch = _fuzzyMatch(
         query,
-        _normalizeString(restaurant.address, config.caseSensitive),
+        _normalizeString(restaurant.address!, config.caseSensitive),
         config,
       );
       
@@ -176,7 +176,7 @@ class FuzzySearchService {
         final weight = config.fieldWeights['address']!;
         matches.add(FuzzyMatch(
           field: 'address',
-          value: restaurant.address,
+          value: restaurant.address!,
           score: addressMatch.score,
           matchedIndices: addressMatch.indices,
         ));
@@ -185,7 +185,8 @@ class FuzzySearchService {
       }
     }
     
-    // Busca nas tags
+    // Busca nas tags - DISABLED: tags property not available in RestaurantModel
+    /*
     if (config.fieldWeights.containsKey('tags') && restaurant.tags.isNotEmpty) {
       for (final tag in restaurant.tags) {
         final tagMatch = _fuzzyMatch(
@@ -207,6 +208,7 @@ class FuzzySearchService {
         }
       }
     }
+    */
     
     if (matches.isEmpty || totalWeight == 0) return null;
     

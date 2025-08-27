@@ -77,7 +77,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       restaurant.category ?? 'Restaurante',
                       style: TextStyle(
@@ -98,7 +98,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       color: AppColors.textSecondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 18,
                       color: AppColors.textSecondary,
@@ -107,7 +107,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Informações principais
           Row(
             children: [
@@ -121,12 +121,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.star,
                       size: 16,
                       color: AppColors.warning,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       restaurant.rating.toStringAsFixed(1),
                       style: const TextStyle(
@@ -138,7 +138,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               // Tempo de entrega
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -149,12 +149,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.access_time,
                       size: 16,
                       color: AppColors.primary,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       '${restaurant.deliveryTime} min',
                       style: const TextStyle(
@@ -178,12 +178,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on,
                         size: 16,
                         color: AppColors.success,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Text(
                         distance!,
                         style: const TextStyle(
@@ -197,7 +197,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Botões de ação
           Row(
             children: [
@@ -239,7 +239,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   // TODO: Implementar favoritar
@@ -254,7 +254,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.favorite_border,
                     size: 18,
                     color: AppColors.error,
@@ -355,7 +355,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
               ),
             ),
           if (showImage && restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty)
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           
           // Nome, categoria e botão fechar
           Row(
@@ -375,7 +375,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -403,7 +403,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       color: AppColors.textSecondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 20,
                       color: AppColors.textSecondary,
@@ -412,7 +412,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           // Informações detalhadas em grid
           Row(
@@ -434,12 +434,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.star,
                             size: 18,
                             color: AppColors.warning,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             restaurant.rating.toStringAsFixed(1),
                             style: const TextStyle(
@@ -450,8 +450,8 @@ class CustomInfoWindowWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         'Avaliação',
                         style: TextStyle(
                           fontSize: 12,
@@ -463,7 +463,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               // Tempo de entrega
               Expanded(
                 child: Container(
@@ -481,12 +481,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.access_time,
                             size: 18,
                             color: AppColors.primary,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             '${restaurant.deliveryTime}',
                             style: const TextStyle(
@@ -497,8 +497,8 @@ class CustomInfoWindowWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
+                      SizedBox(height: 4),
+                      Text(
                         'Entrega (min)',
                         style: TextStyle(
                           fontSize: 12,
@@ -511,7 +511,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                 ),
               ),
               if (distance != null) ...[
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 // Distância
                 Expanded(
                   child: Container(
@@ -529,12 +529,12 @@ class CustomInfoWindowWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.location_on,
                               size: 18,
                               color: AppColors.success,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4),
                             Text(
                               distance!.replaceAll(' km', ''),
                               style: const TextStyle(
@@ -545,8 +545,8 @@ class CustomInfoWindowWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
+                        SizedBox(height: 4),
+                        Text(
                           'Distância',
                           style: TextStyle(
                             fontSize: 12,
@@ -561,7 +561,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           
           // Botões de ação
           Row(
@@ -610,7 +610,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               // Botão favoritar
               GestureDetector(
                 onTap: () {
@@ -626,14 +626,14 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.favorite_border,
                     size: 20,
                     color: AppColors.error,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               // Botão direções
               GestureDetector(
                 onTap: () {
@@ -649,7 +649,7 @@ class CustomInfoWindowWidget extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.directions,
                     size: 20,
                     color: AppColors.success,

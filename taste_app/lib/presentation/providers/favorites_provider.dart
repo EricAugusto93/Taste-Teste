@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/favorite_model.dart';
 import '../../data/models/restaurant_model.dart';
@@ -8,6 +9,8 @@ import '../../domain/usecases/favorites/get_favorites_usecase.dart';
 import '../../domain/usecases/usecase.dart';
 import '../../../core/di/injection_container.dart';
 import '../../data/services/auth/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 /// Estatísticas dos favoritos
 class FavoritesStats {
@@ -95,9 +98,10 @@ final favoritesByCategoryProvider = Provider.family<List<FavoriteModel>, String?
 /// Notifier para gerenciar o estado dos favoritos
 class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
   final domain_favorites.FavoritesRepository _repository;
+  static const String _localFavoritesKey = 'local_favorites';
   
   FavoritesNotifier(this._repository) : super(const AsyncValue.loading()) {
-    loadFavorites();
+    _loadFromLocalFirst();
   }
   
   /// Carrega todos os favoritos do usuário
@@ -131,17 +135,22 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
       return result.fold(
         (failure) => false,
         (_) {
-          // Atualiza o estado local
-          state.whenData((favorites) {
-            final newFavorite = FavoriteModel(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              userId: AuthService.instance.userId ?? 'anonymous',
-              restaurantId: restaurant.id,
-              createdAt: DateTime.now(),
-              restaurant: restaurant.toEntity(),
-            );
-            state = AsyncValue.data([...favorites, newFavorite]);
-          });
+          // Atualiza o estado local imediatamente
+          final currentFavorites = state.value ?? [];
+          final newFavorite = FavoriteModel(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            userId: AuthService.instance.userId ?? 'anonymous',
+            restaurantId: restaurant.id,
+            createdAt: DateTime.now(),
+            restaurant: restaurant.toEntity(),
+          );
+          
+          // Verificar se já existe para evitar duplicatas
+          final exists = currentFavorites.any((fav) => fav.restaurantId == restaurant.id);
+          if (!exists) {
+            state = AsyncValue.data([...currentFavorites, newFavorite]);
+            _saveFavoritesToLocal();
+          }
           return true;
         },
       );
@@ -158,13 +167,13 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
         (failure) => false,
         (success) {
           if (success) {
-            // Atualiza o estado local
-            state.whenData((favorites) {
-              final updatedFavorites = favorites
-                  .where((fav) => fav.restaurantId != restaurantId)
-                  .toList();
-              state = AsyncValue.data(updatedFavorites);
-            });
+            // Atualiza o estado local imediatamente
+            final currentFavorites = state.value ?? [];
+            final updatedFavorites = currentFavorites
+                .where((fav) => fav.restaurantId != restaurantId)
+                .toList();
+            state = AsyncValue.data(updatedFavorites);
+            _saveFavoritesToLocal();
           }
           return success;
         },
@@ -293,6 +302,39 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
       return true;
     } catch (error) {
       return false;
+    }
+  }
+
+  /// Carrega favoritos do armazenamento local primeiro
+  Future<void> _loadFromLocalFirst() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final localData = prefs.getString(_localFavoritesKey);
+      
+      if (localData != null) {
+        final List<dynamic> favoritesJson = jsonDecode(localData);
+        final favorites = favoritesJson
+            .map((json) => FavoriteModel.fromJson(json))
+            .toList();
+        state = AsyncValue.data(favorites);
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar favoritos locais: $e');
+    }
+    
+    // Depois tenta carregar do servidor
+    loadFavorites();
+  }
+
+  /// Salva favoritos no armazenamento local
+  Future<void> _saveFavoritesToLocal() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final favorites = state.value ?? [];
+      final favoritesJson = favorites.map((fav) => fav.toJson()).toList();
+      await prefs.setString(_localFavoritesKey, jsonEncode(favoritesJson));
+    } catch (e) {
+      debugPrint('Erro ao salvar favoritos localmente: $e');
     }
   }
 }

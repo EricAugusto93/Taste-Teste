@@ -73,7 +73,7 @@ class RestaurantCardShimmer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     // Categoria e avaliação
                     Row(
                       children: [
@@ -96,7 +96,7 @@ class RestaurantCardShimmer extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     // Endereço
                     Container(
                       height: 14,
@@ -106,7 +106,7 @@ class RestaurantCardShimmer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     // Distância e tempo
                     Container(
                       height: 14,
@@ -197,7 +197,7 @@ class HorizontalItemShimmer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     // Subtítulo
                     Container(
                       height: 12,
@@ -250,7 +250,7 @@ class CategoryShimmer extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 // Nome da categoria
                 Container(
                   height: 12,
@@ -288,7 +288,7 @@ class ReviewShimmer extends StatelessWidget {
                   radius: 20,
                   backgroundColor: Colors.white,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +302,7 @@ class ReviewShimmer extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       // Data e avaliação
                       Container(
                         height: 12,
@@ -317,7 +317,7 @@ class ReviewShimmer extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             // Texto do review
             Container(
               height: 14,
@@ -327,7 +327,7 @@ class ReviewShimmer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Container(
               height: 14,
               width: 200,
@@ -357,7 +357,7 @@ class ProfileShimmer extends StatelessWidget {
             radius: 50,
             backgroundColor: Colors.white,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Nome
           Container(
             height: 24,
@@ -367,7 +367,7 @@ class ProfileShimmer extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // Email
           Container(
             height: 16,
@@ -377,7 +377,7 @@ class ProfileShimmer extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           // Estatísticas
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -393,7 +393,7 @@ class ProfileShimmer extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Container(
                     height: 14,
                     width: 60,

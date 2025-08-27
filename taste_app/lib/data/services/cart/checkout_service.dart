@@ -1,19 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/address_model.dart';
-import '../models/payment_method_model.dart';
-import '../models/order_model.dart';
+// import '../models/address_model.dart'; // File not found
+// import '../models/payment_method_model.dart'; // File not found  
+// import '../models/order_model.dart'; // File not found
 
 /// Serviço para gerenciar o checkout e pedidos
 class CheckoutService {
   static const String _addressesKey = 'user_addresses';
   static const String _ordersKey = 'user_orders';
-  static const String _defaultAddressKey = 'default_address';
-  static const String _defaultPaymentKey = 'default_payment_method';
 
   /// Obtém os endereços do usuário
-  Future<List<AddressModel>> getUserAddresses() async {
+  Future<List<Map<String, dynamic>>> getUserAddresses() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final addressesJson = prefs.getString(_addressesKey);
@@ -21,7 +19,7 @@ class CheckoutService {
       if (addressesJson != null) {
         final addressesList = jsonDecode(addressesJson) as List<dynamic>;
         return addressesList
-            .map((json) => AddressModel.fromJson(json as Map<String, dynamic>))
+            .map((json) => Map<String, dynamic>.fromJson(json as Map<String, dynamic>))
             .toList();
       }
       
@@ -33,7 +31,7 @@ class CheckoutService {
   }
 
   /// Salva um endereço
-  Future<AddressModel> saveAddress(AddressModel address) async {
+  Future<Map<String, dynamic>> saveAddress(Map<String, dynamic> address) async {
     try {
       final addresses = await getUserAddresses();
       
@@ -84,14 +82,14 @@ class CheckoutService {
   }
 
   /// Obtém os métodos de pagamento disponíveis
-  Future<List<PaymentMethodModel>> getPaymentMethods() async {
+  Future<List<Map<String, dynamic>>> getPaymentMethods() async {
     // Por enquanto, retorna métodos padrão
     // No futuro, pode buscar do servidor ou configurações do usuário
     return PaymentMethodFactory.getDefaultMethods();
   }
 
   /// Finaliza um pedido
-  Future<String> placeOrder(OrderModel order) async {
+  Future<String> placeOrder(Map<String, dynamic> order) async {
     try {
       // Validações
       await _validateOrder(order);
@@ -112,7 +110,7 @@ class CheckoutService {
   }
 
   /// Obtém os pedidos do usuário
-  Future<List<OrderModel>> getUserOrders() async {
+  Future<List<Map<String, dynamic>>> getUserOrders() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final ordersJson = prefs.getString(_ordersKey);
@@ -120,7 +118,7 @@ class CheckoutService {
       if (ordersJson != null) {
         final ordersList = jsonDecode(ordersJson) as List<dynamic>;
         return ordersList
-            .map((json) => OrderModel.fromJson(json as Map<String, dynamic>))
+            .map((json) => Map<String, dynamic>.fromJson(json as Map<String, dynamic>))
             .toList()
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt)); // Mais recentes primeiro
       }
@@ -132,7 +130,7 @@ class CheckoutService {
   }
 
   /// Obtém um pedido específico
-  Future<OrderModel?> getOrder(String orderId) async {
+  Future<Map<String, dynamic>?> getOrder(String orderId) async {
     try {
       final orders = await getUserOrders();
       return orders.firstWhere(
@@ -182,7 +180,7 @@ class CheckoutService {
   }
 
   /// Valida um pedido antes de finalizar
-  Future<void> _validateOrder(OrderModel order) async {
+  Future<void> _validateOrder(Map<String, dynamic> order) async {
     if (order.items.isEmpty) {
       throw Exception('Carrinho está vazio');
     }
@@ -210,7 +208,7 @@ class CheckoutService {
   }
 
   /// Simula processamento do pagamento
-  Future<void> _processPayment(OrderModel order) async {
+  Future<void> _processPayment(Map<String, dynamic> order) async {
     // Simula delay do processamento
     await Future.delayed(const Duration(seconds: 2));
     
@@ -237,7 +235,7 @@ class CheckoutService {
   }
 
   /// Salva um pedido
-  Future<void> _saveOrder(OrderModel order) async {
+  Future<void> _saveOrder(Map<String, dynamic> order) async {
     try {
       final orders = await getUserOrders();
       orders.add(order);
@@ -248,7 +246,7 @@ class CheckoutService {
   }
 
   /// Simula notificação para o restaurante
-  Future<void> _notifyRestaurant(OrderModel order) async {
+  Future<void> _notifyRestaurant(Map<String, dynamic> order) async {
     // Simula delay da notificação
     await Future.delayed(const Duration(milliseconds: 500));
     
@@ -257,25 +255,25 @@ class CheckoutService {
   }
 
   /// Salva a lista de endereços
-  Future<void> _saveAddresses(List<AddressModel> addresses) async {
+  Future<void> _saveAddresses(List<Map<String, dynamic>> addresses) async {
     final prefs = await SharedPreferences.getInstance();
     final addressesJson = jsonEncode(addresses.map((addr) => addr.toJson()).toList());
     await prefs.setString(_addressesKey, addressesJson);
   }
 
   /// Salva a lista de pedidos
-  Future<void> _saveOrders(List<OrderModel> orders) async {
+  Future<void> _saveOrders(List<Map<String, dynamic>> orders) async {
     final prefs = await SharedPreferences.getInstance();
     final ordersJson = jsonEncode(orders.map((order) => order.toJson()).toList());
     await prefs.setString(_ordersKey, ordersJson);
   }
 
   /// Retorna endereços padrão para demonstração
-  List<AddressModel> _getDefaultAddresses() {
+  List<Map<String, dynamic>> _getDefaultAddresses() {
     final now = DateTime.now();
     
     return [
-      AddressModel(
+      Map<String, dynamic>(
         id: 'addr_home',
         userId: 'user_123',
         label: 'Casa',
@@ -294,7 +292,7 @@ class CheckoutService {
         createdAt: now,
         updatedAt: now,
       ),
-      AddressModel(
+      Map<String, dynamic>(
         id: 'addr_work',
         userId: 'user_123',
         label: 'Trabalho',

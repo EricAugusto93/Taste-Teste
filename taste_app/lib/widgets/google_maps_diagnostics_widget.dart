@@ -140,7 +140,7 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             isOk ? Icons.check_circle : Icons.error,
             color: isOk ? Colors.green : Colors.red,
             size: 20,
@@ -179,7 +179,7 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             isOk ? Icons.wifi : Icons.wifi_off,
             color: isOk ? Colors.green : Colors.orange,
             size: 20,
@@ -215,7 +215,7 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
         children: [
           Row(
             children: [
-              Icon(Icons.warning, color: Colors.red, size: 20),
+              const Icon(Icons.warning, color: Colors.red, size: 20),
               const SizedBox(width: 8),
               const Text(
                 'Problemas Detectados',

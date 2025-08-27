@@ -17,7 +17,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
           .select()
           .order('sort_order', ascending: true);
 
-      return (response as List<Map<String, dynamic>>)
+      return (response)
           .map((json) => CategoryModel.fromJson(json))
           .toList();
     } catch (e) {

@@ -90,7 +90,7 @@ class Logger {
     } else {
       // Em produção, usa print simples
       // ignore: avoid_print
-      print(logMessage);
+      debugPrint(logMessage);
     }
     
     if (data != null && data.isNotEmpty) {
@@ -102,7 +102,7 @@ class Logger {
         );
       } else {
         // ignore: avoid_print
-        print('Data: $data');
+        debugPrint('Data: $data');
       }
     }
   }

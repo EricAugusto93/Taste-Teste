@@ -89,7 +89,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     
     if (showBackButton && leadingWidget == null) {
       leadingWidget = IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios,
           color: AppColors.textPrimary,
           size: AppDimensions.iconMedium,
@@ -180,14 +180,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     shape: BoxShape.circle,
                     color: AppColors.surface,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.person,
                     color: AppColors.primary,
                     size: AppDimensions.iconMedium,
                   ),
                 ),
               ),
-              const SizedBox(width: AppDimensions.paddingMedium),
+              SizedBox(width: AppDimensions.paddingMedium),
               
               // Saudação
               Expanded(
@@ -210,7 +210,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               // Botão de notificação
               IconButton(
                 onPressed: onNotificationTap,
-                icon: const Icon(
+                icon: Icon(
                   Icons.notifications_outlined,
                   color: AppColors.textPrimary,
                   size: AppDimensions.iconLarge,

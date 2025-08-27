@@ -16,20 +16,20 @@ void main() {
               body: const SingleChildScrollView(
                 child: Column(
                   children: [
-                    Text('Detalhes do Restaurante'),
-                    SizedBox(height: 20),
-                    Text('Avaliações'),
-                    Card(
+                    const Text('Detalhes do Restaurante'),
+                    const SizedBox(height: 20),
+                    const Text('Avaliações'),
+                    const Card(
                       key: Key('review_item'),
                       child: ListTile(
                         leading: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.star, color: Colors.amber),
-                            Icon(Icons.star, color: Colors.amber),
-                            Icon(Icons.star, color: Colors.amber),
-                            Icon(Icons.star, color: Colors.amber),
-                            Icon(Icons.star_border),
+                            const Icon(Icons.star, color: Colors.amber),
+                            const Icon(Icons.star, color: Colors.amber),
+                            const Icon(Icons.star, color: Colors.amber),
+                            const Icon(Icons.star, color: Colors.amber),
+                            const Icon(Icons.star_border),
                           ],
                         ),
                         title: Text('Ótimo restaurante!'),
@@ -69,9 +69,9 @@ void main() {
                        child: Column(
                          mainAxisAlignment: MainAxisAlignment.center,
                          children: [
-                           Text('Avaliação enviada'),
-                           SizedBox(height: 20),
-                           Text('Obrigado pela avaliação'),
+                           const Text('Avaliação enviada'),
+                           const SizedBox(height: 20),
+                           const Text('Obrigado pela avaliação'),
                          ],
                        ),
                      ),
@@ -88,12 +88,12 @@ void main() {
                       ),
                     ),
                     body: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16.0),
                       child: Column(
                         children: [
                           const Text('Avaliar Restaurante'),
                           const SizedBox(height: 20),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(5, (index) {
                               return IconButton(
@@ -113,7 +113,7 @@ void main() {
                             onChanged: (value) => comment = value,
                           ),
                           const SizedBox(height: 20),
-                          ElevatedButton(
+                          const ElevatedButton(
                             onPressed: () {
                               if (selectedStars > 0) {
                                 setState(() => showSuccess = true);
@@ -135,7 +135,7 @@ void main() {
                     children: [
                       const Text('Detalhes do Restaurante'),
                       const SizedBox(height: 20),
-                      ElevatedButton(
+                      const ElevatedButton(
                         onPressed: () => setState(() => showReviewForm = true),
                         child: const Text('Avaliar'),
                       ),
@@ -199,12 +199,12 @@ void main() {
                       ),
                     ),
                     body: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16.0),
                       child: Column(
                         children: [
                           const Text('Avaliar Restaurante'),
                           const SizedBox(height: 20),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(5, (index) {
                               return IconButton(
@@ -219,7 +219,7 @@ void main() {
                               style: TextStyle(color: Colors.red),
                             ),
                           const SizedBox(height: 20),
-                          ElevatedButton(
+                          const ElevatedButton(
                             onPressed: () => setState(() => showError = true),
                             child: const Text('Enviar'),
                           ),
@@ -233,7 +233,7 @@ void main() {
                   body: Column(
                     children: [
                       const Text('Restaurante Teste'),
-                      ElevatedButton(
+                      const ElevatedButton(
                         onPressed: () => setState(() => showReviewForm = true),
                         child: const Text('Avaliar'),
                       ),
@@ -283,13 +283,13 @@ void main() {
                     ),
                     body: ListView(
                       children: const [
-                        Card(
+                        const Card(
                           child: ListTile(
                             title: Text('Ótimo restaurante!'),
                             subtitle: Text('João Silva'),
                           ),
                         ),
-                        Card(
+                        const Card(
                           child: ListTile(
                             title: Text('Comida deliciosa!'),
                             subtitle: Text('Maria Santos'),
@@ -305,7 +305,7 @@ void main() {
                     children: [
                       const Text('Restaurante Teste'),
                       const Text('Avaliações'),
-                      ElevatedButton(
+                      const ElevatedButton(
                         onPressed: () => setState(() => showAllReviews = true),
                         child: const Text('Ver todas'),
                       ),
@@ -345,7 +345,7 @@ void main() {
                 return Scaffold(
                   body: Stack(
                     children: [
-                      Column(
+                      const Column(
                         children: [
                           const Text('Avaliações'),
                           IconButton(
@@ -358,21 +358,21 @@ void main() {
                         ],
                       ),
                       if (showFilters)
-                        Container(
+                        const Container(
                           color: Colors.black54,
                           child: Center(
                             child: Card(
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: EdgeInsets.all(16.0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Text('Ordenar por:'),
-                                    ListTile(
+                                    const ListTile(
                                       title: const Text('Mais recentes'),
                                       onTap: () => setState(() => showFilters = false),
                                     ),
-                                    ListTile(
+                                    const ListTile(
                                       title: const Text('Melhor avaliação'),
                                       onTap: () => setState(() => showFilters = false),
                                     ),

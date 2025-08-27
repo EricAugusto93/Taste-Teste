@@ -193,7 +193,7 @@ class LocationPermissionStatus extends ConsumerWidget {
               size: 16,
               color: statusColor,
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
           ],
           Text(
             statusText,
@@ -245,7 +245,7 @@ class LocationPermissionButton extends ConsumerWidget {
         }
       },
       icon: locationState.isLoading 
-          ? const SizedBox(
+          ? SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
@@ -253,7 +253,7 @@ class LocationPermissionButton extends ConsumerWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             )
-          : const Icon(Icons.location_on),
+          : Icon(Icons.location_on),
       label: Text(text ?? 'Ativar Localização'),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,

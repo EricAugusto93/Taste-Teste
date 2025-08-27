@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../cache_service.dart';
-import '../connectivity_service.dart';
-import '../supabase_service.dart';
+import 'cache_service.dart';
+import 'connectivity_service.dart';
 
 /// Tipos de item do menu
 enum MenuItemType {
@@ -458,7 +457,6 @@ class MenuService {
 
   final CacheService _cacheService = CacheService.instance;
   final ConnectivityService _connectivityService = ConnectivityService.instance;
-  final SupabaseService _supabaseService = SupabaseService.instance;
 
   MenuConfig _config = const MenuConfig();
   final Map<String, RestaurantMenu> _menuCache = {};
@@ -501,7 +499,7 @@ class MenuService {
       await _cacheService.set(
         'menu_config',
         _config.toJson(),
-        duration: const Duration(days: 30),
+        ttl: const Duration(days: 30),
       );
     } catch (e) {
       debugPrint('Error saving menu config: $e');
@@ -533,7 +531,7 @@ class MenuService {
       await _cacheService.set(
         'menu_cache',
         cacheData,
-        duration: _config.cacheDuration,
+        ttl: _config.cacheDuration,
       );
     } catch (e) {
       debugPrint('Error saving menu cache: $e');
@@ -925,7 +923,7 @@ class _RestaurantMenuWidgetState extends State<RestaurantMenuWidget> {
               size: 64,
               color: Colors.grey,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Menu não disponível',
               style: TextStyle(
@@ -1048,7 +1046,7 @@ class _RestaurantMenuWidgetState extends State<RestaurantMenuWidget> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (section.description != null) ..[
+              if (section.description != null) ...[
                 const SizedBox(height: 4),
                 Text(
                   section.description!,
@@ -1152,7 +1150,7 @@ class _RestaurantMenuWidgetState extends State<RestaurantMenuWidget> {
             if (widget.showPrices)
               Row(
                 children: [
-                  if (item.hasActiveDiscount) ..[
+                  if (item.hasActiveDiscount) ...[
                     Text(
                       'R\$ ${item.price.toStringAsFixed(2)}',
                       style: const TextStyle(

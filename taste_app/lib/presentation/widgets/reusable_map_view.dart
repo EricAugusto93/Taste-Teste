@@ -374,18 +374,20 @@ class _ReusableMapViewState extends State<ReusableMapView>
     final isSelected = _selectedMarkerId == restaurant.id;
     
     final markerIcon = widget.showAdvancedMarkers
-        ? await AdvancedMapMarker.createPremiumRestaurantMarker(
-            restaurant: restaurant,
+        ? await AdvancedMapMarker.createEmojiMarker(
+            emoji: restaurant.emoji ?? '🍽️',
             isSelected: isSelected,
             size: isSelected ? 95 : 85,
             animationValue: isSelected ? _markerAnimationController.value : 0.0,
+            showRating: true,
+            rating: restaurant.rating,
           )
-        : await AdvancedMapMarker.createPremiumRestaurantMarker(
-            restaurant: restaurant,
+        : await AdvancedMapMarker.createEmojiMarker(
+            emoji: restaurant.emoji ?? '🍽️',
             isSelected: isSelected,
             size: 80,
-            showPrice: false,
             showRating: true,
+            rating: restaurant.rating,
           );
 
     markers.add(
@@ -409,6 +411,8 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   /// Lidar com toque em marcador
   Future<void> _onMarkerTap(RestaurantModel restaurant) async {
+    if (!mounted || !_isMapReady) return;
+    
     _markerAnimationController.forward();
     
     setState(() {
@@ -427,7 +431,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     }
 
     // Animar câmera para o marcador com animação suave
-    if (_controller != null) {
+    if (_controller != null && mounted) {
       await _animateCameraToPosition(
         gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
         _currentZoom + 1.5,
@@ -438,7 +442,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   /// Lidar com toque em cluster
   Future<void> _onClusterTap(RestaurantCluster cluster) async {
-    if (_controller == null) return;
+    if (_controller == null || !_isMapReady || !mounted) return;
 
     final bounds = _calculateClusterBounds(cluster);
     if (bounds != null) {
@@ -493,15 +497,20 @@ class _ReusableMapViewState extends State<ReusableMapView>
     _controller = controller;
     _isMapReady = true;
     
-    // Ajustar câmera para mostrar todos os marcadores
-    if (widget.restaurants.isNotEmpty || widget.userLocation != null) {
-      _fitMarkersInView();
-    }
+    // Aguarda um pequeno delay para garantir que o mapa esteja completamente inicializado
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted && _controller != null && _isMapReady) {
+        // Ajustar câmera para mostrar todos os marcadores
+        if (widget.restaurants.isNotEmpty || widget.userLocation != null) {
+          _fitMarkersInView();
+        }
+      }
+    });
   }
 
   /// Ajustar câmera para mostrar todos os marcadores com animação suave
   Future<void> _fitMarkersInView() async {
-    if (_controller == null || !_isMapReady) return;
+    if (_controller == null || !_isMapReady || !mounted) return;
 
     final bounds = _calculateBounds();
     if (bounds != null) {
@@ -716,7 +725,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                     onPressed: _goToUserLocation,
-                    child: const Icon(Icons.my_location),
+                    child: Icon(Icons.my_location),
                   ),
                 ),
             ],
@@ -746,7 +755,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     double zoom, {
     Duration duration = const Duration(milliseconds: 800),
   }) async {
-    if (_controller == null) return;
+    if (_controller == null || !_isMapReady || !mounted) return;
 
     try {
       // Usar animação customizada com múltiplos steps para efeito ease-in-out
@@ -797,7 +806,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     double padding = 100.0,
     Duration duration = const Duration(milliseconds: 1000),
   }) async {
-    if (_controller == null) return;
+    if (_controller == null || !_isMapReady || !mounted) return;
 
     try {
       // Calcular centro e zoom dos bounds

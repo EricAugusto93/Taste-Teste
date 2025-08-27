@@ -9,7 +9,6 @@ import '../../../data/models/location_model.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/restaurant_provider.dart';
 import '../../widgets/enhanced_map_widget.dart';
-import '../../widgets/restaurant_card.dart';
 
 /// Página de mapa com layout da imagem de referência
 class MapPage extends ConsumerStatefulWidget {
@@ -135,65 +134,73 @@ class _MapPageState extends ConsumerState<MapPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo/Título estilizado
-                      const Center(
-                        child: Text(
-                          'tl',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w300,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 20),
-                      
-                      // Pergunta principal
-                      const Text(
-                        'Qual a sua vibe hoje?',
+                      // Texto explicativo
+                      Text(
+                        'Veja o que está por perto',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '(ou onde você quiser).',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       
-                      const SizedBox(height: 12),
+                      SizedBox(height: 16),
                       
-                      // Botão laranja
+                      Text(
+                        'Encontre experiências pelo mapa e descubra a cidade com mais intenção.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          height: 1.3,
+                        ),
+                      ),
+                      
+                      SizedBox(height: 20),
+                      
+                      // Campo de busca
                       Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE67E22),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(25),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        child: const Text(
-                          'um ramen quentinho no Bom Fim',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Buscar restaurantes, pratos...',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 16,
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.grey[600],
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 15,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 8),
-                      
-                      // Texto pequeno
-                      const Center(
-                        child: Text(
-                          'Veja dicas e os melhores locais da cidade',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
+                          onTap: () {
+                            // Navegar para a página de busca
+                            context.push('/search');
+                          },
+                          readOnly: true,
                         ),
                       ),
                     ],
@@ -219,26 +226,26 @@ class _MapPageState extends ConsumerState<MapPage>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.error_outline,
                               size: 64,
                               color: AppColors.error,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             Text(
                               'Erro ao carregar mapa',
                               style: AppTextStyles.h3,
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Text(
                               restaurantState.error ?? 'Erro desconhecido',
                               style: AppTextStyles.bodySmall,
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () => ref.refresh(restaurantProvider),
-                              child: const Text('Tentar novamente'),
+                              child: Text('Tentar novamente'),
                             ),
                           ],
                         ),
@@ -268,7 +275,7 @@ class _MapPageState extends ConsumerState<MapPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Descubra por clima',
                     style: TextStyle(
                       color: Colors.white,
@@ -276,7 +283,7 @@ class _MapPageState extends ConsumerState<MapPage>
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'ocasião ou desejo',
                     style: TextStyle(
                       color: Colors.white70,
@@ -284,7 +291,7 @@ class _MapPageState extends ConsumerState<MapPage>
                     ),
                   ),
                   
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   
                   // Grid de categorias
                   Expanded(
@@ -375,7 +382,7 @@ class _MapPageState extends ConsumerState<MapPage>
                 color: Colors.white,
                 size: 20,
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 label,
                 style: TextStyle(

@@ -12,40 +12,40 @@ abstract class Failure extends Equatable {
 
 /// Falha de servidor
 class ServerFailure extends Failure {
-  const ServerFailure(String message) : super(message);
+  const ServerFailure(super.message);
 }
 
 /// Falha de rede
 class NetworkFailure extends Failure {
-  const NetworkFailure(String message) : super(message);
+  const NetworkFailure(super.message);
 }
 
 /// Falha de cache
 class CacheFailure extends Failure {
-  const CacheFailure(String message) : super(message);
+  const CacheFailure(super.message);
 }
 
 /// Falha de validação
 class ValidationFailure extends Failure {
-  const ValidationFailure(String message) : super(message);
+  const ValidationFailure(super.message);
 }
 
 /// Falha de autenticação
 class AuthFailure extends Failure {
-  const AuthFailure(String message) : super(message);
+  const AuthFailure(super.message);
 }
 
 /// Falha de permissão
 class PermissionFailure extends Failure {
-  const PermissionFailure(String message) : super(message);
+  const PermissionFailure(super.message);
 }
 
 /// Falha quando recurso não é encontrado
 class NotFoundFailure extends Failure {
-  const NotFoundFailure(String message) : super(message);
+  const NotFoundFailure(super.message);
 }
 
 /// Falha de conflito (ex: recurso já existe)
 class ConflictFailure extends Failure {
-  const ConflictFailure(String message) : super(message);
+  const ConflictFailure(super.message);
 }

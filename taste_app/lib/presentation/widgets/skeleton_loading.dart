@@ -62,7 +62,7 @@ class RestaurantCardSkeleton extends StatelessWidget {
             height: 80,
             borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           
           // Conteúdo
           Expanded(
@@ -74,14 +74,14 @@ class RestaurantCardSkeleton extends StatelessWidget {
                   width: double.infinity,
                   height: 16,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 // Categoria
                 SkeletonLoading(
                   width: MediaQuery.of(context).size.width * 0.3,
                   height: 12,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 
                 // Rating e tempo
                 Row(
@@ -90,7 +90,7 @@ class RestaurantCardSkeleton extends StatelessWidget {
                       width: 60,
                       height: 12,
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16),
                     SkeletonLoading(
                       width: MediaQuery.of(context).size.width * 0.2,
                       height: 12,
@@ -132,7 +132,7 @@ class HorizontalRestaurantListSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         
         // Lista horizontal
         SizedBox(
@@ -154,21 +154,21 @@ class HorizontalRestaurantListSkeleton extends StatelessWidget {
                       height: 120,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     
                     // Nome
                     const SkeletonLoading(
                       width: double.infinity,
                       height: 16,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     
                     // Categoria
                     const SkeletonLoading(
                       width: 100,
                       height: 12,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     
                     // Rating
                     const SkeletonLoading(
@@ -213,7 +213,7 @@ class CategoriesGridSkeleton extends StatelessWidget {
                 height: 60,
                 borderRadius: BorderRadius.circular(30),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               
               // Nome da categoria
               const SkeletonLoading(
@@ -252,7 +252,7 @@ class HomePageSkeleton extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.3,
                         height: 16,
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       SkeletonLoading(
                         width: MediaQuery.of(context).size.width * 0.4,
                         height: 20,

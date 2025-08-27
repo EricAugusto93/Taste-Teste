@@ -45,7 +45,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Você deve aceitar os termos de uso'),
+          content: Text('Você deve aceitar os termos de uso'),
           backgroundColor: AppColors.error,
         ),
       );
@@ -64,7 +64,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         // Mostrar mensagem de sucesso e navegar para verificação
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Conta criada! Verifique seu e-mail para ativar.'),
+            content: Text('Conta criada! Verifique seu e-mail para ativar.'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -124,7 +124,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: AppDimensions.paddingSmall),
+                            SizedBox(height: AppDimensions.paddingSmall),
                             Text(
                               'Preencha os dados para criar sua conta',
                               style: AppTextStyles.bodyLarge.copyWith(
@@ -136,7 +136,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingXLarge),
+                      SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Formulário de registro
                       AuthTextField(
@@ -151,7 +151,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         autofocus: true,
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'E-mail',
@@ -165,7 +165,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Telefone (opcional)',
@@ -179,7 +179,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Senha',
@@ -193,12 +193,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingMedium),
+                      SizedBox(height: AppDimensions.paddingMedium),
                       
                       // Indicadores de força da senha
                       _buildPasswordStrengthIndicator(),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Confirmar senha',
@@ -212,7 +212,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                       
                       // Termos e condições
                       Row(
@@ -301,7 +301,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ],
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingXLarge),
+                      SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Botão de registro
                       AuthButton(
@@ -310,7 +310,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         isLoading: authState.isLoading,
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingXLarge),
+                      SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Link para login
                       Center(
@@ -333,7 +333,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ),
                       
-                      const SizedBox(height: AppDimensions.paddingLarge),
+                      SizedBox(height: AppDimensions.paddingLarge),
                     ],
                   ),
                 ),
@@ -349,7 +349,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: AppDimensions.paddingSmall),
+        SizedBox(height: AppDimensions.paddingSmall),
         Row(
           children: [
             Text(
@@ -367,7 +367,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             ),
           ],
         ),
-        const SizedBox(height: AppDimensions.paddingXSmall),
+        SizedBox(height: AppDimensions.paddingXSmall),
         LinearProgressIndicator(
           value: strength / 4,
           backgroundColor: AppColors.border,

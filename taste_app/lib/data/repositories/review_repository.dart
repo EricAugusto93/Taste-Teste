@@ -1,8 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../models/review_model.dart';
 
 class ReviewRepository {
   final SupabaseClient _supabase = Supabase.instance.client;
+  static const String _localReviewsKey = 'local_reviews';
 
   Future<List<ReviewModel>> getReviewsByRestaurant(String restaurantId) async {
     try {
@@ -22,13 +25,23 @@ class ReviewRepository {
 
   Future<ReviewModel> createReview(ReviewModel review) async {
     try {
-      final response = await _supabase
-          .from('reviews')
-          .insert(review.toJson())
-          .select()
-          .single();
+      // Primeiro, salva localmente
+      await _saveReviewLocally(review);
+      
+      // Tenta salvar no Supabase (pode falhar se offline)
+      try {
+        final response = await _supabase
+            .from('reviews')
+            .insert(review.toCreateJson())
+            .select()
+            .single();
 
-      return ReviewModel.fromJson(response);
+        return ReviewModel.fromJson(response);
+      } catch (supabaseError) {
+        // Se falhar no Supabase, retorna a review local
+        print('Erro no Supabase, salvando localmente: $supabaseError');
+        return review.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString());
+      }
     } catch (e) {
       throw Exception('Erro ao criar avaliação: $e');
     }
@@ -107,6 +120,71 @@ class ReviewRepository {
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar avaliações do usuário: $e');
+    }
+  }
+
+  /// Salva review localmente para persistência offline
+  Future<void> _saveReviewLocally(ReviewModel review) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final existingReviews = await _getLocalReviews();
+      
+      final reviewWithId = review.copyWith(
+        id: review.id.isEmpty ? DateTime.now().millisecondsSinceEpoch.toString() : review.id,
+      );
+      
+      existingReviews.add(reviewWithId);
+      
+      final reviewsJson = existingReviews.map((r) => r.toJson()).toList();
+      await prefs.setString(_localReviewsKey, jsonEncode(reviewsJson));
+    } catch (e) {
+      print('Erro ao salvar review localmente: $e');
+    }
+  }
+
+  /// Recupera reviews do armazenamento local
+  Future<List<ReviewModel>> _getLocalReviews() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final reviewsData = prefs.getString(_localReviewsKey);
+      
+      if (reviewsData == null) return [];
+      
+      final List<dynamic> reviewsJson = jsonDecode(reviewsData);
+      return reviewsJson.map((json) => ReviewModel.fromJson(json)).toList();
+    } catch (e) {
+      print('Erro ao recuperar reviews locais: $e');
+      return [];
+    }
+  }
+
+  /// Busca reviews combinando locais e do servidor
+  Future<List<ReviewModel>> getReviewsByRestaurantCombined(String restaurantId) async {
+    final localReviews = await _getLocalReviews();
+    final localRestaurantReviews = localReviews
+        .where((review) => review.restaurantId == restaurantId)
+        .toList();
+
+    try {
+      final serverReviews = await getReviewsByRestaurant(restaurantId);
+      
+      // Combina reviews, evitando duplicatas
+      final allReviews = <ReviewModel>[];
+      allReviews.addAll(serverReviews);
+      
+      for (final localReview in localRestaurantReviews) {
+        final exists = serverReviews.any((r) => r.id == localReview.id);
+        if (!exists) {
+          allReviews.add(localReview);
+        }
+      }
+      
+      // Ordena por data de criação
+      allReviews.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return allReviews;
+    } catch (e) {
+      // Se falhar no servidor, retorna apenas reviews locais
+      return localRestaurantReviews;
     }
   }
 

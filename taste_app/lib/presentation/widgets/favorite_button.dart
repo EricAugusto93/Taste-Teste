@@ -134,7 +134,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                         ),
                       
                       if (widget.showLabel) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           isFavorite ? 'Favoritado' : 'Favoritar',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -145,7 +145,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       ],
                       
                       if (widget.showQuickActions && isFavorite) ...[
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Icon(
                           Icons.keyboard_arrow_down,
                           size: 16,
@@ -217,7 +217,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                     color: Colors.white,
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       isFavorite 
@@ -253,12 +253,12 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
           SnackBar(
             content: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.error_outline,
                   color: Colors.white,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 const Expanded(
                   child: Text('Erro ao alterar favorito. Tente novamente.'),
                 ),
@@ -321,14 +321,14 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       color: AppColors.textDark,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     widget.restaurant.name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textLight,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   
                   // Ações
                   _buildQuickAction(
@@ -371,7 +371,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                     },
                   ),
                   
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   CustomButton(
                     text: 'Fechar',
@@ -415,7 +415,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +625,7 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erro ao alterar favorito. Tente novamente.'),
+            content: Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -802,7 +802,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                     ],
                   ),
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
@@ -822,7 +822,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
         
         // Indicador de avaliação rápida
         if (isFavorite) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             'Manter pressionado\npara avaliar',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -894,7 +894,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erro ao alterar favorito. Tente novamente.'),
+            content: Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -934,7 +934,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                   color: AppColors.textDark,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 widget.restaurant.name,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -942,7 +942,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               
               // Estrelas de avaliação
               Row(
@@ -965,7 +965,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                   );
                 }),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               
               if (_selectedRating > 0)
                 Text(
@@ -975,7 +975,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               
               // Botões
               Row(
@@ -991,7 +991,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: CustomButton(
                       text: 'Avaliar',
@@ -1021,7 +1021,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Faça login para avaliar restaurantes'),
+              content: Text('Faça login para avaliar restaurantes'),
               backgroundColor: AppColors.warning,
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -1082,7 +1082,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erro ao enviar avaliação. Tente novamente.'),
+            content: Text('Erro ao enviar avaliação. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppDimensions.paddingMedium),

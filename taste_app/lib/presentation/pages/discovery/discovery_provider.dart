@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../data/models/restaurant_model.dart';
@@ -92,13 +93,13 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
     try {
       final position = await _locationService.getCurrentPosition();
       if (position != null) {
-        print('📍 Discovery: Localização real obtida: ${position.latitude}, ${position.longitude}');
+        debugPrint('📍 Discovery: Localização real obtida: ${position.latitude}, ${position.longitude}');
         state = state.copyWith(
           userLocation: position,
           hasLocationPermission: true,
         );
       } else {
-        print('⚠️ Discovery: Não foi possível obter localização real do usuário');
+        debugPrint('⚠️ Discovery: Não foi possível obter localização real do usuário');
         // Não usa localização falsa - deixa null para indicar que localização é necessária
         state = state.copyWith(
           userLocation: null,
@@ -106,7 +107,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
         );
       }
     } catch (e) {
-      print('❌ Discovery: Erro ao obter localização: $e');
+      debugPrint('❌ Discovery: Erro ao obter localização: $e');
       // Não usa fallback falso - deixa null para indicar que localização é necessária
       state = state.copyWith(
         userLocation: null,
@@ -117,21 +118,21 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
 
   Future<void> _loadRestaurants() async {
     try {
-      print('🔍 Discovery: Carregando restaurantes para categoria: $categoryId');
+      debugPrint('🔍 Discovery: Carregando restaurantes para categoria: $categoryId');
       
       // Carrega todos os restaurantes com retry
       final allRestaurants = await _restaurantRepository.getRestaurants();
-      print('📊 Discovery: ${allRestaurants.length} restaurantes carregados do banco');
+      debugPrint('📊 Discovery: ${allRestaurants.length} restaurantes carregados do banco');
       
       // Se não conseguiu carregar restaurantes, tenta novamente uma vez
       if (allRestaurants.isEmpty) {
-        print('⚠️ Discovery: Lista vazia, tentando novamente em 2 segundos...');
+        debugPrint('⚠️ Discovery: Lista vazia, tentando novamente em 2 segundos...');
         await Future.delayed(const Duration(seconds: 2));
         final retryRestaurants = await _restaurantRepository.getRestaurants();
-        print('🔄 Discovery: Segunda tentativa: ${retryRestaurants.length} restaurantes');
+        debugPrint('🔄 Discovery: Segunda tentativa: ${retryRestaurants.length} restaurantes');
         
         if (retryRestaurants.isEmpty) {
-          print('❌ Discovery: Ainda sem restaurantes, mas continuando sem erro');
+          debugPrint('❌ Discovery: Ainda sem restaurantes, mas continuando sem erro');
           state = state.copyWith(
             restaurants: [],
             isLoading: false,
@@ -144,7 +145,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
       if (allRestaurants.isNotEmpty) {
         for (int i = 0; i < (allRestaurants.length > 3 ? 3 : allRestaurants.length); i++) {
           final r = allRestaurants[i];
-          print('🏪 Restaurante ${i + 1}: ${r.name} - categoryId: ${r.categoryId} - Coords: ${r.latitude}, ${r.longitude}');
+          debugPrint('🏪 Restaurante ${i + 1}: ${r.name} - categoryId: ${r.categoryId} - Coords: ${r.latitude}, ${r.longitude}');
         }
       }
       
@@ -153,12 +154,12 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
       
       if (categoryId == 'todos') {
         categoryRestaurants = allRestaurants;
-        print('📋 Discovery: Mostrando TODOS os restaurantes (${categoryRestaurants.length})');
+        debugPrint('📋 Discovery: Mostrando TODOS os restaurantes (${categoryRestaurants.length})');
       } else {
         categoryRestaurants = allRestaurants
             .where((restaurant) => restaurant.categoryId == categoryId)
             .toList();
-        print('📋 Discovery: Filtrando por categoria $categoryId: ${categoryRestaurants.length} restaurantes encontrados');
+        debugPrint('📋 Discovery: Filtrando por categoria $categoryId: ${categoryRestaurants.length} restaurantes encontrados');
       }
 
       // Se temos localização do usuário, filtra por raio (com aumento progressivo)
@@ -182,8 +183,8 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
             );
           }).toList();
           
-          print('📍 Discovery: Localização real do usuário: $userLat, $userLng (raio: ${(radiusInMeters/1000).toInt()}km)');
-          print('🗺️ Discovery: Com raio de ${(radiusInMeters/1000).toInt()}km: ${filteredRestaurants.length} restaurantes');
+          debugPrint('📍 Discovery: Localização real do usuário: $userLat, $userLng (raio: ${(radiusInMeters/1000).toInt()}km)');
+          debugPrint('🗺️ Discovery: Com raio de ${(radiusInMeters/1000).toInt()}km: ${filteredRestaurants.length} restaurantes');
           
           // Se encontrou restaurantes, para de procurar
           if (filteredRestaurants.isNotEmpty) break;
@@ -191,7 +192,7 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
         
         // Se ainda não encontrou nada, mostra todos os restaurantes da categoria
         if (filteredRestaurants.isEmpty) {
-          print('⚠️ Discovery: Nenhum restaurante próximo encontrado, mostrando todos da categoria');
+          debugPrint('⚠️ Discovery: Nenhum restaurante próximo encontrado, mostrando todos da categoria');
           filteredRestaurants = categoryRestaurants;
         }
 
@@ -206,20 +207,20 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
           return distanceA.compareTo(distanceB);
         });
       } else {
-        print('⚠️ Discovery: Sem localização real do usuário, mostrando todos os restaurantes da categoria ordenados por nome');
+        debugPrint('⚠️ Discovery: Sem localização real do usuário, mostrando todos os restaurantes da categoria ordenados por nome');
         // Ordena por nome quando não há localização
         filteredRestaurants.sort((a, b) => a.name.compareTo(b.name));
       }
 
-      print('✅ Discovery: Total final de restaurantes: ${filteredRestaurants.length}');
+      debugPrint('✅ Discovery: Total final de restaurantes: ${filteredRestaurants.length}');
       
       state = state.copyWith(
         restaurants: filteredRestaurants,
         isLoading: false,
       );
     } catch (e) {
-      print('❌ Discovery: Erro ao carregar restaurantes: $e');
-      print('❌ Discovery: Stack trace: ${StackTrace.current}');
+      debugPrint('❌ Discovery: Erro ao carregar restaurantes: $e');
+      debugPrint('❌ Discovery: Stack trace: ${StackTrace.current}');
       
       state = state.copyWith(
         isLoading: false,

@@ -92,7 +92,7 @@ class AuthButton extends StatelessWidget {
                 children: [
                   if (icon != null) ...[
                     icon!,
-                    const SizedBox(width: AppDimensions.paddingSmall),
+                    SizedBox(width: AppDimensions.paddingSmall),
                   ],
                   Text(
                     text,
@@ -154,7 +154,7 @@ class SocialAuthButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
@@ -165,7 +165,7 @@ class SocialAuthButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   icon,
-                  const SizedBox(width: AppDimensions.paddingMedium),
+                  SizedBox(width: AppDimensions.paddingMedium),
                   Text(
                     text,
                     style: AppTextStyles.buttonText.copyWith(

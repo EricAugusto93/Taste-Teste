@@ -6,11 +6,11 @@ void main() {
     testWidgets('Multiple images loading performance', (WidgetTester tester) async {
       // Lista de widgets de imagem simples para teste
       final imageWidgets = List.generate(20, (index) => 
-        Container(
+        const Container(
           key: Key('image_container_$index'),
           height: 200,
           width: 200,
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
@@ -24,7 +24,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: imageWidgets.length,
@@ -51,25 +51,25 @@ void main() {
 
     testWidgets('Image placeholder performance', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                Container(
+                const Container(
                   key: const Key('placeholder_1'),
                   width: 100,
                   height: 100,
                   color: Colors.grey[300],
                   child: const Icon(Icons.image, size: 30),
                 ),
-                Container(
+                const Container(
                   key: const Key('placeholder_2'),
                   width: 200,
                   height: 150,
                   color: Colors.grey[300],
                   child: const Icon(Icons.image, size: 40),
                 ),
-                Container(
+                const Container(
                   key: const Key('placeholder_3'),
                   width: 300,
                   height: 200,
@@ -115,7 +115,7 @@ void main() {
       imageCache[imageKey] = imageWidget;
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: imageCache[imageKey]!,
           ),
@@ -129,7 +129,7 @@ void main() {
       final secondLoadStopwatch = Stopwatch()..start();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: imageCache[imageKey]!,
           ),
@@ -149,11 +149,11 @@ void main() {
 
     testWidgets('Large image list scrolling performance', (WidgetTester tester) async {
       final imageWidgets = List.generate(100, (index) => 
-        Container(
+        const Container(
           key: Key('scroll_image_$index'),
           height: 150,
           width: 150,
-          margin: const EdgeInsets.all(4),
+          margin: EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: Colors.green[200],
             borderRadius: BorderRadius.circular(8),
@@ -171,7 +171,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: imageWidgets.length,
@@ -204,9 +204,9 @@ void main() {
     testWidgets('Image memory management test', (WidgetTester tester) async {
       // Criar muitos widgets simples para testar gerenciamento de memória
       final imageWidgets = List.generate(50, (index) => 
-        Container(
+        const Container(
           key: Key('memory_image_$index'),
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -218,13 +218,13 @@ void main() {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.memory,
                     size: 60,
                     color: Colors.purple[800],
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'Image $index',
                     style: const TextStyle(
                       fontSize: 18,
@@ -239,7 +239,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PageView.builder(
               itemCount: imageWidgets.length,

@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
-import '../../models/restaurant_model.dart';
-import '../../models/category_model.dart';
 import '../../repositories/restaurant_repository.dart';
 import '../../repositories/category_repository.dart';
 import '../../../core/di/injection_container.dart';
@@ -13,7 +9,6 @@ class AISearchService {
   static AISearchService get instance => _instance ??= AISearchService._();
   AISearchService._();
 
-  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
   final CategoryRepository _categoryRepository = CategoryRepository.instance;
 
   /// Interpreta a intenção do usuário na busca

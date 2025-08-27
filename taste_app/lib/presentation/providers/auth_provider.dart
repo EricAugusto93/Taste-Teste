@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/auth/auth_service.dart';
 
@@ -58,7 +59,7 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
         );
       });
     } catch (e) {
-      print('⚠️ AuthProvider: Erro ao escutar mudanças de auth, usando estado local: $e');
+      debugPrint('⚠️ AuthProvider: Erro ao escutar mudanças de auth, usando estado local: $e');
       // Se não conseguir escutar o Supabase, usa apenas estado local
     }
   }

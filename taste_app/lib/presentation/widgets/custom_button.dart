@@ -112,7 +112,7 @@ class CustomButton extends StatelessWidget {
   
   Widget _buildButtonContent() {
     if (isLoading) {
-      return const SizedBox(
+      return SizedBox(
         width: AppDimensions.iconMedium,
         height: AppDimensions.iconMedium,
         child: CircularProgressIndicator(
@@ -130,7 +130,7 @@ class CustomButton extends StatelessWidget {
             icon,
             size: AppDimensions.iconMedium,
           ),
-          const SizedBox(width: AppDimensions.paddingSmall),
+          SizedBox(width: AppDimensions.paddingSmall),
           Text(
             text,
             style: isSecondary || isOutlined 

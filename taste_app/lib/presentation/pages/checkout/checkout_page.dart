@@ -63,7 +63,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       backgroundColor: AppColors.background,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(AppIcons.arrowLeft, color: AppColors.textPrimary),
+        icon: Icon(AppIcons.arrowLeft, color: AppColors.textPrimary),
         onPressed: () => NavigationHelper.safeGoBack(context),
       ),
       title: Text(
@@ -82,17 +82,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           // Endereço de entrega
           _buildDeliveryAddressSection(checkoutState),
           
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Método de pagamento
           _buildPaymentMethodSection(checkoutState),
           
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Observações do pedido
           _buildOrderNotesSection(),
           
-          const SizedBox(height: AppDimensions.paddingLarge),
+          SizedBox(height: AppDimensions.paddingLarge),
           
           // Resumo do pedido
           OrderSummaryWidget(
@@ -101,7 +101,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             onEdit: () => NavigationHelper.safeGoBack(context),
           ),
           
-          const SizedBox(height: 100), // Espaço para o bottom bar
+          SizedBox(height: 100), // Espaço para o bottom bar
         ],
       ),
     );
@@ -130,7 +130,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
         ),
         
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         if (checkoutState.selectedAddress != null)
           _buildAddressCard(checkoutState.selectedAddress!)
@@ -162,7 +162,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               size: AppDimensions.iconMedium,
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +173,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   address.fullAddress,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -211,7 +211,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               color: AppColors.primary,
               size: AppDimensions.iconMedium,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Selecionar endereço de entrega',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -247,7 +247,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
         ),
         
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         
         if (checkoutState.selectedPaymentMethod != null)
           _buildPaymentMethodCard(checkoutState.selectedPaymentMethod!)
@@ -279,7 +279,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               size: AppDimensions.iconMedium,
             ),
           ),
-          const SizedBox(width: AppDimensions.paddingMedium),
+          SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +291,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   ),
                 ),
                 if (paymentMethod.description != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     paymentMethod.description!,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -328,7 +328,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               color: AppColors.primary,
               size: AppDimensions.iconMedium,
             ),
-            const SizedBox(width: AppDimensions.paddingSmall),
+            SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Selecionar método de pagamento',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -349,7 +349,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           'Observações do pedido',
           style: AppTextStyles.headingSmall,
         ),
-        const SizedBox(height: AppDimensions.paddingMedium),
+        SizedBox(height: AppDimensions.paddingMedium),
         CustomTextField(
           controller: _notesController,
           hintText: 'Alguma observação especial? (opcional)',
@@ -398,7 +398,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 ),
               ],
             ),
-            const SizedBox(height: AppDimensions.paddingMedium),
+            SizedBox(height: AppDimensions.paddingMedium),
             CustomButton(
               text: checkoutState.isPlacingOrder ? 'Finalizando...' : 'Finalizar Pedido',
               onPressed: canPlaceOrder && !checkoutState.isPlacingOrder
@@ -407,7 +407,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               isLoading: checkoutState.isPlacingOrder,
             ),
             if (!canPlaceOrder && !checkoutState.isPlacingOrder) ...[
-              const SizedBox(height: AppDimensions.paddingSmall),
+              SizedBox(height: AppDimensions.paddingSmall),
               Text(
                 _getOrderValidationMessage(cart, checkoutState),
                 style: AppTextStyles.bodySmall.copyWith(

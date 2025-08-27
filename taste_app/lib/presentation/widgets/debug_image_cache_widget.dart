@@ -19,14 +19,14 @@ class DebugImageCacheWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Debug: Cache de Imagens',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -46,7 +46,7 @@ class DebugImageCacheWidget extends StatelessWidget {
                   backgroundColor: AppColors.warning,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Limpar\nProblemas'),
+                child: Text('Limpar\nProblemas'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -64,7 +64,7 @@ class DebugImageCacheWidget extends StatelessWidget {
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Limpar\nTudo'),
+                child: Text('Limpar\nTudo'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -80,7 +80,7 @@ class DebugImageCacheWidget extends StatelessWidget {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Recarregar\nImagens'),
+                child: Text('Recarregar\nImagens'),
               ),
             ],
           ),

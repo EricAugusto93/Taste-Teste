@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/location_model.dart';
 import '../services/location/location_service.dart';
