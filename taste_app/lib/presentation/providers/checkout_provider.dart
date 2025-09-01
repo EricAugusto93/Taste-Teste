@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/address_model.dart';
 import '../../data/models/payment_method_model.dart';
 import '../../data/models/order_model.dart';
-import '../../data/services/checkout_service.dart';
+import '../../data/services/cart/checkout_service.dart';
 import '../../data/services/auth/auth_service.dart';
 import 'cart_provider.dart';
 
@@ -168,11 +168,23 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
         estimatedDeliveryTime: DateTime.now().add(const Duration(minutes: 45)),
       );
 
-      final orderId = await _checkoutService.placeOrder(order);
+      final createdOrder = await _checkoutService.createOrder(
+        restaurant: order.restaurant,
+        items: order.items,
+        deliveryAddress: order.deliveryAddress,
+        paymentMethod: order.paymentMethod,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        serviceFee: order.serviceFee,
+        discount: order.discount,
+        total: order.total,
+        notes: order.notes,
+        promoCode: order.promoCode,
+      );
       
       state = state.copyWith(isPlacingOrder: false);
       
-      return orderId;
+      return createdOrder.id;
     } catch (e) {
       state = state.copyWith(isPlacingOrder: false, error: e.toString());
       rethrow;

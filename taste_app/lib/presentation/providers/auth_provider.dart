@@ -147,7 +147,7 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
   /// Força autenticação local (para desenvolvimento)
   void forceLocalAuth() {
     _authService.forceLocalAuth();
-    state = AppAuthState(
+    state = const AppAuthState(
       isAuthenticated: true,
       user: null, // Usuário mock para desenvolvimento
       isLoading: false,

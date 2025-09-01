@@ -52,7 +52,7 @@ class EnhancedMapWidget extends StatelessWidget {
     this.showInfoWindows = true,
     this.selectedRestaurantId,
     this.locationRepository,
-    this.enableClustering = true,
+    this.enableClustering = false, // Desabilitado por padrão para melhor performance
     this.showAdvancedMarkers = true,
     this.showAdvancedInfoWindow = true,
     this.compactInfoWindow = false,

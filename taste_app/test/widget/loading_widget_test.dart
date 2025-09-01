@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taste_app/presentation/widgets/loading_widget.dart';
-import 'package:taste_app/core/theme/app_colors.dart';
 import 'package:taste_app/core/theme/app_dimensions.dart';
 
 void main() {
   group('LoadingWidget Tests', () {
     testWidgets('should render basic loading widget correctly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(),
           ),
@@ -22,7 +21,7 @@ void main() {
     
     testWidgets('should display message when provided', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(
               message: 'Loading data...',
@@ -37,7 +36,7 @@ void main() {
     
     testWidgets('should hide message when showMessage is false', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(
               message: 'Hidden message',
@@ -55,7 +54,7 @@ void main() {
       const customSize = 100.0;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(
               size: customSize,
@@ -77,7 +76,7 @@ void main() {
     
     testWidgets('should apply custom color', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(
               color: Colors.red,
@@ -92,7 +91,7 @@ void main() {
     
     testWidgets('should use default size when not specified', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(),
           ),
@@ -112,7 +111,7 @@ void main() {
     
     testWidgets('should use default color when not specified', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget(),
           ),
@@ -127,7 +126,7 @@ void main() {
   group('LoadingWidget Factory Tests', () {
     testWidgets('should create simple loading widget', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget.simple(
               size: 50,
@@ -154,7 +153,7 @@ void main() {
     
     testWidgets('should create full screen loading widget', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget.fullScreen(
               message: 'Loading full screen...',
@@ -179,7 +178,7 @@ void main() {
     
     testWidgets('should create lottie loading widget', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: LoadingWidget.lottie(
               message: 'Loading with animation...',
@@ -197,7 +196,7 @@ void main() {
   group('ListLoadingWidget Tests', () {
     testWidgets('should render list loading widget correctly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListLoadingWidget(),
           ),
@@ -213,7 +212,7 @@ void main() {
       const itemCount = 3;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListLoadingWidget(
               itemCount: itemCount,
@@ -237,7 +236,7 @@ void main() {
       const customHeight = 120.0;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListLoadingWidget(
               itemHeight: customHeight,
@@ -255,7 +254,7 @@ void main() {
       const customPadding = EdgeInsets.all(20.0);
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListLoadingWidget(
               padding: customPadding,
@@ -272,7 +271,7 @@ void main() {
   group('ShimmerEffect Tests', () {
     testWidgets('should render shimmer effect correctly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ShimmerEffect(
               child: Container(
@@ -290,7 +289,7 @@ void main() {
     
     testWidgets('should animate shimmer effect', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ShimmerEffect(),
           ),
@@ -310,7 +309,7 @@ void main() {
     
     testWidgets('should apply custom colors', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ShimmerEffect(
               baseColor: Colors.red,
@@ -325,7 +324,7 @@ void main() {
     
     testWidgets('should dispose animation controller properly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ShimmerEffect(),
           ),
@@ -336,7 +335,7 @@ void main() {
       
       // Remove o widget
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Container(),
           ),
@@ -351,7 +350,7 @@ void main() {
   group('OverlayLoadingWidget Tests', () {
     testWidgets('should render overlay loading widget correctly', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: OverlayLoadingWidget(),
           ),
@@ -365,7 +364,7 @@ void main() {
     
     testWidgets('should display custom message', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: OverlayLoadingWidget(
               message: 'Processing...',
@@ -380,7 +379,7 @@ void main() {
     
     testWidgets('should have overlay background', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: OverlayLoadingWidget(),
           ),
@@ -393,7 +392,7 @@ void main() {
     
     testWidgets('should center loading content', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: OverlayLoadingWidget(),
           ),

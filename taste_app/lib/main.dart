@@ -13,6 +13,7 @@ import 'core/services/deep_link_service.dart';
 import 'core/services/cache_service.dart';
 import 'core/models/cache_item.dart';
 import 'core/di/injection_container.dart';
+import 'data/services/auth/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,12 @@ Future<void> _initializeApp() async {
   // Inicializar Supabase
   await SupabaseConfig.initialize();
   
+  // Inicializar AuthService (depois do Supabase)
+  await AuthService.instance.initialize();
+  
+  // CRÍTICO: Inicializar router notifier ANTES de deep links e cache
+  await RouterNotifier.instance.initialize();
+  
   // Inicializar deep links
   await DeepLinkService.instance.initialize();
   
@@ -61,9 +68,6 @@ Future<void> _initializeApp() async {
   
   // Inicializar cache service
   await getIt<CacheService>().initialize();
-  
-  // Inicializar router notifier
-  await RouterNotifier.instance.initialize();
   
   // Log de debug apenas em desenvolvimento
   if (EnvironmentConfig.isDevelopment) {

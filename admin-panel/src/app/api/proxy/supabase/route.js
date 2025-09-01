@@ -1,7 +1,12 @@
 // API Proxy para contornar CORS entre Flutter e Supabase
 
-const SUPABASE_URL = 'https://msjzktnkvyycwahpalhb.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zanprdG5rdnl5Y3dhaHBhbGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNDEyNzAsImV4cCI6MjA2OTkxNzI3MH0.Gn9H8darziz1nln79wvNhzKwo6GF0O-3uBJ-IDha9ns'
+// ⚠️ NUNCA HARDCODAR CREDENCIAIS! Usar variáveis de ambiente
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('❌ ERRO: Credenciais Supabase não configuradas nas variáveis de ambiente!')
+}
 
 // Configurar CORS Headers
 const corsHeaders = {

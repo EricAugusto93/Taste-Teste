@@ -83,38 +83,38 @@ class _HomePageState extends ConsumerState<HomePage> {
               fit: BoxFit.contain,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           // Texto "Qual a sua vibe hoje?"
           Text(
             'Qual a sua vibe hoje?',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           // Botão laranja
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF6B35),
-              borderRadius: BorderRadius.circular(25),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFF6B35),
+              borderRadius: BorderRadius.all(Radius.circular(25)),
             ),
             child: Text(
               'um ramen quentinho no Bom Fim',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           // Texto pequeno abaixo do botão
           Text(
             'Vou direto e só mando qual é bom.',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 12,
             ),
@@ -129,24 +129,24 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildMapSection() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Color(0x1A000000), // Colors.black.withOpacity(0.1)
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: SizedBox(
           height: 180,
           child: GoogleMap(
             initialCameraPosition: const CameraPosition(
-              target: LatLng(-25.4372, -49.2695), // Curitiba
-              zoom: 14.0,
+              target: LatLng(-30.0277, -51.2287), // Porto Alegre - Centro
+              zoom: 13.0,
             ),
             onMapCreated: (GoogleMapController controller) {
               // Controller criado
@@ -173,7 +173,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Text(
             'Descubra por clima,',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -181,13 +181,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           Text(
             'ocasião ou desejo',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -248,11 +248,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       color: Colors.transparent,
       child: InkWell(
         onTap: _isNavigationReady ? () => _navigateTo('/discovery/$categoryId') : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Container(
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
           ),
           child: Center(
             child: Text(
@@ -277,7 +277,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xFFFF6B35),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -304,12 +304,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         color: Colors.transparent,
         child: InkWell(
           onTap: _isNavigationReady ? () => _onBottomNavTap(label) : null,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
               color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
             ),
             child: Text(
               label,
@@ -332,7 +332,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         _navigateTo('/discovery/todos');
         break;
       case 'Mapa':
-        _navigateTo('/search');
+        _navigateTo('/map');
         break;
       case 'Perfil':
         _navigateTo('/profile');

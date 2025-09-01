@@ -9,10 +9,8 @@ import '../../../core/utils/auth_validators.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../widgets/auth_text_field.dart';
-import '../../../core/utils/auth_validators.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/loading_widget.dart';
-import '../../../domain/entities/user_profile.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -153,14 +151,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Descartar alterações?'),
-        content: Text(
+        title: const Text('Descartar alterações?'),
+        content: const Text(
           'Você tem alterações não salvas. Deseja descartá-las?',
         ),
         actions: [
           TextButton(
             onPressed: () => NavigationHelper.safeGoBack(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => NavigationHelper.safeGoBack(context),
@@ -287,7 +285,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: AppDimensions.paddingMedium),
+                            const SizedBox(height: AppDimensions.paddingMedium),
                             Text(
                               'Alterar foto do perfil',
                               style: AppTextStyles.bodyMedium.copyWith(
@@ -299,7 +297,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingXLarge),
+                      const SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Informações pessoais
                       Text(
@@ -310,7 +308,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Nome completo',
@@ -318,13 +316,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         controller: _nameController,
                         validator: AuthValidators.name,
                         onChanged: (_) => _onFieldChanged(),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.person_outline,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Telefone (opcional)',
@@ -333,26 +331,26 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         keyboardType: TextInputType.phone,
                         validator: AuthValidators.phoneOptional,
                         onChanged: (_) => _onFieldChanged(),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.phone_outlined,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Cidade',
                         hint: 'Sua cidade atual',
                         controller: _cityController,
                         onChanged: (_) => _onFieldChanged(),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.location_city,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                       
                       AuthTextField(
                         label: 'Bio',
@@ -360,13 +358,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         controller: _bioController,
                         maxLines: 3,
                         onChanged: (_) => _onFieldChanged(),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.info_outline,
                           color: AppColors.textSecondary,
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingXLarge),
+                      const SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Seção de segurança
                       Text(
@@ -377,7 +375,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                       
                       // Alterar senha
                       Container(
@@ -390,7 +388,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           ),
                         ),
                         child: ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             Icons.lock_outline,
                             color: AppColors.textSecondary,
                           ),
@@ -407,7 +405,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               color: AppColors.textSecondary,
                             ),
                           ),
-                          trailing: Icon(
+                          trailing: const Icon(
                             Icons.arrow_forward_ios,
                             color: AppColors.textSecondary,
                             size: 16,
@@ -416,14 +414,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             // TODO: Implementar alteração de senha
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Alteração de senha em desenvolvimento'),
+                                content: const Text('Alteração de senha em desenvolvimento'),
                               ),
                             );
                           },
                         ),
                       ),
                       
-                      SizedBox(height: AppDimensions.paddingXLarge),
+                      const SizedBox(height: AppDimensions.paddingXLarge),
                       
                       // Botão de salvar (se houver mudanças)
                       if (_hasChanges) ...[
@@ -433,7 +431,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           isLoading: _isLoading,
                         ),
                         
-                        SizedBox(height: AppDimensions.paddingMedium),
+                        const SizedBox(height: AppDimensions.paddingMedium),
                         
                         AuthButton(
                           text: 'Cancelar',
@@ -447,7 +445,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                         ),
                       ],
                       
-                      SizedBox(height: AppDimensions.paddingLarge),
+                      const SizedBox(height: AppDimensions.paddingLarge),
                     ],
                   ),
                 ),

@@ -9,7 +9,6 @@ import '../../core/theme/app_dimensions.dart';
 import '../../core/utils/logger.dart';
 import 'advanced_map_marker.dart';
 // import 'advanced_info_window.dart';
-import 'map_fallback_widget.dart';
 import 'map_cluster_widget.dart';
 
 /// Componente de mapa reutilizável com recursos avançados
@@ -101,7 +100,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     super.initState();
     _selectedMarkerId = widget.selectedRestaurantId;
     _setupAnimations();
-    _createMarkers();
+    // NÃO criar marcadores no initState - aguardar o mapa estar pronto
     _startDistanceUpdates();
     _startAnimationLoop();
   }
@@ -129,17 +128,11 @@ class _ReusableMapViewState extends State<ReusableMapView>
   }
 
   void _startAnimationLoop() {
-    _animationTimer = Timer.periodic(
-      const Duration(milliseconds: 100),
-      (_) {
-        if (mounted && _userLocationAnimationController.isCompleted) {
-          _userLocationAnimationController.reset();
-          _userLocationAnimationController.forward();
-        } else if (mounted) {
-          _userLocationAnimationController.forward();
-        }
-      },
-    );
+    // Removido loop infinito de animação que consumia recursos desnecessariamente
+    // As animações agora são executadas apenas quando necessário
+    if (mounted) {
+      _userLocationAnimationController.forward();
+    }
   }
 
   @override
@@ -156,13 +149,11 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   /// Iniciar atualizações periódicas de distância
   void _startDistanceUpdates() {
+    // Otimizado: apenas atualiza distâncias uma vez na inicialização
+    // Timer periódico removido para melhor performance
     if (widget.locationRepository == null || widget.userLocation == null) return;
     
     _updateDistances();
-    _distanceUpdateTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) => _updateDistances(),
-    );
   }
 
   /// Atualizar distâncias dos restaurantes
@@ -251,6 +242,12 @@ class _ReusableMapViewState extends State<ReusableMapView>
   }
 
   Future<void> _createMarkers() async {
+    // Verificar se o mapa está pronto antes de tentar criar marcadores
+    if (!_isMapReady || _controller == null || !mounted) {
+      Logger.warning('Mapa não está pronto para criar marcadores');
+      return;
+    }
+    
     setState(() {
       _isLoading = true;
     });
@@ -258,18 +255,13 @@ class _ReusableMapViewState extends State<ReusableMapView>
     final markers = <gmaps.Marker>{};
 
     try {
-      // Criar marcador do usuário com animação
+      // Criar marcador do usuário (otimizado para web)
       if (widget.showUserLocation && widget.userLocation != null) {
-        final userMarkerIcon = widget.showAdvancedMarkers
-            ? await AdvancedMapMarker.createAnimatedUserMarker(
-                size: 70,
-                animationValue: _userLocationAnimationController.value,
-                showAccuracy: true,
-              )
-            : await AdvancedMapMarker.createAnimatedUserMarker(
-                size: 65,
-                animationValue: 0.0,
-              );
+        // Usa marcador sem animação para melhor performance na web
+        final userMarkerIcon = await AdvancedMapMarker.createAnimatedUserMarker(
+          size: 60,  // Tamanho menor para melhor performance
+          animationValue: 0.0,  // Sem animação
+        );
         
         markers.add(
           gmaps.Marker(
@@ -495,15 +487,26 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   void _onMapCreated(gmaps.GoogleMapController controller) {
     _controller = controller;
-    _isMapReady = true;
     
-    // Aguarda um pequeno delay para garantir que o mapa esteja completamente inicializado
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted && _controller != null && _isMapReady) {
-        // Ajustar câmera para mostrar todos os marcadores
-        if (widget.restaurants.isNotEmpty || widget.userLocation != null) {
-          _fitMarkersInView();
-        }
+    // Aguarda mais tempo para garantir que o mapa esteja completamente inicializado
+    // especialmente importante no Flutter Web
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted && _controller != null) {
+        setState(() {
+          _isMapReady = true;
+        });
+        
+        // Aguarda mais um pouco antes de criar marcadores
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted && _isMapReady) {
+            _createMarkers();
+            
+            // Ajustar câmera para mostrar todos os marcadores
+            if (widget.restaurants.isNotEmpty || widget.userLocation != null) {
+              _fitMarkersInView();
+            }
+          }
+        });
       }
     });
   }
@@ -667,69 +670,65 @@ class _ReusableMapViewState extends State<ReusableMapView>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
-        child: SafeGoogleMap(
-          height: widget.height,
-          fallbackMessage: 'Mapa não disponível\nVerifique sua conexão com a internet',
-          mapWidget: Stack(
-            children: [
-              // Mapa principal
-              gmaps.GoogleMap(
-                key: _mapKey,
-                initialCameraPosition: _initialCameraPosition,
-                markers: _markers,
-                polygons: widget.polygons ?? {},
-                polylines: widget.polylines ?? {},
-                circles: widget.circles ?? {},
-                onMapCreated: _onMapCreated,
-                onTap: (latLng) {
-                  _hideInfoWindow();
-                  widget.onMapTap?.call(latLng);
-                },
-                myLocationEnabled: false, // Usamos marcador customizado
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: widget.showZoomControls,
-                mapToolbarEnabled: widget.showMapControls,
-                compassEnabled: widget.showMapControls,
-                rotateGesturesEnabled: widget.enableInteraction,
-                scrollGesturesEnabled: widget.enableInteraction,
-                tiltGesturesEnabled: widget.enableInteraction,
-                zoomGesturesEnabled: widget.enableInteraction,
-                mapType: widget.mapType,
-                onCameraMove: _onCameraMove,
-                onCameraIdle: _onCameraIdle,
-                padding: widget.padding,
+        child: Stack(
+          children: [
+            // Mapa principal (sempre visível)
+            gmaps.GoogleMap(
+              key: _mapKey,
+              initialCameraPosition: _initialCameraPosition,
+              markers: _markers,
+              polygons: widget.polygons ?? {},
+              polylines: widget.polylines ?? {},
+              circles: widget.circles ?? {},
+              onMapCreated: _onMapCreated,
+              onTap: (latLng) {
+                _hideInfoWindow();
+                widget.onMapTap?.call(latLng);
+              },
+              myLocationEnabled: false, // Usamos marcador customizado
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: widget.showZoomControls,
+              mapToolbarEnabled: widget.showMapControls,
+              compassEnabled: widget.showMapControls,
+              rotateGesturesEnabled: widget.enableInteraction,
+              scrollGesturesEnabled: widget.enableInteraction,
+              tiltGesturesEnabled: widget.enableInteraction,
+              zoomGesturesEnabled: widget.enableInteraction,
+              mapType: widget.mapType,
+              onCameraMove: _onCameraMove,
+              onCameraIdle: _onCameraIdle,
+              padding: widget.padding,
+            ),
+            
+            // Loading overlay
+            if (_isLoading)
+              Container(
+                color: Colors.white.withOpacity(0.8),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  ),
+                ),
               ),
-              
-              // Loading overlay
-              if (_isLoading)
-                Container(
-                  color: Colors.white.withOpacity(0.8),
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
-                  ),
+            
+            // InfoWindow personalizada - comentado temporariamente
+            // if (_activeInfoWindow != null)
+            //   _activeInfoWindow!.build(context),
+            
+            // Botão de localização personalizado
+            if (widget.showMyLocationButton)
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: FloatingActionButton(
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.primary,
+                  onPressed: _goToUserLocation,
+                  child: Icon(Icons.my_location),
                 ),
-              
-              // InfoWindow personalizada - comentado temporariamente
-              // if (_activeInfoWindow != null)
-              //   _activeInfoWindow!.build(context),
-              
-              // Botão de localização personalizado
-              if (widget.showMyLocationButton)
-                Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: FloatingActionButton(
-                    mini: true,
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary,
-                    onPressed: _goToUserLocation,
-                    child: Icon(Icons.my_location),
-                  ),
-                ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

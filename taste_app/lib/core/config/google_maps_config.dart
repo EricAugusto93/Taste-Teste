@@ -23,53 +23,23 @@ class GoogleMapsConfig {
     }
     
     if (kIsWeb) {
-      await _initializeWeb(apiKey);
-    }
-    
-    _isInitialized = true;
-  }
-  
-  /// Inicializa o Google Maps para web
-  static Future<void> _initializeWeb(String apiKey) async {
-    if (kIsWeb) {
       try {
-        if (kDebugMode) {
-          debugPrint('🔄 Iniciando carregamento do Google Maps...');
-          debugPrint('📍 API Key: ${apiKey.substring(0, 8)}...');
-        }
-        
+        // Carrega a API dinamicamente com a chave do ambiente
         await web_impl.initializeGoogleMaps(apiKey);
-        
         if (kDebugMode) {
           debugPrint('✅ Google Maps inicializado com sucesso');
-          debugPrint('🌐 Status da API: ${isAvailable ? "Disponível" : "Indisponível"}');
         }
       } catch (e) {
         if (kDebugMode) {
           debugPrint('❌ Erro ao inicializar Google Maps: $e');
-          debugPrint('🔍 Tipo do erro: ${e.runtimeType}');
-          
-          // Diagnóstico adicional
-          if (e.toString().contains('API key')) {
-            debugPrint('🔑 Problema relacionado à API key detectado');
-            debugPrint('💡 Verifique se a API key está correta e tem as permissões necessárias');
-          } else if (e.toString().contains('network') || e.toString().contains('timeout')) {
-            debugPrint('🌐 Problema de conectividade detectado');
-            debugPrint('💡 Verifique sua conexão com a internet');
-          } else if (e.toString().contains('CORS') || e.toString().contains('blocked')) {
-            debugPrint('🚫 Problema de CORS ou bloqueio detectado');
-            debugPrint('💡 Verifique as configurações de CSP no index.html');
-          }
-          
-          debugPrint('🔄 Aplicação continuará com fallback (mapa não disponível)');
         }
-        // Não relança a exceção para permitir que a aplicação continue
-        // com fallback quando o mapa não estiver disponível
+        // Não impede a continuação da aplicação se o Maps falhar
+        return;
       }
     }
+    
+    _isInitialized = true;
   }
-  
-
   
   /// Verifica se o Google Maps está disponível
   static bool get isAvailable {

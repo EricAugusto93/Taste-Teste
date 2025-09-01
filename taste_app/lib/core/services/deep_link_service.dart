@@ -451,7 +451,10 @@ class DeepLinkService {
         return DeepLinkResult.error('Handler cannot process this link');
       }
       
-      // Executa handler
+      // Executa handler (verifica se context ainda está montado)
+      if (!context.mounted) {
+        return DeepLinkResult.error('Context is no longer valid');
+      }
       await handler.handle(context, linkData);
       
       // Registra analytics

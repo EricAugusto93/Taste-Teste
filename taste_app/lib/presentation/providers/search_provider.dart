@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../data/models/restaurant_model.dart';
-import '../../data/models/category_model.dart';
 import '../../data/models/search_filters.dart';
 import '../../data/models/search_params.dart' as search_params;
 import '../../../core/di/injection_container.dart';

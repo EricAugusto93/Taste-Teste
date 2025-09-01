@@ -923,7 +923,7 @@ class _RestaurantMenuWidgetState extends State<RestaurantMenuWidget> {
               size: 64,
               color: Colors.grey,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Menu não disponível',
               style: TextStyle(

@@ -1,4 +1,4 @@
-import '../../data/models/restaurant_model.dart';
+// import 'restaurant_model.dart'; // Removido para evitar import circular
 
 /// Modelo para representar uma avaliação de restaurante
 class ReviewModel {
@@ -16,7 +16,7 @@ class ReviewModel {
   final List<ReviewReply> replies;
   final bool isHelpfulByCurrentUser;
   final bool isReportedByCurrentUser;
-  final RestaurantModel? restaurant;
+  // final RestaurantModel? restaurant; // Removido para evitar import circular
 
   const ReviewModel({
     required this.id,
@@ -33,33 +33,32 @@ class ReviewModel {
     this.replies = const [],
     this.isHelpfulByCurrentUser = false,
     this.isReportedByCurrentUser = false,
-    this.restaurant,
+    // this.restaurant, // Removido para evitar import circular
   });
 
   /// Cria uma instância de ReviewModel a partir de um Map (JSON)
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
-      id: json['id'] as String,
-      restaurantId: json['restaurant_id'] as String,
-      userId: json['user_id'] as String,
-      userName: json['user_name'] as String,
+      id: json['id']?.toString() ?? '',
+      restaurantId: json['restaurant_id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      userName: json['user_name'] as String? ?? 'Usuário Anônimo',
       userAvatar: json['user_avatar'] as String?,
-      rating: json['rating'] as int,
+      rating: (json['rating'] as int?) ?? 0,
       comment: json['comment'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at'] as String) 
           : null,
-      helpfulCount: json['helpful_count'] as int? ?? 0,
-      isVerified: json['is_verified'] as bool? ?? false,
+      helpfulCount: (json['helpful_count'] as int?) ?? 0,
+      isVerified: (json['is_verified'] as bool?) ?? false,
       replies: (json['replies'] as List<dynamic>? ?? [])
           .map((reply) => ReviewReply.fromJson(reply as Map<String, dynamic>))
           .toList(),
-      isHelpfulByCurrentUser: json['is_helpful_by_current_user'] as bool? ?? false,
-      isReportedByCurrentUser: json['is_reported_by_current_user'] as bool? ?? false,
-      restaurant: json['restaurant'] != null
-          ? RestaurantModel.fromJson(json['restaurant'] as Map<String, dynamic>)
-          : null,
+      isHelpfulByCurrentUser: (json['is_helpful_by_current_user'] as bool?) ?? false,
+      isReportedByCurrentUser: (json['is_reported_by_current_user'] as bool?) ?? false,
     );
   }
 
@@ -80,7 +79,6 @@ class ReviewModel {
       'replies': replies.map((reply) => reply.toJson()).toList(),
       'is_helpful_by_current_user': isHelpfulByCurrentUser,
       'is_reported_by_current_user': isReportedByCurrentUser,
-      'restaurant': restaurant?.toJson(),
     };
   }
 
@@ -113,7 +111,7 @@ class ReviewModel {
     List<ReviewReply>? replies,
     bool? isHelpfulByCurrentUser,
     bool? isReportedByCurrentUser,
-    RestaurantModel? restaurant,
+    // RestaurantModel? restaurant, // Removido para evitar import circular
   }) {
     return ReviewModel(
       id: id ?? this.id,
@@ -130,7 +128,7 @@ class ReviewModel {
       replies: replies ?? this.replies,
       isHelpfulByCurrentUser: isHelpfulByCurrentUser ?? this.isHelpfulByCurrentUser,
       isReportedByCurrentUser: isReportedByCurrentUser ?? this.isReportedByCurrentUser,
-      restaurant: restaurant ?? this.restaurant,
+      // restaurant: restaurant ?? this.restaurant, // Removido para evitar import circular
     );
   }
 

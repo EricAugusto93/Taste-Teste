@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:taste_app/data/services/order_service.dart';
+import 'package:taste_app/data/services/cart/order_service.dart';
 import 'package:taste_app/data/models/order_model.dart';
 import 'package:taste_app/data/models/cart_model.dart';
 import 'package:taste_app/data/models/cart_item_model.dart';

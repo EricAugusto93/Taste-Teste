@@ -126,7 +126,7 @@ class CartService {
     final isPeakHour = (hour >= 12 && hour <= 14) || (hour >= 19 && hour <= 21);
     
     // Tempo base do restaurante
-    final baseTime = restaurant.deliveryTime ?? '30-45 min';
+    final baseTime = restaurant.deliveryTime;
     
     if (isPeakHour) {
       return '${_addMinutes(baseTime, 10)} (horário de pico)';

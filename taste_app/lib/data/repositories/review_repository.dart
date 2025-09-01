@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../models/review_model.dart';
 
@@ -15,8 +16,8 @@ class ReviewRepository {
           .eq('restaurant_id', restaurantId)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((review) => ReviewModel.fromJson(review))
+      return response
+          .map<ReviewModel>((review) => ReviewModel.fromJson(review))
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar avaliações: $e');
@@ -39,7 +40,7 @@ class ReviewRepository {
         return ReviewModel.fromJson(response);
       } catch (supabaseError) {
         // Se falhar no Supabase, retorna a review local
-        print('Erro no Supabase, salvando localmente: $supabaseError');
+        debugPrint('Erro no Supabase, salvando localmente: $supabaseError');
         return review.copyWith(id: DateTime.now().millisecondsSinceEpoch.toString());
       }
     } catch (e) {
@@ -67,8 +68,8 @@ class ReviewRepository {
 
       if (response.isEmpty) return 0.0;
 
-      final ratings = (response as List)
-          .map((review) => (review['rating'] as num).toDouble())
+      final ratings = response
+          .map<double>((review) => (review['rating'] as num).toDouble())
           .toList();
 
       return ratings.reduce((a, b) => a + b) / ratings.length;
@@ -99,8 +100,8 @@ class ReviewRepository {
           .eq('rating', rating)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((review) => ReviewModel.fromJson(review))
+      return response
+          .map<ReviewModel>((review) => ReviewModel.fromJson(review))
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar avaliações por rating: $e');
@@ -115,8 +116,8 @@ class ReviewRepository {
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((review) => ReviewModel.fromJson(review))
+      return response
+          .map<ReviewModel>((review) => ReviewModel.fromJson(review))
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar avaliações do usuário: $e');
@@ -138,7 +139,7 @@ class ReviewRepository {
       final reviewsJson = existingReviews.map((r) => r.toJson()).toList();
       await prefs.setString(_localReviewsKey, jsonEncode(reviewsJson));
     } catch (e) {
-      print('Erro ao salvar review localmente: $e');
+      debugPrint('Erro ao salvar review localmente: $e');
     }
   }
 
@@ -153,7 +154,7 @@ class ReviewRepository {
       final List<dynamic> reviewsJson = jsonDecode(reviewsData);
       return reviewsJson.map((json) => ReviewModel.fromJson(json)).toList();
     } catch (e) {
-      print('Erro ao recuperar reviews locais: $e');
+      debugPrint('Erro ao recuperar reviews locais: $e');
       return [];
     }
   }
@@ -262,8 +263,8 @@ class ReviewRepository {
           .order('helpful_count', ascending: false)
           .limit(limit);
 
-      return (response as List<dynamic>)
-          .map((json) => ReviewModel.fromJson(json as Map<String, dynamic>))
+      return response
+          .map<ReviewModel>((json) => ReviewModel.fromJson(json))
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar avaliações mais úteis: $e');
@@ -279,7 +280,7 @@ class ReviewRepository {
           .select()
           .single();
 
-      return ReviewReply.fromJson(response as Map<String, dynamic>);
+      return ReviewReply.fromJson(response);
     } catch (e) {
       throw Exception('Erro ao criar resposta: $e');
     }
@@ -294,8 +295,8 @@ class ReviewRepository {
           .eq('review_id', reviewId)
           .order('created_at', ascending: true);
 
-      return (response as List<dynamic>)
-          .map((json) => ReviewReply.fromJson(json as Map<String, dynamic>))
+      return response
+          .map<ReviewReply>((json) => ReviewReply.fromJson(json))
           .toList();
     } catch (e) {
       throw Exception('Erro ao buscar respostas: $e');
@@ -351,7 +352,7 @@ class ReviewRepository {
       final reviews = await getReviewsByRestaurant(restaurantId);
       
       if (reviews.isEmpty) {
-        return ReviewStats(
+        return const ReviewStats(
           averageRating: 0.0,
           totalReviews: 0,
           ratingDistribution: {},

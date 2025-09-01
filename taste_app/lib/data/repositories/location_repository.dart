@@ -311,7 +311,7 @@ class LocationRepository {
       Logger.info('LocationRepository: Abrindo configurações do app');
       
       // Implementação temporária - sempre retorna false até implementar
-      final result = false;
+      const result = false;
       
       AnalyticsService.instance.trackEvent(
         'location_settings_opened',

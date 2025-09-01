@@ -4,7 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../../data/models/category_model.dart';
 import '../../../data/repositories/restaurant_repository.dart';
-import '../../../data/repositories/category_repository.dart';
+import '../../../domain/repositories/category_repository.dart';
+import '../../../data/repositories/predefined_categories.dart';
 import '../../../data/services/location/location_service.dart';
 import '../../../core/di/injection_container.dart';
 
@@ -65,14 +66,14 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Carrega a categoria
-      final category = await _categoryRepository.getCategoryById(categoryId);
+      // Carrega a categoria usando predefinidas como fallback
+      final categoryModel = PredefinedCategories.getCategoryById(categoryId);
       
       // Verifica permissões de localização
       final hasPermission = await _locationService.hasLocationPermission();
       
       state = state.copyWith(
-        category: category,
+        category: categoryModel,
         hasLocationPermission: hasPermission,
       );
 

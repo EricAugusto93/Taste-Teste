@@ -33,9 +33,9 @@ class ProfileRepository {
       });
 
       return UserStats(
-        totalFavorites: (favoritesResponse as List).length,
-        totalReviews: (reviewsResponse as List).length,
-        totalOrders: (ordersResponse as List).length,
+        totalFavorites: favoritesResponse.length,
+        totalReviews: reviewsResponse.length,
+        totalOrders: ordersResponse.length,
       );
     } catch (e) {
       throw ServerException('Erro ao buscar estatísticas do usuário: $e');

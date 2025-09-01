@@ -7,13 +7,26 @@ import '../../widgets/widgets.dart';
 import '../../../data/services/onboarding_service.dart';
 
 /// Página de onboarding idêntica à primeira imagem de referência
-class OnboardingPage extends StatelessWidget {
+class OnboardingPage extends StatefulWidget {
   final VoidCallback? onCompleted;
   
   const OnboardingPage({
     super.key,
     this.onCompleted,
   });
+  
+  @override
+  State<OnboardingPage> createState() => _OnboardingPageState();
+}
+
+class _OnboardingPageState extends State<OnboardingPage> {
+  // Router está garantidamente inicializado - removendo verificações desnecessárias
+  
+  @override
+  void initState() {
+    super.initState();
+    // Router já foi inicializado no main.dart - não precisamos de delays
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -173,20 +186,14 @@ class OnboardingPage extends StatelessWidget {
                     Expanded(
                       child: CustomButton(
                         text: 'Login',
-                        onPressed: () {
-                          _markOnboardingCompleted();
-                          context.go('/login');
-                        },
+                        onPressed: () => _navigateToLogin(),
                       ),
                     ),
                     SizedBox(width: 1),
                     Expanded(
                       child: CustomButton(
                         text: 'Cadastro',
-                        onPressed: () {
-                          _markOnboardingCompleted();
-                          context.go('/register');
-                        },
+                        onPressed: () => _navigateToRegister(),
                       ),
                     ),
                   ],
@@ -201,10 +208,22 @@ class OnboardingPage extends StatelessWidget {
     );
   }
   
+  /// Navega para a página de login
+  void _navigateToLogin() {
+    _markOnboardingCompleted();
+    context.go('/login');
+  }
+  
+  /// Navega para a página de cadastro
+  void _navigateToRegister() {
+    _markOnboardingCompleted();
+    context.go('/register');
+  }
+  
   void _markOnboardingCompleted() async {
     await OnboardingService.setOnboardingCompleted();
-    if (onCompleted != null) {
-      onCompleted!();
+    if (widget.onCompleted != null) {
+      widget.onCompleted!();
     }
   }
 }

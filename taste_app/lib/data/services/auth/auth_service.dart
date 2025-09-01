@@ -1,99 +1,293 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
-import 'dart:math';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../core/config/supabase_config.dart';
 
-/// Modelo básico de usuário
+/// Modelo básico de usuário baseado no Supabase User
 class AppUser {
   final String id;
   final String email;
+  final String? name;
+  final String? avatarUrl;
+  final DateTime? createdAt;
+  final Map<String, dynamic>? metadata;
   
-  const AppUser({required this.id, required this.email});
+  const AppUser({
+    required this.id, 
+    required this.email,
+    this.name,
+    this.avatarUrl,
+    this.createdAt,
+    this.metadata,
+  });
+
+  /// Cria AppUser a partir do Supabase User
+  factory AppUser.fromSupabaseUser(User user) {
+    return AppUser(
+      id: user.id,
+      email: user.email ?? '',
+      name: user.userMetadata?['name'] as String? ?? 
+            user.userMetadata?['full_name'] as String?,
+      avatarUrl: user.userMetadata?['avatar_url'] as String?,
+      createdAt: DateTime.tryParse(user.createdAt),
+      metadata: user.userMetadata,
+    );
+  }
+
+  /// Converte para JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'avatar_url': avatarUrl,
+      'created_at': createdAt?.toIso8601String(),
+      'metadata': metadata,
+    };
+  }
+
+  /// Cria uma cópia com modificações
+  AppUser copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? avatarUrl,
+    DateTime? createdAt,
+    Map<String, dynamic>? metadata,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      createdAt: createdAt ?? this.createdAt,
+      metadata: metadata ?? this.metadata,
+    );
+  }
 }
 
 /// Resposta de autenticação
 class AuthResponse {
   final AppUser? user;
   final String? error;
+  final Session? session;
+  final bool success;
   
-  const AuthResponse({this.user, this.error});
+  const AuthResponse({
+    this.user, 
+    this.error, 
+    this.session,
+    this.success = false,
+  });
+
+  /// Factory para sucesso
+  factory AuthResponse.success({required AppUser user, Session? session}) {
+    return AuthResponse(
+      user: user, 
+      session: session, 
+      success: true,
+    );
+  }
+
+  /// Factory para erro
+  factory AuthResponse.error(String error) {
+    return AuthResponse(error: error, success: false);
+  }
 }
 
-/// Serviço básico de autenticação
+/// Serviço de autenticação integrado com Supabase
 class AuthService {
   static AuthService? _instance;
   static AuthService get instance => _instance ??= AuthService._();
   AuthService._();
 
-  String? _userId;
-  String? _userEmail;
+  // Cliente Supabase
+  SupabaseClient get _supabase => SupabaseConfig.client;
+  
+  // Estado atual
   AppUser? _currentUser;
+  Session? _currentSession;
   final StreamController<AppUser?> _authStateController = StreamController<AppUser?>.broadcast();
+  StreamSubscription<AuthState>? _authSubscription;
 
   /// ID do usuário atual
-  String? get userId => _userId;
+  String? get userId => _currentUser?.id;
 
-  /// Email do usuário atual
-  String? get userEmail => _userEmail;
+  /// Email do usuário atual  
+  String? get userEmail => _currentUser?.email;
 
   /// Usuário atual
   AppUser? get currentUser => _currentUser;
+
+  /// Sessão atual
+  Session? get currentSession => _currentSession;
 
   /// Stream de mudanças no estado de autenticação
   Stream<AppUser?> get authStateChanges => _authStateController.stream;
 
   /// Verifica se o usuário está autenticado
-  bool get isAuthenticated => _userId != null;
+  bool get isAuthenticated => _currentUser != null && _currentSession != null;
 
   /// Verifica se tem uma sessão válida
-  bool get hasValidSession => _currentUser != null;
+  bool get hasValidSession => _currentSession != null && !_isSessionExpired();
+
+  /// Verifica se a sessão expirou
+  bool _isSessionExpired() {
+    if (_currentSession?.expiresAt == null) return true;
+    return DateTime.now().isAfter(
+      DateTime.fromMillisecondsSinceEpoch(_currentSession!.expiresAt! * 1000)
+    );
+  }
 
   /// Inicializa o serviço
   Future<void> initialize() async {
-    debugPrint('🔐 Auth: Inicializando serviço de autenticação');
-    // Por enquanto, inicia com usuário anônimo
-    await signInAnonymously();
+    try {
+      debugPrint('🔐 AuthService: Inicializando com Supabase');
+      
+      // Verificar se há uma sessão existente
+      final session = _supabase.auth.currentSession;
+      if (session?.user != null) {
+        debugPrint('🔐 AuthService: Sessão existente encontrada para ${session!.user.email}');
+        _updateAuthState(session);
+      }
+
+      // Escutar mudanças de auth state
+      _authSubscription = _supabase.auth.onAuthStateChange.listen(
+        (data) {
+          debugPrint('🔐 AuthService: Mudança de estado: ${data.event}');
+          _updateAuthState(data.session);
+        },
+        onError: (error) {
+          debugPrint('❌ AuthService: Erro no listener: $error');
+        },
+      );
+
+      debugPrint('✅ AuthService: Inicialização concluída');
+    } catch (e) {
+      debugPrint('❌ AuthService: Erro na inicialização: $e');
+      // Em caso de erro, continua sem sessão
+    }
+  }
+
+  /// Atualiza o estado de autenticação
+  void _updateAuthState(Session? session) {
+    _currentSession = session;
+    if (session?.user != null) {
+      _currentUser = AppUser.fromSupabaseUser(session!.user);
+      debugPrint('✅ AuthService: Usuário logado: ${_currentUser!.email}');
+    } else {
+      _currentUser = null;
+      debugPrint('🔐 AuthService: Usuário deslogado');
+    }
+    _authStateController.add(_currentUser);
   }
 
   /// Faz login com email e senha
   Future<AuthResponse> signInWithEmail(String email, String password) async {
     try {
-      debugPrint('🔐 Auth: Login para $email');
-      _userId = _generateUuid();
-      _userEmail = email;
-      _currentUser = AppUser(id: _userId!, email: email);
-      _authStateController.add(_currentUser);
-      return AuthResponse(user: _currentUser);
+      debugPrint('🔐 AuthService: Tentando login para $email');
+      
+      final response = await _supabase.auth.signInWithPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      if (response.user != null && response.session != null) {
+        debugPrint('✅ AuthService: Login bem-sucedido para ${response.user!.email}');
+        final appUser = AppUser.fromSupabaseUser(response.user!);
+        
+        // O estado será atualizado automaticamente pelo listener
+        return AuthResponse.success(
+          user: appUser, 
+          session: response.session,
+        );
+      } else {
+        debugPrint('❌ AuthService: Login falhou - sem usuário ou sessão');
+        return AuthResponse.error('Login falhou');
+      }
+    } on AuthException catch (e) {
+      debugPrint('❌ AuthService: Erro de autenticação: ${e.message}');
+      return AuthResponse.error(_getLocalizedError(e.message));
     } catch (e) {
-      return AuthResponse(error: 'Erro no login: $e');
+      debugPrint('❌ AuthService: Erro geral no login: $e');
+      return AuthResponse.error('Erro interno. Tente novamente.');
     }
   }
 
   /// Registra usuário com email e senha
-  Future<AuthResponse> signUpWithEmail(String email, String password) async {
+  Future<AuthResponse> signUpWithEmail(String email, String password, {String? name}) async {
     try {
-      debugPrint('🔐 Auth: Registrando usuário $email');
-      _userId = _generateUuid();
-      _userEmail = email;
-      _currentUser = AppUser(id: _userId!, email: email);
-      _authStateController.add(_currentUser);
-      return AuthResponse(user: _currentUser);
+      debugPrint('🔐 AuthService: Tentando registro para $email');
+
+      final metadata = name != null ? {'full_name': name} : <String, dynamic>{};
+      
+      final response = await _supabase.auth.signUp(
+        email: email.trim(),
+        password: password,
+        data: metadata,
+      );
+
+      if (response.user != null) {
+        debugPrint('✅ AuthService: Registro bem-sucedido para ${response.user!.email}');
+        final appUser = AppUser.fromSupabaseUser(response.user!);
+        
+        // Criar perfil do usuário na tabela user_profiles se necessário
+        await _createUserProfile(response.user!);
+        
+        return AuthResponse.success(
+          user: appUser, 
+          session: response.session,
+        );
+      } else {
+        debugPrint('❌ AuthService: Registro falhou - sem usuário');
+        return AuthResponse.error('Registro falhou');
+      }
+    } on AuthException catch (e) {
+      debugPrint('❌ AuthService: Erro de autenticação no registro: ${e.message}');
+      return AuthResponse.error(_getLocalizedError(e.message));
     } catch (e) {
-      return AuthResponse(error: 'Erro no registro: $e');
+      debugPrint('❌ AuthService: Erro geral no registro: $e');
+      return AuthResponse.error('Erro interno. Tente novamente.');
+    }
+  }
+
+  /// Cria perfil do usuário na tabela user_profiles
+  Future<void> _createUserProfile(User user) async {
+    try {
+      await _supabase.from('user_profiles').upsert({
+        'id': user.id,
+        'email': user.email,
+        'name': user.userMetadata?['full_name'],
+        'avatar_url': user.userMetadata?['avatar_url'],
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      debugPrint('✅ AuthService: Perfil do usuário criado/atualizado');
+    } catch (e) {
+      debugPrint('⚠️ AuthService: Erro ao criar perfil: $e (continuando...)');
     }
   }
 
   /// Faz login básico (compatibilidade)
   Future<void> login(String email, String password) async {
-    await signInWithEmail(email, password);
+    final result = await signInWithEmail(email, password);
+    if (!result.success) {
+      throw Exception(result.error);
+    }
   }
 
   /// Faz logout
   Future<void> signOut() async {
-    debugPrint('🔐 Auth: Logout');
-    _userId = null;
-    _userEmail = null;
-    _currentUser = null;
-    _authStateController.add(null);
+    try {
+      debugPrint('🔐 AuthService: Fazendo logout');
+      await _supabase.auth.signOut();
+      debugPrint('✅ AuthService: Logout realizado');
+      // O estado será atualizado automaticamente pelo listener
+    } catch (e) {
+      debugPrint('❌ AuthService: Erro no logout: $e');
+      // Limpa estado local mesmo com erro
+      _updateAuthState(null);
+    }
   }
 
   /// Faz logout (compatibilidade)
@@ -101,52 +295,87 @@ class AuthService {
     await signOut();
   }
 
-  /// Login anônimo
+  /// Login anônimo (não suportado no Supabase por padrão)
   Future<void> signInAnonymously() async {
-    debugPrint('🔐 Auth: Login anônimo');
-    _userId = _generateUuid();
-    _userEmail = 'anonimo@taste.app';
-    _currentUser = AppUser(id: _userId!, email: _userEmail!);
-    _authStateController.add(_currentUser);
+    debugPrint('⚠️ AuthService: Login anônimo não implementado com Supabase');
+    // Por enquanto, não faz nada - usuário fica sem login
+    _updateAuthState(null);
   }
 
   /// Reset de senha
   Future<void> resetPassword(String email) async {
-    debugPrint('🔐 Auth: Reset de senha para $email');
-    // Mock - em produção enviaria email
-  }
-
-  /// Força autenticação local
-  void forceLocalAuth() {
-    debugPrint('🔐 Auth: Forçando autenticação local');
-    if (_userId == null) {
-      signInAnonymously();
+    try {
+      debugPrint('🔐 AuthService: Reset de senha para $email');
+      
+      await _supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: kIsWeb ? '${Uri.base.origin}/reset-password' : null,
+      );
+      
+      debugPrint('✅ AuthService: Email de reset enviado');
+    } on AuthException catch (e) {
+      debugPrint('❌ AuthService: Erro no reset: ${e.message}');
+      throw Exception(_getLocalizedError(e.message));
+    } catch (e) {
+      debugPrint('❌ AuthService: Erro geral no reset: $e');
+      throw Exception('Erro interno. Tente novamente.');
     }
   }
 
   /// Atualiza sessão se necessário
   Future<void> refreshSessionIfNeeded() async {
-    debugPrint('🔐 Auth: Verificando se precisa atualizar sessão');
-    if (!hasValidSession) {
-      await signInAnonymously();
+    try {
+      if (_isSessionExpired()) {
+        debugPrint('🔄 AuthService: Renovando sessão expirada');
+        final response = await _supabase.auth.refreshSession();
+        if (response.session != null) {
+          debugPrint('✅ AuthService: Sessão renovada');
+        } else {
+          debugPrint('❌ AuthService: Falha ao renovar sessão');
+          await signOut();
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ AuthService: Erro ao renovar sessão: $e');
+      await signOut();
     }
   }
 
-  /// Gera um UUID v4 válido
-  String _generateUuid() {
-    final random = Random();
-    final bytes = List<int>.generate(16, (i) => random.nextInt(256));
+  /// Força autenticação local (não aplicável com Supabase)
+  void forceLocalAuth() {
+    debugPrint('⚠️ AuthService: forceLocalAuth não implementado com Supabase');
+  }
+
+  /// Converte mensagens de erro para português
+  String _getLocalizedError(String message) {
+    final lowerMessage = message.toLowerCase();
     
-    // Set version (4) and variant bits
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    if (lowerMessage.contains('invalid login credentials')) {
+      return 'Email ou senha incorretos';
+    }
+    if (lowerMessage.contains('user not found')) {
+      return 'Usuário não encontrado';
+    }
+    if (lowerMessage.contains('email not confirmed')) {
+      return 'Confirme seu email antes de fazer login';
+    }
+    if (lowerMessage.contains('password')) {
+      return 'Problema com a senha fornecida';
+    }
+    if (lowerMessage.contains('email')) {
+      return 'Problema com o email fornecido';
+    }
+    if (lowerMessage.contains('network') || lowerMessage.contains('connection')) {
+      return 'Problema de conexão. Verifique sua internet.';
+    }
     
-    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
+    return message; // Retorna original se não encontrou tradução
   }
 
   /// Dispose dos resources
   void dispose() {
+    debugPrint('🔐 AuthService: Fazendo dispose');
+    _authSubscription?.cancel();
     _authStateController.close();
   }
 }

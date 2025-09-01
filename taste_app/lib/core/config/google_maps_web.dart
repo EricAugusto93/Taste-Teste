@@ -36,56 +36,73 @@ Future<void> initializeGoogleMaps(String apiKey) async {
     return;
   }
   
-  // Verifica conectividade antes de tentar carregar
-  if (!await _checkConnectivity()) {
-    if (kDebugMode) {
-      debugPrint('❌ Sem conectividade com a internet. Não é possível carregar Google Maps.');
-    }
-    throw Exception('Sem conectividade com a internet');
+  if (kDebugMode) {
+    debugPrint('📍 Carregando Google Maps API com chave do ambiente...');
   }
   
-  // Remove todos os scripts existentes do Google Maps para evitar conflitos
-  final existingScripts = html.document.querySelectorAll('script[src*="maps.googleapis.com"]');
-  for (final script in existingScripts) {
-    script.remove();
-    if (kDebugMode) {
-      debugPrint('🗑️ Script do Google Maps removido: ${script.getAttribute('src')}');
-    }
-  }
-  
-  // Limpa qualquer referência global existente
   try {
-    (html.window as dynamic).google = null;
+    // Usa a função JavaScript definida no index.html para carregar o Google Maps
+    final loadGoogleMapsAPI = js.context['loadGoogleMapsAPI'];
+    if (loadGoogleMapsAPI != null) {
+      // Chama a função JavaScript que retorna uma Promise
+      final promise = js.context.callMethod('loadGoogleMapsAPI', [apiKey]);
+      
+      // Aguarda a Promise usando completer
+      final completer = Completer<void>();
+      
+      // Converte a Promise JavaScript para Future Dart
+      final promiseObject = promise as js.JsObject;
+      promiseObject.callMethod('then', [
+        js.allowInterop((result) {
+          if (kDebugMode) {
+            debugPrint('✅ Google Maps API carregada via JavaScript');
+          }
+          completer.complete();
+        })
+      ]);
+      
+      promiseObject.callMethod('catch', [
+        js.allowInterop((error) {
+          if (kDebugMode) {
+            debugPrint('❌ Erro na Promise do Google Maps: $error');
+          }
+          completer.completeError(Exception('Erro ao carregar Google Maps: $error'));
+        })
+      ]);
+      
+      await completer.future;
+    } else {
+      // Fallback: carrega diretamente se a função não existir
+      if (kDebugMode) {
+        debugPrint('⚠️ Função loadGoogleMapsAPI não encontrada, usando fallback');
+      }
+      await _loadGoogleMapsDirect(apiKey);
+    }
+    
+    // Verifica se foi carregado com sucesso
+    if (!isGoogleMapsAvailable()) {
+      throw Exception('Google Maps API não está disponível após carregamento');
+    }
+    
   } catch (e) {
-    // Ignora erros ao limpar
+    if (kDebugMode) {
+      debugPrint('❌ Erro ao inicializar Google Maps: $e');
+    }
+    rethrow;
   }
-  
-  // Cria novo script sem callback - vamos usar polling para verificar quando carregou
+}
+
+/// Carregamento direto como fallback
+Future<void> _loadGoogleMapsDirect(String apiKey) async {
   final script = html.ScriptElement()
     ..src = 'https://maps.googleapis.com/maps/api/js?key=$apiKey&libraries=places'
     ..async = true
     ..defer = true;
 
-  // Observa eventos de carregamento/erro do script para facilitar diagnóstico
-  script.onLoad.listen((_) {
-    if (kDebugMode) {
-      debugPrint('⬇️ Script do Google Maps baixado (onLoad emitido)');
-    }
-  });
-  script.onError.listen((event) {
-    if (kDebugMode) {
-      debugPrint('❌ Erro ao carregar script do Google Maps: $event');
-    }
-  });
-  
-  if (kDebugMode) {
-    debugPrint('📍 Carregando Google Maps API: ${script.src}');
-  }
-  
   html.document.head?.append(script);
   
-  // Aguarda o carregamento do script e disponibilidade da API com retry
-  await _waitForGoogleMapsLoadWithRetry(apiKey);
+  // Aguarda até que esteja disponível
+  await _waitForGoogleMapsLoad();
 }
 
 /// Verifica conectividade com a internet
@@ -108,38 +125,6 @@ Future<bool> _checkConnectivity() async {
   }
 }
 
-/// Aguarda o carregamento da API do Google Maps com retry e backoff
-Future<void> _waitForGoogleMapsLoadWithRetry(String apiKey) async {
-  const maxRetries = 3;
-  
-  for (int retry = 0; retry < maxRetries; retry++) {
-    try {
-      await _waitForGoogleMapsLoad();
-      return; // Sucesso, sai da função
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('🔄 Tentativa ${retry + 1}/$maxRetries falhou: $e');
-      }
-      
-      if (retry < maxRetries - 1) {
-        // Backoff exponencial: 2s, 4s, 8s
-        final delaySeconds = 2 << retry;
-        if (kDebugMode) {
-          debugPrint('⏳ Aguardando ${delaySeconds}s antes da próxima tentativa...');
-        }
-        await Future.delayed(Duration(seconds: delaySeconds));
-        
-        // Verifica se ainda há conectividade antes de tentar novamente
-        if (!await _checkConnectivity()) {
-          throw Exception('Conectividade perdida durante retry');
-        }
-      }
-    }
-  }
-  
-  // Se chegou aqui, todas as tentativas falharam
-  throw Exception('Google Maps API falhou após $maxRetries tentativas');
-}
 
 /// Aguarda o carregamento da API do Google Maps
 Future<void> _waitForGoogleMapsLoad() async {

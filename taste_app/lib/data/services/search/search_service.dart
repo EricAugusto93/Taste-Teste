@@ -1,9 +1,8 @@
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../../repositories/restaurant_repository.dart';
-import '../../repositories/category_repository.dart';
 import '../../models/restaurant_model.dart';
 import '../../models/category_model.dart';
+import '../../repositories/predefined_categories.dart';
 import 'ai_search_service.dart';
 import 'search_analytics_service.dart';
 import '../../../core/di/injection_container.dart';
@@ -15,7 +14,6 @@ class SearchService {
   SearchService._();
 
   final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
-  final CategoryRepository _categoryRepository = CategoryRepository.instance;
   final AISearchService _aiSearchService = AISearchService.instance;
   final SearchAnalyticsService _analyticsService = SearchAnalyticsService.instance;
 
@@ -185,7 +183,8 @@ class SearchService {
   /// Busca por categoria
   Future<List<CategoryModel>> _searchByCategory(String query) async {
     try {
-      final categories = await _categoryRepository.getCategories();
+      // Usar categorias predefinidas como fallback por enquanto
+      final categories = PredefinedCategories.getAllCategories();
       return categories.where((category) {
         return category.name.toLowerCase().contains(query.toLowerCase());
       }).toList();
@@ -195,15 +194,6 @@ class SearchService {
     }
   }
 
-  /// Busca restaurantes por categoria (delegando para o repository)
-  Future<List<RestaurantModel>> _getRestaurantsByCategory(String categoryId) async {
-    try {
-      return await _restaurantRepository.getRestaurantsByCategory(categoryId);
-    } catch (e) {
-      debugPrint('Erro ao buscar restaurantes por categoria: $e');
-      return [];
-    }
-  }
 
   /// Busca inteligente com sinônimos e termos relacionados
   Future<List<RestaurantModel>> _intelligentSearch(String query) async {
@@ -263,89 +253,9 @@ class SearchService {
     }
   }
 
-  /// Aplicar filtros aos resultados (método legado - usar RestaurantRepository.searchWithFilters)
-  @deprecated
-  List<RestaurantModel> _applyFilters(
-    List<RestaurantModel> restaurants, {
-    String? categoryId,
-    double? latitude,
-    double? longitude,
-    double? maxDistance,
-    double? minRating,
-    bool? isOpen,
-  }) {
-    // Este método foi movido para RestaurantRepository.searchWithFilters
-    // Mantido apenas para compatibilidade com busca inteligente
-    var filtered = restaurants;
-    
-    if (categoryId != null) {
-      filtered = filtered.where((r) => r.categoryId == categoryId).toList();
-    }
-    
-    if (minRating != null) {
-      filtered = filtered.where((r) => r.rating >= minRating).toList();
-    }
-    
-    if (isOpen != null) {
-      filtered = filtered.where((r) => r.isOpen == isOpen).toList();
-    }
-    
-    return filtered;
-  }
 
-  /// Aplicar ordenação aos resultados (método legado - usar RestaurantRepository.searchWithFilters)
-  @deprecated
-  List<RestaurantModel> _applySorting(
-    List<RestaurantModel> restaurants,
-    String? sortBy,
-    double? latitude,
-    double? longitude,
-  ) {
-    // Este método foi movido para RestaurantRepository.searchWithFilters
-    // Mantido apenas para compatibilidade com busca inteligente
-    switch (sortBy) {
-      case 'rating':
-        restaurants.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
-      case 'name':
-        restaurants.sort((a, b) => a.name.compareTo(b.name));
-        break;
-      default:
-        restaurants.sort((a, b) {
-          if (a.isFeatured && !b.isFeatured) return -1;
-          if (!a.isFeatured && b.isFeatured) return 1;
-          return b.rating.compareTo(a.rating);
-        });
-    }
-    
-    return restaurants;
-  }
 
-  /// Calcular distância entre dois pontos (fórmula de Haversine)
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double earthRadius = 6371; // Raio da Terra em km
-    
-    final double dLat = _degreesToRadians(lat2 - lat1);
-    final double dLon = _degreesToRadians(lon2 - lon1);
-    
-    final double a = 
-        sin(dLat / 2) * sin(dLat / 2) +
-        cos(_degreesToRadians(lat1)) * cos(_degreesToRadians(lat2)) *
-        sin(dLon / 2) * sin(dLon / 2);
-    
-    final double c = 2 * asin(sqrt(a));
-    
-    return earthRadius * c;
-  }
 
-  double _degreesToRadians(double degrees) {
-    return degrees * (pi / 180);
-  }
-
-  /// Normalizar query de busca
-  String _normalizeQuery(String query) {
-    return query.trim().toLowerCase();
-  }
 
   /// Gerar chave de cache
   String _generateCacheKey(
@@ -405,7 +315,8 @@ class SearchService {
       
       // Buscar em categorias se ainda precisamos de mais sugestões
       if (suggestions.length < 8) {
-        final categories = await _categoryRepository.getCategories();
+        // Usar categorias predefinidas como fallback por enquanto
+      final categories = PredefinedCategories.getAllCategories();
         for (final category in categories) {
           if (category.name.toLowerCase().contains(query.toLowerCase())) {
             suggestions.add(category.name);

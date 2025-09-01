@@ -9,8 +9,8 @@ import '../../core/theme/app_dimensions.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/navigation_helper.dart';
-import '../widgets/rating_stars_widget.dart';
-import '../widgets/error_widget.dart';
+import '../widgets/rating_widget.dart';
+import 'dart:math' as math;
 
 /// Página de detalhes do restaurante
 class RestaurantDetailPage extends StatefulWidget {
@@ -35,10 +35,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   late AnimationController _headerAnimationController;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScale;
+  late Animation<double> _headerOpacity;
   
   bool _isHeaderCollapsed = false;
   bool _isFavorite = false;
   String? _distance;
+  String? _estimatedTime;
   
   static const double _headerHeight = 300.0;
   static const double _collapsedHeaderHeight = 100.0;
@@ -125,12 +127,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         longitude: widget.restaurant.longitude!,
       );
       
-      final distance = await widget.locationRepository!.calculateDistance(
-        widget.userLocation!,
-        restaurantLocation,
+      final distance = _calculateDistanceBetweenPoints(
+        widget.userLocation!.latitude,
+        widget.userLocation!.longitude,
+        restaurantLocation.latitude,
+        restaurantLocation.longitude,
       );
       
-      final formattedDistance = widget.locationRepository!.formatDistance(distance);
+      final formattedDistance = _formatDistance(distance);
       final estimatedTime = _calculateEstimatedTime(distance);
       
       if (mounted) {
@@ -225,8 +229,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         content: Text(message),
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.borderRadius),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
         ),
       ),
     );
@@ -289,10 +293,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
         ),
         child: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => NavigationHelper.safeGoBack(context),
         ),
       ),
@@ -388,10 +392,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                   SizedBox(height: 12),
                   Row(
                     children: [
-                      RatingStarsWidget(
+                      RatingWidget(
                         rating: widget.restaurant.rating,
-                        size: 20,
-                        color: AppColors.warning,
+                        size: RatingSize.small,
+                        starColor: AppColors.warning,
+                        showReviewCount: false,
+                        showRatingValue: false,
                       ),
                       SizedBox(width: 8),
                       Text(
@@ -465,8 +471,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
 
   Widget _buildInfoSection() {
     return Container(
-      margin: const EdgeInsets.all(AppDimensions.padding),
-      padding: const EdgeInsets.all(AppDimensions.padding),
+      margin: const EdgeInsets.all(AppDimensions.paddingMedium),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
@@ -509,12 +515,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                   : 'Grátis',
               valueColor: widget.restaurant.deliveryFee! > 0 ? null : AppColors.success,
             ),
-          if (widget.restaurant.minimumOrder != null)
-            _buildInfoRow(
-              Icons.shopping_cart,
-              'Pedido mínimo',
-              'R\$ ${widget.restaurant.minimumOrder!.toStringAsFixed(2)}',
-            ),
+          // TODO: Adicionar campo minimumOrder no RestaurantModel
+          // if (widget.restaurant.minimumOrder != null)
+          //   _buildInfoRow(
+          //     Icons.shopping_cart,
+          //     'Pedido mínimo',
+          //     'R\$ ${widget.restaurant.minimumOrder!.toStringAsFixed(2)}',
+          //   ),
           if (widget.restaurant.phone != null && widget.restaurant.phone!.isNotEmpty)
             _buildInfoRow(
               Icons.phone,
@@ -591,7 +598,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   Widget _buildMapSection() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.padding,
+        horizontal: AppDimensions.paddingMedium,
         vertical: AppDimensions.paddingSmall,
       ),
       height: 200,
@@ -656,10 +663,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   Widget _buildMenuSection() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.padding,
+        horizontal: AppDimensions.paddingMedium,
         vertical: AppDimensions.paddingSmall,
       ),
-      padding: const EdgeInsets.all(AppDimensions.padding),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
@@ -706,10 +713,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   Widget _buildReviewsSection() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.padding,
+        horizontal: AppDimensions.paddingMedium,
         vertical: AppDimensions.paddingSmall,
       ),
-      padding: const EdgeInsets.all(AppDimensions.padding),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
@@ -810,5 +817,42 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         ),
       ],
     );
+  }
+
+  /// Calcula distância entre dois pontos usando fórmula de Haversine
+  double _calculateDistanceBetweenPoints(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371; // Raio da Terra em km
+    
+    final double dLat = _degreesToRadians(lat2 - lat1);
+    final double dLon = _degreesToRadians(lon2 - lon1);
+    
+    final double a = 
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) * math.cos(_degreesToRadians(lat2)) *
+        math.sin(dLon / 2) * math.sin(dLon / 2);
+    
+    final double c = 2 * math.asin(math.sqrt(a));
+    
+    return earthRadius * c;
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * (3.14159265359 / 180);
+  }
+
+  /// Formatar distância para exibição
+  String _formatDistance(double distanceKm) {
+    if (distanceKm < 1.0) {
+      return '${(distanceKm * 1000).round()}m';
+    } else {
+      return '${distanceKm.toStringAsFixed(1)}km';
+    }
+  }
+
+  /// Calcular tempo estimado baseado na distância
+  String _calculateEstimatedTime(double distanceKm) {
+    // Assumindo velocidade média de 30 km/h para entrega
+    final timeInMinutes = (distanceKm / 30.0 * 60).round();
+    return '${timeInMinutes}min';
   }
 }

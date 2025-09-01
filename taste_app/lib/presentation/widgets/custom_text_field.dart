@@ -58,7 +58,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       onTap: onTap,
-      prefixIcon: prefixIcon ?? Icon(
+      prefixIcon: prefixIcon ?? const Icon(
         Icons.search,
         color: AppColors.textLight,
         size: AppDimensions.iconMedium,

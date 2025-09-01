@@ -63,7 +63,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       backgroundColor: AppColors.background,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(AppIcons.arrowLeft, color: AppColors.textPrimary),
+        icon: const Icon(AppIcons.back, color: AppColors.textPrimary),
         onPressed: () => NavigationHelper.safeGoBack(context),
       ),
       title: Text(
@@ -82,26 +82,24 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           // Endereço de entrega
           _buildDeliveryAddressSection(checkoutState),
           
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           
           // Método de pagamento
           _buildPaymentMethodSection(checkoutState),
           
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           
           // Observações do pedido
           _buildOrderNotesSection(),
           
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           
           // Resumo do pedido
           OrderSummaryWidget(
-            cart: cart,
-            showEditButton: true,
-            onEdit: () => NavigationHelper.safeGoBack(context),
+            onEditCart: () => NavigationHelper.safeGoBack(context),
           ),
           
-          SizedBox(height: 100), // Espaço para o bottom bar
+          const SizedBox(height: 100), // Espaço para o bottom bar
         ],
       ),
     );
@@ -130,7 +128,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
         ),
         
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         
         if (checkoutState.selectedAddress != null)
           _buildAddressCard(checkoutState.selectedAddress!)
@@ -162,7 +160,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               size: AppDimensions.iconMedium,
             ),
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +171,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   address.fullAddress,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -206,12 +204,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               AppIcons.add,
               color: AppColors.primary,
               size: AppDimensions.iconMedium,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Selecionar endereço de entrega',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -247,7 +245,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
         ),
         
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         
         if (checkoutState.selectedPaymentMethod != null)
           _buildPaymentMethodCard(checkoutState.selectedPaymentMethod!)
@@ -279,7 +277,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               size: AppDimensions.iconMedium,
             ),
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +289,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   ),
                 ),
                 if (paymentMethod.description != null) ...[
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     paymentMethod.description!,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -323,12 +321,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               AppIcons.add,
               color: AppColors.primary,
               size: AppDimensions.iconMedium,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Selecionar método de pagamento',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -349,7 +347,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           'Observações do pedido',
           style: AppTextStyles.headingSmall,
         ),
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         CustomTextField(
           controller: _notesController,
           hintText: 'Alguma observação especial? (opcional)',
@@ -398,7 +396,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 ),
               ],
             ),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             CustomButton(
               text: checkoutState.isPlacingOrder ? 'Finalizando...' : 'Finalizar Pedido',
               onPressed: canPlaceOrder && !checkoutState.isPlacingOrder
@@ -407,7 +405,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               isLoading: checkoutState.isPlacingOrder,
             ),
             if (!canPlaceOrder && !checkoutState.isPlacingOrder) ...[
-              SizedBox(height: AppDimensions.paddingSmall),
+              const SizedBox(height: AppDimensions.paddingSmall),
               Text(
                 _getOrderValidationMessage(cart, checkoutState),
                 style: AppTextStyles.bodySmall.copyWith(

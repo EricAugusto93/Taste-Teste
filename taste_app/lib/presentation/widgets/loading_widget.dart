@@ -78,7 +78,7 @@ class LoadingWidget extends StatelessWidget {
         children: [
           _buildLoadingIndicator(),
           if (showMessage && message != null) ...[
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             Text(
               message!,
               style: AppTextStyles.bodyMedium,
@@ -143,7 +143,7 @@ class ListLoadingWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppDimensions.marginMedium),
       decoration: BoxDecoration(
         color: AppColors.shimmer,
-        borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+        borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
       ),
       child: const ShimmerEffect(),
     );
@@ -244,7 +244,7 @@ class OverlayLoadingWidget extends StatelessWidget {
           padding: const EdgeInsets.all(AppDimensions.paddingLarge),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
+            borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
           ),
           child: LoadingWidget(
             message: message ?? 'Carregando...',

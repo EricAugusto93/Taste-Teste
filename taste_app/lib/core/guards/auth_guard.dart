@@ -70,8 +70,8 @@ class AuthGuard {
 
     // Se tentou acessar rota de visitante estando autenticado
     if (guestOnlyRoutes.any((route) => attemptedRoute.startsWith(route)) && isAuthenticated) {
-      debugPrint('🔄 AuthGuard: Rota de visitante com usuário autenticado, redirecionando para /main');
-      return '/main';
+      debugPrint('🔄 AuthGuard: Rota de visitante com usuário autenticado, redirecionando para /home');
+      return '/home';
     }
 
     // Se não há redirecionamento necessário, retorna a rota original

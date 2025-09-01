@@ -1,9 +1,11 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.CORS_PROXY_PORT || 8080;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://msjzktnkvyycwahpalhb.supabase.co';
 
 // Configuração CORS liberal para desenvolvimento
 app.use(cors({
@@ -41,7 +43,7 @@ app.use((req, res, next) => {
 
 // Proxy para Supabase
 app.use('/api/supabase', createProxyMiddleware({
-  target: 'https://msjzktnkvyycwahpalhb.supabase.co',
+  target: SUPABASE_URL,
   changeOrigin: true,
   pathRewrite: {
     '^/api/supabase': '',
@@ -84,6 +86,6 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 CORS Proxy Server running on http://localhost:${PORT}`);
-  console.log(`📡 Proxying requests to Supabase: https://msjzktnkvyycwahpalhb.supabase.co`);
+  console.log(`📡 Proxying requests to Supabase: ${SUPABASE_URL}`);
   console.log(`🔗 Use http://localhost:${PORT}/api/supabase as your base URL`);
 });

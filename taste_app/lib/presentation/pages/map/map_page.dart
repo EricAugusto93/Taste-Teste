@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -33,19 +36,27 @@ class _MapPageState extends ConsumerState<MapPage>
   late Animation<double> _bottomSheetAnimation;
   
   RestaurantModel? _selectedRestaurant;
-  String _selectedCategory = '';
-
-  // Categorias com cores baseadas na imagem de referência
-  final List<Map<String, dynamic>> _categories = [
-    {'name': 'Date night', 'color': const Color(0xFFE67E22)},
-    {'name': 'Para curar\na ressaca', 'color': const Color(0xFFE74C3C)},
-    {'name': 'Com vibe\nleve', 'color': const Color(0xFF87CEEB)},
-    {'name': 'Clássicos\nPOA', 'color': const Color(0xFF95A5A6)},
-    {'name': 'Vontade\nde doce', 'color': const Color(0xFF9B59B6)},
-    {'name': 'Almoço\nde domingo', 'color': const Color(0xFFF39C12)},
-    {'name': 'Happy hour\nde firma', 'color': const Color(0xFF3498DB)},
-    {'name': 'Para\ncomentar\nno insta', 'color': const Color(0xFFE67E22)},
-  ];
+  gmaps.GoogleMapController? _mapController;
+  Set<gmaps.Marker> _markers = {};
+  bool _markersLoaded = false;
+  UniqueKey _mapKey = UniqueKey(); // Key para forçar reconstrução do mapa
+  
+  // Cache para evitar recriar o mapa múltiplas vezes
+  static gmaps.GoogleMapController? _staticMapController;
+  
+  // Mapeamento de categoria ID para emoji baseado no banco de dados
+  final Map<String, String> _categoryEmojis = {
+    '32555c5c-b206-4c31-9e4d-1cf5d68d1e8d': '🍝', // Date night - Italiana
+    '948a606b-78ff-4bcd-9d37-f14ec5654e25': '☕', // Happy Hour de Firma - Café
+    '0a575266-ee8e-4c72-82e9-2a85359682cb': '🥗', // Com vibe leve - Saudável
+    '875498c4-1853-4b84-aa5e-a05a3a902574': '🏛️', // Clássicos POA
+    'a945c6bb-0554-4181-831c-17928864ee52': '🍰', // Vontade de Doce - Doceria
+    'c9fdb068-aff4-4fe1-84ff-10974d62fba9': '🍽️', // Almoço de Domingo - Buffet
+    '3b9168dc-f187-40e3-8921-7780d5195d8b': '🍻', // Happy Hour alternativo
+    '1417ab7f-338c-4dd4-96d7-87bcaa8099bf': '🍣', // Sushi fresh - Japonesa
+    '45a122d2-d5fd-4e20-ab17-2d1a1699c3e0': '🍔', // Para curar ressaca - Hambúrguer
+    'dfadf4da-3c7b-4d85-b6da-5b0bddd60195': '🍕', // Clássicos Curitiba - Pizzaria
+  };
 
   @override
   void initState() {
@@ -63,6 +74,14 @@ class _MapPageState extends ConsumerState<MapPage>
       parent: _bottomSheetController,
       curve: Curves.easeInOut,
     ));
+
+    // Aguardar carregamento dos dados e então criar markers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint('🎯🎯🎯 initState: CORREÇÃO LOCALIZAÇÃO - usando restaurantes reais...');
+    });
+    
+    // TESTE IMEDIATO - para debug
+    debugPrint('🏁 MapPage initState executado - página iniciada!');
   }
 
   @override
@@ -85,12 +104,6 @@ class _MapPageState extends ConsumerState<MapPage>
     });
   }
 
-  void _onCategoryTap(String category) {
-    setState(() {
-      _selectedCategory = category;
-    });
-    // Aqui você pode implementar a lógica de filtro por categoria
-  }
 
   void _navigateToRestaurant(RestaurantModel restaurant) {
     context.push('/restaurant/${restaurant.id}');
@@ -102,21 +115,32 @@ class _MapPageState extends ConsumerState<MapPage>
 
   @override
   Widget build(BuildContext context) {
-    final locationState = ref.watch(locationProvider);
     final restaurantState = ref.watch(restaurantProvider);
     
-    // Usar os restaurantes já carregados ou dados de amostra se vazio
-    final nearbyRestaurants = restaurantState.restaurants.isEmpty 
-        ? _getSampleRestaurants(locationState.currentLocation) 
-        : restaurantState.restaurants;
+    // Usar localização fixa de Porto Alegre para consistência com os restaurantes
+    final portoAlegreLocation = LocationModel(
+      latitude: -30.0277,
+      longitude: -51.2287,
+      address: 'Porto Alegre, RS, Brasil',
+    );
+    
+    // Sempre usar os restaurantes reais do banco de dados
+    final nearbyRestaurants = restaurantState.restaurants.isNotEmpty
+        ? restaurantState.restaurants
+        : <RestaurantModel>[]; // Lista vazia ao invés de dados de amostra
+    
+    debugPrint('🗺️ MapPage: ${nearbyRestaurants.length} restaurantes disponíveis para o mapa');
+    if (nearbyRestaurants.isNotEmpty) {
+      debugPrint('🏪 Primeiro restaurante: ${nearbyRestaurants.first.name} (${nearbyRestaurants.first.latitude}, ${nearbyRestaurants.first.longitude})');
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // Header azul/roxo com gradiente
+          // Header azul/roxo com gradiente (reduzido para dar mais espaço ao mapa)
           Flexible(
-            flex: 3,
+            flex: 2,
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -134,6 +158,26 @@ class _MapPageState extends ConsumerState<MapPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Botão de voltar
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => context.go('/home'),
+                            icon: const Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              padding: const EdgeInsets.all(8),
+                              minimumSize: const Size(40, 40),
+                            ),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       // Texto explicativo
                       Text(
                         'Veja o que está por perto',
@@ -210,151 +254,92 @@ class _MapPageState extends ConsumerState<MapPage>
             ),
           ),
           
-          // Mapa
+          // Mapa (expandido para ocupar mais espaço)
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Stack(
               children: [
-                restaurantState.isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                // Mapa sempre visível, independente do estado dos restaurantes
+                _buildDirectGoogleMap(nearbyRestaurants, portoAlegreLocation),
+                
+                // Overlay de carregamento de restaurantes (não bloqueia o mapa)
+                if (restaurantState.isLoading)
+                  Positioned(
+                    top: 20,
+                    right: 20,
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    )
-                  : restaurantState.hasError
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: AppColors.error,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                             ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Erro ao carregar mapa',
-                              style: AppTextStyles.h3,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Carregando restaurantes...',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textDark,
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              restaurantState.error ?? 'Erro desconhecido',
-                              style: AppTextStyles.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () => ref.refresh(restaurantProvider),
-                              child: Text('Tentar novamente'),
-                            ),
-                          ],
-                        ),
-                      )
-                    : EnhancedMapWidget(
-                        userLocation: locationState.currentLocation,
-                        restaurants: nearbyRestaurants,
-                        onRestaurantTap: _onRestaurantTap,
-                        height: MediaQuery.of(context).size.height,
-                        showUserLocation: true,
-                        enableInteraction: true,
-                        selectedRestaurantId: _selectedRestaurant?.id,
+                          ),
+                        ],
                       ),
-
-
-
-              ],
-            ),
-          ),
-          
-          // Seção de categorias
-          Flexible(
-            flex: 2,
-            child: Container(
-              color: const Color(0xFF4A5FBF),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Descubra por clima',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    'ocasião ou desejo',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                  
-                  SizedBox(height: 12),
-                  
-                  // Grid de categorias
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 0.8,
+                
+                // Overlay de erro (não bloqueia o mapa)
+                if (restaurantState.hasError)
+                  Positioned(
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
                       ),
-                      itemCount: _categories.length,
-                      itemBuilder: (context, index) {
-                        final category = _categories[index];
-                        final isSelected = _selectedCategory == category['name'];
-                        
-                        return GestureDetector(
-                          onTap: () => _onCategoryTap(category['name']),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: category['color'],
-                              borderRadius: BorderRadius.circular(12),
-                              border: isSelected 
-                                  ? Border.all(color: Colors.white, width: 2)
-                                  : null,
-                            ),
-                            child: Center(
-                              child: Text(
-                                category['name'],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                textAlign: TextAlign.center,
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Erro ao carregar restaurantes: ${restaurantState.error ?? 'Erro desconhecido'}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.red.shade600,
                               ),
                             ),
                           ),
-                        );
-                      },
+                          SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => ref.refresh(restaurantProvider),
+                            child: Icon(Icons.refresh, color: Colors.red.shade600, size: 18),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Barra de navegação inferior laranja
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFE67E22),
-            ),
-            child: SafeArea(
-              child: Container(
-                height: 60,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildNavItem('Descubra', Icons.explore, false),
-                    _buildNavItem('Mapa', Icons.map, true),
-                    _buildNavItem('Perfil', Icons.person, false),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
 
@@ -364,60 +349,12 @@ class _MapPageState extends ConsumerState<MapPage>
     );
   }
 
-  Widget _buildNavItem(String label, IconData icon, bool isSelected) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onBottomNavTap(label),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 20,
-              ),
-              SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _onBottomNavTap(String label) {
-    switch (label) {
-      case 'Descubra':
-        context.go('/');
-        break;
-      case 'Mapa':
-        // Já está no mapa, não faz nada
-        break;
-      case 'Perfil':
-        context.go('/profile');
-        break;
-    }
-  }
 
   /// Obter restaurantes de amostra perto da localização
   List<RestaurantModel> _getSampleRestaurants(LocationModel? userLocation) {
-    // Se não há localização, usar coordenadas padrão de Curitiba
-    final baseLat = userLocation?.latitude ?? -25.4469953;
-    final baseLng = userLocation?.longitude ?? -49.1708302;
+    // Se não há localização, usar coordenadas padrão de Porto Alegre
+    final baseLat = userLocation?.latitude ?? -30.0277;
+    final baseLng = userLocation?.longitude ?? -51.2287;
     
     return [
       RestaurantModel(
@@ -506,5 +443,198 @@ class _MapPageState extends ConsumerState<MapPage>
         updatedAt: DateTime.now(),
       ),
     ];
+  }
+
+  /// Constrói um mapa Google Maps direto com tratamento de erros de rede
+  Widget _buildDirectGoogleMap(List<RestaurantModel> restaurants, LocationModel? userLocation) {
+    try {
+      return gmaps.GoogleMap(
+      key: _mapKey, // Key única para forçar reconstrução quando markers mudam
+      initialCameraPosition: gmaps.CameraPosition(
+        target: userLocation != null
+            ? gmaps.LatLng(userLocation.latitude, userLocation.longitude)
+            : const gmaps.LatLng(-30.0277, -51.2287), // Porto Alegre como fallback
+        zoom: 14,
+      ),
+      markers: _markers,
+      onMapCreated: (gmaps.GoogleMapController controller) {
+        _mapController = controller;
+        _staticMapController = controller;
+        debugPrint('🗺️ Google Maps inicializado sem erros de rede');
+        debugPrint('📊 Carregando markers para ${restaurants.length} restaurantes reais...');
+        
+        // Carregar markers com os restaurantes reais que foram passados
+        if (restaurants.isNotEmpty) {
+          _loadCustomMarkers(restaurants, userLocation);
+        } else {
+          debugPrint('⚠️ Nenhum restaurante disponível para criar markers');
+        }
+      },
+      myLocationEnabled: false, // Desabilitado para evitar conflitos
+      myLocationButtonEnabled: true,
+      zoomControlsEnabled: true,
+      mapToolbarEnabled: true,
+      onTap: (gmaps.LatLng position) {
+        // Fechar qualquer bottom sheet aberto
+        _closeBottomSheet();
+      },
+    );
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar Google Maps: $e');
+      return Container(
+        color: Colors.grey[300],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.map_outlined, size: 64, color: Colors.grey[600]),
+              SizedBox(height: 16),
+              Text(
+                'Erro ao carregar mapa',
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Verifique sua conexão com a internet',
+                style: TextStyle(color: Colors.grey[500], fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Obtém o emoji da categoria do restaurante
+  String _getRestaurantEmoji(RestaurantModel restaurant) {
+    return _categoryEmojis[restaurant.categoryId] ?? '🍽️';
+  }
+  
+  /// Cria um ícone customizado mais simples para evitar problemas de CSP
+  Future<gmaps.BitmapDescriptor> _createCustomMarkerIcon(String emoji) async {
+    debugPrint('🎨 Criando ícone customizado simplificado para emoji: $emoji');
+    
+    // Devido a problemas de Content Security Policy com blobs no Flutter Web,
+    // vamos usar uma abordagem temporária com cores diferenciadas
+    // até implementarmos uma solução que funcione bem com CSP
+    
+    debugPrint('⚠️ Usando fallback colorido devido a restrições CSP no Flutter Web');
+    
+    const colorMap = {
+      '🍝': gmaps.BitmapDescriptor.hueRed,      // Italiana
+      '☕': gmaps.BitmapDescriptor.hueOrange,    // Café
+      '🥗': gmaps.BitmapDescriptor.hueGreen,     // Saudável  
+      '🏛️': gmaps.BitmapDescriptor.hueBlue,     // Clássicos POA
+      '🍰': gmaps.BitmapDescriptor.hueMagenta,   // Doceria
+      '🍽️': gmaps.BitmapDescriptor.hueYellow,   // Buffet
+      '🍻': gmaps.BitmapDescriptor.hueViolet,    // Happy Hour
+      '🍣': gmaps.BitmapDescriptor.hueAzure,     // Japonesa
+      '🍔': gmaps.BitmapDescriptor.hueOrange,    // Hambúrguer
+      '🍕': gmaps.BitmapDescriptor.hueRed,       // Pizza
+      '📍': gmaps.BitmapDescriptor.hueCyan,      // Usuário
+    };
+    
+    final hue = colorMap[emoji] ?? gmaps.BitmapDescriptor.hueOrange;
+    debugPrint('✅ Usando marker colorido (hue: $hue) para emoji: $emoji');
+    return gmaps.BitmapDescriptor.defaultMarkerWithHue(hue);
+  }
+  
+  /// Cria marcadores para os restaurantes com ícones customizados
+  Future<Set<gmaps.Marker>> _createMarkersForRestaurants(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
+    debugPrint('🏗️ Iniciando criação de ${restaurants.length} markers de restaurantes');
+    final markers = <gmaps.Marker>{};
+
+    // Adicionar marcador da localização do usuário (se disponível)
+    if (userLocation != null) {
+      debugPrint('👤 Criando marker do usuário...');
+      try {
+        final userIcon = await _createCustomMarkerIcon('📍');
+        markers.add(
+          gmaps.Marker(
+            markerId: const gmaps.MarkerId('user_location'),
+            position: gmaps.LatLng(userLocation.latitude, userLocation.longitude),
+            infoWindow: const gmaps.InfoWindow(
+              title: '📍 Você está aqui',
+              snippet: 'Sua localização atual',
+            ),
+            icon: userIcon,
+          ),
+        );
+        debugPrint('✅ Marker do usuário criado');
+      } catch (e) {
+        debugPrint('❌ Erro ao criar marker do usuário: $e');
+      }
+    }
+
+    // Adicionar marcadores dos restaurantes com emojis customizados
+    for (int i = 0; i < restaurants.length; i++) {
+      final restaurant = restaurants[i];
+      if (restaurant.latitude != null && restaurant.longitude != null) {
+        debugPrint('🍽️ Criando marker para restaurante ${i + 1}/${restaurants.length}: ${restaurant.name}');
+        try {
+          final emoji = _getRestaurantEmoji(restaurant);
+          debugPrint('📍 Emoji selecionado: $emoji');
+          
+          final customIcon = await _createCustomMarkerIcon(emoji);
+          
+          markers.add(
+            gmaps.Marker(
+              markerId: gmaps.MarkerId(restaurant.id),
+              position: gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+              infoWindow: gmaps.InfoWindow(
+                title: '${emoji} ${restaurant.name}',
+                snippet: '⭐ ${restaurant.rating?.toStringAsFixed(1) ?? 'N/A'} • ${restaurant.deliveryTime ?? 'N/A'}',
+              ),
+              onTap: () {
+                _onRestaurantTap(restaurant);
+              },
+              icon: customIcon,
+            ),
+          );
+          debugPrint('✅ Marker criado para ${restaurant.name}');
+        } catch (e) {
+          debugPrint('❌ Erro ao criar marker para ${restaurant.name}: $e');
+        }
+      } else {
+        debugPrint('⚠️ Restaurante ${restaurant.name} não tem coordenadas válidas');
+      }
+    }
+
+    debugPrint('🎯 Total de markers criados: ${markers.length}');
+    return markers;
+  }
+  
+  /// Carrega markers customizados de forma assíncrona
+  Future<void> _loadCustomMarkers(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
+    debugPrint('🚀 Iniciando carregamento de markers customizados');
+    debugPrint('📊 Restaurantes recebidos: ${restaurants.length}');
+    debugPrint('📍 Localização do usuário: ${userLocation?.latitude}, ${userLocation?.longitude}');
+    
+    if (_markersLoaded) {
+      debugPrint('⚠️ Markers já foram carregados, ignorando');
+      return;
+    }
+    
+    try {
+      debugPrint('🔄 Criando markers customizados...');
+      final markers = await _createMarkersForRestaurants(restaurants, userLocation);
+      debugPrint('✅ ${markers.length} markers criados com sucesso');
+      
+      if (mounted) {
+        debugPrint('🔄 Atualizando estado do mapa...');
+        setState(() {
+          _markers = markers;
+          _markersLoaded = true;
+          _mapKey = UniqueKey(); // Força reconstrução do GoogleMap widget
+        });
+        debugPrint('✅ Estado atualizado - ${_markers.length} markers agora no mapa');
+        debugPrint('🔑 Nova key do mapa gerada para forçar reconstrução');
+      } else {
+        debugPrint('❌ Widget não está montado - não foi possível atualizar estado');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Erro ao carregar markers customizados: $e');
+      debugPrint('📋 StackTrace: $stackTrace');
+    }
   }
 }

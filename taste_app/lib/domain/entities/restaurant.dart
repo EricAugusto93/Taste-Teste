@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../data/models/restaurant_model.dart';
 
 /// Entidade Restaurant do domínio
 class Restaurant extends Equatable {
@@ -96,6 +97,29 @@ class Restaurant extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  /// Converte RestaurantModel para Restaurant entity
+  static Restaurant fromModel(RestaurantModel model) {
+    return Restaurant(
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      address: model.address ?? '',
+      phone: model.phone,
+      latitude: model.latitude ?? 0.0,
+      longitude: model.longitude ?? 0.0,
+      categoryId: model.categoryId ?? '',
+      rating: model.rating,
+      deliveryFee: model.deliveryFee,
+      deliveryTime: model.deliveryTime,
+      isOpen: model.isOpen,
+      isFeatured: model.isFeatured,
+      imageUrl: model.imageUrl,
+      emoji: model.emoji,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
     );
   }
 

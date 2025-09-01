@@ -1,11 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart' as img;
-import '../../core/config/supabase_config.dart';
-import '../../core/error/exceptions.dart';
-import 'auth_service.dart';
+import '../../../core/config/supabase_config.dart';
+import '../../../core/error/exceptions.dart' as app_exceptions;
+import '../auth/auth_service.dart';
 
 /// Serviço para upload e gerenciamento de imagens no Supabase Storage
 class ImageUploadService {
@@ -31,7 +30,7 @@ class ImageUploadService {
     try {
       final userId = AuthService.instance.userId;
       if (userId == null) {
-        throw const AuthException('Usuário não autenticado');
+        throw const app_exceptions.AuthException('Usuário não autenticado');
       }
 
       // Comprimir imagem se necessário
@@ -60,7 +59,7 @@ class ImageUploadService {
           .uploadBinary(filePath, processedBytes);
 
       if (uploadResult.isEmpty) {
-        throw const ServerException('Falha no upload da imagem');
+        throw const app_exceptions.ServerException('Falha no upload da imagem');
       }
 
       // Obter URL pública
@@ -72,11 +71,11 @@ class ImageUploadService {
       return publicUrl;
     } on StorageException catch (e) {
       debugPrint('Erro de storage no upload: ${e.message}');
-      throw ServerException('Erro no upload: ${e.message}');
+      throw app_exceptions.ServerException('Erro no upload: ${e.message}');
     } catch (e) {
       if (e is AuthException) rethrow;
       debugPrint('Erro inesperado no upload: $e');
-      throw ServerException('Erro inesperado no upload da imagem');
+      throw const app_exceptions.ServerException('Erro inesperado no upload da imagem');
     }
   }
 
@@ -90,7 +89,7 @@ class ImageUploadService {
     int? maxHeight,
   }) async {
     if (imagesBytes.length != fileNames.length) {
-      throw const CacheException('Número de imagens e nomes devem ser iguais');
+      throw const app_exceptions.CacheException('Número de imagens e nomes devem ser iguais');
     }
 
     final urls = <String>[];
@@ -121,7 +120,7 @@ class ImageUploadService {
     try {
       final userId = AuthService.instance.userId;
       if (userId == null) {
-        throw const AuthException('Usuário não autenticado');
+        throw const app_exceptions.AuthException('Usuário não autenticado');
       }
 
       // Extrair o caminho do arquivo da URL
@@ -131,7 +130,7 @@ class ImageUploadService {
       // Encontrar o índice do bucket
       final bucketIndex = pathSegments.indexOf(_bucketName);
       if (bucketIndex == -1 || bucketIndex >= pathSegments.length - 1) {
-        throw const CacheException('URL de imagem inválida');
+        throw const app_exceptions.CacheException('URL de imagem inválida');
       }
 
       // Extrair o caminho do arquivo
@@ -150,17 +149,17 @@ class ImageUploadService {
           .remove([filePath]);
 
       if (result.isEmpty) {
-        throw const ServerException('Falha ao remover imagem');
+        throw const app_exceptions.ServerException('Falha ao remover imagem');
       }
 
       debugPrint('Imagem removida com sucesso');
     } on StorageException catch (e) {
       debugPrint('Erro de storage na remoção: ${e.message}');
-      throw ServerException('Erro na remoção: ${e.message}');
+      throw app_exceptions.ServerException('Erro na remoção: ${e.message}');
     } catch (e) {
-      if (e is AuthException || e is CacheException) rethrow;
+      if (e is AuthException || e is app_exceptions.CacheException) rethrow;
       debugPrint('Erro inesperado na remoção: $e');
-      throw ServerException('Erro inesperado na remoção da imagem');
+      throw const app_exceptions.ServerException('Erro inesperado na remoção da imagem');
     }
   }
 
@@ -185,26 +184,22 @@ class ImageUploadService {
     try {
       final result = await _client.storage
           .from(_bucketName)
-          .list(
-            path: folder,
-            options: const SearchOptions(
-              limit: 100,
-              offset: 0,
-            ),
-          );
+          .list(path: folder);
 
       return result
           .where((file) => _isImageFile(file.name))
+          .take(limit)
+          .skip(offset)
           .map((file) => _client.storage
               .from(_bucketName)
               .getPublicUrl('$folder/${file.name}'))
           .toList();
     } on StorageException catch (e) {
       debugPrint('Erro ao listar imagens: ${e.message}');
-      throw ServerException('Erro ao listar imagens: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao listar imagens: ${e.message}');
     } catch (e) {
       debugPrint('Erro inesperado ao listar imagens: $e');
-      throw ServerException('Erro inesperado ao listar imagens');
+      throw const app_exceptions.ServerException('Erro inesperado ao listar imagens');
     }
   }
 
@@ -221,17 +216,24 @@ class ImageUploadService {
 
       final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
       
+      // Use list method to get file info since info method doesn't exist
       final result = await _client.storage
           .from(_bucketName)
-          .info(filePath);
+          .list(path: filePath.substring(0, filePath.lastIndexOf('/')));
+
+      final fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+      final fileInfo = result.firstWhere(
+        (file) => file.name == fileName,
+        orElse: () => throw Exception('File not found'),
+      );
 
       return {
-        'id': result.id,
-        'name': result.name,
-        'size': result.metadata?['size'],
-        'content_type': result.metadata?['mimetype'],
-        'created_at': result.createdAt,
-        'updated_at': result.updatedAt,
+        'id': fileInfo.id,
+        'name': fileInfo.name,
+        'size': fileInfo.metadata?['size'],
+        'content_type': fileInfo.metadata?['mimetype'],
+        'created_at': fileInfo.createdAt,
+        'updated_at': fileInfo.updatedAt,
       };
     } catch (e) {
       debugPrint('Erro ao obter informações da imagem: $e');
@@ -252,10 +254,10 @@ class ImageUploadService {
       return signedUrl;
     } on StorageException catch (e) {
       debugPrint('Erro ao criar URL assinada: ${e.message}');
-      throw ServerException('Erro ao gerar URL: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao gerar URL: ${e.message}');
     } catch (e) {
       debugPrint('Erro inesperado ao criar URL assinada: $e');
-      throw ServerException('Erro inesperado ao gerar URL');
+      throw const app_exceptions.ServerException('Erro inesperado ao gerar URL');
     }
   }
 
@@ -269,7 +271,7 @@ class ImageUploadService {
     try {
       final image = img.decodeImage(imageBytes);
       if (image == null) {
-        throw const CacheException('Não foi possível decodificar a imagem');
+        throw const app_exceptions.CacheException('Não foi possível decodificar a imagem');
       }
 
       // Redimensionar se necessário
@@ -315,7 +317,7 @@ class ImageUploadService {
     try {
       final userId = AuthService.instance.userId;
       if (userId == null) {
-        throw const AuthException('Usuário não autenticado');
+        throw const app_exceptions.AuthException('Usuário não autenticado');
       }
 
       // Listar arquivos do usuário

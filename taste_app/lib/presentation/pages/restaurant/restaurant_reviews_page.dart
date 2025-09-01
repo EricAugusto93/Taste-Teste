@@ -8,6 +8,9 @@ import '../../../data/models/review_model.dart';
 import '../../../data/models/restaurant_model.dart';
 import '../../../data/repositories/review_repository.dart';
 import '../../../data/repositories/restaurant_repository.dart';
+import '../../../data/datasources/restaurant_remote_datasource.dart';
+import '../../../core/services/cache_service.dart';
+import '../../../data/services/reviews/review_service.dart';
 import '../../widgets/review_card.dart';
 import '../../widgets/rating_widget.dart';
 import '../../widgets/dialogs.dart';
@@ -29,8 +32,11 @@ class RestaurantReviewsPage extends ConsumerStatefulWidget {
 }
 
 class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
-  final ReviewRepository _reviewRepository = ReviewRepository();
-  final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final ReviewService _reviewService = ReviewService.instance;
+  final RestaurantRepository _restaurantRepository = RestaurantRepository(
+    RestaurantRemoteDataSourceImpl(),
+    CacheService.instance,
+  );
   
   RestaurantModel? _restaurant;
   List<ReviewModel> _reviews = [];
@@ -65,13 +71,17 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       // Carregar restaurante e avaliações em paralelo
       final results = await Future.wait([
         _restaurantRepository.getRestaurantById(widget.restaurantId),
-        _reviewRepository.getReviewsByRestaurant(widget.restaurantId),
-        _reviewRepository.getRatingDistribution(widget.restaurantId),
+        ReviewService.instance.getRestaurantReviews(widget.restaurantId),
+        ReviewService.instance.getRestaurantReviewStats(widget.restaurantId),
       ]);
 
       _restaurant = results[0] as RestaurantModel?;
       _reviews = results[1] as List<ReviewModel>;
-      _ratingDistribution = results[2] as Map<int, int>;
+      
+      // Extrair distribuição das estatísticas
+      final stats = results[2] as Map<String, dynamic>;
+      _ratingDistribution = (stats['rating_distribution'] as Map<String, dynamic>?)
+          ?.map((key, value) => MapEntry(int.parse(key), value as int)) ?? {};
       
       _applyFiltersAndSort();
     } catch (e) {
@@ -127,10 +137,10 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
     });
     
     try {
-      final newReviews = await _reviewRepository.getReviewsByRestaurant(
+      final newReviews = await ReviewService.instance.getRestaurantReviews(
         widget.restaurantId,
-        page: _currentPage + 1,
-        pageSize: _pageSize,
+        limit: _pageSize,
+        offset: _currentPage * _pageSize,
       );
       
       if (newReviews.isNotEmpty) {
@@ -408,16 +418,78 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
     );
   }
 
-  void _showRatingDialog() {
+  Future<void> _showRatingDialog() async {
     if (_restaurant == null) return;
     
-    RatingDialog.show(
-      context,
-      restaurantName: _restaurant!.name,
-      onSubmit: (rating, comment) {
-        // TODO: Implementar criação de avaliação
-        _loadData(); // Recarregar dados após criar avaliação
-      },
+    await showDialog(
+      context: context,
+      builder: (context) => RatingDialog(
+        restaurantName: _restaurant!.name,
+        onSubmit: (rating, comment) async {
+        try {
+          // Mostrar loading
+          if (mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => Center(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppColors.primary),
+                      SizedBox(height: 16),
+                      Text('Salvando avaliação...'),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          // Criar avaliação usando ReviewService
+          await ReviewService.instance.createReview(
+            restaurantId: _restaurant!.id,
+            rating: rating,
+            comment: comment.trim(),
+          );
+
+          // Fechar loading
+          if (mounted) Navigator.of(context).pop();
+
+          // Mostrar sucesso
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Avaliação salva com sucesso!'),
+                backgroundColor: AppColors.success,
+              ),
+            );
+          }
+
+          // Recarregar dados
+          _loadData();
+        } catch (e) {
+          // Fechar loading
+          if (mounted) Navigator.of(context).pop();
+
+          // Mostrar erro
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao salvar avaliação: $e'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+        },
+      ),
     );
   }
 }

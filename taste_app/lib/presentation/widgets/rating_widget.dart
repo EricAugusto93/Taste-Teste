@@ -229,7 +229,7 @@ class DetailedRatingWidget extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+          borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusMedium)),
           border: Border.all(color: AppColors.divider),
         ),
         child: Column(
@@ -247,7 +247,7 @@ class DetailedRatingWidget extends StatelessWidget {
                           color: AppColors.textDark,
                         ),
                       ),
-                      SizedBox(height: AppDimensions.paddingSmall),
+                      const SizedBox(height: AppDimensions.paddingSmall),
                       Row(
                         children: [
                           Text(
@@ -266,7 +266,7 @@ class DetailedRatingWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         '${_formatReviewCount(reviewCount)} avaliações',
                         style: AppTextStyles.bodySmall.copyWith(
@@ -285,7 +285,7 @@ class DetailedRatingWidget extends StatelessWidget {
               ],
             ),
             if (ratingDistribution != null) ...[
-              SizedBox(height: AppDimensions.paddingMedium),
+              const SizedBox(height: AppDimensions.paddingMedium),
               _buildRatingDistribution(),
             ],
           ],
@@ -395,7 +395,7 @@ class CompactRatingWidget extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+        borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusSmall)),
         border: Border.all(color: AppColors.divider),
       ),
       child: Row(

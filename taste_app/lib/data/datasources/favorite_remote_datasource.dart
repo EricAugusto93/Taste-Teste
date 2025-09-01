@@ -57,7 +57,7 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
-      return (response as List<dynamic>)
+      return response
           .map((item) => FavoriteModel.fromJson(item))
           .toList();
     } on PostgrestException catch (e) {

@@ -135,7 +135,7 @@ class RestaurantRepository {
       // Salva no cache se há dados
       if (nearbyRestaurants.isNotEmpty) {
         await _cacheService.set(
-          'nearby_restaurants_${latitude}_${longitude}_${radiusKm}',
+          'nearby_restaurants_${latitude}_${longitude}_$radiusKm',
           nearbyRestaurants.map((r) => r.toJson()).toList(),
         );
       }

@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../repositories/restaurant_repository.dart';
-import '../../repositories/category_repository.dart';
-import '../../../core/di/injection_container.dart';
+import '../../repositories/predefined_categories.dart';
 
 /// Serviço de IA para interpretação inteligente de buscas
 class AISearchService {
@@ -9,7 +7,6 @@ class AISearchService {
   static AISearchService get instance => _instance ??= AISearchService._();
   AISearchService._();
 
-  final CategoryRepository _categoryRepository = CategoryRepository.instance;
 
   /// Interpreta a intenção do usuário na busca
   Future<SearchInterpretation> interpretSearchQuery(String query) async {
@@ -211,7 +208,8 @@ class AISearchService {
       final query = partialQuery.toLowerCase();
 
       // Sugestões baseadas em categorias
-      final categories = await _categoryRepository.getCategories();
+      // Usar categorias predefinidas como fallback por enquanto
+      final categories = PredefinedCategories.getAllCategories();
       for (final category in categories) {
         if (category.name.toLowerCase().startsWith(query)) {
           suggestions.add(category.name);

@@ -89,7 +89,7 @@
         
         <div class="api-info">
             <h3>📋 Informações da API Key</h3>
-            <p><strong>API Key:</strong> AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo</p>
+            <p><strong>API Key:</strong> <span id="api-key-display">[Carregando...]</span></p>
             <p><strong>APIs Necessárias:</strong> Maps JavaScript API, Places API, Geocoding API</p>
             <p><strong>Domínio de Teste:</strong> <span id="current-domain"></span></p>
         </div>
@@ -117,7 +117,8 @@
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo';
+        // Carregar API key do ambiente - NÃO HARDCODAR NUNCA!
+        const API_KEY = window.GOOGLE_MAPS_API_KEY || 'CONFIGURE_VIA_ENVIRONMENT';
         let map, geocoder, placesService;
         let testResults = {
             scriptLoaded: false,
@@ -126,8 +127,9 @@
             placesWorking: false
         };
 
-        // Mostrar domínio atual
+        // Mostrar domínio atual e API key configurada
         document.getElementById('current-domain').textContent = window.location.hostname;
+        document.getElementById('api-key-display').textContent = API_KEY.substring(0, 20) + '...';
 
         function addLog(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -298,9 +300,14 @@
     </script>
 
     <!-- Carregar Google Maps API -->
-    <script async defer 
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvOkBwgGlbUiuS39Yi8DzOiRrE_klDCBo&libraries=places&callback=initMap&loading=async"
-            onerror="handleMapError()">
+    <script>
+        // Carregar dinamicamente para usar template literal
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=initMap&loading=async`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = handleMapError;
+        document.head.appendChild(script);
     </script>
 </body>
 </html>

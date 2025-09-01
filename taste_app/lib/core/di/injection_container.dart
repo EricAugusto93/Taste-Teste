@@ -10,7 +10,6 @@ import '../../data/repositories/restaurant_repository.dart';
 import '../../data/repositories/search_repository.dart';
 import '../../data/repositories/search_history_repository.dart';
 import '../../data/repositories/category_repository_impl.dart';
-import '../../data/repositories/category_repository.dart';
 import '../../data/repositories/favorites_repository.dart';
 import '../../domain/repositories/favorites_repository.dart' as domain_favorites;
 import '../../domain/repositories/category_repository.dart' as domain_category;
@@ -84,7 +83,6 @@ class InjectionContainer {
     // Search Repository
     getIt.registerLazySingleton<SearchRepository>(
        () => SearchRepositoryImpl(
-         getIt<SearchService>(),
          locationService: getIt<LocationService>(),
        ),
      );
@@ -99,10 +97,7 @@ class InjectionContainer {
       () => getIt<CategoryRepositoryImpl>(),
     );
     
-    // Category Repository (singleton legacy)
-    getIt.registerLazySingleton<CategoryRepository>(
-      () => CategoryRepository.instance,
-    );
+    // CategoryRepository singleton removido - usando apenas Clean Architecture
 
     // Restaurant Repository
     getIt.registerLazySingleton<RestaurantRepository>(

@@ -1,8 +1,74 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:injectable/injectable.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../models/location_model.dart';
+
+/// Configuration settings for location service
+class LocationSettings {
+  final LocationAccuracy accuracy;
+  final Duration timeout;
+  final int distanceFilter;
+  final bool enableBackgroundLocation;
+  final bool enableHighAccuracy;
+
+  const LocationSettings({
+    this.accuracy = LocationAccuracy.high,
+    this.timeout = const Duration(seconds: 15),
+    this.distanceFilter = 10,
+    this.enableBackgroundLocation = false,
+    this.enableHighAccuracy = true,
+  });
+}
+
+/// Base class for location-related exceptions
+class LocationException implements Exception {
+  final String message;
+  const LocationException(this.message);
+  
+  @override
+  String toString() => 'LocationException: $message';
+}
+
+/// Exception thrown when location permission is denied
+class LocationPermissionDeniedException extends LocationException {
+  const LocationPermissionDeniedException(super.message);
+}
+
+/// Exception thrown when location request times out
+class LocationTimeoutException extends LocationException {
+  const LocationTimeoutException(super.message);
+}
+
+/// Exception thrown when location service is disabled
+class LocationServiceDisabledException extends LocationException {
+  const LocationServiceDisabledException(super.message);
+}
+
+/// Geocoding result containing address information
+class GeocodingResult {
+  final String address;
+  final String? street;
+  final String? city;
+  final String? state;
+  final String? country;
+  final String? postalCode;
+  final double latitude;
+  final double longitude;
+
+  const GeocodingResult({
+    required this.address,
+    this.street,
+    this.city,
+    this.state,
+    this.country,
+    this.postalCode,
+    required this.latitude,
+    required this.longitude,
+  });
+}
 
 @singleton
 class LocationService {
@@ -53,7 +119,7 @@ class LocationService {
       // Verifica se o serviço está habilitado
       if (!await isLocationServiceEnabled()) {
         debugPrint('❌ LocationService: Serviço de localização desabilitado');
-        throw Exception('Serviço de localização desabilitado');
+        throw const LocationServiceDisabledException('Serviço de localização desabilitado');
       }
 
       // Verifica permissões
@@ -62,7 +128,7 @@ class LocationService {
         final granted = await requestLocationPermission();
         if (!granted) {
           debugPrint('❌ LocationService: Permissão negada pelo usuário');
-          throw Exception('Permissão de localização negada');
+          throw const LocationPermissionDeniedException('Permissão de localização negada');
         }
       }
 
@@ -170,6 +236,90 @@ class LocationService {
     _lastCacheTime = null;
   }
   
+  /// Check if a location is within specified bounds
+  bool isLocationInBounds(
+    double latitude,
+    double longitude,
+    double northEastLat,
+    double northEastLng,
+    double southWestLat,
+    double southWestLng,
+  ) {
+    return latitude >= southWestLat &&
+           latitude <= northEastLat &&
+           longitude >= southWestLng &&
+           longitude <= northEastLng;
+  }
+
+  /// Find the nearest location from a list
+  LocationModel? findNearestLocation(LocationModel userLocation, List<LocationModel> locations) {
+    if (locations.isEmpty) return null;
+
+    LocationModel? nearest;
+    double minDistance = double.infinity;
+
+    for (final location in locations) {
+      final distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        location.latitude,
+        location.longitude,
+      );
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = location;
+      }
+    }
+
+    return nearest;
+  }
+
+  /// Filter locations within a specific radius
+  List<LocationModel> filterLocationsByRadius(
+    LocationModel center,
+    List<LocationModel> locations,
+    double radiusInMeters,
+  ) {
+    return locations.where((location) {
+      final distance = calculateDistance(
+        center.latitude,
+        center.longitude,
+        location.latitude,
+        location.longitude,
+      );
+      return distance <= radiusInMeters;
+    }).toList();
+  }
+
+  /// Calculate bearing between two coordinates
+  double calculateBearing(
+    double startLat,
+    double startLng,
+    double endLat,
+    double endLng,
+  ) {
+    const double degreesToRadians = 0.017453292519943295;
+    const double radiansToDegrees = 57.29577951308232;
+
+    final double dLng = (endLng - startLng) * degreesToRadians;
+    final double sLat = startLat * degreesToRadians;
+    final double eLat = endLat * degreesToRadians;
+
+    final double y = sin(dLng) * cos(eLat);
+    final double x = cos(sLat) * sin(eLat) - sin(sLat) * cos(eLat) * cos(dLng);
+
+    final double bearing = atan2(y, x) * radiansToDegrees;
+    return (bearing + 360) % 360;
+  }
+
+  /// Update location settings
+  void updateSettings(LocationSettings settings) {
+    // In a real implementation, these settings would be stored and used
+    // for subsequent location requests
+    debugPrint('📍 LocationService: Settings updated');
+  }
+
   /// Libera recursos
   void dispose() {
     clearLocationData();

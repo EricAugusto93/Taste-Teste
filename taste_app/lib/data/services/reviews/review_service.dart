@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/review_model.dart';
-import '../../core/config/supabase_config.dart';
-import '../../core/error/exceptions.dart';
-import '../services/auth/auth_service.dart';
+import '../../models/review_model.dart';
+import '../../../core/config/supabase_config.dart';
+import '../../../core/error/exceptions.dart' as app_exceptions;
+import '../auth/auth_service.dart';
 
 /// Serviço para gerenciar reviews de restaurantes
 class ReviewService {
@@ -22,21 +22,34 @@ class ReviewService {
   }) async {
     try {
       final userId = AuthService.instance.userId;
-      if (userId == null) {
+      final user = AuthService.instance.currentUser;
+      
+      if (userId == null || user == null) {
         throw const AuthException('Usuário não autenticado');
       }
 
-      // Verificar se o usuário já avaliou este restaurante
-      final existingReview = await _client
+      // Verificar se já existe um comentário idêntico do mesmo usuário para este restaurante
+      final existingComment = await _client
           .from('reviews')
           .select('id')
           .eq('user_id', userId)
           .eq('restaurant_id', restaurantId)
+          .eq('comment', comment)
           .maybeSingle();
 
-      if (existingReview != null) {
-        throw const CacheException('Você já avaliou este restaurante');
+      if (existingComment != null) {
+        throw const app_exceptions.CacheException('Você já fez este comentário para este restaurante');
       }
+
+      // Buscar dados do perfil do usuário para incluir na review
+      final userProfile = await _client
+          .from('user_profiles')
+          .select('full_name, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
+
+      final userName = userProfile?['full_name'] ?? user.email ?? 'Usuário Anônimo';
+      final userAvatar = userProfile?['avatar_url'] as String?;
 
       // Criar nova review
       final response = await _client
@@ -46,6 +59,9 @@ class ReviewService {
             'restaurant_id': restaurantId,
             'rating': rating,
             'comment': comment,
+            'user_name': userName,
+            'user_avatar': userAvatar,
+            'created_at': DateTime.now().toIso8601String(),
           })
           .select('''
             id,
@@ -53,6 +69,10 @@ class ReviewService {
             restaurant_id,
             rating,
             comment,
+            user_name,
+            user_avatar,
+            helpful_count,
+            is_verified,
             created_at,
             updated_at
           ''')
@@ -64,11 +84,11 @@ class ReviewService {
       return ReviewModel.fromJson(response);
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao criar review: ${e.message}');
-      throw ServerException('Erro ao criar avaliação: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao criar avaliação: ${e.message}');
     } catch (e) {
-      if (e is AuthException || e is CacheException) rethrow;
+      if (e is AuthException || e is app_exceptions.CacheException) rethrow;
       debugPrint('Erro ao criar review: $e');
-      throw ServerException('Erro inesperado ao criar avaliação');
+      throw const app_exceptions.ServerException('Erro inesperado ao criar avaliação');
     }
   }
 
@@ -89,6 +109,10 @@ class ReviewService {
             restaurant_id,
             rating,
             comment,
+            user_name,
+            user_avatar,
+            helpful_count,
+            is_verified,
             created_at,
             updated_at
           ''')
@@ -96,15 +120,15 @@ class ReviewService {
           .order(orderBy, ascending: ascending)
           .range(offset, offset + limit - 1);
 
-      return (response as List<dynamic>)
-          .map((item) => ReviewModel.fromJson(item))
+      return response
+          .map<ReviewModel>((item) => ReviewModel.fromJson(item))
           .toList();
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao buscar reviews: ${e.message}');
-      throw ServerException('Erro ao buscar avaliações: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao buscar avaliações: ${e.message}');
     } catch (e) {
       debugPrint('Erro ao buscar reviews: $e');
-      throw ServerException('Erro inesperado ao buscar avaliações');
+      throw const app_exceptions.ServerException('Erro inesperado ao buscar avaliações');
     }
   }
 
@@ -135,16 +159,16 @@ class ReviewService {
           .eq('user_id', targetUserId)
           .order('created_at', ascending: false);
 
-      return (response as List<dynamic>)
-          .map((item) => ReviewModel.fromJson(item))
+      return response
+          .map<ReviewModel>((item) => ReviewModel.fromJson(item))
           .toList();
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao buscar reviews do usuário: ${e.message}');
-      throw ServerException('Erro ao buscar suas avaliações: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao buscar suas avaliações: ${e.message}');
     } catch (e) {
       if (e is AuthException) rethrow;
       debugPrint('Erro ao buscar reviews do usuário: $e');
-      throw ServerException('Erro inesperado ao buscar suas avaliações');
+      throw const app_exceptions.ServerException('Erro inesperado ao buscar suas avaliações');
     }
   }
 
@@ -201,11 +225,11 @@ class ReviewService {
       return ReviewModel.fromJson(response);
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao atualizar review: ${e.message}');
-      throw ServerException('Erro ao atualizar avaliação: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao atualizar avaliação: ${e.message}');
     } catch (e) {
       if (e is AuthException) rethrow;
       debugPrint('Erro ao atualizar review: $e');
-      throw ServerException('Erro inesperado ao atualizar avaliação');
+      throw const app_exceptions.ServerException('Erro inesperado ao atualizar avaliação');
     }
   }
 
@@ -241,11 +265,11 @@ class ReviewService {
       debugPrint('Review removida com sucesso');
     } on PostgrestException catch (e) {
       debugPrint('Erro PostgreSQL ao remover review: ${e.message}');
-      throw ServerException('Erro ao remover avaliação: ${e.message}');
+      throw app_exceptions.ServerException('Erro ao remover avaliação: ${e.message}');
     } catch (e) {
       if (e is AuthException) rethrow;
       debugPrint('Erro ao remover review: $e');
-      throw ServerException('Erro inesperado ao remover avaliação');
+      throw const app_exceptions.ServerException('Erro inesperado ao remover avaliação');
     }
   }
 
@@ -269,8 +293,8 @@ class ReviewService {
     }
   }
 
-  /// Verifica se o usuário já avaliou um restaurante
-  Future<ReviewModel?> getUserReviewForRestaurant(String restaurantId) async {
+  /// Busca a última avaliação do usuário para um restaurante
+  Future<ReviewModel?> getUserLatestReviewForRestaurant(String restaurantId) async {
     try {
       final userId = AuthService.instance.userId;
       if (userId == null) return null;
@@ -288,6 +312,8 @@ class ReviewService {
           ''')
           .eq('user_id', userId)
           .eq('restaurant_id', restaurantId)
+          .order('created_at', ascending: false)
+          .limit(1)
           .maybeSingle();
 
       return response != null ? ReviewModel.fromJson(response) : null;
@@ -332,8 +358,8 @@ class ReviewService {
         };
       }
 
-      final ratings = (response as List<dynamic>)
-          .map((item) => item['rating'] as int)
+      final ratings = response
+          .map<int>((item) => item['rating'] as int)
           .toList();
 
       final totalReviews = ratings.length;

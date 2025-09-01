@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../entities/restaurant.dart';
-import '../../repositories/restaurant_repository.dart';
+import '../../data/repositories/restaurant_repository.dart';
 import '../../core/error/failures.dart';
 import 'usecase.dart';
 
@@ -13,9 +13,15 @@ class SearchRestaurantsUseCase implements UseCase<List<Restaurant>, SearchRestau
 
   @override
   Future<Either<Failure, List<Restaurant>>> call(SearchRestaurantsParams params) async {
-    // Normalizar a query: trim e lowercase
-    final normalizedQuery = params.query.trim().toLowerCase();
-    return await repository.searchRestaurants(normalizedQuery);
+    try {
+      // Normalizar a query: trim e lowercase
+      final normalizedQuery = params.query.trim().toLowerCase();
+      final restaurantModels = await repository.searchRestaurants(normalizedQuery);
+      final restaurants = restaurantModels.map((model) => Restaurant.fromModel(model)).toList();
+      return Right(restaurants);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }
 

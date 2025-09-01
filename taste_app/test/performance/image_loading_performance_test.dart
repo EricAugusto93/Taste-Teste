@@ -24,7 +24,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: imageWidgets.length,
@@ -51,7 +51,7 @@ void main() {
 
     testWidgets('Image placeholder performance', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
@@ -115,7 +115,7 @@ void main() {
       imageCache[imageKey] = imageWidget;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: imageCache[imageKey]!,
           ),
@@ -129,7 +129,7 @@ void main() {
       final secondLoadStopwatch = Stopwatch()..start();
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: imageCache[imageKey]!,
           ),
@@ -171,7 +171,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: imageWidgets.length,
@@ -239,7 +239,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: PageView.builder(
               itemCount: imageWidgets.length,

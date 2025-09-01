@@ -31,7 +31,7 @@ void main() {
   group('HomePage Basic Tests', () {
     testWidgets('should create HomePage widget', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Center(
               child: Text('HomePage Test'),
@@ -45,7 +45,7 @@ void main() {
     
     testWidgets('should display basic UI elements', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             appBar: AppBar(
               title: Text('Taste'),
@@ -98,7 +98,7 @@ void main() {
     
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -123,7 +123,7 @@ void main() {
       bool refreshCalled = false;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: RefreshIndicator(
               onRefresh: () async {
@@ -155,7 +155,7 @@ void main() {
     
     testWidgets('should display loading state', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -169,7 +169,7 @@ void main() {
     
     testWidgets('should handle scroll behavior', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: 20,
@@ -197,7 +197,7 @@ void main() {
   group('HomeSection Tests', () {
     testWidgets('should render section with title', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +240,7 @@ void main() {
       bool actionTapped = false;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: TextButton(
               onPressed: () {
@@ -262,7 +262,7 @@ void main() {
   group('Category Tests', () {
     testWidgets('should display categories', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

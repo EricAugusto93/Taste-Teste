@@ -2,25 +2,25 @@
 
 Este diretório contém todas as migrações necessárias para configurar o banco de dados do projeto Taste.
 
-## Ordem de Execução
+## ⚡ Ordem de Execução Recomendada
 
-### Migrações Principais (Execute em ordem):
+### 🔧 Migrações Estruturais (Execute em ordem):
 
 1. **001_create_initial_tables.sql** - Cria as tabelas principais (categories, restaurants, reviews, favorites, search_history)
 2. **002_create_admin_user.sql** - Cria a tabela de admins e usuário inicial
-3. **add_missing_restaurant_fields.sql** - Adiciona campos ausentes na tabela restaurants
-4. **sync_categories_with_admin_panel.sql** - Sincroniza categorias com painel administrativo
+3. **003_optimize_rls_policies.sql** - Otimiza políticas de Row Level Security
+4. **004_fix_database_indexes.sql** - Adiciona índices para performance
+5. **add_missing_restaurant_fields.sql** - Adiciona campos ausentes na tabela restaurants
+6. **sync_categories_with_admin_panel.sql** - Sincroniza categorias com painel administrativo
 
-### Migrações de Dados:
+### 📊 Scripts de Dados:
 
 - **clear_and_insert_restaurants.sql** - Limpa e insere dados de restaurantes
 - **insert_categories_and_update_restaurants.sql** - Insere categorias e atualiza restaurantes
 
-### Scripts de Verificação:
+### 🔍 Scripts de Verificação:
 
 - **check_user_profiles_permissions.sql** - Verifica permissões de perfis de usuário
-- **list_all_categories.sql** - Lista todas as categorias
-- **query_categories.sql** - Query de exemplo para categorias
 
 ## Estrutura das Tabelas
 

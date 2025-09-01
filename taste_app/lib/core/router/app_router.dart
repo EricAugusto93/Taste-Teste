@@ -35,16 +35,18 @@ class RouterNotifier extends ChangeNotifier {
   bool get onboardingCompleted => _onboardingCompleted;
   bool get isInitialized => _isInitialized;
 
-  /// Inicializa o router notifier
+  /// Inicializa o router notifier de forma síncrona
   Future<void> initialize() async {
     if (_isInitialized) return;
     
     try {
+      // Inicialização síncrona para evitar condição de corrida
       _onboardingCompleted = await OnboardingService.isOnboardingCompleted();
       _isInitialized = true;
+      debugPrint('🔀 RouterNotifier inicializado - onboarding: $_onboardingCompleted');
       notifyListeners();
     } catch (e) {
-      debugPrint('Erro ao inicializar RouterNotifier: $e');
+      debugPrint('⚠️ Erro ao inicializar RouterNotifier: $e - usando padrões');
       _onboardingCompleted = false;
       _isInitialized = true;
       notifyListeners();
@@ -55,6 +57,7 @@ class RouterNotifier extends ChangeNotifier {
   void updateOnboarding(bool completed) {
     if (_onboardingCompleted != completed) {
       _onboardingCompleted = completed;
+      debugPrint('🔀 RouterNotifier: onboarding atualizado para: $completed');
       notifyListeners();
     }
   }

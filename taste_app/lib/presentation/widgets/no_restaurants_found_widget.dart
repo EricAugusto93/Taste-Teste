@@ -31,7 +31,7 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
             // Ícone animado
             if (showAnimation) _buildAnimatedIcon(),
             
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             
             // Card principal
             Container(
@@ -61,7 +61,7 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   
-                  SizedBox(height: AppDimensions.paddingMedium),
+                  const SizedBox(height: AppDimensions.paddingMedium),
                   
                   // Subtexto
                   Text(
@@ -70,7 +70,7 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   
-                  SizedBox(height: AppDimensions.paddingLarge),
+                  const SizedBox(height: AppDimensions.paddingLarge),
                   
                   // Botão CTA
                   if (onChangeFilters != null)
@@ -100,7 +100,7 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
                 color: AppColors.emptyStateBlue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(40),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.search_off,
                 size: 40,
                 color: AppColors.emptyStateBlue,
@@ -131,11 +131,11 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.tune,
               size: AppDimensions.iconMedium,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               customButtonText ?? 'Alterar Filtros',
               style: AppTextStyles.buttonText,
@@ -165,12 +165,12 @@ class CompactNoRestaurantsWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.restaurant_menu_outlined,
             size: 48,
             color: AppColors.textLight,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           Text(
             message ?? 'Nenhum restaurante encontrado',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -178,8 +178,8 @@ class CompactNoRestaurantsWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          if (onChangeFilters != null) ..[
-            SizedBox(height: AppDimensions.paddingMedium),
+          if (onChangeFilters != null) ...[
+            const SizedBox(height: AppDimensions.paddingMedium),
             TextButton(
               onPressed: onChangeFilters,
               child: Text(
@@ -219,7 +219,7 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
             showAnimation: true,
           ),
           
-          if (suggestions != null && suggestions!.isNotEmpty) ..[
+          if (suggestions != null && suggestions!.isNotEmpty) ...[
             SizedBox(height: AppDimensions.paddingLarge),
             
             // Sugestões
@@ -268,7 +268,7 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
           ],
           
           // Botão para limpar filtros
-          if (onClearFilters != null) ..[
+          if (onClearFilters != null) ...[
             SizedBox(height: AppDimensions.paddingMedium),
             TextButton.icon(
               onPressed: onClearFilters,

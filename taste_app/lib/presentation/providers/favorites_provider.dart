@@ -6,7 +6,6 @@ import '../../domain/repositories/favorites_repository.dart' as domain_favorites
 import '../../domain/usecases/favorites/add_favorite_usecase.dart';
 import '../../domain/usecases/favorites/remove_favorite_usecase.dart';
 import '../../domain/usecases/favorites/get_favorites_usecase.dart';
-import '../../domain/usecases/usecase.dart';
 import '../../../core/di/injection_container.dart';
 import '../../data/services/auth/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

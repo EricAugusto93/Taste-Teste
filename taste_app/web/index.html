@@ -35,7 +35,60 @@
   <title>taste_app</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- Google Maps API será carregado dinamicamente pelo Flutter -->
+  <!-- Google Maps API será carregado dinamicamente com API key do ambiente -->
+  <script>
+    // Carregar Google Maps API dinamicamente quando a aplicação estiver pronta
+    window.loadGoogleMapsAPI = function(apiKey) {
+      if (window.google && window.google.maps) {
+        console.log('🗺️ Google Maps API já está carregada');
+        return Promise.resolve();
+      }
+      
+      console.log('📍 Carregando Google Maps API...');
+      
+      return new Promise((resolve, reject) => {
+        // Remove scripts existentes do Google Maps
+        const existingScripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+        existingScripts.forEach(script => script.remove());
+        
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
+        script.async = true;
+        script.defer = true;
+        
+        // Callback global para quando o Google Maps carregar
+        window.initGoogleMaps = function() {
+          console.log('✅ Google Maps API carregada com sucesso');
+          resolve();
+        };
+        
+        script.onerror = function(error) {
+          console.error('❌ Erro ao carregar Google Maps API:', error);
+          reject(new Error('Falha ao carregar Google Maps API'));
+        };
+        
+        script.onload = function() {
+          // Alguns casos o callback pode não ser chamado, verificamos se carregou
+          setTimeout(() => {
+            if (window.google && window.google.maps && !window.initGoogleMapsResolved) {
+              window.initGoogleMapsResolved = true;
+              console.log('✅ Google Maps API detectada (fallback)');
+              resolve();
+            }
+          }, 1000);
+        };
+        
+        document.head.appendChild(script);
+        
+        // Timeout de segurança
+        setTimeout(() => {
+          if (!window.initGoogleMapsResolved) {
+            reject(new Error('Timeout: Google Maps API não carregou em 10s'));
+          }
+        }, 10000);
+      });
+    };
+  </script>
 
   <script>
     // The value below is injected by flutter build, do not touch.

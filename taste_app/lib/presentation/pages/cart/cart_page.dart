@@ -53,7 +53,7 @@ class _CartPageState extends ConsumerState<CartPage> {
       backgroundColor: AppColors.background,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(AppIcons.arrowLeft, color: AppColors.textPrimary),
+        icon: const Icon(AppIcons.back, color: AppColors.textPrimary),
         onPressed: () => NavigationHelper.safeGoBack(context),
       ),
       title: Text(
@@ -75,7 +75,7 @@ class _CartPageState extends ConsumerState<CartPage> {
 
   Widget _buildEmptyCart() {
     return EmptyStateWidget.cartEmpty(
-      onStartShopping: () {
+      onAddItems: () {
         context.go('/home');
       },
     );
@@ -93,32 +93,30 @@ class _CartPageState extends ConsumerState<CartPage> {
                 // Informações do restaurante
                 if (cart.restaurant != null) _buildRestaurantInfo(cart.restaurant!),
                 
-                SizedBox(height: AppDimensions.paddingLarge),
+                const SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Lista de itens
                 _buildItemsList(cart.items),
                 
-                SizedBox(height: AppDimensions.paddingLarge),
+                const SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Código promocional
                 _buildPromoCodeSection(cart),
                 
-                SizedBox(height: AppDimensions.paddingLarge),
+                const SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Informações de entrega
-                if (cart.restaurant != null)
-                  DeliveryInfoWidget(
-                    restaurant: cart.restaurant!,
-                    deliveryFee: cart.deliveryFee,
-                    estimatedTime: '30-45 min',
-                  ),
+                DeliveryInfoWidget(
+                  deliveryTime: '30-45 min',
+                  deliveryFee: cart.deliveryFee,
+                ),
                 
-                SizedBox(height: AppDimensions.paddingLarge),
+                const SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Resumo do pedido
                 _buildOrderSummary(cart),
                 
-                SizedBox(height: 100), // Espaço para o bottom bar
+                const SizedBox(height: 100), // Espaço para o bottom bar
               ],
             ),
           ),
@@ -144,13 +142,13 @@ class _CartPageState extends ConsumerState<CartPage> {
               color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
             ),
-            child: Icon(
+            child: const Icon(
               AppIcons.restaurant,
               color: AppColors.primary,
               size: AppDimensions.iconMedium,
             ),
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +159,7 @@ class _CartPageState extends ConsumerState<CartPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   restaurant.address ?? 'Endereço não disponível',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -186,14 +184,20 @@ class _CartPageState extends ConsumerState<CartPage> {
           'Itens do pedido',
           style: AppTextStyles.headingSmall,
         ),
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         ...items.map((item) => Padding(
           padding: const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
           child: CartItemWidget(
             item: item,
-            onQuantityChanged: (newQuantity) {
+            onIncrease: () {
               ref.read(cartNotifierProvider.notifier)
-                  .updateItemQuantity(item.id, newQuantity);
+                  .updateItemQuantity(item.id, item.quantity + 1);
+            },
+            onDecrease: () {
+              if (item.quantity > 1) {
+                ref.read(cartNotifierProvider.notifier)
+                    .updateItemQuantity(item.id, item.quantity - 1);
+              }
             },
             onRemove: () {
               ref.read(cartNotifierProvider.notifier)
@@ -234,7 +238,7 @@ class _CartPageState extends ConsumerState<CartPage> {
         ),
         
         if (cart.promoCode != null) ...[
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Container(
             padding: const EdgeInsets.all(AppDimensions.paddingMedium),
             decoration: BoxDecoration(
@@ -244,12 +248,12 @@ class _CartPageState extends ConsumerState<CartPage> {
             ),
             child: Row(
               children: [
-                Icon(
-                  AppIcons.check,
+                const Icon(
+                  AppIcons.checkCircle,
                   color: AppColors.success,
                   size: AppDimensions.iconSmall,
                 ),
-                SizedBox(width: AppDimensions.paddingSmall),
+                const SizedBox(width: AppDimensions.paddingSmall),
                 Expanded(
                   child: Text(
                     'Código ${cart.promoCode} aplicado',
@@ -273,9 +277,8 @@ class _CartPageState extends ConsumerState<CartPage> {
             ),
           ),
         ] else if (_showPromoCode) ...[
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           PromoCodeWidget(
-            controller: _promoCodeController,
             onApply: (code) async {
               try {
                 await ref.read(cartNotifierProvider.notifier)
@@ -294,12 +297,6 @@ class _CartPageState extends ConsumerState<CartPage> {
                   );
                 }
               }
-            },
-            onCancel: () {
-              setState(() {
-                _showPromoCode = false;
-              });
-              _promoCodeController.clear();
             },
           ),
         ],
@@ -322,7 +319,7 @@ class _CartPageState extends ConsumerState<CartPage> {
             'Resumo do pedido',
             style: AppTextStyles.headingSmall,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           
           _buildSummaryRow('Subtotal', 'R\$ ${cart.subtotal.toStringAsFixed(2)}'),
           _buildSummaryRow('Taxa de entrega', 'R\$ ${cart.deliveryFee.toStringAsFixed(2)}'),
@@ -344,7 +341,7 @@ class _CartPageState extends ConsumerState<CartPage> {
           ),
           
           if (!cart.meetsMinimumOrder && cart.restaurant?.minOrderValue != null) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingSmall),
               decoration: BoxDecoration(
@@ -353,12 +350,12 @@ class _CartPageState extends ConsumerState<CartPage> {
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     AppIcons.warning,
                     color: AppColors.warning,
                     size: AppDimensions.iconSmall,
                   ),
-                  SizedBox(width: AppDimensions.paddingSmall),
+                  const SizedBox(width: AppDimensions.paddingSmall),
                   Expanded(
                     child: Text(
                       'Pedido mínimo: R\$ ${cart.restaurant!.minOrderValue!.toStringAsFixed(2)}\n'
@@ -472,14 +469,14 @@ class _CartPageState extends ConsumerState<CartPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Limpar carrinho'),
-        content: Text(
+        title: const Text('Limpar carrinho'),
+        content: const Text(
           'Tem certeza que deseja remover todos os itens do carrinho?',
         ),
         actions: [
           TextButton(
             onPressed: () => NavigationHelper.safeGoBack(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {

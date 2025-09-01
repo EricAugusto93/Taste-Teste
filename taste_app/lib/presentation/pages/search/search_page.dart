@@ -21,6 +21,9 @@ import '../../widgets/search/ai_confidence_widget.dart';
 import '../../widgets/search/search_performance_widget.dart';
 import '../../widgets/debounced_search_field.dart';
 import '../../widgets/optimized_list_view.dart';
+import '../../widgets/enhanced_map_widget.dart';
+import '../../../data/models/location_model.dart';
+import '../../../data/repositories/location_repository.dart';
 
 /// Página de busca conforme referências visuais
 class SearchPage extends StatefulWidget {
@@ -39,6 +42,9 @@ class _SearchPageState extends State<SearchPage> {
   final SearchAnalyticsService _searchAnalytics = SearchAnalyticsService.instance;
   late final SearchRepository _searchRepository;
   final AuthService _authService = AuthService.instance;
+  final LocationRepository _locationRepository = LocationRepository.instance;
+  
+  LocationModel? _userLocation;
   
   List<RestaurantModel> _restaurants = [];
   List<String> _searchSuggestions = [];
@@ -112,7 +118,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    _searchRepository = SearchRepositoryImpl(_searchService);
+    _searchRepository = SearchRepositoryImpl();
     _searchFocusNode.addListener(_onFocusChange);
     _loadInitialData();
     
@@ -146,6 +152,7 @@ class _SearchPageState extends State<SearchPage> {
       await Future.wait([
         _loadPopularSearches(),
         _loadSearchHistory(),
+        _loadUserLocation(),
       ]);
       
       if (widget.initialQuery == null || widget.initialQuery!.isEmpty) {
@@ -191,6 +198,18 @@ class _SearchPageState extends State<SearchPage> {
       }
     } catch (e) {
       debugPrint('Erro ao carregar histórico: $e');
+    }
+  }
+
+  Future<void> _loadUserLocation() async {
+    try {
+      final location = await _locationRepository.getCurrentLocation();
+      setState(() {
+        _userLocation = location;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar localização: $e');
+      // Não é crítico, continua sem localização
     }
   }
   
@@ -251,7 +270,7 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           IconButton(
             onPressed: () {
               AnimationService.mediumHaptic();
@@ -278,23 +297,23 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             // Categorias
             _buildSectionTitle('Categorias'),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             _buildCategoriesChips(),
             
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             
             // Buscas recentes
             if (_searchHistory.isNotEmpty) ...[
               _buildSectionTitle('Buscas Recentes'),
-              SizedBox(height: AppDimensions.paddingMedium),
+              const SizedBox(height: AppDimensions.paddingMedium),
               _buildSearchList(_searchHistory, isRecent: true),
               
-              SizedBox(height: AppDimensions.paddingLarge),
+              const SizedBox(height: AppDimensions.paddingLarge),
             ],
             
             // Buscas populares
             _buildSectionTitle('Buscas Populares'),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             _buildSearchList(_popularSearches),
           ],
         ),
@@ -318,7 +337,7 @@ class _SearchPageState extends State<SearchPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(),
-              SizedBox(height: AppDimensions.paddingMedium),
+              const SizedBox(height: AppDimensions.paddingMedium),
               Text('Buscando restaurantes...'),
             ],
           ),
@@ -346,6 +365,44 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           _buildResultsHeader(),
           if (_showCorrections) _buildCorrectionsWidget(),
+          
+          // Mapa com restaurantes (apenas quando há resultados)
+          if (_restaurants.isNotEmpty) ...[
+            Container(
+              height: 300,
+              margin: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.paddingMedium,
+                vertical: AppDimensions.paddingSmall,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                child: EnhancedMapWidget(
+                  userLocation: _userLocation,
+                  restaurants: _restaurants,
+                  height: 300,
+                  showUserLocation: true,
+                  enableInteraction: true,
+                  showAdvancedMarkers: true,
+                  showInfoWindows: true,
+                  onRestaurantTap: (restaurant) {
+                    context.push('/restaurant/${restaurant.id}');
+                  },
+                ),
+              ),
+            ),
+            SizedBox(height: AppDimensions.paddingMedium),
+          ],
+          
           if (_currentInterpretation != null && _showAIInsights)
             AIConfidenceWidget(
               interpretation: _currentInterpretation!,

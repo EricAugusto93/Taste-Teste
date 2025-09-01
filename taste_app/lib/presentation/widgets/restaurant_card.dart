@@ -53,7 +53,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
         margin: widget.margin,
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+          borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusMedium)),
           boxShadow: [
             BoxShadow(
               color: AppColors.shadow.withOpacity(0.1),
@@ -86,10 +86,10 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              SizedBox(height: AppDimensions.paddingSmall),
+              const SizedBox(height: AppDimensions.paddingSmall),
               _buildRatingAndCategory(),
               if (widget.showDistance && widget.restaurant.distance != null) ...[
-                SizedBox(height: AppDimensions.paddingSmall),
+                const SizedBox(height: AppDimensions.paddingSmall),
                 _buildDistanceInfo(),
               ],
             ],
@@ -105,13 +105,13 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
       child: Row(
         children: [
           _buildCompactImage(),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                SizedBox(height: AppDimensions.paddingSmall),
+                const SizedBox(height: AppDimensions.paddingSmall),
                 _buildRatingAndCategory(),
               ],
             ),
@@ -142,7 +142,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: double.infinity,
               height: 180,
               color: AppColors.background,
-              child: Icon(
+              child: const Icon(
                 AppIcons.restaurant,
                 size: 48,
                 color: AppColors.textLight,
@@ -152,7 +152,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: double.infinity,
               height: 180,
               color: AppColors.background,
-              child: Icon(
+              child: const Icon(
                 AppIcons.restaurant,
                 size: 48,
                 color: AppColors.textLight,

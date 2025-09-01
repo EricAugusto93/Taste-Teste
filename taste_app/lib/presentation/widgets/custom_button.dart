@@ -52,8 +52,8 @@ class CustomButton extends StatelessWidget {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.textPrimary,
           elevation: AppDimensions.elevationMedium,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingLarge,
@@ -74,8 +74,8 @@ class CustomButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingLarge,
@@ -97,8 +97,8 @@ class CustomButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary, width: 2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.paddingLarge,
@@ -115,7 +115,7 @@ class CustomButton extends StatelessWidget {
       return SizedBox(
         width: AppDimensions.iconMedium,
         height: AppDimensions.iconMedium,
-        child: CircularProgressIndicator(
+        child: const CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(AppColors.textPrimary),
         ),
@@ -130,7 +130,7 @@ class CustomButton extends StatelessWidget {
             icon,
             size: AppDimensions.iconMedium,
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Text(
             text,
             style: isSecondary || isOutlined 

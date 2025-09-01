@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
-import '../models/order_model.dart';
-import '../models/cart_model.dart';
-import '../models/address_model.dart';
-import '../models/payment_method_model.dart';
+import '../../models/order_model.dart';
+import '../../models/cart_model.dart';
+import '../../models/address_model.dart';
+import '../../models/payment_method_model.dart';
 import '../../models/restaurant_model.dart';
 
 /// Serviço para gerenciar pedidos
@@ -253,7 +253,7 @@ class OrderService {
       'orderId': order.id,
       'status': order.status.name,
       'trackingCode': order.trackingCode,
-      'estimatedDeliveryTime': order.estimatedDeliveryTime?.toIso8601String(),
+      'estimatedDeliveryTime': order.estimatedDeliveryTime.toIso8601String(),
       'currentLocation': 'Em trânsito',
       'lastUpdate': DateTime.now().toIso8601String(),
     };
@@ -281,8 +281,8 @@ class OrderService {
     AddressModel deliveryAddress,
   ) {
     final now = DateTime.now();
-    final preparationTime = 30; // Tempo padrão de preparo
-    final deliveryTime = 20; // Tempo base de entrega
+    const preparationTime = 30; // Tempo padrão de preparo
+    const deliveryTime = 20; // Tempo base de entrega
     
     return now.add(Duration(minutes: preparationTime + deliveryTime));
   }

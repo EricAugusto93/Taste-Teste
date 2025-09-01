@@ -53,10 +53,6 @@ class _ReviewCardState extends State<ReviewCard> {
                 SizedBox(height: AppDimensions.paddingSmall),
                 _buildComment(),
               ],
-              if (showRestaurantName && review.restaurant != null) ...[
-                SizedBox(height: AppDimensions.paddingSmall),
-                _buildRestaurantInfo(),
-              ],
               SizedBox(height: AppDimensions.paddingSmall),
               _buildFooter(),
             ],
@@ -151,36 +147,6 @@ class _ReviewCardState extends State<ReviewCard> {
     );
   }
 
-  Widget _buildRestaurantInfo() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimensions.paddingSmall,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.store,
-            size: AppDimensions.iconSmall,
-            color: AppColors.primary,
-          ),
-          SizedBox(width: 4),
-          Text(
-            review.restaurant!.name,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildFooter() {
     return Row(

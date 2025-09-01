@@ -24,6 +24,7 @@ class RestaurantModel extends Equatable {
   final bool isOpen;
   final bool isFeatured;
   final String? emoji;
+  final Map<String, dynamic>? openingHours;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -49,6 +50,7 @@ class RestaurantModel extends Equatable {
     required this.isOpen,
     required this.isFeatured,
     this.emoji,
+    this.openingHours,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -77,6 +79,7 @@ class RestaurantModel extends Equatable {
       isOpen: json['is_open'] as bool? ?? true,
       isFeatured: json['is_featured'] as bool? ?? false,
       emoji: json['emoji'] as String?,
+      openingHours: json['opening_hours'] as Map<String, dynamic>?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -106,6 +109,7 @@ class RestaurantModel extends Equatable {
       isOpen: data['is_open'] as bool? ?? true,
       isFeatured: data['is_featured'] as bool? ?? false,
       emoji: data['emoji']?.toString(),
+      openingHours: data['opening_hours'] as Map<String, dynamic>?,
       createdAt: data['created_at'] != null 
           ? DateTime.parse(data['created_at'].toString())
           : DateTime.now(),
@@ -139,6 +143,7 @@ class RestaurantModel extends Equatable {
       'is_open': isOpen,
       'is_featured': isFeatured,
       'emoji': emoji,
+      'opening_hours': openingHours,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -167,6 +172,7 @@ class RestaurantModel extends Equatable {
     bool? isOpen,
     bool? isFeatured,
     String? emoji,
+    Map<String, dynamic>? openingHours,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -192,6 +198,7 @@ class RestaurantModel extends Equatable {
       isOpen: isOpen ?? this.isOpen,
       isFeatured: isFeatured ?? this.isFeatured,
       emoji: emoji ?? this.emoji,
+      openingHours: openingHours ?? this.openingHours,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -276,8 +283,92 @@ class RestaurantModel extends Equatable {
     );
   }
 
+  /// Verifica se o restaurante está aberto agora
+  bool get isOpenNow {
+    if (openingHours == null) return isOpen;
+    
+    final now = DateTime.now();
+    final dayOfWeek = _getDayOfWeek(now.weekday);
+    final dayHours = openingHours![dayOfWeek];
+    
+    if (dayHours == null) return false;
+    if (dayHours['closed'] == true) return false;
+    
+    final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    
+    // Verifica se tem horário de jantar
+    if (dayHours['dinner_open'] != null) {
+      final lunchOpen = dayHours['open'] as String?;
+      final lunchClose = dayHours['close'] as String?;
+      final dinnerOpen = dayHours['dinner_open'] as String?;
+      final dinnerClose = dayHours['dinner_close'] as String?;
+      
+      return (lunchOpen != null && lunchClose != null && 
+              _isTimeBetween(currentTime, lunchOpen, lunchClose)) ||
+             (dinnerOpen != null && dinnerClose != null && 
+              _isTimeBetween(currentTime, dinnerOpen, dinnerClose));
+    } else {
+      final openTime = dayHours['open'] as String?;
+      final closeTime = dayHours['close'] as String?;
+      
+      if (openTime == null || closeTime == null) return false;
+      return _isTimeBetween(currentTime, openTime, closeTime);
+    }
+  }
+  
+  /// Obtém os horários formatados de hoje
+  String get todaysHours {
+    if (openingHours == null) return 'Horário não disponível';
+    
+    final now = DateTime.now();
+    final dayOfWeek = _getDayOfWeek(now.weekday);
+    final dayHours = openingHours![dayOfWeek];
+    
+    if (dayHours == null) return 'Horário não disponível';
+    if (dayHours['closed'] == true) return 'Fechado';
+    
+    if (dayHours['dinner_open'] != null) {
+      final lunch = '${dayHours['open']} às ${dayHours['close']}';
+      final dinner = '${dayHours['dinner_open']} às ${dayHours['dinner_close']}';
+      return '$lunch • $dinner';
+    } else {
+      return '${dayHours['open']} às ${dayHours['close']}';
+    }
+  }
+  
+  String _getDayOfWeek(int weekday) {
+    switch (weekday) {
+      case 1: return 'monday';
+      case 2: return 'tuesday';
+      case 3: return 'wednesday';
+      case 4: return 'thursday';
+      case 5: return 'friday';
+      case 6: return 'saturday';
+      case 7: return 'sunday';
+      default: return 'monday';
+    }
+  }
+  
+  bool _isTimeBetween(String current, String start, String end) {
+    final currentMinutes = _timeToMinutes(current);
+    final startMinutes = _timeToMinutes(start);
+    final endMinutes = _timeToMinutes(end);
+    
+    if (endMinutes < startMinutes) {
+      // Atravessa meia-noite (ex: 22:00 às 02:00)
+      return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+    } else {
+      return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    }
+  }
+  
+  int _timeToMinutes(String time) {
+    final parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
+
   @override
   String toString() {
-    return 'RestaurantModel(id: $id, name: $name, rating: $rating, isOpen: $isOpen)';
+    return 'RestaurantModel(id: $id, name: $name, rating: $rating, isOpen: $isOpenNow)';
   }
 }

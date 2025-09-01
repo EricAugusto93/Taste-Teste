@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/navigation_helper.dart';
-import '../../../domain/entities/restaurant.dart';
 import '../../../data/models/favorite_model.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/enhanced_error_widget.dart';
@@ -32,7 +31,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF4A5FBF),
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Meus Favoritos',
           style: TextStyle(
             color: Colors.white,
@@ -94,18 +93,18 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   color: const Color(0xFFFFD700).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.favorite,
                   color: Color(0xFFFFD700),
                   size: 24,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Seus favoritos',
                       style: TextStyle(
                         color: Colors.white,
@@ -207,7 +206,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       restaurant.emoji ?? '🍽️',
                       style: const TextStyle(fontSize: 20),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         restaurant.name,
@@ -219,7 +218,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                     ),
                     IconButton(
                       onPressed: () => _removeFavorite(restaurant),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.favorite,
                         color: Colors.red,
                       ),
@@ -227,7 +226,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   ],
                 ),
                 
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 
                 Text(
                   restaurant.description ?? 'Restaurante',
@@ -239,22 +238,22 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 
                 Row(
                   children: [
                     // Rating
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star,
                           size: 16,
                           color: Colors.amber,
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           restaurant.rating.toStringAsFixed(1),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
                           ),
@@ -262,7 +261,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       ],
                     ),
                     
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     
                     // Tempo de entrega
                     Row(
@@ -272,7 +271,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                           size: 16,
                           color: Colors.grey[600],
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           restaurant.deliveryTime ?? '30 min',
                           style: TextStyle(
@@ -319,14 +318,14 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                 color: const Color(0xFFFFD700).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.favorite_border,
                 size: 64,
                 color: Color(0xFFFFD700),
               ),
             ),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Nenhum favorito ainda',
               style: TextStyle(
                 color: Colors.white,
@@ -334,7 +333,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Explore restaurantes e adicione seus favoritos para vê-los aqui!',
               style: TextStyle(
@@ -343,7 +342,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -359,7 +358,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -388,10 +387,10 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Erro ao remover favorito'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
           ),
         );
       }

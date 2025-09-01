@@ -93,6 +93,21 @@ class CategoryModel extends Equatable {
         updatedAt,
       ];
 
+  /// Converte uma entidade Category para CategoryModel
+  factory CategoryModel.fromEntity(Category category) {
+    return CategoryModel(
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      icon: category.icon,
+      color: category.color,
+      isActive: category.isActive,
+      sortOrder: category.sortOrder,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+    );
+  }
+
   /// Converte para entidade de domínio
   Category toEntity() {
     return Category(

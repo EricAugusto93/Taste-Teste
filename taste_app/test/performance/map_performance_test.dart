@@ -179,7 +179,7 @@ void main() {
         ));
 
         await tester.pumpWidget(
-          const MaterialApp(
+          MaterialApp(
             home: Scaffold(
               body: ReusableMapView(
                 restaurants: restaurants,

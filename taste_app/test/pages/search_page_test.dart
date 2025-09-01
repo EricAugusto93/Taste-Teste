@@ -74,7 +74,7 @@ void main() {
   group('SearchPage Basic Tests', () {
     testWidgets('should create SearchPage widget', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             appBar: AppBar(
               title: Text('Buscar'),
@@ -92,7 +92,7 @@ void main() {
     
     testWidgets('should display search field', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
@@ -126,7 +126,7 @@ void main() {
     
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -149,7 +149,7 @@ void main() {
     
     testWidgets('should display search suggestions', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
@@ -195,7 +195,7 @@ void main() {
     
     testWidgets('should display search results', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: ListView.builder(
               itemCount: mockRestaurants.length,
@@ -246,7 +246,7 @@ void main() {
     
     testWidgets('should display empty state', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Center(
               child: Column(
@@ -288,7 +288,7 @@ void main() {
       bool filterTapped = false;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: IconButton(
               icon: Icon(Icons.filter_list),
@@ -310,7 +310,7 @@ void main() {
   group('Search Filters Tests', () {
     testWidgets('should display filter options', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
@@ -359,7 +359,7 @@ void main() {
       bool filterSelected = false;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: FilterChip(
               label: Text('Entrega grátis'),
@@ -384,7 +384,7 @@ void main() {
       final searchHistory = ['pizza', 'hambúrguer', 'sushi', 'japonês'];
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,7 +443,7 @@ void main() {
       bool historyCleard = false;
       
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: TextButton(
               onPressed: () {
