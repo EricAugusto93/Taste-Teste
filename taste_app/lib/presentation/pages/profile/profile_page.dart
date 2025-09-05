@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,9 +36,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final isLoading = profileState.isLoading;
     final error = profileState.error;
 
-    // Se não estiver autenticado, mostra tela de login
-    if (!authState.isAuthenticated) {
+    // Em modo debug, permitir acesso mesmo sem autenticação real
+    // Em produção, verificar autenticação normalmente
+    final shouldShowGuestProfile = kDebugMode 
+        ? false // Em debug, nunca mostrar tela de visitante
+        : !authState.isAuthenticated; // Em produção, verificar autenticação real
+    
+    if (shouldShowGuestProfile) {
+      debugPrint('❌ ProfilePage: Usuário não autenticado, mostrando tela de visitante');
       return _buildGuestProfile();
+    }
+    
+    // Se chegou aqui, está em modo dev ou usuário está realmente autenticado
+    if (kDebugMode && !authState.isAuthenticated) {
+      debugPrint('🔓 ProfilePage: Modo desenvolvimento - criando perfil mock');
     }
 
     return Scaffold(
@@ -54,7 +66,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     },
                     errorType: ErrorType.general,
                   )
-                : _buildProfileContent(profileState.profile, authState.user),
+                : _buildProfileContent(profileState.profile, authState.user, authState.isAuthenticated),
       ),
     );
   }
@@ -124,7 +136,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   /// Layout da página de perfil conforme referência visual
-  Widget _buildProfileContent(dynamic profile, dynamic user) {
+  Widget _buildProfileContent(dynamic profile, dynamic user, bool isAuthenticated) {
+    // Em modo debug sem autenticação real, criar dados mock
+    if (kDebugMode && !isAuthenticated) {
+      debugPrint('🔧 ProfilePage: Criando dados de perfil mock para desenvolvimento');
+      return _buildMockProfile();
+    }
+    
     // Obtém o nome para exibir usando apenas propriedades seguras
     String displayName = 'Usuário';
     
@@ -501,5 +519,232 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         );
       }
     }
+  }
+  
+  /// Constrói uma versão mock do perfil para desenvolvimento
+  Widget _buildMockProfile() {
+    debugPrint('🔧 ProfilePage: Renderizando perfil mock para desenvolvimento');
+    
+    return Column(
+      children: [
+        // Header com avatar e nome
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+          child: Column(
+            children: [
+              // Avatar mock
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(50),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 3,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.person,
+                  size: 60,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Nome mock
+              Text(
+                'Desenvolvedor Taste',
+                style: GoogleFonts.dancingScript(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // Email mock
+              Text(
+                'dev@taste.app',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // Badge de desenvolvimento
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.code,
+                      size: 16,
+                      color: Colors.orange.shade200,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Modo Desenvolvimento',
+                      style: TextStyle(
+                        color: Colors.orange.shade200,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Lista de opções (versão mock)
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Configurações (Demo)',
+                    style: GoogleFonts.dancingScript(
+                      color: const Color(0xFF2C3E50),
+                      fontSize: 26,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Opções mock
+                  _buildMockListOption(
+                    Icons.edit, 
+                    Colors.blue, 
+                    'Editar Perfil',
+                    () => debugPrint('🔧 Mock: Editar perfil clicado'),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  _buildMockListOption(
+                    Icons.favorite, 
+                    Colors.red, 
+                    'Favoritos',
+                    () => debugPrint('🔧 Mock: Favoritos clicado'),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  _buildMockListOption(
+                    Icons.settings, 
+                    Colors.grey, 
+                    'Configurações',
+                    () => debugPrint('🔧 Mock: Configurações clicado'),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  _buildMockListOption(
+                    Icons.info, 
+                    Colors.blue, 
+                    'Sobre o App',
+                    () => debugPrint('🔧 Mock: Sobre clicado'),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Botão de logout mock
+                  SizedBox(
+                    width: double.infinity,
+                    child: AuthButton(
+                      text: 'Sair (Demo)',
+                      onPressed: () {
+                        debugPrint('🔧 Mock: Logout clicado');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Logout em modo desenvolvimento'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                      },
+                      isLoading: false,
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  /// Constrói uma opção mock da lista
+  Widget _buildMockListOption(IconData icon, Color iconColor, String title, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.grey.shade300,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: iconColor,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: GoogleFonts.dancingScript(
+                color: const Color(0xFF2C3E50),
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey.shade600,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

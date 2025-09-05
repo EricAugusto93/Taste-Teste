@@ -24,6 +24,12 @@ class AuthGuard {
       '/forgot-password',
     ];
 
+    // Em modo debug, permitir acesso a rotas protegidas
+    if (kDebugMode && protectedRoutes.any((protectedRoute) => route.startsWith(protectedRoute))) {
+      debugPrint('🔓 AuthGuard: Modo desenvolvimento - permitindo acesso a $route');
+      return true;
+    }
+
     // Obtém estado de autenticação incluindo fallback local
     final isAuthenticated = _authService.isAuthenticated;
     debugPrint('🔍 AuthGuard: Verificando rota $route - isAuthenticated: $isAuthenticated');
@@ -44,9 +50,6 @@ class AuthGuard {
 
   /// Obtém a rota de redirecionamento baseada no estado de autenticação
   static String getRedirectRoute(String attemptedRoute) {
-    final isAuthenticated = _authService.isAuthenticated;
-    debugPrint('🔍 AuthGuard: getRedirectRoute - attemptedRoute: $attemptedRoute, isAuthenticated: $isAuthenticated');
-
     // Rotas que requerem autenticação
     final protectedRoutes = [
       '/profile',
@@ -61,6 +64,15 @@ class AuthGuard {
       '/register',
       '/forgot-password',
     ];
+
+    // Em modo debug, permitir acesso direto a rotas protegidas
+    if (kDebugMode && protectedRoutes.any((route) => attemptedRoute.startsWith(route))) {
+      debugPrint('🔓 AuthGuard: Modo desenvolvimento - acesso direto permitido a $attemptedRoute');
+      return attemptedRoute;
+    }
+
+    final isAuthenticated = _authService.isAuthenticated;
+    debugPrint('🔍 AuthGuard: getRedirectRoute - attemptedRoute: $attemptedRoute, isAuthenticated: $isAuthenticated');
 
     // Se tentou acessar rota protegida sem estar autenticado
     if (protectedRoutes.any((route) => attemptedRoute.startsWith(route)) && !isAuthenticated) {
@@ -83,10 +95,14 @@ class AuthGuard {
   static String? redirect(BuildContext context, GoRouterState state) {
     final location = state.uri.toString();
     
-    // Em modo de desenvolvimento, força autenticação local para rotas protegidas
+    // DESABILITADO: Força autenticação local - mantendo usuário real do Supabase
+    // if (kDebugMode && _shouldForceAuthInDev(location)) {
+    //   debugPrint('🔓 AuthGuard: Modo desenvolvimento - forçando autenticação local para $location');
+    //   _authService.forceLocalAuth();
+    // }
+    
     if (kDebugMode && _shouldForceAuthInDev(location)) {
-      debugPrint('🔓 AuthGuard: Modo desenvolvimento - forçando autenticação local para $location');
-      _authService.forceLocalAuth();
+      debugPrint('🔓 AuthGuard: Modo desenvolvimento - mantendo usuário real para $location (isAuthenticated: ${_authService.isAuthenticated})');
     }
     
     // Verifica se pode acessar a rota

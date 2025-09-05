@@ -44,6 +44,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
   Map<int, int> _ratingDistribution = {};
   bool _isLoading = true;
   bool _isLoadingMore = false;
+  bool _isSubmitting = false;
   String? _error;
   
   // Paginação
@@ -76,7 +77,16 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       ]);
 
       _restaurant = results[0] as RestaurantModel?;
-      _reviews = results[1] as List<ReviewModel>;
+      final rawReviews = results[1] as List<ReviewModel>;
+      
+      // Remover duplicatas baseado no ID da review
+      final uniqueReviews = <String, ReviewModel>{};
+      for (final review in rawReviews) {
+        if (review.id.isNotEmpty) {
+          uniqueReviews[review.id] = review;
+        }
+      }
+      _reviews = uniqueReviews.values.toList();
       
       // Extrair distribuição das estatísticas
       final stats = results[2] as Map<String, dynamic>;
@@ -84,8 +94,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
           ?.map((key, value) => MapEntry(int.parse(key), value as int)) ?? {};
       
       _applyFiltersAndSort();
+      
+      debugPrint('✅ Carregadas ${_reviews.length} reviews únicas para o restaurante');
     } catch (e) {
       _error = e.toString();
+      debugPrint('❌ Erro ao carregar reviews: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -144,12 +157,20 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       );
       
       if (newReviews.isNotEmpty) {
+        // Criar mapa de reviews existentes para evitar duplicatas
+        final existingIds = _reviews.map((r) => r.id).toSet();
+        final uniqueNewReviews = newReviews
+            .where((review) => !existingIds.contains(review.id))
+            .toList();
+        
         setState(() {
-          _reviews.addAll(newReviews);
+          _reviews.addAll(uniqueNewReviews);
           _currentPage++;
           _hasMoreReviews = newReviews.length == _pageSize;
         });
         _applyFiltersAndSort();
+        
+        debugPrint('✅ Carregadas ${uniqueNewReviews.length} novas reviews (${newReviews.length - uniqueNewReviews.length} duplicatas ignoradas)');
       } else {
         setState(() {
           _hasMoreReviews = false;
@@ -419,75 +440,89 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
   }
 
   Future<void> _showRatingDialog() async {
-    if (_restaurant == null) return;
+    if (_restaurant == null || _isSubmitting) return;
     
     await showDialog(
       context: context,
       builder: (context) => RatingDialog(
         restaurantName: _restaurant!.name,
         onSubmit: (rating, comment) async {
-        try {
-          // Mostrar loading
-          if (mounted) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => Center(
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: AppColors.primary),
-                      SizedBox(height: 16),
-                      Text('Salvando avaliação...'),
-                    ],
+          // Prevenir submissões múltiplas
+          if (_isSubmitting) return;
+          
+          setState(() {
+            _isSubmitting = true;
+          });
+          
+          try {
+            // Mostrar loading
+            if (mounted) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.primary),
+                        SizedBox(height: 16),
+                        Text('Salvando avaliação...'),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              );
+            }
+
+            // Criar avaliação usando ReviewService
+            await ReviewService.instance.createReview(
+              restaurantId: _restaurant!.id,
+              rating: rating,
+              comment: comment.trim(),
             );
+
+            // Fechar loading
+            if (mounted) Navigator.of(context).pop();
+
+            // Mostrar sucesso
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Avaliação salva com sucesso!'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            }
+
+            // Recarregar dados
+            await _loadData();
+          } catch (e) {
+            // Fechar loading
+            if (mounted) Navigator.of(context).pop();
+
+            // Mostrar erro
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erro ao salvar avaliação: $e'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          } finally {
+            // Sempre resetar flag de submissão
+            if (mounted) {
+              setState(() {
+                _isSubmitting = false;
+              });
+            }
           }
-
-          // Criar avaliação usando ReviewService
-          await ReviewService.instance.createReview(
-            restaurantId: _restaurant!.id,
-            rating: rating,
-            comment: comment.trim(),
-          );
-
-          // Fechar loading
-          if (mounted) Navigator.of(context).pop();
-
-          // Mostrar sucesso
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Avaliação salva com sucesso!'),
-                backgroundColor: AppColors.success,
-              ),
-            );
-          }
-
-          // Recarregar dados
-          _loadData();
-        } catch (e) {
-          // Fechar loading
-          if (mounted) Navigator.of(context).pop();
-
-          // Mostrar erro
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Erro ao salvar avaliação: $e'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        }
         },
       ),
     );

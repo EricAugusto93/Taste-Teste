@@ -5,6 +5,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
+import '../../../core/config/advanced_marker_service.dart';
+import '../../../core/services/balloon_marker_service.dart';
+import '../../../core/utils/category_emoji_mapper.dart';
+import '../../widgets/custom_web_marker.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/restaurant_model.dart';
@@ -12,6 +17,21 @@ import '../../../data/models/location_model.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/restaurant_provider.dart';
 import '../../widgets/enhanced_map_widget.dart';
+
+/// Data class for clustering results
+class _ClusterItem {
+  final List<RestaurantModel> restaurants;
+  final double centerLat;
+  final double centerLng;
+  final bool isCluster;
+
+  _ClusterItem({
+    required this.restaurants,
+    required this.centerLat,
+    required this.centerLng,
+    required this.isCluster,
+  });
+}
 
 /// Página de mapa com layout da imagem de referência
 class MapPage extends ConsumerStatefulWidget {
@@ -36,10 +56,11 @@ class _MapPageState extends ConsumerState<MapPage>
   late Animation<double> _bottomSheetAnimation;
   
   RestaurantModel? _selectedRestaurant;
+  String? _selectedRestaurantId; // Track selected restaurant for marker styling
   gmaps.GoogleMapController? _mapController;
   Set<gmaps.Marker> _markers = {};
   bool _markersLoaded = false;
-  UniqueKey _mapKey = UniqueKey(); // Key para forçar reconstrução do mapa
+  // Removed map key to prevent unnecessary rebuilds
   
   // Cache para evitar recriar o mapa múltiplas vezes
   static gmaps.GoogleMapController? _staticMapController;
@@ -91,17 +112,93 @@ class _MapPageState extends ConsumerState<MapPage>
   }
 
   void _onRestaurantTap(RestaurantModel restaurant) {
+    debugPrint('🎯 Restaurante clicado: ${restaurant.name}');
+    
     setState(() {
       _selectedRestaurant = restaurant;
+      _selectedRestaurantId = restaurant.id;
     });
+    
+    // Show bottom sheet with restaurant details
     _bottomSheetController.forward();
+    
+    // Rebuild markers with selected state (scale 1.15 + colored border)
+    _rebuildMarkersWithSelection();
+    
+    // Show tooltip/card overlay
+    _showRestaurantTooltip(restaurant);
+  }
+
+  /// Shows a tooltip/card overlay for the selected restaurant
+  void _showRestaurantTooltip(RestaurantModel restaurant) {
+    // Remove any existing overlay
+    _hideRestaurantTooltip();
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Text(
+              _getRestaurantEmoji(restaurant),
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    restaurant.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (restaurant.rating != null && restaurant.deliveryTime != null)
+                    Text(
+                      '⭐ ${restaurant.rating!.toStringAsFixed(1)} • ${restaurant.deliveryTime}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF6B73D9),
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  /// Hides the restaurant tooltip
+  void _hideRestaurantTooltip() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   void _closeBottomSheet() {
+    debugPrint('🎯 Fechando seleção de restaurante');
+    
     _bottomSheetController.reverse();
     setState(() {
       _selectedRestaurant = null;
+      _selectedRestaurantId = null;
     });
+    
+    // Hide tooltip when closing
+    _hideRestaurantTooltip();
+    
+    // Rebuild markers to clear selected state (back to normal size and border)
+    _rebuildMarkersWithSelection();
   }
 
 
@@ -449,7 +546,7 @@ class _MapPageState extends ConsumerState<MapPage>
   Widget _buildDirectGoogleMap(List<RestaurantModel> restaurants, LocationModel? userLocation) {
     try {
       return gmaps.GoogleMap(
-      key: _mapKey, // Key única para forçar reconstrução quando markers mudam
+      // No key needed - markers will update naturally
       initialCameraPosition: gmaps.CameraPosition(
         target: userLocation != null
             ? gmaps.LatLng(userLocation.latitude, userLocation.longitude)
@@ -475,7 +572,8 @@ class _MapPageState extends ConsumerState<MapPage>
       zoomControlsEnabled: true,
       mapToolbarEnabled: true,
       onTap: (gmaps.LatLng position) {
-        // Fechar qualquer bottom sheet aberto
+        // Fechar qualquer bottom sheet aberto e desmarcar seleção
+        debugPrint('🗺️ Clique no mapa - desmarcando seleção');
         _closeBottomSheet();
       },
     );
@@ -507,19 +605,402 @@ class _MapPageState extends ConsumerState<MapPage>
 
   /// Obtém o emoji da categoria do restaurante
   String _getRestaurantEmoji(RestaurantModel restaurant) {
-    return _categoryEmojis[restaurant.categoryId] ?? '🍽️';
+    return CategoryEmojiMapper.getEmojiByCategory(
+      categoryId: restaurant.categoryId,
+      categoryName: restaurant.category,
+      restaurantEmoji: restaurant.emoji,
+    );
   }
   
-  /// Cria um ícone customizado mais simples para evitar problemas de CSP
-  Future<gmaps.BitmapDescriptor> _createCustomMarkerIcon(String emoji) async {
-    debugPrint('🎨 Criando ícone customizado simplificado para emoji: $emoji');
+  /// Cria um ícone customizado usando o novo sistema de balloon markers
+  Future<gmaps.BitmapDescriptor> _createCustomMarkerIcon(
+    String emoji, {
+    bool isSelected = false,
+    String? category,
+  }) async {
+    debugPrint('🎨 Criando ícone balloon customizado para emoji: $emoji (categoria: $category)');
     
-    // Devido a problemas de Content Security Policy com blobs no Flutter Web,
-    // vamos usar uma abordagem temporária com cores diferenciadas
-    // até implementarmos uma solução que funcione bem com CSP
+    try {
+      // Use the new BalloonMarkerService to create beautiful balloon-style markers
+      final balloonIcon = await BalloonMarkerService.createBalloonMarker(
+        emoji: emoji,
+        isSelected: isSelected,
+        category: category,
+      );
+      
+      debugPrint('✅ Ícone balloon criado com sucesso para emoji: $emoji');
+      return balloonIcon;
+    } catch (e) {
+      debugPrint('❌ Erro ao criar ícone balloon, usando fallback: $e');
+      
+      // Fallback to colored markers if balloon creation fails
+      const colorMap = {
+        '🍝': gmaps.BitmapDescriptor.hueRed,      // Italiana
+        '☕': gmaps.BitmapDescriptor.hueOrange,    // Café
+        '🥗': gmaps.BitmapDescriptor.hueGreen,     // Saudável  
+        '🏛️': gmaps.BitmapDescriptor.hueBlue,     // Clássicos POA
+        '🍰': gmaps.BitmapDescriptor.hueMagenta,   // Doceria
+        '🍽️': gmaps.BitmapDescriptor.hueYellow,   // Buffet
+        '🍻': gmaps.BitmapDescriptor.hueViolet,    // Happy Hour
+        '🍣': gmaps.BitmapDescriptor.hueAzure,     // Japonesa
+        '🍔': gmaps.BitmapDescriptor.hueOrange,    // Hambúrguer
+        '🍕': gmaps.BitmapDescriptor.hueRed,       // Pizza
+        '📍': gmaps.BitmapDescriptor.hueCyan,      // Usuário
+      };
+      
+      final hue = colorMap[emoji] ?? gmaps.BitmapDescriptor.hueOrange;
+      debugPrint('✅ Usando marker colorido fallback (hue: $hue) para emoji: $emoji');
+      return gmaps.BitmapDescriptor.defaultMarkerWithHue(hue);
+    }
+  }
+  
+  /// Cria marcadores para os restaurantes diretamente com balloon markers
+  Future<Set<gmaps.Marker>> _createMarkersForRestaurants(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
+    debugPrint('🏗️ Iniciando criação de ${restaurants.length} markers de restaurantes (Direct Balloon)');
     
-    debugPrint('⚠️ Usando fallback colorido devido a restrições CSP no Flutter Web');
+    // For debugging, let's disable clustering temporarily and create individual markers
+    // This will help us ensure all restaurants appear
+    final markers = <gmaps.Marker>{};
     
+    debugPrint('📊 Detalhes dos restaurantes recebidos:');
+    for (int i = 0; i < restaurants.length; i++) {
+      final restaurant = restaurants[i];
+      debugPrint('   $i: ${restaurant.name} (${restaurant.latitude}, ${restaurant.longitude}) - ${restaurant.category}');
+    }
+
+    // Adicionar marcador da localização do usuário (se disponível)
+    if (userLocation != null) {
+      debugPrint('👤 Criando marker do usuário...');
+      try {
+        final userIcon = await BalloonMarkerService.createUserLocationMarker();
+        final userMarker = gmaps.Marker(
+          markerId: const gmaps.MarkerId('user_location'),
+          position: gmaps.LatLng(userLocation.latitude, userLocation.longitude),
+          icon: userIcon,
+          infoWindow: const gmaps.InfoWindow(
+            title: '📍 Você está aqui',
+            snippet: 'Sua localização atual',
+          ),
+        );
+        markers.add(userMarker);
+        debugPrint('✅ Marker do usuário criado com balloon style');
+      } catch (e) {
+        debugPrint('❌ Erro ao criar marker do usuário: $e');
+        // Fallback to default marker
+        markers.add(gmaps.Marker(
+          markerId: const gmaps.MarkerId('user_location'),
+          position: gmaps.LatLng(userLocation.latitude, userLocation.longitude),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueCyan),
+          infoWindow: const gmaps.InfoWindow(
+            title: '📍 Você está aqui',
+            snippet: 'Sua localização atual',
+          ),
+        ));
+      }
+    }
+
+    // Criar markers individuais para todos os restaurantes (sem clustering)
+    debugPrint('🍽️ Criando ${restaurants.length} markers individuais...');
+    for (int i = 0; i < restaurants.length; i++) {
+      final restaurant = restaurants[i];
+      
+      if (restaurant.latitude == null || restaurant.longitude == null) {
+        debugPrint('⚠️ Restaurante ${restaurant.name} não tem coordenadas válidas');
+        continue;
+      }
+      
+      debugPrint('🔨 Processando restaurante $i: ${restaurant.name}');
+      
+      try {
+        final emoji = _getRestaurantEmoji(restaurant);
+        final isSelected = restaurant.id == _selectedRestaurantId;
+        debugPrint('   📍 Emoji: $emoji, Selected: $isSelected, Category: ${restaurant.category}');
+        
+        // Create custom balloon icon
+        final balloonIcon = await BalloonMarkerService.createBalloonMarker(
+          emoji: emoji,
+          isSelected: isSelected,
+          category: restaurant.category,
+        );
+        
+        debugPrint('   ✅ Balloon icon criado para ${restaurant.name}');
+        
+        // Create marker directly with balloon icon
+        final marker = gmaps.Marker(
+          markerId: gmaps.MarkerId(restaurant.id),
+          position: gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+          icon: balloonIcon, // Direct assignment of balloon icon
+          infoWindow: gmaps.InfoWindow(
+            title: '$emoji ${restaurant.name}',
+            snippet: restaurant.rating != null && restaurant.deliveryTime != null
+                ? '⭐ ${restaurant.rating!.toStringAsFixed(1)} • ${restaurant.deliveryTime}'
+                : restaurant.description ?? '',
+          ),
+          onTap: () => _onRestaurantTap(restaurant),
+        );
+        
+        markers.add(marker);
+        debugPrint('   ✅ Marker criado e adicionado para ${restaurant.name} (ID: ${restaurant.id})');
+        
+      } catch (e, stackTrace) {
+        debugPrint('❌ Erro ao criar marker para ${restaurant.name}: $e');
+        debugPrint('📋 StackTrace: $stackTrace');
+        
+        // Fallback to colored marker if balloon creation fails
+        try {
+          final emoji = _getRestaurantEmoji(restaurant);
+          const colorMap = {
+            '🍝': gmaps.BitmapDescriptor.hueRed,      // Italiana
+            '☕': gmaps.BitmapDescriptor.hueOrange,    // Café
+            '🥗': gmaps.BitmapDescriptor.hueGreen,     // Saudável  
+            '🏛️': gmaps.BitmapDescriptor.hueBlue,     // Clássicos POA
+            '🍰': gmaps.BitmapDescriptor.hueMagenta,   // Doceria
+            '🍽️': gmaps.BitmapDescriptor.hueYellow,   // Buffet
+            '🍸': gmaps.BitmapDescriptor.hueViolet,    // Happy Hour
+            '🍣': gmaps.BitmapDescriptor.hueAzure,     // Japonesa
+            '🍔': gmaps.BitmapDescriptor.hueOrange,    // Hambúrguer
+            '🍕': gmaps.BitmapDescriptor.hueRed,       // Pizza
+          };
+          
+          final hue = colorMap[emoji] ?? gmaps.BitmapDescriptor.hueOrange;
+          final fallbackMarker = gmaps.Marker(
+            markerId: gmaps.MarkerId(restaurant.id),
+            position: gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+            icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(hue),
+            infoWindow: gmaps.InfoWindow(
+              title: '$emoji ${restaurant.name}',
+              snippet: 'Fallback marker - ${restaurant.category ?? "Restaurante"}',
+            ),
+            onTap: () => _onRestaurantTap(restaurant),
+          );
+          
+          markers.add(fallbackMarker);
+          debugPrint('   🎨 Fallback marker colorido criado para ${restaurant.name}');
+        } catch (fallbackError) {
+          debugPrint('❌ Erro no fallback para ${restaurant.name}: $fallbackError');
+        }
+      }
+    }
+    
+    debugPrint('🎯 Total final de markers criados: ${markers.length}');
+    debugPrint('📋 Resumo: ${restaurants.length} restaurantes → ${markers.length} markers');
+    
+    // Log each marker for debugging
+    for (final marker in markers) {
+      debugPrint('   📍 Marker final: ${marker.markerId.value} em ${marker.position}');
+    }
+    
+    return markers;
+  }
+  
+  /// Rebuilds markers with current selection state
+  Future<void> _rebuildMarkersWithSelection() async {
+    final restaurantState = ref.read(restaurantProvider);
+    if (restaurantState.restaurants.isNotEmpty) {
+      final portoAlegreLocation = LocationModel(
+        latitude: -30.0277,
+        longitude: -51.2287,
+        address: 'Porto Alegre, RS, Brasil',
+      );
+      
+      // Reset markers loaded flag to allow rebuilding
+      _markersLoaded = false;
+      
+      debugPrint('🔄 Reconstruindo markers com estado de seleção...');
+      await _loadCustomMarkers(restaurantState.restaurants, portoAlegreLocation);
+    }
+  }
+
+  /// Simple clustering algorithm for restaurants
+  List<_ClusterItem> _applySimpleClustering(List<RestaurantModel> restaurants) {
+    const double clusterRadius = 0.01; // ~1km clustering radius
+    const int minClusterSize = 2;
+    
+    final List<_ClusterItem> clusters = [];
+    final List<RestaurantModel> processed = [];
+    
+    for (final restaurant in restaurants) {
+      if (processed.contains(restaurant) || 
+          restaurant.latitude == null || 
+          restaurant.longitude == null) {
+        continue;
+      }
+      
+      final List<RestaurantModel> nearbyRestaurants = [restaurant];
+      processed.add(restaurant);
+      
+      // Find nearby restaurants
+      for (final other in restaurants) {
+        if (processed.contains(other) || 
+            other.latitude == null || 
+            other.longitude == null ||
+            other.id == restaurant.id) {
+          continue;
+        }
+        
+        final distance = _calculateDistance(
+          restaurant.latitude!, restaurant.longitude!,
+          other.latitude!, other.longitude!,
+        );
+        
+        if (distance <= clusterRadius) {
+          nearbyRestaurants.add(other);
+          processed.add(other);
+        }
+      }
+      
+      // Calculate cluster center
+      final centerLat = nearbyRestaurants
+          .map((r) => r.latitude!)
+          .reduce((a, b) => a + b) / nearbyRestaurants.length;
+      final centerLng = nearbyRestaurants
+          .map((r) => r.longitude!)
+          .reduce((a, b) => a + b) / nearbyRestaurants.length;
+      
+      clusters.add(_ClusterItem(
+        restaurants: nearbyRestaurants,
+        centerLat: centerLat,
+        centerLng: centerLng,
+        isCluster: nearbyRestaurants.length >= minClusterSize,
+      ));
+    }
+    
+    debugPrint('🔗 Clustering aplicado: ${restaurants.length} restaurantes → ${clusters.length} items (${clusters.where((c) => c.isCluster).length} clusters)');
+    return clusters;
+  }
+
+  /// Calculate distance between two points in degrees (approximate)
+  double _calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+    final dLat = lat1 - lat2;
+    final dLng = lng1 - lng2;
+    return (dLat * dLat + dLng * dLng); // Simple Euclidean distance in degrees
+  }
+
+  /// Handle cluster tap - zoom into the cluster area with enhanced feedback
+  void _onClusterTap(List<RestaurantModel> restaurants, double centerLat, double centerLng) {
+    debugPrint('🔗 Cluster clicado com ${restaurants.length} restaurantes');
+    
+    // Clear any existing selection
+    _closeBottomSheet();
+    
+    if (_mapController != null) {
+      // Zoom into the cluster with smooth animation
+      _mapController!.animateCamera(
+        gmaps.CameraUpdate.newLatLngZoom(
+          gmaps.LatLng(centerLat, centerLng),
+          16.0, // Zoom level to show individual markers
+        ),
+      );
+    }
+    
+    // Show enhanced info about the cluster
+    final restaurantNames = restaurants.take(3).map((r) => r.name).join(', ');
+    final additionalCount = restaurants.length > 3 ? ' e mais ${restaurants.length - 3}' : '';
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '🔗 ${restaurants.length} restaurantes nesta área',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '$restaurantNames$additionalCount',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF6B73D9),
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  /// Carrega markers customizados de forma assíncrona
+  Future<void> _loadCustomMarkers(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
+    debugPrint('🚀 Iniciando carregamento de markers customizados');
+    debugPrint('📊 Restaurantes recebidos: ${restaurants.length}');
+    debugPrint('📍 Localização do usuário: ${userLocation?.latitude}, ${userLocation?.longitude}');
+    
+    // Allow reloading markers when rebuilding with selection state
+    if (_markersLoaded && !restaurants.any((r) => r.id == _selectedRestaurantId)) {
+      debugPrint('⚠️ Markers já foram carregados, ignorando');
+      return;
+    }
+    
+    try {
+      debugPrint('🔄 Criando markers customizados...');
+      final markers = await _createMarkersForRestaurants(restaurants, userLocation);
+      debugPrint('✅ ${markers.length} markers criados com sucesso');
+      
+      // Validate markers were created properly
+      if (markers.isEmpty && restaurants.isNotEmpty) {
+        debugPrint('⚠️ Aviso: Nenhum marker foi criado para ${restaurants.length} restaurantes');
+        return;
+      }
+      
+      if (mounted) {
+        debugPrint('🔄 Atualizando estado do mapa...');
+        setState(() {
+          _markers = markers;
+          _markersLoaded = true;
+          // No need to force map rebuild with new key
+        });
+        debugPrint('✅ Estado atualizado - ${_markers.length} markers agora no mapa');
+        debugPrint('🎯 Markers atualizados sem reconstruir o mapa');
+        
+        // Log individual markers for debugging
+        for (final marker in markers) {
+          debugPrint('📍 Marker ativo: ${marker.markerId.value} em ${marker.position}');
+        }
+      } else {
+        debugPrint('❌ Widget não está montado - não foi possível atualizar estado');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Erro ao carregar markers customizados: $e');
+      debugPrint('📋 StackTrace: $stackTrace');
+      
+      // Fallback to simple colored markers if balloon creation fails
+      if (mounted) {
+        debugPrint('🔄 Tentando fallback para markers coloridos...');
+        try {
+          final fallbackMarkers = await _createFallbackMarkers(restaurants, userLocation);
+          setState(() {
+            _markers = fallbackMarkers;
+            _markersLoaded = true;
+          });
+          debugPrint('✅ Fallback markers carregados: ${fallbackMarkers.length}');
+        } catch (fallbackError) {
+          debugPrint('❌ Erro no fallback: $fallbackError');
+        }
+      }
+    }
+  }
+
+  /// Creates simple colored markers as fallback when balloon markers fail
+  Future<Set<gmaps.Marker>> _createFallbackMarkers(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
+    debugPrint('🎨 Criando markers de fallback coloridos...');
+    final markers = <gmaps.Marker>{};
+    
+    // Color mapping for categories
     const colorMap = {
       '🍝': gmaps.BitmapDescriptor.hueRed,      // Italiana
       '☕': gmaps.BitmapDescriptor.hueOrange,    // Café
@@ -531,110 +1012,42 @@ class _MapPageState extends ConsumerState<MapPage>
       '🍣': gmaps.BitmapDescriptor.hueAzure,     // Japonesa
       '🍔': gmaps.BitmapDescriptor.hueOrange,    // Hambúrguer
       '🍕': gmaps.BitmapDescriptor.hueRed,       // Pizza
-      '📍': gmaps.BitmapDescriptor.hueCyan,      // Usuário
     };
-    
-    final hue = colorMap[emoji] ?? gmaps.BitmapDescriptor.hueOrange;
-    debugPrint('✅ Usando marker colorido (hue: $hue) para emoji: $emoji');
-    return gmaps.BitmapDescriptor.defaultMarkerWithHue(hue);
-  }
-  
-  /// Cria marcadores para os restaurantes com ícones customizados
-  Future<Set<gmaps.Marker>> _createMarkersForRestaurants(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
-    debugPrint('🏗️ Iniciando criação de ${restaurants.length} markers de restaurantes');
-    final markers = <gmaps.Marker>{};
 
-    // Adicionar marcador da localização do usuário (se disponível)
+    // Add user location marker
     if (userLocation != null) {
-      debugPrint('👤 Criando marker do usuário...');
-      try {
-        final userIcon = await _createCustomMarkerIcon('📍');
-        markers.add(
-          gmaps.Marker(
-            markerId: const gmaps.MarkerId('user_location'),
-            position: gmaps.LatLng(userLocation.latitude, userLocation.longitude),
-            infoWindow: const gmaps.InfoWindow(
-              title: '📍 Você está aqui',
-              snippet: 'Sua localização atual',
-            ),
-            icon: userIcon,
-          ),
-        );
-        debugPrint('✅ Marker do usuário criado');
-      } catch (e) {
-        debugPrint('❌ Erro ao criar marker do usuário: $e');
-      }
+      markers.add(gmaps.Marker(
+        markerId: const gmaps.MarkerId('user_location'),
+        position: gmaps.LatLng(userLocation.latitude, userLocation.longitude),
+        icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(gmaps.BitmapDescriptor.hueCyan),
+        infoWindow: const gmaps.InfoWindow(
+          title: '📍 Você está aqui',
+          snippet: 'Sua localização atual',
+        ),
+      ));
     }
 
-    // Adicionar marcadores dos restaurantes com emojis customizados
-    for (int i = 0; i < restaurants.length; i++) {
-      final restaurant = restaurants[i];
+    // Add restaurant markers
+    for (final restaurant in restaurants) {
       if (restaurant.latitude != null && restaurant.longitude != null) {
-        debugPrint('🍽️ Criando marker para restaurante ${i + 1}/${restaurants.length}: ${restaurant.name}');
-        try {
-          final emoji = _getRestaurantEmoji(restaurant);
-          debugPrint('📍 Emoji selecionado: $emoji');
-          
-          final customIcon = await _createCustomMarkerIcon(emoji);
-          
-          markers.add(
-            gmaps.Marker(
-              markerId: gmaps.MarkerId(restaurant.id),
-              position: gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
-              infoWindow: gmaps.InfoWindow(
-                title: '${emoji} ${restaurant.name}',
-                snippet: '⭐ ${restaurant.rating?.toStringAsFixed(1) ?? 'N/A'} • ${restaurant.deliveryTime ?? 'N/A'}',
-              ),
-              onTap: () {
-                _onRestaurantTap(restaurant);
-              },
-              icon: customIcon,
-            ),
-          );
-          debugPrint('✅ Marker criado para ${restaurant.name}');
-        } catch (e) {
-          debugPrint('❌ Erro ao criar marker para ${restaurant.name}: $e');
-        }
-      } else {
-        debugPrint('⚠️ Restaurante ${restaurant.name} não tem coordenadas válidas');
+        final emoji = _getRestaurantEmoji(restaurant);
+        final hue = colorMap[emoji] ?? gmaps.BitmapDescriptor.hueOrange;
+        
+        markers.add(gmaps.Marker(
+          markerId: gmaps.MarkerId(restaurant.id),
+          position: gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
+          icon: gmaps.BitmapDescriptor.defaultMarkerWithHue(hue),
+          infoWindow: gmaps.InfoWindow(
+            title: '$emoji ${restaurant.name}',
+            snippet: restaurant.rating != null && restaurant.deliveryTime != null
+                ? '⭐ ${restaurant.rating!.toStringAsFixed(1)} • ${restaurant.deliveryTime}'
+                : restaurant.description ?? '',
+          ),
+          onTap: () => _onRestaurantTap(restaurant),
+        ));
       }
     }
 
-    debugPrint('🎯 Total de markers criados: ${markers.length}');
     return markers;
-  }
-  
-  /// Carrega markers customizados de forma assíncrona
-  Future<void> _loadCustomMarkers(List<RestaurantModel> restaurants, LocationModel? userLocation) async {
-    debugPrint('🚀 Iniciando carregamento de markers customizados');
-    debugPrint('📊 Restaurantes recebidos: ${restaurants.length}');
-    debugPrint('📍 Localização do usuário: ${userLocation?.latitude}, ${userLocation?.longitude}');
-    
-    if (_markersLoaded) {
-      debugPrint('⚠️ Markers já foram carregados, ignorando');
-      return;
-    }
-    
-    try {
-      debugPrint('🔄 Criando markers customizados...');
-      final markers = await _createMarkersForRestaurants(restaurants, userLocation);
-      debugPrint('✅ ${markers.length} markers criados com sucesso');
-      
-      if (mounted) {
-        debugPrint('🔄 Atualizando estado do mapa...');
-        setState(() {
-          _markers = markers;
-          _markersLoaded = true;
-          _mapKey = UniqueKey(); // Força reconstrução do GoogleMap widget
-        });
-        debugPrint('✅ Estado atualizado - ${_markers.length} markers agora no mapa');
-        debugPrint('🔑 Nova key do mapa gerada para forçar reconstrução');
-      } else {
-        debugPrint('❌ Widget não está montado - não foi possível atualizar estado');
-      }
-    } catch (e, stackTrace) {
-      debugPrint('❌ Erro ao carregar markers customizados: $e');
-      debugPrint('📋 StackTrace: $stackTrace');
-    }
   }
 }

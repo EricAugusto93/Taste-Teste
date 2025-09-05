@@ -341,9 +341,75 @@ class AuthService {
     }
   }
 
-  /// Força autenticação local (não aplicável com Supabase)
+  /// Força autenticação local para desenvolvimento
   void forceLocalAuth() {
-    debugPrint('⚠️ AuthService: forceLocalAuth não implementado com Supabase');
+    if (!kDebugMode) {
+      debugPrint('⚠️ AuthService: forceLocalAuth só funciona em modo debug');
+      return;
+    }
+    
+    debugPrint('🔓 AuthService: Criando usuário dev mock para desenvolvimento');
+    
+    try {
+      // Criar usuário mock para desenvolvimento
+      _currentUser = const AppUser(
+        id: '00000000-0000-0000-0000-000000000001',
+        email: 'dev@taste.app',
+        name: 'Desenvolvedor Taste',
+        avatarUrl: null,
+        createdAt: null,
+        metadata: {'dev_mode': true},
+      );
+      
+      // Criar uma sessão mock mínima (sem usar construtor Session real)
+      // Isso permite que isAuthenticated retorne true
+      final mockSessionData = {
+        'access_token': 'dev_token_${DateTime.now().millisecondsSinceEpoch}',
+        'user_id': 'dev_user_001',
+        'expires_at': DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch,
+      };
+      
+      // Para simular uma sessão, vamos definir _currentSession como uma instância mock
+      // mas sem usar o construtor real para evitar erros
+      debugPrint('✅ AuthService: Usuário dev criado - ${_currentUser!.email}');
+      debugPrint('📝 AuthService: hasValidSession simulado para desenvolvimento');
+      
+      // Simular que temos uma sessão válida criando um objeto mock simples
+      _currentSession = _createMockSession();
+      
+      debugPrint('🎯 AuthService: isAuthenticated = ${isAuthenticated}');
+      
+    } catch (e) {
+      debugPrint('❌ AuthService: Erro ao criar usuário dev: $e');
+    }
+  }
+  
+  /// Cria uma sessão mock para desenvolvimento
+  Session? _createMockSession() {
+    if (!kDebugMode) return null;
+    
+    try {
+      final now = DateTime.now();
+      return Session(
+        accessToken: 'dev_access_token',
+        refreshToken: 'dev_refresh_token', 
+        expiresIn: 86400, // 24 horas
+        tokenType: 'bearer',
+        user: User(
+          id: '00000000-0000-0000-0000-000000000001',
+          aud: 'authenticated',
+          email: 'dev@taste.app',
+          createdAt: now.toIso8601String(),
+          emailConfirmedAt: now.toIso8601String(),
+          appMetadata: const {'provider': 'dev'},
+          userMetadata: const {'name': 'Desenvolvedor Taste'},
+        ),
+      );
+    } catch (e) {
+      debugPrint('⚠️ AuthService: Erro ao criar sessão mock: $e');
+      // Se não conseguir criar Session, pelo menos garante que _currentUser existe
+      return null;
+    }
   }
 
   /// Converte mensagens de erro para português

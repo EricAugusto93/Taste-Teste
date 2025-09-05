@@ -150,6 +150,10 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
             state = AsyncValue.data([...currentFavorites, newFavorite]);
             _saveFavoritesToLocal();
           }
+          
+          // Recarregar favoritos do servidor para garantir sincronização
+          loadFavorites();
+          
           return true;
         },
       );
@@ -173,6 +177,9 @@ class FavoritesNotifier extends StateNotifier<AsyncValue<List<FavoriteModel>>> {
                 .toList();
             state = AsyncValue.data(updatedFavorites);
             _saveFavoritesToLocal();
+            
+            // Recarregar favoritos do servidor para garantir sincronização
+            loadFavorites();
           }
           return success;
         },

@@ -6,6 +6,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../data/models/review_model.dart';
 import '../../data/repositories/review_repository.dart';
+import '../../data/services/reviews/review_service.dart';
 import 'rating_widget.dart';
 /// Widget para exibir uma avaliação
 class ReviewCard extends StatefulWidget {
@@ -274,21 +275,35 @@ class _ReviewCardState extends State<ReviewCard> {
 
   void _onHelpfulPressed() async {
     try {
-      if (widget.review.isHelpfulByCurrentUser) {
-        // TODO: Implementar remoção de "útil"
+      final reviewService = ReviewService.instance;
+      final wasHelpful = await reviewService.toggleHelpfulVote(widget.review.id);
+      
+      if (mounted) {
+        final message = wasHelpful 
+            ? 'Avaliação marcada como útil!'
+            : 'Voto removido da avaliação';
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Funcionalidade em desenvolvimento')),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 2),
+          ),
         );
-      } else {
-        await _reviewRepository.markReviewAsHelpful(widget.review.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Avaliação marcada como útil!')),
-        );
+        
+        // Forçar atualização da página pai se possível
+        // Isso atualizará o contador de helpful_count
+        setState(() {});
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao votar: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -305,11 +320,38 @@ class _ReviewCardState extends State<ReviewCard> {
       context: context,
       builder: (context) => _ReplyDialog(
         reviewId: widget.review.id,
-        onReplySubmitted: (content) {
-          NavigationHelper.safeGoBack(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Resposta enviada!')),
-          );
+        onReplySubmitted: (content) async {
+          try {
+            await ReviewService.instance.createReply(
+              reviewId: widget.review.id,
+              content: content,
+            );
+            
+            NavigationHelper.safeGoBack(context);
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Resposta enviada com sucesso!'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+              
+              // Recarregar respostas se possível
+              setState(() {});
+            }
+          } catch (e) {
+            NavigationHelper.safeGoBack(context);
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erro ao enviar resposta: $e'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          }
         },
       ),
     );
@@ -321,16 +363,31 @@ class _ReviewCardState extends State<ReviewCard> {
       builder: (context) => _ReportDialog(
         onReasonSelected: (reason) async {
           try {
-            await _reviewRepository.reportReview(widget.review.id, reason);
-            NavigationHelper.safeGoBack(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Avaliação reportada com sucesso')),
+            await ReviewService.instance.reportReview(
+              reviewId: widget.review.id,
+              reason: reason,
             );
+            NavigationHelper.safeGoBack(context);
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Avaliação reportada com sucesso'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            }
           } catch (e) {
             NavigationHelper.safeGoBack(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erro ao reportar: $e')),
-            );
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erro ao reportar: $e'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
           }
         },
       ),

@@ -20,12 +20,21 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  // Router está garantidamente inicializado - removendo verificações desnecessárias
+  bool _isUIReady = false;
   
   @override
   void initState() {
     super.initState();
-    // Router já foi inicializado no main.dart - não precisamos de delays
+    // Aguarda o Flutter engine estar completamente pronto para gestures
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          setState(() {
+            _isUIReady = true;
+          });
+        }
+      });
+    });
   }
   
   @override
@@ -181,22 +190,86 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 SizedBox(height: AppDimensions.paddingLarge),
                 
                 // Botões Login e Cadastro divididos verticalmente
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Login',
-                        onPressed: () => _navigateToLogin(),
+                AnimatedOpacity(
+                  opacity: _isUIReady ? 1.0 : 0.5,
+                  duration: const Duration(milliseconds: 200),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _isUIReady ? () => _navigateToLogin() : null,
+                          child: Material(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                            child: InkWell(
+                              onTap: _isUIReady ? () => _navigateToLogin() : null,
+                              borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                              child: Container(
+                                height: AppDimensions.buttonHeight,
+                                child: Center(
+                                  child: _isUIReady 
+                                    ? Text(
+                                        'Login',
+                                        style: AppTextStyles.buttonText.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 1),
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Cadastro',
-                        onPressed: () => _navigateToRegister(),
+                      SizedBox(width: 1),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: _isUIReady ? () => _navigateToRegister() : null,
+                          child: Material(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                            child: InkWell(
+                              onTap: _isUIReady ? () => _navigateToRegister() : null,
+                              borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                              child: Container(
+                                height: AppDimensions.buttonHeight,
+                                child: Center(
+                                  child: _isUIReady 
+                                    ? Text(
+                                        'Cadastro',
+                                        style: AppTextStyles.buttonText.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 
                 SizedBox(height: AppDimensions.paddingLarge),
@@ -208,22 +281,82 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
   
-  /// Navega para a página de login
+  /// Navega para a página de login com verificação robusta
   void _navigateToLogin() {
-    _markOnboardingCompleted();
-    context.go('/login');
+    _safeNavigate('/login');
   }
   
-  /// Navega para a página de cadastro
+  /// Navega para a página de cadastro com verificação robusta
   void _navigateToRegister() {
-    _markOnboardingCompleted();
-    context.go('/register');
+    _safeNavigate('/register');
+  }
+
+  /// Método de navegação segura que gerencia GoRouter availability
+  Future<void> _safeNavigate(String route) async {
+    try {
+      // Primeiro, marca o onboarding como completado
+      await _markOnboardingCompleted();
+      
+      // Verifica se o widget ainda está montado
+      if (!mounted) return;
+      
+      // Verifica se o GoRouter está disponível no contexto
+      final router = GoRouter.maybeOf(context);
+      if (router != null) {
+        context.go(route);
+      } else {
+        // GoRouter não está disponível, tenta novamente após pequeno delay
+        debugPrint('🔀 GoRouter não disponível, tentando novamente...');
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        if (mounted) {
+          // Segunda tentativa
+          final retryRouter = GoRouter.maybeOf(context);
+          if (retryRouter != null) {
+            context.go(route);
+          } else {
+            // Fallback final após mais um delay
+            debugPrint('🔀 Segunda tentativa falhou, usando fallback...');
+            await Future.delayed(const Duration(milliseconds: 200));
+            
+            if (mounted) {
+              // Tentativa final
+              try {
+                context.go(route);
+              } catch (e) {
+                debugPrint('❌ Erro na navegação: $e');
+                // Se mesmo assim falhar, tenta push como fallback
+                try {
+                  context.push(route);
+                } catch (pushError) {
+                  debugPrint('❌ Erro no push fallback: $pushError');
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Erro na navegação segura: $e');
+      // Em caso de erro, tenta navegar diretamente como último recurso
+      if (mounted) {
+        try {
+          context.go(route);
+        } catch (fallbackError) {
+          debugPrint('❌ Erro no fallback final: $fallbackError');
+        }
+      }
+    }
   }
   
-  void _markOnboardingCompleted() async {
-    await OnboardingService.setOnboardingCompleted();
-    if (widget.onCompleted != null) {
-      widget.onCompleted!();
+  Future<void> _markOnboardingCompleted() async {
+    try {
+      await OnboardingService.setOnboardingCompleted();
+      if (widget.onCompleted != null) {
+        widget.onCompleted!();
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao marcar onboarding como completo: $e');
     }
   }
 }

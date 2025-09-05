@@ -10,6 +10,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/navigation_helper.dart';
 import '../widgets/rating_widget.dart';
+import '../../data/services/user_lists_service.dart';
 import 'dart:math' as math;
 
 /// Página de detalhes do restaurante
@@ -39,6 +40,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   
   bool _isHeaderCollapsed = false;
   bool _isFavorite = false;
+  bool _isInWantToKnow = false;
+  bool _isInNotSureReturn = false;
   String? _distance;
   String? _estimatedTime;
   
@@ -51,6 +54,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
     _setupAnimations();
     _setupScrollController();
     _calculateDistance();
+    _checkListsStatus();
   }
 
   @override
@@ -148,6 +152,28 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
     }
   }
 
+  /// Verificar se o restaurante está nas listas do usuário
+  Future<void> _checkListsStatus() async {
+    try {
+      // Verificar lista "Quero conhecer"
+      final wantToKnowItems = await UserListsService.getWantToKnowItems();
+      final isInWantToKnow = wantToKnowItems.any((item) => item.id == widget.restaurant.id);
+
+      // Verificar lista "Não sei se volto"
+      final notSureReturnItems = await UserListsService.getNotSureReturnItems();
+      final isInNotSureReturn = notSureReturnItems.any((item) => item.id == widget.restaurant.id);
+
+      if (mounted) {
+        setState(() {
+          _isInWantToKnow = isInWantToKnow;
+          _isInNotSureReturn = isInNotSureReturn;
+        });
+      }
+    } catch (e) {
+      Logger.error('Erro ao verificar status das listas: $e');
+    }
+  }
+
   String _calculateEstimatedTime(double distanceInKm) {
     final timeInHours = distanceInKm / 30.0;
     final timeInMinutes = (timeInHours * 60).round();
@@ -179,6 +205,86 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       setState(() {
         _isFavorite = !_isFavorite;
       });
+    }
+  }
+
+  /// Toggle para lista "Quero conhecer"
+  Future<void> _toggleWantToKnow() async {
+    try {
+      bool success;
+      
+      if (_isInWantToKnow) {
+        // Remover da lista
+        success = await UserListsService.removeWantToKnowItem(widget.restaurant.id);
+      } else {
+        // Adicionar à lista
+        final item = WantToKnowItem(
+          id: widget.restaurant.id,
+          name: widget.restaurant.name,
+          category: widget.restaurant.category ?? 'Categoria não informada',
+          location: widget.restaurant.address ?? 'Endereço não informado',
+          imageUrl: widget.restaurant.imageUrl ?? '',
+          addedDate: DateTime.now(),
+        );
+        success = await UserListsService.addWantToKnowItem(item);
+      }
+
+      if (success && mounted) {
+        setState(() {
+          _isInWantToKnow = !_isInWantToKnow;
+        });
+
+        HapticFeedback.lightImpact();
+        _showSnackBar(
+          _isInWantToKnow 
+            ? 'Adicionado à lista "Quero conhecer"' 
+            : 'Removido da lista "Quero conhecer"'
+        );
+      }
+    } catch (e) {
+      Logger.error('Erro ao atualizar lista "Quero conhecer": $e');
+      _showSnackBar('Erro ao atualizar lista');
+    }
+  }
+
+  /// Toggle para lista "Não sei se volto"
+  Future<void> _toggleNotSureReturn() async {
+    try {
+      bool success;
+      
+      if (_isInNotSureReturn) {
+        // Remover da lista
+        success = await UserListsService.removeNotSureReturnItem(widget.restaurant.id);
+      } else {
+        // Adicionar à lista
+        final item = NotSureReturnItem(
+          id: widget.restaurant.id,
+          name: widget.restaurant.name,
+          category: widget.restaurant.category ?? 'Categoria não informada',
+          location: widget.restaurant.address ?? 'Endereço não informado',
+          imageUrl: widget.restaurant.imageUrl ?? '',
+          visitDate: DateTime.now(),
+          reason: 'Adicionado pelo usuário',
+          rating: widget.restaurant.rating.toInt(),
+        );
+        success = await UserListsService.addNotSureReturnItem(item);
+      }
+
+      if (success && mounted) {
+        setState(() {
+          _isInNotSureReturn = !_isInNotSureReturn;
+        });
+
+        HapticFeedback.lightImpact();
+        _showSnackBar(
+          _isInNotSureReturn 
+            ? 'Adicionado à lista "Não sei se volto"' 
+            : 'Removido da lista "Não sei se volto"'
+        );
+      }
+    } catch (e) {
+      Logger.error('Erro ao atualizar lista "Não sei se volto": $e');
+      _showSnackBar('Erro ao atualizar lista');
     }
   }
 
@@ -788,19 +894,64 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ScaleTransition(
-          scale: _fabScale,
-          child: FloatingActionButton(
-            heroTag: 'favorite',
-            onPressed: _toggleFavorite,
-            backgroundColor: _isFavorite ? AppColors.error : AppColors.surface,
-            foregroundColor: _isFavorite ? Colors.white : AppColors.textPrimary,
-            child: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-            ),
+        // Row horizontal com os 3 botões de listas
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Botão Favoritar
+              ScaleTransition(
+                scale: _fabScale,
+                child: FloatingActionButton(
+                  heroTag: 'favorite',
+                  onPressed: _toggleFavorite,
+                  backgroundColor: _isFavorite ? AppColors.error : AppColors.surface,
+                  foregroundColor: _isFavorite ? Colors.white : AppColors.textPrimary,
+                  mini: true,
+                  child: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              // Botão Quero Conhecer
+              ScaleTransition(
+                scale: _fabScale,
+                child: FloatingActionButton(
+                  heroTag: 'want_to_know',
+                  onPressed: _toggleWantToKnow,
+                  backgroundColor: _isInWantToKnow ? AppColors.success : AppColors.surface,
+                  foregroundColor: _isInWantToKnow ? Colors.white : AppColors.textPrimary,
+                  mini: true,
+                  child: Icon(
+                    _isInWantToKnow ? Icons.bookmark : Icons.bookmark_border,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              // Botão Não Sei Se Volto
+              ScaleTransition(
+                scale: _fabScale,
+                child: FloatingActionButton(
+                  heroTag: 'not_sure_return',
+                  onPressed: _toggleNotSureReturn,
+                  backgroundColor: _isInNotSureReturn ? AppColors.warning : AppColors.surface,
+                  foregroundColor: _isInNotSureReturn ? Colors.white : AppColors.textPrimary,
+                  mini: true,
+                  child: Icon(
+                    _isInNotSureReturn ? Icons.help : Icons.help_outline,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(height: 16),
+        // Botão de pedir (mantido como estava)
         ScaleTransition(
           scale: _fabScale,
           child: FloatingActionButton.extended(

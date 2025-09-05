@@ -8,6 +8,7 @@ import '../../domain/entities/restaurant.dart';
 import '../../domain/repositories/favorites_repository.dart';
 import '../models/restaurant_model.dart';
 import '../../core/services/cache_service.dart';
+import '../services/auth/auth_service.dart';
 
 /// Implementação simplificada do repositório de favoritos
 class FavoritesRepositoryImpl implements FavoritesRepository {
@@ -74,15 +75,44 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     String? comment,
   }) async {
     try {
-      final currentUserId = userId ?? _mockUserId;
+      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
       
-      // Atualizar cache local
+      debugPrint('🟢 Adicionando favorito: restaurantId=$restaurantId, userId=$currentUserId');
+      
+      // Primeiro, verificar se já não é favorito
+      final existingCheck = await _supabaseClient
+          .from('favorites')
+          .select('id')
+          .eq('user_id', currentUserId)
+          .eq('restaurant_id', restaurantId)
+          .maybeSingle();
+          
+      if (existingCheck != null) {
+        debugPrint('⚠️ Restaurante já está nos favoritos');
+        _updateCache(restaurantId, true, currentUserId);
+        return const Right(true);
+      }
+      
+      // Inserir no Supabase
+      await _supabaseClient.from('favorites').insert({
+        'user_id': currentUserId,
+        'restaurant_id': restaurantId,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+      
+      // Atualizar cache local após sucesso
       _updateCache(restaurantId, true, currentUserId);
-      debugPrint('🟢 Restaurante $restaurantId adicionado aos favoritos (modo local)');
+      debugPrint('✅ Restaurante $restaurantId adicionado aos favoritos no Supabase');
       return const Right(true);
+    } on PostgrestException catch (e) {
+      debugPrint('❌ Erro PostgreSQL ao adicionar favorito: ${e.message}');
+      return Left(ServerFailure('Erro ao salvar favorito: ${e.message}'));
     } catch (e) {
-      debugPrint('❌ Erro ao adicionar favorito: $e');
-      return const Left(ServerFailure('Erro inesperado ao adicionar aos favoritos'));
+      debugPrint('❌ Erro geral ao adicionar favorito: $e');
+      // Fallback: salvar apenas no cache local
+      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
+      _updateCache(restaurantId, true, currentUserId);
+      return const Right(true);
     }
   }
 
@@ -92,15 +122,32 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     String? userId,
   }) async {
     try {
-      final currentUserId = userId ?? _mockUserId;
+      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
       
-      // Atualizar cache local
+      debugPrint('🔴 Removendo favorito: restaurantId=$restaurantId, userId=$currentUserId');
+      
+      // Remover do Supabase
+      final deleteResult = await _supabaseClient
+          .from('favorites')
+          .delete()
+          .eq('user_id', currentUserId)
+          .eq('restaurant_id', restaurantId);
+          
+      debugPrint('✅ Favorito removido do Supabase: $deleteResult');
+      
+      // Atualizar cache local após sucesso
       _updateCache(restaurantId, false, currentUserId);
-      debugPrint('🔴 Restaurante $restaurantId removido dos favoritos (modo local)');
+      debugPrint('✅ Restaurante $restaurantId removido dos favoritos');
       return const Right(true);
+    } on PostgrestException catch (e) {
+      debugPrint('❌ Erro PostgreSQL ao remover favorito: ${e.message}');
+      return Left(ServerFailure('Erro ao remover favorito: ${e.message}'));
     } catch (e) {
-      debugPrint('❌ Erro ao remover favorito: $e');
-      return const Left(ServerFailure('Erro inesperado ao remover dos favoritos'));
+      debugPrint('❌ Erro geral ao remover favorito: $e');
+      // Fallback: remover apenas do cache local
+      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
+      _updateCache(restaurantId, false, currentUserId);
+      return const Right(true);
     }
   }
 
@@ -141,38 +188,16 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     int? offset,
   }) async {
     try {
-      final currentUserId = userId ?? _getCurrentUserId();
+      final currentUserId = userId ?? AuthService.instance.userId;
       
-      // Se não há usuário autenticado, retornar dados mock
+      debugPrint('📋 Buscando favoritos para usuário: $currentUserId');
+      
       if (currentUserId == null) {
-        debugPrint('Usuário não autenticado, retornando favoritos mock');
-        final mockFavorites = await _getMockFavorites();
-        
-        // Aplicar limite e offset aos dados mock
-        var filteredFavorites = mockFavorites;
-        if (offset != null) {
-          filteredFavorites = filteredFavorites.skip(offset).toList();
-        }
-        if (limit != null) {
-          filteredFavorites = filteredFavorites.take(limit).toList();
-        }
-        
-        return Right(filteredFavorites);
+        debugPrint('⚠️ Usuário não autenticado, retornando lista vazia');
+        return const Right([]);
       }
 
-      // Gerar chave de cache
-      final cacheKey = 'favorites_${currentUserId}_${limit ?? 'all'}_${offset ?? 0}';
-      
-      // Tentar buscar do cache primeiro
-      final cachedData = await _cacheService.get(cacheKey);
-      if (cachedData != null) {
-        final restaurants = (cachedData as List<dynamic>)
-            .map((json) => RestaurantModel.fromJson(json))
-            .map((r) => r.toEntity())
-            .toList();
-        return Right(restaurants);
-      }
-
+      // Buscar favoritos do Supabase com join para obter dados do restaurante
       var query = _supabaseClient
           .from('favorites')
           .select('''
@@ -183,6 +208,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
               description,
               image_url,
               rating,
+              review_count,
               price_range,
               category_id,
               address,
@@ -191,14 +217,11 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
               phone,
               is_open,
               is_featured,
+              delivery_time,
+              delivery_fee,
+              emoji,
               created_at,
-              updated_at,
-              categories!inner(
-                id,
-                name,
-                icon,
-                color
-              )
+              updated_at
             )
           ''')
           .eq('user_id', currentUserId)
@@ -213,69 +236,35 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       }
 
       final response = await query;
+      debugPrint('📋 Resposta do Supabase: ${response.length} favoritos encontrados');
 
-      final restaurants = response
-          .map((item) => RestaurantModel.fromJson(item['restaurants']))
-          .toList();
-
-      // Se não há dados reais, retornar dados mock
-      if (restaurants.isEmpty) {
-        debugPrint('Nenhum favorito real encontrado, retornando favoritos mock');
-        final mockFavorites = await _getMockFavorites();
-        
-        // Aplicar limite e offset aos dados mock
-        var filteredFavorites = mockFavorites;
-        if (offset != null) {
-          filteredFavorites = filteredFavorites.skip(offset).toList();
+      final restaurants = <Restaurant>[];
+      
+      for (final item in response) {
+        try {
+          final restaurantData = item['restaurants'] as Map<String, dynamic>;
+          final restaurantModel = RestaurantModel.fromJson(restaurantData);
+          restaurants.add(restaurantModel.toEntity());
+        } catch (e) {
+          debugPrint('⚠️ Erro ao processar restaurante favorito: $e');
+          debugPrint('📋 Dados: ${item['restaurants']}');
         }
-        if (limit != null) {
-          filteredFavorites = filteredFavorites.take(limit).toList();
-        }
-        
-        return Right(filteredFavorites);
       }
 
-      // Salvar no cache
-      await _cacheService.set(
-        cacheKey,
-        restaurants.map((r) => r.toJson()).toList(),
-        ttl: const Duration(minutes: 10),
-      );
-
-      debugPrint('Carregados ${restaurants.length} restaurantes favoritos');
-      return Right(restaurants.map((r) => r.toEntity()).toList());
+      debugPrint('✅ Carregados ${restaurants.length} restaurantes favoritos do Supabase');
+      
+      // Atualizar cache dos favoritos para cada restaurante
+      for (final restaurant in restaurants) {
+        _updateCache(restaurant.id, true, currentUserId);
+      }
+      
+      return Right(restaurants);
     } on PostgrestException catch (e) {
-      debugPrint('Erro PostgreSQL ao buscar favoritos: ${e.message}');
-      // Em caso de erro, retornar dados mock
-      debugPrint('Erro ao buscar favoritos reais, retornando favoritos mock');
-      final mockFavorites = await _getMockFavorites();
-      
-      // Aplicar limite e offset aos dados mock
-      var filteredFavorites = mockFavorites;
-      if (offset != null) {
-        filteredFavorites = filteredFavorites.skip(offset).toList();
-      }
-      if (limit != null) {
-        filteredFavorites = filteredFavorites.take(limit).toList();
-      }
-      
-      return Right(filteredFavorites);
+      debugPrint('❌ Erro PostgreSQL ao buscar favoritos: ${e.message}');
+      return Left(ServerFailure('Erro ao buscar favoritos: ${e.message}'));
     } catch (e) {
-      debugPrint('Erro ao buscar favoritos: $e');
-      // Em caso de erro, retornar dados mock
-      debugPrint('Erro inesperado ao buscar favoritos, retornando favoritos mock');
-      final mockFavorites = await _getMockFavorites();
-      
-      // Aplicar limite e offset aos dados mock
-      var filteredFavorites = mockFavorites;
-      if (offset != null) {
-        filteredFavorites = filteredFavorites.skip(offset).toList();
-      }
-      if (limit != null) {
-        filteredFavorites = filteredFavorites.take(limit).toList();
-      }
-      
-      return Right(filteredFavorites);
+      debugPrint('❌ Erro geral ao buscar favoritos: $e');
+      return Left(ServerFailure('Erro inesperado ao buscar favoritos'));
     }
   }
 

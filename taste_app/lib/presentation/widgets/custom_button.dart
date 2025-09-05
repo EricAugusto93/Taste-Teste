@@ -42,70 +42,88 @@ class CustomButton extends StatelessWidget {
   }
   
   Widget _buildElevatedButton() {
-    return Container(
-      width: width,
-      height: height ?? AppDimensions.buttonHeight,
-      padding: padding,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textPrimary,
-          elevation: AppDimensions.elevationMedium,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+    final bool isEnabled = !isLoading && onPressed != null;
+    
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.6,
+      child: Container(
+        width: width,
+        height: height ?? AppDimensions.buttonHeight,
+        padding: padding,
+        child: ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textPrimary,
+            elevation: isEnabled ? AppDimensions.elevationMedium : 0,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingLarge,
+              vertical: AppDimensions.paddingMedium,
+            ),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingLarge,
-            vertical: AppDimensions.paddingMedium,
-          ),
+          child: _buildButtonContent(),
         ),
-        child: _buildButtonContent(),
       ),
     );
   }
   
   Widget _buildTextButton() {
-    return Container(
-      width: width,
-      height: height ?? AppDimensions.buttonHeight,
-      padding: padding,
-      child: TextButton(
-        onPressed: isLoading ? null : onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+    final bool isEnabled = !isLoading && onPressed != null;
+    
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.6,
+      child: Container(
+        width: width,
+        height: height ?? AppDimensions.buttonHeight,
+        padding: padding,
+        child: TextButton(
+          onPressed: isLoading ? null : onPressed,
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingLarge,
+              vertical: AppDimensions.paddingMedium,
+            ),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingLarge,
-            vertical: AppDimensions.paddingMedium,
-          ),
+          child: _buildButtonContent(),
         ),
-        child: _buildButtonContent(),
       ),
     );
   }
   
   Widget _buildOutlinedButton() {
-    return Container(
-      width: width,
-      height: height ?? AppDimensions.buttonHeight,
-      padding: padding,
-      child: OutlinedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary, width: 2),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+    final bool isEnabled = !isLoading && onPressed != null;
+    
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.6,
+      child: Container(
+        width: width,
+        height: height ?? AppDimensions.buttonHeight,
+        padding: padding,
+        child: OutlinedButton(
+          onPressed: isLoading ? null : onPressed,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            side: BorderSide(
+              color: isEnabled ? AppColors.primary : AppColors.primary.withOpacity(0.6), 
+              width: 2
+            ),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingLarge,
+              vertical: AppDimensions.paddingMedium,
+            ),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingLarge,
-            vertical: AppDimensions.paddingMedium,
-          ),
+          child: _buildButtonContent(),
         ),
-        child: _buildButtonContent(),
       ),
     );
   }

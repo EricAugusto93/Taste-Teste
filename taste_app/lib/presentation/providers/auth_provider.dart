@@ -41,9 +41,17 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
 
   /// Inicializa o estado da autenticação
   void _initializeAuth() {
+    // Em modo debug, forçar criação de usuário dev se necessário
+    if (kDebugMode) {
+      debugPrint('🔓 AuthProvider: Modo desenvolvimento detectado');
+      _authService.forceLocalAuth();
+    }
+    
     // Usa o método isAuthenticated que já inclui fallback local
     final isAuth = _authService.isAuthenticated;
     final user = _authService.currentUser;
+    
+    debugPrint('🔍 AuthProvider: isAuth = $isAuth, user = ${user?.email}');
     
     state = AppAuthState(
       isAuthenticated: isAuth,
@@ -53,8 +61,11 @@ class AuthNotifier extends StateNotifier<AppAuthState> {
     // Escuta mudanças no estado de autenticação do Supabase
     try {
       _authService.authStateChanges.listen((appUser) {
+        final newIsAuth = _authService.isAuthenticated;
+        debugPrint('🔄 AuthProvider: Auth state changed - isAuth: $newIsAuth, user: ${appUser?.email}');
+        
         state = AppAuthState(
-          isAuthenticated: _authService.isAuthenticated,
+          isAuthenticated: newIsAuth,
           user: appUser,
         );
       });

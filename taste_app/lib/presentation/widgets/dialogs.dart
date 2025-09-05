@@ -186,6 +186,8 @@ class RatingDialog extends StatefulWidget {
 class _RatingDialogState extends State<RatingDialog> {
   int _rating = 0;
   final _commentController = TextEditingController();
+  bool _isSubmitting = false;
+  DateTime? _lastSubmitAttempt;
 
   @override
   void dispose() {
@@ -282,13 +284,13 @@ class _RatingDialogState extends State<RatingDialog> {
                 SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
-                    text: 'Enviar',
-                    onPressed: _rating > 0
-                        ? () {
-                            widget.onSubmit?.call(_rating, _commentController.text);
-                            NavigationHelper.safeGoBack(context);
+                    text: _isSubmitting ? 'Enviando...' : 'Enviar',
+                    onPressed: _rating > 0 && !_isSubmitting
+                        ? () async {
+                            await _handleSubmit();
                           }
                         : null,
+                    isLoading: _isSubmitting,
                   ),
                 ),
               ],
@@ -297,6 +299,52 @@ class _RatingDialogState extends State<RatingDialog> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleSubmit() async {
+    // Debounce: prevenir múltiplos cliques em menos de 2 segundos
+    final now = DateTime.now();
+    if (_lastSubmitAttempt != null && 
+        now.difference(_lastSubmitAttempt!).inSeconds < 2) {
+      return;
+    }
+
+    if (_isSubmitting) return; // Dupla verificação
+
+    setState(() {
+      _isSubmitting = true;
+      _lastSubmitAttempt = now;
+    });
+
+    try {
+      // Aguardar um pouco para dar feedback visual
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Chamar callback se fornecido
+      if (widget.onSubmit != null) {
+        await widget.onSubmit!(_rating, _commentController.text);
+      }
+      
+      // Fechar dialog somente após sucesso
+      if (mounted) {
+        NavigationHelper.safeGoBack(context);
+      }
+    } catch (e) {
+      // Em caso de erro, resetar estado e manter dialog aberto
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        
+        // Mostrar erro via SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao enviar avaliação: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String _getRatingText(int rating) {

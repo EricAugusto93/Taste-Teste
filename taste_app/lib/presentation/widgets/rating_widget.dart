@@ -302,6 +302,7 @@ class DetailedRatingWidget extends StatelessWidget {
         final stars = 5 - index;
         final count = ratingDistribution![stars] ?? 0;
         final percentage = total > 0 ? count / total : 0.0;
+        final percentageText = total > 0 ? '${(percentage * 100).toStringAsFixed(0)}%' : '0%';
         
         return Padding(
           padding: const EdgeInsets.only(bottom: 4),
@@ -323,10 +324,10 @@ class DetailedRatingWidget extends StatelessWidget {
               SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Container(
-                  height: 6,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: AppColors.background,
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
@@ -334,10 +335,22 @@ class DetailedRatingWidget extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: AppColors.warning,
-                        borderRadius: BorderRadius.circular(3),
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
+                ),
+              ),
+              SizedBox(width: AppDimensions.paddingSmall),
+              SizedBox(
+                width: 40,
+                child: Text(
+                  percentageText,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textDark,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(width: AppDimensions.paddingSmall),
