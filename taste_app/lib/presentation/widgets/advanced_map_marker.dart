@@ -27,11 +27,11 @@ class AdvancedMapMarker {
     if (isSelected && animationValue > 0) {
       final pulseRadius = radius + (animationValue * 15);
       final pulseOpacity = 0.4 * (1 - animationValue);
-      
+
       final pulsePaint = Paint()
         ..color = AppColors.primary.withOpacity(pulseOpacity)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, pulseRadius, pulsePaint);
     }
 
@@ -51,7 +51,7 @@ class AdvancedMapMarker {
         [0.0, 0.7, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, radius, backgroundPaint);
 
     // Borda com gradiente dinâmico
@@ -65,33 +65,32 @@ class AdvancedMapMarker {
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = isSelected ? 4 : 3;
-    
+
     canvas.drawCircle(center, radius, borderPaint);
 
     // Emoji com efeito 3D - usa emoji do banco de dados ou fallback por categoria
-    final emoji = restaurant.emoji ?? _getRestaurantEmoji(restaurant.categoryId);
+    final emoji =
+        restaurant.emoji ?? _getRestaurantEmoji(restaurant.categoryId);
     await _drawEmojiWith3DEffect(canvas, emoji, center, size * 0.45);
 
     // Badge de status (aberto/fechado)
-    if (restaurant.isOpen != null) {
-      _drawStatusBadge(canvas, center, radius, restaurant.isOpen!);
-    }
+    _drawStatusBadge(canvas, center, radius, restaurant.isOpen!);
 
     // Informações na parte inferior
     var yOffset = markerSize.height - 30;
-    
+
     if (showRating && restaurant.rating > 0) {
       yOffset = await _drawRatingBadge(
-        canvas, 
-        Offset(markerSize.width / 2, yOffset), 
+        canvas,
+        Offset(markerSize.width / 2, yOffset),
         restaurant.rating,
       );
     }
-    
+
     if (showPrice && restaurant.priceRange != null) {
       await _drawPriceBadge(
-        canvas, 
-        Offset(markerSize.width / 2, yOffset + 18), 
+        canvas,
+        Offset(markerSize.width / 2, yOffset + 18),
         restaurant.priceRange!,
       );
     }
@@ -102,7 +101,7 @@ class AdvancedMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -119,26 +118,27 @@ class AdvancedMapMarker {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     final markerSize = Size(size, size + (showRating ? 25 : 0));
-    final center = Offset(markerSize.width / 2, markerSize.height / 2 - (showRating ? 12 : 0));
+    final center = Offset(
+        markerSize.width / 2, markerSize.height / 2 - (showRating ? 12 : 0));
 
     // Animação de pulso para selecionado
     if (isSelected && animationValue > 0) {
       final pulseRadius = (size / 2) + (animationValue * 20);
       final pulseOpacity = 0.3 * (1 - animationValue);
-      
+
       final pulsePaint = Paint()
         ..color = AppColors.primary.withOpacity(pulseOpacity)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, pulseRadius, pulsePaint);
     }
 
     // Sombra do emoji para destacar no mapa
     final shadowOffset = Offset(center.dx + 2, center.dy + 3);
     await _drawEmojiText(
-      canvas, 
-      emoji, 
-      shadowOffset, 
+      canvas,
+      emoji,
+      shadowOffset,
       size * 0.8,
       color: Colors.black.withOpacity(0.3),
     );
@@ -161,7 +161,7 @@ class AdvancedMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -184,14 +184,14 @@ class AdvancedMapMarker {
       final accuracyPaint = Paint()
         ..color = AppColors.primary.withOpacity(0.1)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, accuracyRadius, accuracyPaint);
-      
+
       final accuracyBorderPaint = Paint()
         ..color = AppColors.primary.withOpacity(0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1;
-      
+
       canvas.drawCircle(center, accuracyRadius, accuracyBorderPaint);
     }
 
@@ -201,11 +201,11 @@ class AdvancedMapMarker {
       final adjustedAnimation = ((animationValue + pulseDelay) % 1.0);
       final pulseRadius = (size / 3) + (adjustedAnimation * 20);
       final pulseOpacity = (0.6 * (1 - adjustedAnimation)).clamp(0.0, 0.6);
-      
+
       final pulsePaint = Paint()
         ..color = AppColors.primary.withOpacity(pulseOpacity)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, pulseRadius, pulsePaint);
     }
 
@@ -213,7 +213,7 @@ class AdvancedMapMarker {
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 2, center.dy + 2),
       size / 3.5,
@@ -229,7 +229,7 @@ class AdvancedMapMarker {
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, size / 3.5, mainPaint);
 
     // Borda branca com brilho
@@ -237,7 +237,7 @@ class AdvancedMapMarker {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
-    
+
     canvas.drawCircle(center, size / 3.5, borderPaint);
 
     // Ponto central animado
@@ -245,7 +245,7 @@ class AdvancedMapMarker {
     final centerPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, centerSize, centerPaint);
 
     // Converter para imagem
@@ -254,7 +254,7 @@ class AdvancedMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -283,7 +283,7 @@ class AdvancedMapMarker {
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.25 * animatedOpacity)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 3, center.dy + 3),
       animatedRadius,
@@ -303,7 +303,7 @@ class AdvancedMapMarker {
         [0.0, 0.7, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, animatedRadius, backgroundPaint);
 
     // Borda com brilho
@@ -311,7 +311,7 @@ class AdvancedMapMarker {
       ..color = Colors.white.withOpacity(animatedOpacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
-    
+
     canvas.drawCircle(center, animatedRadius, borderPaint);
 
     // Texto do contador com sombra
@@ -332,7 +332,7 @@ class AdvancedMapMarker {
       text: TextSpan(text: count.toString(), style: textStyle),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
@@ -348,25 +348,26 @@ class AdvancedMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
 
   // Métodos auxiliares privados
-  
-  static void _drawLayeredShadow(Canvas canvas, Offset center, double radius, bool isSelected) {
+
+  static void _drawLayeredShadow(
+      Canvas canvas, Offset center, double radius, bool isSelected) {
     final shadowLayers = isSelected ? 3 : 2;
-    
+
     for (int i = 0; i < shadowLayers; i++) {
       final shadowOffset = Offset(2.0 + i, 2.0 + i);
       final shadowOpacity = 0.15 - (i * 0.05);
       final shadowBlur = 4.0 + (i * 2);
-      
+
       final shadowPaint = Paint()
         ..color = Colors.black.withOpacity(shadowOpacity)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadowBlur);
-      
+
       canvas.drawCircle(
         Offset(center.dx + shadowOffset.dx, center.dy + shadowOffset.dy),
         radius + i,
@@ -375,9 +376,10 @@ class AdvancedMapMarker {
     }
   }
 
-  static Color _getRestaurantBorderColor(RestaurantModel restaurant, bool isSelected) {
+  static Color _getRestaurantBorderColor(
+      RestaurantModel restaurant, bool isSelected) {
     if (isSelected) return AppColors.primary;
-    
+
     if (restaurant.rating >= 4.5) return Colors.green;
     if (restaurant.rating >= 4.0) return Colors.orange;
     if (restaurant.rating >= 3.5) return AppColors.primary;
@@ -386,27 +388,41 @@ class AdvancedMapMarker {
 
   static String _getRestaurantEmoji(String? category) {
     switch (category?.toLowerCase()) {
-      case 'pizza': return '🍕';
-      case 'hamburguer': return '🍔';
-      case 'japonesa': return '🍣';
-      case 'chinesa': return '🥡';
-      case 'brasileira': return '🍽️';
-      case 'mexicana': return '🌮';
-      case 'doce': return '🍰';
-      case 'café': return '☕';
-      case 'vegetariana': return '🥗';
-      case 'churrasco': return '🥩';
-      case 'frutos do mar': return '🐟';
-      case 'árabe': return '🥙';
-      case 'indiana': return '🍛';
-      default: return '🍽️';
+      case 'pizza':
+        return '🍕';
+      case 'hamburguer':
+        return '🍔';
+      case 'japonesa':
+        return '🍣';
+      case 'chinesa':
+        return '🥡';
+      case 'brasileira':
+        return '🍽️';
+      case 'mexicana':
+        return '🌮';
+      case 'doce':
+        return '🍰';
+      case 'café':
+        return '☕';
+      case 'vegetariana':
+        return '🥗';
+      case 'churrasco':
+        return '🥩';
+      case 'frutos do mar':
+        return '🐟';
+      case 'árabe':
+        return '🥙';
+      case 'indiana':
+        return '🍛';
+      default:
+        return '🍽️';
     }
   }
 
   static Future<void> _drawEmojiWith3DEffect(
-    Canvas canvas, 
-    String emoji, 
-    Offset center, 
+    Canvas canvas,
+    String emoji,
+    Offset center,
     double size,
   ) async {
     // Sombra do emoji
@@ -423,7 +439,7 @@ class AdvancedMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     emojiShadowPainter.layout();
     emojiShadowPainter.paint(
       canvas,
@@ -444,7 +460,7 @@ class AdvancedMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     emojiPainter.layout();
     emojiPainter.paint(
       canvas,
@@ -455,50 +471,52 @@ class AdvancedMapMarker {
     );
   }
 
-  static void _drawStatusBadge(Canvas canvas, Offset center, double radius, bool isOpen) {
-    final badgeCenter = Offset(center.dx + radius * 0.7, center.dy - radius * 0.7);
-    final badgeRadius = 8.0;
-    
+  static void _drawStatusBadge(
+      Canvas canvas, Offset center, double radius, bool isOpen) {
+    final badgeCenter =
+        Offset(center.dx + radius * 0.7, center.dy - radius * 0.7);
+    const badgeRadius = 8.0;
+
     // Sombra do badge
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
-    
+
     canvas.drawCircle(
       Offset(badgeCenter.dx + 1, badgeCenter.dy + 1),
       badgeRadius,
       shadowPaint,
     );
-    
+
     // Background do badge
     final badgePaint = Paint()
       ..color = isOpen ? Colors.green : Colors.red
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(badgeCenter, badgeRadius, badgePaint);
-    
+
     // Borda branca
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    
+
     canvas.drawCircle(badgeCenter, badgeRadius, borderPaint);
   }
 
   static Future<double> _drawRatingBadge(
-    Canvas canvas, 
-    Offset position, 
+    Canvas canvas,
+    Offset position,
     double rating,
   ) async {
-    final badgeWidth = 45.0;
-    final badgeHeight = 20.0;
-    
+    const badgeWidth = 45.0;
+    const badgeHeight = 20.0;
+
     // Sombra
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-    
+
     final shadowRect = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: Offset(position.dx + 1, position.dy + 1),
@@ -507,20 +525,20 @@ class AdvancedMapMarker {
       ),
       const Radius.circular(10),
     );
-    
+
     canvas.drawRRect(shadowRect, shadowPaint);
-    
+
     // Background
     final ratingColor = _getRatingColor(rating);
     final backgroundPaint = Paint()
       ..shader = ui.Gradient.linear(
-        Offset(position.dx - badgeWidth/2, position.dy),
-        Offset(position.dx + badgeWidth/2, position.dy),
+        Offset(position.dx - badgeWidth / 2, position.dy),
+        Offset(position.dx + badgeWidth / 2, position.dy),
         [ratingColor, ratingColor.withOpacity(0.8)],
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     final backgroundRect = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: position,
@@ -529,9 +547,9 @@ class AdvancedMapMarker {
       ),
       const Radius.circular(10),
     );
-    
+
     canvas.drawRRect(backgroundRect, backgroundPaint);
-    
+
     // Texto
     final textPainter = TextPainter(
       text: TextSpan(
@@ -544,7 +562,7 @@ class AdvancedMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
@@ -553,23 +571,23 @@ class AdvancedMapMarker {
         position.dy - textPainter.height / 2,
       ),
     );
-    
+
     return position.dy;
   }
 
   static Future<void> _drawPriceBadge(
-    Canvas canvas, 
-    Offset position, 
+    Canvas canvas,
+    Offset position,
     String priceRange,
   ) async {
-    final badgeWidth = 35.0;
-    final badgeHeight = 16.0;
-    
+    const badgeWidth = 35.0;
+    const badgeHeight = 16.0;
+
     // Background
     final backgroundPaint = Paint()
       ..color = Colors.grey.shade700
       ..style = PaintingStyle.fill;
-    
+
     final backgroundRect = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: position,
@@ -578,9 +596,9 @@ class AdvancedMapMarker {
       ),
       const Radius.circular(8),
     );
-    
+
     canvas.drawRRect(backgroundRect, backgroundPaint);
-    
+
     // Texto
     final textPainter = TextPainter(
       text: TextSpan(
@@ -593,7 +611,7 @@ class AdvancedMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
@@ -626,9 +644,9 @@ class AdvancedMapMarker {
 
   /// Desenhar emoji como texto simples (sem efeito 3D)
   static Future<void> _drawEmojiText(
-    Canvas canvas, 
-    String emoji, 
-    Offset center, 
+    Canvas canvas,
+    String emoji,
+    Offset center,
     double size, {
     Color? color,
   }) async {
@@ -644,7 +662,7 @@ class AdvancedMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     emojiPainter.layout();
     emojiPainter.paint(
       canvas,
@@ -661,14 +679,14 @@ class AdvancedMapMarker {
     Offset position,
     double rating,
   ) async {
-    final badgeSize = 20.0;
+    const badgeSize = 20.0;
     final radius = badgeSize / 2;
 
     // Background do badge
     final backgroundPaint = Paint()
       ..color = _getRatingColor(rating)
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(position, radius, backgroundPaint);
 
     // Borda do badge
@@ -676,7 +694,7 @@ class AdvancedMapMarker {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    
+
     canvas.drawCircle(position, radius, borderPaint);
 
     // Texto do rating

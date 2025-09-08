@@ -64,9 +64,9 @@ class RestaurantsHorizontalList extends StatelessWidget {
             ],
           ),
         ),
-        
-        SizedBox(height: AppDimensions.paddingSmall),
-        
+
+        const SizedBox(height: AppDimensions.paddingSmall),
+
         // Lista horizontal de restaurantes
         SizedBox(
           height: 280, // Altura fixa para os cards
@@ -100,12 +100,12 @@ class RestaurantsHorizontalList extends StatelessWidget {
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.restaurant_outlined,
             size: 48,
             color: AppColors.textLight,
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Nenhum restaurante encontrado',
             style: AppTextStyles.bodyMedium.copyWith(

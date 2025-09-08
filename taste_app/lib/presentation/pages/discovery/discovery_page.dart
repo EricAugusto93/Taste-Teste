@@ -29,12 +29,12 @@ class DiscoveryPage extends ConsumerWidget {
           children: [
             // Header azul
             _buildHeader(context, state),
-            
+
             // Conteúdo principal
             Expanded(
               child: _buildContent(context, state, notifier),
             ),
-            
+
             // Barra de navegação inferior
             _buildBottomNavigation(),
           ],
@@ -67,16 +67,16 @@ class DiscoveryPage extends ConsumerWidget {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     LucideIcons.arrowLeft,
                     color: Colors.white,
                     size: 24,
                   ),
                 ),
               ),
-              
+
               // Logo centralizado
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: Text(
                     'tt',
@@ -89,16 +89,16 @@ class DiscoveryPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              
+
               // Espaço para manter logo centralizado
-              SizedBox(width: 40),
+              const SizedBox(width: 40),
             ],
           ),
-          
-          SizedBox(height: 10),
-          
+
+          const SizedBox(height: 10),
+
           // Texto principal
-          Text(
+          const Text(
             'Encontramos lugares\ncom a sua cara',
             style: TextStyle(
               color: Colors.white,
@@ -108,13 +108,13 @@ class DiscoveryPage extends ConsumerWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          
-          SizedBox(height: 24),
-          
+
+          const SizedBox(height: 24),
+
           // Mapa pequeno
           _buildMiniMap(state),
-          
-          SizedBox(height: 20),
+
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -134,7 +134,8 @@ class DiscoveryPage extends ConsumerWidget {
         child: state.userLocation != null
             ? SafeGoogleMap(
                 height: 200,
-                fallbackMessage: 'Mapa não disponível\nVerifique sua conexão com a internet',
+                fallbackMessage:
+                    'Mapa não disponível\nVerifique sua conexão com a internet',
                 mapWidget: GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: LatLng(
@@ -196,7 +197,8 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, DiscoveryState state, DiscoveryNotifier notifier) {
+  Widget _buildContent(
+      BuildContext context, DiscoveryState state, DiscoveryNotifier notifier) {
     if (state.isLoading) {
       return const Center(child: LoadingWidget());
     }
@@ -210,8 +212,8 @@ class DiscoveryPage extends ConsumerWidget {
     }
 
     if (state.restaurants.isEmpty) {
-              return _buildEmptyState();
-            }
+      return _buildEmptyState();
+    }
 
     return Column(
       children: [
@@ -228,18 +230,18 @@ class DiscoveryPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               LucideIcons.alertCircle,
               size: 64,
               color: Colors.red,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Ops! Algo deu errado',
               style: AppTextStyles.headingMedium,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               error,
               style: AppTextStyles.bodyMedium.copyWith(
@@ -247,7 +249,7 @@ class DiscoveryPage extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => notifier.retry(),
               style: ElevatedButton.styleFrom(
@@ -258,7 +260,7 @@ class DiscoveryPage extends ConsumerWidget {
                   vertical: 12,
                 ),
               ),
-              child: Text('Tentar novamente'),
+              child: const Text('Tentar novamente'),
             ),
           ],
         ),
@@ -273,18 +275,18 @@ class DiscoveryPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               LucideIcons.mapPin,
               size: 64,
               color: AppColors.primary,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Precisamos da sua localização',
               style: AppTextStyles.headingMedium,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Para encontrar restaurantes próximos a você, precisamos acessar sua localização.',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -292,7 +294,7 @@ class DiscoveryPage extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => notifier.requestLocationPermission(),
               style: ElevatedButton.styleFrom(
@@ -303,7 +305,7 @@ class DiscoveryPage extends ConsumerWidget {
                   vertical: 12,
                 ),
               ),
-              child: Text('Permitir localização'),
+              child: const Text('Permitir localização'),
             ),
           ],
         ),
@@ -315,9 +317,9 @@ class DiscoveryPage extends ConsumerWidget {
     return Container(
       width: double.infinity,
       color: AppColors.primary,
-      child: Center(
+      child: const Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -328,9 +330,9 @@ class DiscoveryPage extends ConsumerWidget {
                   fontSize: 64,
                 ),
               ),
-              
+
               SizedBox(height: 24),
-              
+
               // Texto principal
               Text(
                 'Hmm... não encontramos nada\ncom esse perfil por aqui.',
@@ -341,9 +343,9 @@ class DiscoveryPage extends ConsumerWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               SizedBox(height: 16),
-              
+
               // Texto secundário
               Text(
                 'Que tal tentar em outro bairro\nou ajustar sua busca?',
@@ -367,7 +369,7 @@ class DiscoveryPage extends ConsumerWidget {
       decoration: const BoxDecoration(
         color: AppColors.primary,
       ),
-      child: Text(
+      child: const Text(
         'Para você: aqui incluir o que a pessoa procurou - COM IA',
         style: TextStyle(
           color: Colors.white,
@@ -378,7 +380,8 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildRestaurantsList(BuildContext context, DiscoveryState state, DiscoveryNotifier notifier) {
+  Widget _buildRestaurantsList(
+      BuildContext context, DiscoveryState state, DiscoveryNotifier notifier) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -387,7 +390,7 @@ class DiscoveryPage extends ConsumerWidget {
           itemBuilder: (context, index) {
             final restaurant = state.restaurants[index];
             final distance = notifier.getDistanceToRestaurant(restaurant);
-            
+
             return _buildCustomRestaurantCard(context, restaurant, distance);
           },
         ),
@@ -395,7 +398,8 @@ class DiscoveryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCustomRestaurantCard(BuildContext context, dynamic restaurant, double? distance) {
+  Widget _buildCustomRestaurantCard(
+      BuildContext context, dynamic restaurant, double? distance) {
     return GestureDetector(
       onTap: () => context.push('/restaurant/${restaurant.id}'),
       child: Container(
@@ -424,47 +428,48 @@ class DiscoveryPage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey[200],
               ),
-              child: restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        restaurant.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            LucideIcons.utensils,
-                            color: Colors.grey,
-                            size: 32,
-                          );
-                        },
-                      ),
-                    )
-                  : Icon(
-                      LucideIcons.utensils,
-                      color: Colors.grey,
-                      size: 32,
-                    ),
+              child:
+                  restaurant.imageUrl != null && restaurant.imageUrl!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            restaurant.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                LucideIcons.utensils,
+                                color: Colors.grey,
+                                size: 32,
+                              );
+                            },
+                          ),
+                        )
+                      : const Icon(
+                          LucideIcons.utensils,
+                          color: Colors.grey,
+                          size: 32,
+                        ),
             ),
-            
-            SizedBox(width: 12),
-            
+
+            const SizedBox(width: 12),
+
             // Informações do restaurante
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Nome do restaurante com prefixo
-                  Text(
+                  const Text(
                     'Nome do restaurante:',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
                   ),
-                  
-                  SizedBox(height: 2),
-                  
+
+                  const SizedBox(height: 2),
+
                   // Categoria e nome real
                   Text(
                     '(${restaurant.category ?? 'pnt'}) ${restaurant.name ?? 'Bairro'}',
@@ -476,9 +481,9 @@ class DiscoveryPage extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
-                  SizedBox(height: 6),
-                  
+
+                  const SizedBox(height: 6),
+
                   // Descrição
                   Text(
                     'Breve descrição (resumida do perfil)',
@@ -489,9 +494,9 @@ class DiscoveryPage extends ConsumerWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
-                  SizedBox(height: 8),
-                  
+
+                  const SizedBox(height: 8),
+
                   // Avaliação
                   Row(
                     children: [
@@ -506,7 +511,7 @@ class DiscoveryPage extends ConsumerWidget {
                               : Colors.grey[300],
                         );
                       }),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         restaurant.rating?.toStringAsFixed(1) ?? '4.7',
                         style: TextStyle(
@@ -576,7 +581,7 @@ class DiscoveryPage extends ConsumerWidget {
     required VoidCallback onTap,
   }) {
     const Color orangeColor = Color(0xFFFF6B35);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -587,7 +592,7 @@ class DiscoveryPage extends ConsumerWidget {
             color: isActive ? orangeColor : Colors.grey,
             size: 24,
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(

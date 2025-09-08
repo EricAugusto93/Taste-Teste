@@ -51,7 +51,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Não sei se eu volto',
             style: TextStyle(
               color: Colors.white,
@@ -70,7 +70,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Não sei se eu volto',
           style: TextStyle(
             color: Colors.white,
@@ -123,18 +123,18 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   color: const Color(0xFF87CEEB).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.sentiment_neutral,
                   color: Color(0xFF87CEEB),
                   size: 24,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Experiências duvidosas',
                       style: TextStyle(
                         color: Colors.white,
@@ -193,7 +193,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: item.imageUrl != null && item.imageUrl.isNotEmpty
+            child: item.imageUrl.isNotEmpty
                 ? Image.network(
                     item.imageUrl,
                     height: 160,
@@ -204,7 +204,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                         height: 160,
                         width: double.infinity,
                         color: Colors.grey[300],
-                        child: Icon(
+                        child: const Icon(
                           Icons.restaurant,
                           size: 48,
                           color: Colors.grey,
@@ -216,14 +216,14 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     height: 160,
                     width: double.infinity,
                     color: Colors.grey[300],
-                    child: Icon(
+                    child: const Icon(
                       Icons.restaurant,
                       size: 48,
                       color: Colors.grey,
                     ),
                   ),
           ),
-          
+
           // Conteúdo
           Padding(
             padding: const EdgeInsets.all(16),
@@ -242,7 +242,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     ),
                     IconButton(
                       onPressed: () => _removeItem(item.id),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.close,
                         color: Colors.grey,
                         size: 20,
@@ -250,9 +250,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 4),
-                
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
@@ -276,17 +274,15 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     _buildRating(item.rating),
                   ],
                 ),
-                
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_outlined,
                       size: 16,
                       color: AppColors.textLight,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         item.location,
@@ -297,9 +293,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -320,7 +314,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                             size: 16,
                             color: Colors.orange[700],
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             'Motivo da dúvida:',
                             style: AppTextStyles.bodySmall.copyWith(
@@ -330,7 +324,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         item.reason,
                         style: AppTextStyles.bodySmall.copyWith(
@@ -340,9 +334,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                     ],
                   ),
                 ),
-                
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
                 Text(
                   'Visitado há ${_getTimeAgo(item.visitDate)}',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -383,20 +375,20 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                 color: const Color(0xFF87CEEB).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.sentiment_satisfied,
                 size: 64,
                 color: Color(0xFF87CEEB),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'Que bom!',
               style: AppTextStyles.headingMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Você ainda não teve experiências duvidosas. Continue explorando novos lugares!',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -404,7 +396,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -420,7 +412,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -436,12 +428,12 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
   Future<void> _removeItem(String itemId) async {
     try {
       final success = await UserListsService.removeNotSureReturnItem(itemId);
-      
+
       if (success) {
         setState(() {
           _items.removeWhere((item) => item.id == itemId);
         });
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -479,7 +471,7 @@ class _NotSureReturnPageState extends ConsumerState<NotSureReturnPage> {
   String _getTimeAgo(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} dias';
     } else if (difference.inHours > 0) {

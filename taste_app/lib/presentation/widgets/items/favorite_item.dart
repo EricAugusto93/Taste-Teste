@@ -51,7 +51,7 @@ class FavoriteItem extends StatelessWidget {
         Row(
           children: [
             _buildImage(),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: _buildInfo(),
             ),
@@ -59,7 +59,7 @@ class FavoriteItem extends StatelessWidget {
           ],
         ),
         if (showActions && !isCompact) ..[
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildActionButtons(),
         ],
       ],
@@ -70,7 +70,7 @@ class FavoriteItem extends StatelessWidget {
     return Row(
       children: [
         _buildImage(size: 50),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class FavoriteItem extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               _buildRatingAndDistance(compact: true),
             ],
           ),
@@ -143,7 +143,7 @@ class FavoriteItem extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         
         // Categoria
         if (restaurant.category != null)
@@ -157,19 +157,19 @@ class FavoriteItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         
         // Rating e distância
         _buildRatingAndDistance(),
         
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         
         // Status e horário
         _buildStatusAndHours(),
         
         // Tags especiais
         if (restaurant.tags?.isNotEmpty == true && !isCompact) ..[
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildTags(),
         ],
       ],
@@ -180,36 +180,36 @@ class FavoriteItem extends StatelessWidget {
     return Row(
       children: [
         // Rating
-        if (restaurant.rating != null) ..[
-          Icon(
-            AppIcons.star,
-            size: compact ? 12 : 14,
-            color: AppColors.warning,
+        ..[
+        Icon(
+          AppIcons.star,
+          size: compact ? 12 : 14,
+          color: AppColors.warning,
+        ),
+        SizedBox(width: 4),
+        Text(
+          restaurant.rating!.toStringAsFixed(1),
+          style: TextStyle(
+            fontSize: compact ? 11 : 12,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
           ),
-          SizedBox(width: 4),
+        ),
+        if (restaurant.reviewCount != null) ..[
+          SizedBox(width: 2),
           Text(
-            restaurant.rating!.toStringAsFixed(1),
+            '(${restaurant.reviewCount})',
             style: TextStyle(
-              fontSize: compact ? 11 : 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              fontSize: compact ? 10 : 11,
+              color: AppColors.textSecondary,
             ),
           ),
-          if (restaurant.reviewCount != null) ..[
-            SizedBox(width: 2),
-            Text(
-              '(${restaurant.reviewCount})',
-              style: TextStyle(
-                fontSize: compact ? 10 : 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
         ],
+      ],
         
         // Separador
-        if (restaurant.rating != null && restaurant.distance != null) ..[
-          SizedBox(width: 8),
+        if (restaurant.distance != null) ..[
+          const SizedBox(width: 8),
           Container(
             width: 2,
             height: 2,
@@ -257,7 +257,7 @@ class FavoriteItem extends StatelessWidget {
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text(
           statusText,
           style: TextStyle(
@@ -269,7 +269,7 @@ class FavoriteItem extends StatelessWidget {
         
         // Horário de funcionamento
         if (restaurant.openingHours != null) ..[
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             '• ${restaurant.openingHours}',
             style: const TextStyle(
@@ -318,7 +318,7 @@ class FavoriteItem extends StatelessWidget {
           color: AppColors.error.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
+        child: const Icon(
           AppIcons.heartFilled,
           size: 20,
           color: AppColors.error,
@@ -341,7 +341,7 @@ class FavoriteItem extends StatelessWidget {
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -365,7 +365,7 @@ class FavoriteItem extends StatelessWidget {
           ),
         
         if (onDirections != null && onShare != null)
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
         
         // Botão de compartilhar
         if (onShare != null)
@@ -378,7 +378,7 @@ class FavoriteItem extends StatelessWidget {
                   color: AppColors.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -478,7 +478,7 @@ class FavoriteCategoryItem extends StatelessWidget {
                   ),
                 ),
                 
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 
                 // Informações
                 Expanded(
@@ -493,7 +493,7 @@ class FavoriteCategoryItem extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: const TextStyle(
@@ -525,10 +525,10 @@ class FavoriteCategoryItem extends StatelessWidget {
                   ),
                 ),
                 
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 
                 // Seta
-                Icon(
+                const Icon(
                   AppIcons.back,
                   size: 16,
                   color: AppColors.textSecondary,
@@ -568,17 +568,17 @@ class EmptyFavoritesWidget extends StatelessWidget {
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(40),
                 ),
-                child: Icon(
+                child: const Icon(
                   AppIcons.heartEmpty,
                   size: 40,
                   color: AppColors.primary,
                 ),
               ),
               
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               
               // Título
-              Text(
+              const Text(
                 'Nenhum favorito ainda',
                 style: TextStyle(
                   fontSize: 20,
@@ -588,10 +588,10 @@ class EmptyFavoritesWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               
               // Descrição
-              Text(
+              const Text(
                 'Explore restaurantes e adicione seus favoritos para encontrá-los facilmente aqui.',
                 style: TextStyle(
                   fontSize: 14,
@@ -601,7 +601,7 @@ class EmptyFavoritesWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               
               // Botão de explorar
               if (onExplore != null)
@@ -616,7 +616,7 @@ class EmptyFavoritesWidget extends StatelessWidget {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(24),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(

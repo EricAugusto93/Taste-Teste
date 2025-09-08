@@ -88,7 +88,7 @@ class OptimizedImage extends StatelessWidget {
         color: Colors.grey[200],
         borderRadius: borderRadius,
       ),
-      child: Icon(
+      child: const Icon(
         Icons.restaurant_menu,
         color: Colors.grey,
         size: 32,

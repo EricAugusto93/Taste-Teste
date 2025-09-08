@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taste_app/data/models/favorite_model.dart';
 import 'package:taste_app/data/models/restaurant_model.dart';
-import 'package:taste_app/domain/entities/restaurant.dart';
 
 void main() {
   group('FavoritesPage Tests', () {

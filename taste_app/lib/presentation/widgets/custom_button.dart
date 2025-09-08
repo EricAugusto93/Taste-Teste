@@ -14,7 +14,7 @@ class CustomButton extends StatelessWidget {
   final double? width;
   final double? height;
   final EdgeInsetsGeometry? padding;
-  
+
   const CustomButton({
     super.key,
     required this.text,
@@ -27,23 +27,23 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.padding,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     if (isOutlined) {
       return _buildOutlinedButton();
     }
-    
+
     if (isSecondary) {
       return _buildTextButton();
     }
-    
+
     return _buildElevatedButton();
   }
-  
+
   Widget _buildElevatedButton() {
     final bool isEnabled = !isLoading && onPressed != null;
-    
+
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.6,
       child: Container(
@@ -57,7 +57,8 @@ class CustomButton extends StatelessWidget {
             foregroundColor: AppColors.textPrimary,
             elevation: isEnabled ? AppDimensions.elevationMedium : 0,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+              borderRadius:
+                  BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingLarge,
@@ -69,10 +70,10 @@ class CustomButton extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildTextButton() {
     final bool isEnabled = !isLoading && onPressed != null;
-    
+
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.6,
       child: Container(
@@ -84,7 +85,8 @@ class CustomButton extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: AppColors.primary,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+              borderRadius:
+                  BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingLarge,
@@ -96,10 +98,10 @@ class CustomButton extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildOutlinedButton() {
     final bool isEnabled = !isLoading && onPressed != null;
-    
+
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.6,
       child: Container(
@@ -111,11 +113,13 @@ class CustomButton extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: BorderSide(
-              color: isEnabled ? AppColors.primary : AppColors.primary.withOpacity(0.6), 
-              width: 2
-            ),
+                color: isEnabled
+                    ? AppColors.primary
+                    : AppColors.primary.withOpacity(0.6),
+                width: 2),
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
+              borderRadius:
+                  BorderRadius.all(Radius.circular(AppDimensions.buttonRadius)),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingLarge,
@@ -127,19 +131,19 @@ class CustomButton extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildButtonContent() {
     if (isLoading) {
-      return SizedBox(
+      return const SizedBox(
         width: AppDimensions.iconMedium,
         height: AppDimensions.iconMedium,
-        child: const CircularProgressIndicator(
+        child: CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(AppColors.textPrimary),
         ),
       );
     }
-    
+
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -151,18 +155,18 @@ class CustomButton extends StatelessWidget {
           const SizedBox(width: AppDimensions.paddingSmall),
           Text(
             text,
-            style: isSecondary || isOutlined 
-                ? AppTextStyles.buttonTextSecondary 
+            style: isSecondary || isOutlined
+                ? AppTextStyles.buttonTextSecondary
                 : AppTextStyles.buttonText,
           ),
         ],
       );
     }
-    
+
     return Text(
       text,
-      style: isSecondary || isOutlined 
-          ? AppTextStyles.buttonTextSecondary 
+      style: isSecondary || isOutlined
+          ? AppTextStyles.buttonTextSecondary
           : AppTextStyles.buttonText,
     );
   }

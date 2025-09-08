@@ -44,7 +44,8 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final hasAppliedCode = widget.appliedCode != null && widget.appliedCode!.isNotEmpty;
+    final hasAppliedCode =
+        widget.appliedCode != null && widget.appliedCode!.isNotEmpty;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -53,11 +54,11 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
       ),
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
-        color: hasAppliedCode 
-            ? AppColors.success.withOpacity(0.1) 
+        color: hasAppliedCode
+            ? AppColors.success.withOpacity(0.1)
             : AppColors.surface,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-        border: hasAppliedCode 
+        border: hasAppliedCode
             ? Border.all(color: AppColors.success, width: 2)
             : Border.all(color: AppColors.border),
       ),
@@ -67,21 +68,26 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
           Row(
             children: [
               Icon(
-                hasAppliedCode ? Icons.check_circle : Icons.local_offer_outlined,
+                hasAppliedCode
+                    ? Icons.check_circle
+                    : Icons.local_offer_outlined,
                 color: hasAppliedCode ? AppColors.success : AppColors.primary,
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                hasAppliedCode ? 'Código promocional aplicado' : 'Código promocional',
+                hasAppliedCode
+                    ? 'Código promocional aplicado'
+                    : 'Código promocional',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: hasAppliedCode ? AppColors.success : AppColors.textDark,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: hasAppliedCode
+                          ? AppColors.success
+                          : AppColors.textDark,
+                    ),
               ),
             ],
           ),
-          
           if (hasAppliedCode) ...[
             const SizedBox(height: 12),
             Container(
@@ -102,18 +108,20 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
                       children: [
                         Text(
                           widget.appliedCode!.toUpperCase(),
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.success,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.success,
+                                  ),
                         ),
                         if (widget.discount != null) ...[
                           const SizedBox(height: 2),
                           Text(
                             'Desconto de R\$ ${widget.discount!.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.success,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.success,
+                                    ),
                           ),
                         ],
                       ],
@@ -124,7 +132,7 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
                       onTap: widget.onRemove,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        child: Icon(
+                        child: const Icon(
                           Icons.close,
                           size: 18,
                           color: AppColors.success,
@@ -149,11 +157,11 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: AppColors.border),
+                        borderSide: const BorderSide(color: AppColors.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: AppColors.primary),
+                        borderSide: const BorderSide(color: AppColors.primary),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -172,8 +180,8 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
                 SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: widget.isLoading 
-                        ? null 
+                    onPressed: widget.isLoading
+                        ? null
                         : () {
                             final code = _controller.text.trim();
                             if (code.isNotEmpty) {
@@ -195,7 +203,8 @@ class _PromoCodeWidgetState extends State<PromoCodeWidget> {
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(

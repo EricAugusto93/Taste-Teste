@@ -25,10 +25,12 @@ class LocationPermissionHandler extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<LocationPermissionHandler> createState() => _LocationPermissionHandlerState();
+  ConsumerState<LocationPermissionHandler> createState() =>
+      _LocationPermissionHandlerState();
 }
 
-class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHandler> {
+class _LocationPermissionHandlerState
+    extends ConsumerState<LocationPermissionHandler> {
   bool _hasCheckedPermissions = false;
   bool _isRequestingPermission = false;
 
@@ -52,7 +54,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
 
   Future<void> _checkAndRequestPermissions() async {
     if (_hasCheckedPermissions || _isRequestingPermission) return;
-    
+
     setState(() {
       _hasCheckedPermissions = true;
       _isRequestingPermission = true;
@@ -70,7 +72,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
 
       // Verifica o status atual da permissão
       final currentStatus = await Permission.location.status;
-      
+
       if (currentStatus == PermissionStatus.granted) {
         // Já tem permissão, atualiza o estado
         await locationNotifier.getCurrentLocation();
@@ -90,7 +92,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
 
       // Solicita permissão
       final success = await locationNotifier.requestLocationPermission();
-      
+
       if (success) {
         widget.onPermissionGranted?.call();
       } else {
@@ -159,7 +161,7 @@ class LocationPermissionStatus extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationState = ref.watch(locationProvider);
-    
+
     String statusText;
     Color statusColor;
     IconData statusIcon;
@@ -168,11 +170,13 @@ class LocationPermissionStatus extends ConsumerWidget {
       statusText = 'Verificando localização...';
       statusColor = AppColors.textSecondary;
       statusIcon = Icons.location_searching;
-    } else if (locationState.hasAllPermissions && locationState.currentLocation != null) {
+    } else if (locationState.hasAllPermissions &&
+        locationState.currentLocation != null) {
       statusText = 'Localização ativa';
       statusColor = AppColors.success;
       statusIcon = Icons.location_on;
-    } else if (locationState.permissionStatus == PermissionStatus.permanentlyDenied) {
+    } else if (locationState.permissionStatus ==
+        PermissionStatus.permanentlyDenied) {
       statusText = 'Permissão negada';
       statusColor = AppColors.error;
       statusIcon = Icons.location_disabled;
@@ -193,14 +197,15 @@ class LocationPermissionStatus extends ConsumerWidget {
               size: 16,
               color: statusColor,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
           ],
           Text(
             statusText,
-            style: textStyle ?? AppTextStyles.bodySmall.copyWith(
-              color: statusColor,
-              fontWeight: FontWeight.w500,
-            ),
+            style: textStyle ??
+                AppTextStyles.bodySmall.copyWith(
+                  color: statusColor,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
@@ -226,26 +231,30 @@ class LocationPermissionButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationState = ref.watch(locationProvider);
-    
+
     if (locationState.hasAllPermissions && showStatus) {
       return const LocationPermissionStatus();
     }
 
     return ElevatedButton.icon(
-      onPressed: locationState.isLoading ? null : () async {
-        try {
-          final success = await ref.read(locationProvider.notifier).requestLocationPermission();
-          if (success) {
-            onSuccess?.call();
-          } else {
-            onError?.call();
-          }
-        } catch (e) {
-          onError?.call();
-        }
-      },
-      icon: locationState.isLoading 
-          ? SizedBox(
+      onPressed: locationState.isLoading
+          ? null
+          : () async {
+              try {
+                final success = await ref
+                    .read(locationProvider.notifier)
+                    .requestLocationPermission();
+                if (success) {
+                  onSuccess?.call();
+                } else {
+                  onError?.call();
+                }
+              } catch (e) {
+                onError?.call();
+              }
+            },
+      icon: locationState.isLoading
+          ? const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
@@ -253,7 +262,7 @@ class LocationPermissionButton extends ConsumerWidget {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             )
-          : Icon(Icons.location_on),
+          : const Icon(Icons.location_on),
       label: Text(text ?? 'Ativar Localização'),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,

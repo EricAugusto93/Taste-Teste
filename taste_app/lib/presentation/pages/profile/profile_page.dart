@@ -28,7 +28,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ref.read(userProfileProvider.notifier).loadCurrentUserProfile();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -38,15 +38,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     // Em modo debug, permitir acesso mesmo sem autenticação real
     // Em produção, verificar autenticação normalmente
-    final shouldShowGuestProfile = kDebugMode 
+    final shouldShowGuestProfile = kDebugMode
         ? false // Em debug, nunca mostrar tela de visitante
-        : !authState.isAuthenticated; // Em produção, verificar autenticação real
-    
+        : !authState
+            .isAuthenticated; // Em produção, verificar autenticação real
+
     if (shouldShowGuestProfile) {
-      debugPrint('❌ ProfilePage: Usuário não autenticado, mostrando tela de visitante');
+      debugPrint(
+          '❌ ProfilePage: Usuário não autenticado, mostrando tela de visitante');
       return _buildGuestProfile();
     }
-    
+
     // Se chegou aqui, está em modo dev ou usuário está realmente autenticado
     if (kDebugMode && !authState.isAuthenticated) {
       debugPrint('🔓 ProfilePage: Modo desenvolvimento - criando perfil mock');
@@ -62,11 +64,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     title: 'Erro ao carregar perfil',
                     message: error,
                     onRetry: () {
-                      ref.read(userProfileProvider.notifier).loadCurrentUserProfile();
+                      ref
+                          .read(userProfileProvider.notifier)
+                          .loadCurrentUserProfile();
                     },
                     errorType: ErrorType.general,
                   )
-                : _buildProfileContent(profileState.profile, authState.user, authState.isAuthenticated),
+                : _buildProfileContent(profileState.profile, authState.user,
+                    authState.isAuthenticated),
       ),
     );
   }
@@ -88,14 +93,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.person_outline,
                   size: 80,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 32),
-              Text(
+              const SizedBox(height: 32),
+              const Text(
                 'Acesse sua conta',
                 style: TextStyle(
                   color: Colors.white,
@@ -104,7 +109,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Faça login para acessar seu perfil, favoritos e muito mais',
                 style: TextStyle(
@@ -113,7 +118,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 48),
+              const SizedBox(height: 48),
               AuthButton(
                 text: 'Fazer Login',
                 onPressed: () {
@@ -121,7 +126,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 },
                 isLoading: false,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               AuthTextButton(
                 text: 'Criar conta',
                 onPressed: () {
@@ -136,16 +141,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   /// Layout da página de perfil conforme referência visual
-  Widget _buildProfileContent(dynamic profile, dynamic user, bool isAuthenticated) {
+  Widget _buildProfileContent(
+      dynamic profile, dynamic user, bool isAuthenticated) {
     // Em modo debug sem autenticação real, criar dados mock
     if (kDebugMode && !isAuthenticated) {
-      debugPrint('🔧 ProfilePage: Criando dados de perfil mock para desenvolvimento');
+      debugPrint(
+          '🔧 ProfilePage: Criando dados de perfil mock para desenvolvimento');
       return _buildMockProfile();
     }
-    
+
     // Obtém o nome para exibir usando apenas propriedades seguras
     String displayName = 'Usuário';
-    
+
     try {
       if (profile != null && profile.fullName != null) {
         displayName = profile.fullName;
@@ -160,7 +167,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       debugPrint('❌ Erro ao obter displayName: $e');
       displayName = 'Usuário';
     }
-    
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -185,7 +192,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
           ),
-          
+
           // Botão de voltar no canto superior esquerdo - área clicável expandida
           Positioned(
             top: 0,
@@ -203,7 +210,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
                     size: 20,
@@ -212,7 +219,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
           ),
-          
+
           // Botão de logout no canto superior direito
           Positioned(
             top: 16,
@@ -224,7 +231,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               child: IconButton(
                 onPressed: _handleLogout,
-                icon: Icon(
+                icon: const Icon(
                   Icons.logout,
                   color: Colors.white,
                   size: 20,
@@ -233,15 +240,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
             ),
           ),
-          
+
           // Conteúdo principal
           Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 80), // Aumentado para dar espaço aos botões
-                
+                const SizedBox(
+                    height: 80), // Aumentado para dar espaço aos botões
+
                 // Saudação personalizada
                 Text(
                   'Olá, $displayName',
@@ -251,11 +259,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                
-                SizedBox(height: 24),
-                
+
+                const SizedBox(height: 24),
+
                 // Texto explicativo
-                Text(
+                const Text(
                   'Aqui ficam os seus lugares favoritos, experiências salvas e descobertas que você quer viver.',
                   style: TextStyle(
                     color: Colors.white,
@@ -263,10 +271,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     height: 1.4,
                   ),
                 ),
-                
-                SizedBox(height: 16),
-                
-                Text(
+
+                const SizedBox(height: 16),
+
+                const Text(
                   'Organize do seu jeito e volte quando quiser — o Taste Test guarda tudo pra você. ✨',
                   style: TextStyle(
                     color: Colors.white,
@@ -274,11 +282,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     height: 1.4,
                   ),
                 ),
-                
-                SizedBox(height: 32),
-                
+
+                const SizedBox(height: 32),
+
                 // Seção "Minhas listas"
-                Text(
+                const Text(
                   'Minhas listas:',
                   style: TextStyle(
                     color: Color(0xFFFFB366), // Cor laranja da referência
@@ -286,9 +294,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                
-                SizedBox(height: 24),
-                
+
+                const SizedBox(height: 24),
+
                 // Lista de opções com espaçamento ajustado
                 Expanded(
                   child: Column(
@@ -299,26 +307,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         'Quero conhecer',
                         () => context.push('/want-to-know'),
                       ),
-                      
-                      SizedBox(height: 16),
-                      
+
+                      const SizedBox(height: 16),
+
                       _buildListOption(
                         Icons.favorite,
                         const Color(0xFFFFD700), // Amarelo/dourado
                         'Meus favoritos',
                         () => context.push('/favorites'),
                       ),
-                      
-                      SizedBox(height: 16),
-                      
+
+                      const SizedBox(height: 16),
+
                       _buildListOption(
                         Icons.sentiment_neutral,
                         const Color(0xFF87CEEB), // Azul claro
                         'Não sei se eu volto',
                         () => context.push('/not-sure-return'),
                       ),
-                      
-                      SizedBox(height: 40), // Espaço para não sobrepor a área bege
+
+                      const SizedBox(
+                          height: 40), // Espaço para não sobrepor a área bege
                     ],
                   ),
                 ),
@@ -370,7 +379,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
+            color:
+                isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -400,9 +410,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         break;
     }
   }
-  
+
   /// Constrói uma opção da lista
-  Widget _buildListOption(IconData icon, Color iconColor, String title, VoidCallback onTap) {
+  Widget _buildListOption(
+      IconData icon, Color iconColor, String title, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -432,7 +443,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 size: 24,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Text(
               title,
               style: GoogleFonts.dancingScript(
@@ -452,7 +463,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
     );
   }
-  
+
   /// Mostra mensagem de "em breve" para funcionalidades não implementadas
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -463,7 +474,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
     );
   }
-  
+
   /// Realiza o logout do usuário
   void _handleLogout() async {
     try {
@@ -472,25 +483,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: Colors.white,
-          title: Text(
+          title: const Text(
             'Sair da conta',
             style: TextStyle(color: Colors.black87),
           ),
-          content: Text(
+          content: const Text(
             'Tem certeza que deseja sair da sua conta?',
             style: TextStyle(color: Colors.black54),
           ),
           actions: [
             TextButton(
               onPressed: () => context.pop(false),
-              child: Text(
+              child: const Text(
                 'Cancelar',
                 style: TextStyle(color: Colors.grey),
               ),
             ),
             TextButton(
               onPressed: () => context.pop(true),
-              child: Text(
+              child: const Text(
                 'Sair',
                 style: TextStyle(color: Colors.red),
               ),
@@ -498,11 +509,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ],
         ),
       );
-      
+
       if (shouldLogout == true) {
         // Realiza o logout
         await ref.read(authProvider.notifier).signOut();
-        
+
         // Navega para a tela de login
         if (mounted) {
           context.go('/login');
@@ -520,11 +531,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       }
     }
   }
-  
+
   /// Constrói uma versão mock do perfil para desenvolvimento
   Widget _buildMockProfile() {
     debugPrint('🔧 ProfilePage: Renderizando perfil mock para desenvolvimento');
-    
+
     return Column(
       children: [
         // Header com avatar e nome
@@ -551,7 +562,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Nome mock
               Text(
                 'Desenvolvedor Taste',
@@ -562,9 +573,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Email mock
               Text(
                 'dev@taste.app',
@@ -574,12 +585,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Badge de desenvolvimento
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.orange.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -608,7 +620,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ],
           ),
         ),
-        
+
         // Lista de opções (versão mock)
         Expanded(
           child: Container(
@@ -634,41 +646,41 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Opções mock
                   _buildMockListOption(
-                    Icons.edit, 
-                    Colors.blue, 
+                    Icons.edit,
+                    Colors.blue,
                     'Editar Perfil',
                     () => debugPrint('🔧 Mock: Editar perfil clicado'),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildMockListOption(
-                    Icons.favorite, 
-                    Colors.red, 
+                    Icons.favorite,
+                    Colors.red,
                     'Favoritos',
                     () => debugPrint('🔧 Mock: Favoritos clicado'),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildMockListOption(
-                    Icons.settings, 
-                    Colors.grey, 
+                    Icons.settings,
+                    Colors.grey,
                     'Configurações',
                     () => debugPrint('🔧 Mock: Configurações clicado'),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   _buildMockListOption(
-                    Icons.info, 
-                    Colors.blue, 
+                    Icons.info,
+                    Colors.blue,
                     'Sobre o App',
                     () => debugPrint('🔧 Mock: Sobre clicado'),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Botão de logout mock
                   SizedBox(
                     width: double.infinity,
@@ -695,9 +707,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ],
     );
   }
-  
+
   /// Constrói uma opção mock da lista
-  Widget _buildMockListOption(IconData icon, Color iconColor, String title, VoidCallback onTap) {
+  Widget _buildMockListOption(
+      IconData icon, Color iconColor, String title, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

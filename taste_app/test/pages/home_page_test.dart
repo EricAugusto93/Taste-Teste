@@ -31,7 +31,7 @@ void main() {
   group('HomePage Basic Tests', () {
     testWidgets('should create HomePage widget', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: Text('HomePage Test'),
@@ -39,16 +39,16 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('HomePage Test'), findsOneWidget);
     });
-    
+
     testWidgets('should display basic UI elements', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             appBar: AppBar(
-              title: Text('Taste'),
+              title: const Text('Taste'),
             ),
             body: Column(
               children: [
@@ -62,20 +62,20 @@ void main() {
                 ),
                 Expanded(
                   child: ListView(
-                    children: [
-                      const ListTile(
+                    children: const [
+                      ListTile(
                         title: Text('Categorias'),
                       ),
-                      const ListTile(
+                      ListTile(
                         title: Text('Perto de você'),
                       ),
-                      const ListTile(
+                      ListTile(
                         title: Text('Populares perto de você'),
                       ),
-                      const ListTile(
+                      ListTile(
                         title: Text('Recomendados para você'),
                       ),
-                      const ListTile(
+                      ListTile(
                         title: Text('Mais restaurantes'),
                       ),
                     ],
@@ -86,7 +86,7 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Taste'), findsOneWidget);
       expect(find.text('Buscar restaurantes...'), findsOneWidget);
       expect(find.text('Categorias'), findsOneWidget);
@@ -95,10 +95,10 @@ void main() {
       expect(find.text('Recomendados para você'), findsOneWidget);
       expect(find.text('Mais restaurantes'), findsOneWidget);
     });
-    
+
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -109,19 +109,19 @@ void main() {
           ),
         ),
       );
-      
-      final searchField = find.byKey(Key('search_field'));
+
+      final searchField = find.byKey(const Key('search_field'));
       expect(searchField, findsOneWidget);
-      
+
       await tester.enterText(searchField, 'pizza');
       await tester.pump();
-      
+
       expect(find.text('pizza'), findsOneWidget);
     });
-    
+
     testWidgets('should handle pull to refresh', (tester) async {
       bool refreshCalled = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -130,32 +130,32 @@ void main() {
                 refreshCalled = true;
               },
               child: ListView(
-                children: [
-                  const ListTile(title: Text('Item 1')),
-                  const ListTile(title: Text('Item 2')),
-                  const ListTile(title: Text('Item 3')),
+                children: const [
+                  ListTile(title: Text('Item 1')),
+                  ListTile(title: Text('Item 2')),
+                  ListTile(title: Text('Item 3')),
                 ],
               ),
             ),
           ),
         ),
       );
-      
+
       await tester.fling(
         find.byType(ListView),
         const Offset(0, 300),
         1000,
       );
-      
+
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      
+
       expect(refreshCalled, isTrue);
     });
-    
+
     testWidgets('should display loading state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -163,10 +163,10 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
-    
+
     testWidgets('should handle scroll behavior', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -182,18 +182,18 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Item 0'), findsOneWidget);
-      
+
       // Scroll para baixo
       await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pump();
-      
+
       // Verifica se ainda há itens visíveis
       expect(find.byType(ListTile), findsWidgets);
     });
   });
-  
+
   group('HomeSection Tests', () {
     testWidgets('should render section with title', (tester) async {
       await tester.pumpWidget(
@@ -207,16 +207,16 @@ void main() {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Test Section',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const TextButton(
+                      TextButton(
                         onPressed: () {},
-                        child: Text('Ver todos'),
+                        child: const Text('Ver todos'),
                       ),
                     ],
                   ),
@@ -230,15 +230,15 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Test Section'), findsOneWidget);
       expect(find.text('Ver todos'), findsOneWidget);
       expect(find.byType(Container), findsOneWidget);
     });
-    
+
     testWidgets('should handle action button tap', (tester) async {
       bool actionTapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -246,26 +246,26 @@ void main() {
               onPressed: () {
                 actionTapped = true;
               },
-              child: Text('Ver todos'),
+              child: const Text('Ver todos'),
             ),
           ),
         ),
       );
-      
+
       await tester.tap(find.text('Ver todos'));
       await tester.pump();
-      
+
       expect(actionTapped, isTrue);
     });
   });
-  
+
   group('Category Tests', () {
     testWidgets('should display categories', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
               ),
               itemCount: mockCategories.length,
@@ -285,7 +285,7 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Pizza'), findsOneWidget);
       expect(find.text('Hambúrguer'), findsOneWidget);
       expect(find.byType(Card), findsNWidgets(2));

@@ -93,7 +93,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   int _retryAttempts = 0;
   bool _isRetrying = false;
   bool _showFallback = false;
@@ -104,7 +104,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
     super.initState();
     _setupAnimations();
     _checkForCachedData();
-    
+
     if (widget.enableAutoRetry && widget.onRetry != null) {
       _startAutoRetry();
     }
@@ -121,7 +121,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -129,7 +129,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.3),
       end: Offset.zero,
@@ -137,7 +137,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _animationController.forward();
   }
 
@@ -146,7 +146,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
       try {
         final cacheService = GetIt.instance<CacheService>();
         final cachedData = await cacheService.get(widget.cacheKey!);
-        
+
         if (cachedData != null && widget.fallbackWidget != null) {
           setState(() {
             _showFallback = true;
@@ -161,7 +161,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
 
   void _startAutoRetry() {
     if (_retryAttempts >= widget.maxRetryAttempts) return;
-    
+
     Future.delayed(widget.autoRetryDelay, () {
       if (mounted && !_isRetrying) {
         _handleRetry(isAutomatic: true);
@@ -171,20 +171,20 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
 
   Future<void> _handleRetry({bool isAutomatic = false}) async {
     if (_isRetrying || widget.onRetry == null) return;
-    
+
     setState(() {
       _isRetrying = true;
     });
-    
+
     if (!isAutomatic) {
       await InteractionService.mediumHaptic();
     }
-    
+
     try {
       widget.onRetry!();
     } catch (e) {
       _retryAttempts++;
-      
+
       if (widget.enableAutoRetry && _retryAttempts < widget.maxRetryAttempts) {
         _startAutoRetry();
       }
@@ -215,12 +215,12 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   AppIcons.warning,
                   color: AppColors.warning,
                   size: AppDimensions.iconSmall,
                 ),
-                SizedBox(width: AppDimensions.paddingSmall),
+                const SizedBox(width: AppDimensions.paddingSmall),
                 Expanded(
                   child: Text(
                     'Exibindo dados salvos (offline)',
@@ -271,13 +271,14 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildErrorIcon(),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             _buildErrorTitle(),
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             _buildErrorMessage(),
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             _buildActionButtons(),
-            if (widget.enableAutoRetry && _retryAttempts < widget.maxRetryAttempts)
+            if (widget.enableAutoRetry &&
+                _retryAttempts < widget.maxRetryAttempts)
               _buildAutoRetryIndicator(),
           ],
         ),
@@ -288,7 +289,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
   Widget _buildErrorIcon() {
     IconData icon;
     Color color;
-    
+
     switch (widget.errorType) {
       case ErrorType.network:
         icon = AppIcons.wifiOff;
@@ -312,7 +313,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
         color = AppColors.error;
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingLarge),
       decoration: BoxDecoration(
@@ -358,7 +359,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
             child: ElevatedButton.icon(
               onPressed: _isRetrying ? null : () => _handleRetry(),
               icon: _isRetrying
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
@@ -368,7 +369,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
                         ),
                       ),
                     )
-                  : Icon(AppIcons.refresh),
+                  : const Icon(AppIcons.refresh),
               label: Text(_isRetrying ? 'Tentando...' : 'Tentar Novamente'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -377,7 +378,8 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
                   vertical: AppDimensions.paddingMedium,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusMedium),
                 ),
               ),
             ),
@@ -401,7 +403,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
@@ -409,7 +411,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget>
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Text(
             'Tentativa ${_retryAttempts + 1} de ${widget.maxRetryAttempts}...',
             style: AppTextStyles.bodySmall.copyWith(
@@ -488,14 +490,15 @@ class ContextualErrorWidget extends StatelessWidget {
     if (isCompact) {
       return _buildCompactError();
     }
-    
+
     return EnhancedErrorWidget(
       title: title,
       message: message,
       onRetry: onRetry,
       fallbackWidget: fallbackWidget,
       errorType: errorType,
-      enableAutoRetry: errorType == ErrorType.network || errorType == ErrorType.timeout,
+      enableAutoRetry:
+          errorType == ErrorType.network || errorType == ErrorType.timeout,
     );
   }
 
@@ -518,7 +521,7 @@ class ContextualErrorWidget extends StatelessWidget {
             color: AppColors.error,
             size: AppDimensions.iconSmall,
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

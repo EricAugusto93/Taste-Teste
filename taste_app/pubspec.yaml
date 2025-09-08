@@ -102,10 +102,10 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/icons/
-    - assets/data/
+    # - assets/icons/
+    # - assets/data/
     - assets/lottie/
-    - .env
+    # - .env
     - .env.development
     - .env.production
   

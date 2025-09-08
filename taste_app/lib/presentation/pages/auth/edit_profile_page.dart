@@ -48,10 +48,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   void _loadUserProfile() async {
     // Carrega o perfil do usuário
     await ref.read(userProfileProvider.notifier).loadCurrentUserProfile();
-    
+
     final profileState = ref.read(userProfileProvider);
     final profile = profileState.profile;
-    
+
     if (profile != null) {
       setState(() {
         _nameController.text = profile.fullName;
@@ -60,7 +60,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         _cityController.text = profile.city ?? '';
       });
     }
-    
+
     // Adicionar listeners para detectar mudanças
     _nameController.addListener(_onFieldChanged);
     _phoneController.addListener(_onFieldChanged);
@@ -91,13 +91,20 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     });
 
     try {
-      final success = await ref.read(userProfileProvider.notifier).updateProfile(
-        fullName: _nameController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
-        city: _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
-      );
-      
+      final success =
+          await ref.read(userProfileProvider.notifier).updateProfile(
+                fullName: _nameController.text.trim(),
+                phone: _phoneController.text.trim().isEmpty
+                    ? null
+                    : _phoneController.text.trim(),
+                bio: _bioController.text.trim().isEmpty
+                    ? null
+                    : _bioController.text.trim(),
+                city: _cityController.text.trim().isEmpty
+                    ? null
+                    : _cityController.text.trim(),
+              );
+
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -106,19 +113,19 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               backgroundColor: AppColors.success,
             ),
           );
-          
+
           setState(() {
             _hasChanges = false;
           });
-          
+
           // Atualiza o perfil original
           final updatedProfile = ref.read(userProfileProvider).profile;
-          if (updatedProfile != null) {
-          }
-          
+          if (updatedProfile != null) {}
+
           NavigationHelper.safeGoBack(context);
         } else {
-          final error = ref.read(userProfileProvider).error ?? 'Erro desconhecido';
+          final error =
+              ref.read(userProfileProvider).error ?? 'Erro desconhecido';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erro ao atualizar perfil: $error'),
@@ -147,7 +154,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
-    
+
     final shouldDiscard = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -162,7 +169,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ),
           TextButton(
             onPressed: () => NavigationHelper.safeGoBack(context),
-            child: Text(
+            child: const Text(
               'Descartar',
               style: TextStyle(color: AppColors.error),
             ),
@@ -170,14 +177,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ],
       ),
     );
-    
+
     return shouldDiscard ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    
+
     return PopScope(
       canPop: !_hasChanges,
       onPopInvoked: (didPop) async {
@@ -194,7 +201,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           backgroundColor: AppColors.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: AppColors.textPrimary,
             ),
@@ -247,8 +254,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                               children: [
                                 CircleAvatar(
                                   radius: 50,
-                                  backgroundColor: AppColors.primary.withOpacity(0.1),
-                                  child: Icon(
+                                  backgroundColor:
+                                      AppColors.primary.withOpacity(0.1),
+                                  child: const Icon(
                                     Icons.person,
                                     size: 50,
                                     color: AppColors.primary,
@@ -267,16 +275,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                       ),
                                     ),
                                     child: IconButton(
-                                      icon: Icon(
+                                      icon: const Icon(
                                         Icons.camera_alt,
                                         color: AppColors.textPrimary,
                                         size: 20,
                                       ),
                                       onPressed: () {
                                         // TODO: Implementar upload de foto
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Upload de foto em desenvolvimento'),
+                                            content: Text(
+                                                'Upload de foto em desenvolvimento'),
                                           ),
                                         );
                                       },
@@ -296,9 +306,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
                       // Informações pessoais
                       Text(
                         'Informações Pessoais',
@@ -307,9 +317,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
-                      
+
                       AuthTextField(
                         label: 'Nome completo',
                         hint: 'Digite seu nome completo',
@@ -321,9 +331,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
-                      
+
                       AuthTextField(
                         label: 'Telefone (opcional)',
                         hint: '(11) 99999-9999',
@@ -336,9 +346,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
-                      
+
                       AuthTextField(
                         label: 'Cidade',
                         hint: 'Sua cidade atual',
@@ -349,9 +359,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
-                      
+
                       AuthTextField(
                         label: 'Bio',
                         hint: 'Conte um pouco sobre você...',
@@ -363,9 +373,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
                       // Seção de segurança
                       Text(
                         'Segurança',
@@ -374,14 +384,15 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
-                      
+
                       // Alterar senha
                       Container(
                         decoration: BoxDecoration(
                           color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                          borderRadius:
+                              BorderRadius.circular(AppDimensions.radiusMedium),
                           border: Border.all(
                             color: AppColors.border,
                             width: 1,
@@ -414,15 +425,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             // TODO: Implementar alteração de senha
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: const Text('Alteração de senha em desenvolvimento'),
+                                content: Text(
+                                    'Alteração de senha em desenvolvimento'),
                               ),
                             );
                           },
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
                       // Botão de salvar (se houver mudanças)
                       if (_hasChanges) ...[
                         AuthButton(
@@ -430,9 +442,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           onPressed: _handleSaveProfile,
                           isLoading: _isLoading,
                         ),
-                        
                         const SizedBox(height: AppDimensions.paddingMedium),
-                        
                         AuthButton(
                           text: 'Cancelar',
                           onPressed: () async {
@@ -444,7 +454,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           isSecondary: true,
                         ),
                       ],
-                      
+
                       const SizedBox(height: AppDimensions.paddingLarge),
                     ],
                   ),

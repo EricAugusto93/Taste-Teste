@@ -39,24 +39,25 @@ CartModel _createMockCart({
   bool isEmpty = false,
 }) {
   List<CartItemModel> mockItems;
-  
+
   if (isEmpty) {
     mockItems = <CartItemModel>[];
   } else {
-    mockItems = items ?? [
-      CartItemModel.fromMenuItem(
-        menuItem: _createMockMenuItem(
-          restaurantId: restaurant?.id ?? 'rest1',
-        ),
-        quantity: 2,
-      ),
-    ];
+    mockItems = items ??
+        [
+          CartItemModel.fromMenuItem(
+            menuItem: _createMockMenuItem(
+              restaurantId: restaurant?.id ?? 'rest1',
+            ),
+            quantity: 2,
+          ),
+        ];
   }
-  
+
   final mockSubtotal = subtotal ?? (isEmpty ? 0.0 : 50.0);
   final mockDeliveryFee = deliveryFee ?? 5.0;
   final mockTotal = total ?? (mockSubtotal + mockDeliveryFee);
-  
+
   return CartModel(
     id: id ?? 'mock_cart',
     items: mockItems,
@@ -72,7 +73,7 @@ CartModel _createMockCart({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   group('CartService Tests', () {
     late CartService cartService;
     late RestaurantModel mockRestaurant;
@@ -80,17 +81,17 @@ void main() {
 
     setUp(() async {
       cartService = CartService();
-      
+
       // Limpa SharedPreferences antes de cada teste
       SharedPreferences.setMockInitialValues({});
-      
+
       // Cria dados mock
       mockRestaurant = TestHelpers.createMockRestaurant(
         id: 'rest1',
         name: 'Restaurante Teste',
         deliveryTime: '30-45 min',
       );
-      
+
       mockCart = _createMockCart(
         id: 'cart1',
         restaurant: mockRestaurant,
@@ -101,7 +102,7 @@ void main() {
       test('should return empty cart when no cart exists', () async {
         // Act
         final cart = await cartService.getCart();
-        
+
         // Assert
         expect(cart.isEmpty, isTrue);
         expect(cart.items, isEmpty);
@@ -112,7 +113,7 @@ void main() {
         // Act
         await cartService.saveCart(mockCart);
         final retrievedCart = await cartService.getCart();
-        
+
         // Assert
         expect(retrievedCart.id, equals(mockCart.id));
         expect(retrievedCart.restaurant?.id, equals(mockCart.restaurant?.id));
@@ -122,11 +123,11 @@ void main() {
       test('should clear cart successfully', () async {
         // Arrange
         await cartService.saveCart(mockCart);
-        
+
         // Act
         await cartService.clearCart();
         final cart = await cartService.getCart();
-        
+
         // Assert
         expect(cart.isEmpty, isTrue);
       });
@@ -135,7 +136,7 @@ void main() {
         // Arrange
         final invalidCart = CartModel(
           id: 'invalid',
-          items: [],
+          items: const [],
           restaurant: null,
           subtotal: 0.0,
           deliveryFee: 0.0,
@@ -143,7 +144,7 @@ void main() {
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
-        
+
         // Act & Assert
         expect(() => cartService.saveCart(invalidCart), returnsNormally);
       });
@@ -153,10 +154,11 @@ void main() {
       test('should validate PRIMEIRA10 promo code correctly', () async {
         // Arrange
         const subtotal = 100.0;
-        
+
         // Act
-        final discount = await cartService.validatePromoCode('PRIMEIRA10', subtotal);
-        
+        final discount =
+            await cartService.validatePromoCode('PRIMEIRA10', subtotal);
+
         // Assert
         expect(discount, equals(10.0)); // 10% com máximo de R$ 20
       });
@@ -164,10 +166,11 @@ void main() {
       test('should validate DESCONTO15 promo code correctly', () async {
         // Arrange
         const subtotal = 100.0;
-        
+
         // Act
-        final discount = await cartService.validatePromoCode('DESCONTO15', subtotal);
-        
+        final discount =
+            await cartService.validatePromoCode('DESCONTO15', subtotal);
+
         // Assert
         expect(discount, equals(15.0)); // 15% com máximo de R$ 30
       });
@@ -175,10 +178,11 @@ void main() {
       test('should validate BEMVINDO promo code with minimum order', () async {
         // Arrange
         const subtotal = 50.0;
-        
+
         // Act
-        final discount = await cartService.validatePromoCode('BEMVINDO', subtotal);
-        
+        final discount =
+            await cartService.validatePromoCode('BEMVINDO', subtotal);
+
         // Assert
         expect(discount, equals(5.0)); // Desconto fixo de R$ 5
       });
@@ -186,7 +190,7 @@ void main() {
       test('should reject BEMVINDO promo code below minimum order', () async {
         // Arrange
         const subtotal = 20.0;
-        
+
         // Act & Assert
         expect(
           () => cartService.validatePromoCode('BEMVINDO', subtotal),
@@ -197,7 +201,7 @@ void main() {
       test('should reject invalid promo code', () async {
         // Arrange
         const subtotal = 100.0;
-        
+
         // Act & Assert
         expect(
           () => cartService.validatePromoCode('INVALID', subtotal),
@@ -215,7 +219,7 @@ void main() {
       test('should return promo code suggestions', () {
         // Act
         final suggestions = cartService.getPromoCodeSuggestions();
-        
+
         // Assert
         expect(suggestions, isNotEmpty);
         expect(suggestions, contains('PRIMEIRA10'));
@@ -237,7 +241,7 @@ void main() {
       test('should calculate delivery time correctly', () {
         // Act
         final deliveryTime = cartService.calculateDeliveryTime(mockRestaurant);
-        
+
         // Assert
         expect(deliveryTime, isA<String>());
         expect(deliveryTime, isNotEmpty);
@@ -246,7 +250,7 @@ void main() {
       test('should check if restaurant is open', () {
         // Act
         final isOpen = cartService.isRestaurantOpen(mockRestaurant);
-        
+
         // Assert
         expect(isOpen, isA<bool>());
       });
@@ -257,7 +261,7 @@ void main() {
         // Act
         await cartService.saveCart(mockCart);
         final history = await cartService.getCartHistory();
-        
+
         // Assert
         expect(history, isNotEmpty);
         expect(history.first.id, equals(mockCart.id));
@@ -266,7 +270,7 @@ void main() {
       test('should return empty history when no history exists', () async {
         // Act
         final history = await cartService.getCartHistory();
-        
+
         // Assert
         expect(history, isEmpty);
       });
@@ -275,16 +279,17 @@ void main() {
         // Arrange
         await cartService.saveCart(mockCart);
         final history = await cartService.getCartHistory();
-        
+
         expect(history, isNotEmpty);
         final historicalCart = history.first;
-        
+
         // Act
         await cartService.restoreFromHistory(historicalCart);
         final restoredCart = await cartService.getCart();
-        
+
         // Assert
-        expect(restoredCart.restaurant?.id, equals(historicalCart.restaurant?.id));
+        expect(
+            restoredCart.restaurant?.id, equals(historicalCart.restaurant?.id));
         expect(restoredCart.items.length, equals(historicalCart.items.length));
       });
     });
@@ -292,8 +297,9 @@ void main() {
     group('Item Availability', () {
       test('should check item availability', () async {
         // Act
-        final unavailableItems = await cartService.checkItemAvailability(mockCart);
-        
+        final unavailableItems =
+            await cartService.checkItemAvailability(mockCart);
+
         // Assert
         expect(unavailableItems, isA<List<CartItemModel>>());
       });
@@ -303,10 +309,10 @@ void main() {
       test('should calculate total with tax correctly', () {
         // Arrange
         final cart = mockCart.copyWith(subtotal: 100.0, total: 105.0);
-        
+
         // Act
         final totalWithTax = cartService.calculateTotalWithTax(cart);
-        
+
         // Assert
         expect(totalWithTax, equals(110.0)); // 105 + (100 * 0.05)
       });
@@ -316,7 +322,7 @@ void main() {
       test('should validate if order can be processed', () async {
         // Act
         final canProcess = await cartService.canProcessOrder(mockCart);
-        
+
         // Assert
         expect(canProcess, isA<bool>());
       });
@@ -324,10 +330,10 @@ void main() {
       test('should reject empty cart for processing', () async {
         // Arrange
         final emptyCart = CartModel.empty();
-        
+
         // Act
         final canProcess = await cartService.canProcessOrder(emptyCart);
-        
+
         // Assert
         expect(canProcess, isFalse);
       });
@@ -338,7 +344,7 @@ void main() {
         // Act
         await cartService.setDeliveryType(DeliveryType.pickup);
         final deliveryType = await cartService.getDeliveryType();
-        
+
         // Assert
         expect(deliveryType, equals(DeliveryType.pickup));
         expect(cartService.currentDeliveryType, equals(DeliveryType.pickup));
@@ -347,7 +353,7 @@ void main() {
       test('should return default delivery type when none set', () async {
         // Act
         final deliveryType = await cartService.getDeliveryType();
-        
+
         // Assert
         expect(deliveryType, equals(DeliveryType.delivery));
       });
@@ -357,7 +363,7 @@ void main() {
       test('should return delivery info for valid cart', () {
         // Act
         final deliveryInfo = cartService.getDeliveryInfo(mockCart);
-        
+
         // Assert
         expect(deliveryInfo, isA<Map<String, dynamic>>());
         expect(deliveryInfo.containsKey('canDeliver'), isTrue);
@@ -374,10 +380,10 @@ void main() {
           restaurant: null,
           isEmpty: true,
         );
-        
+
         // Act
         final deliveryInfo = cartService.getDeliveryInfo(cartWithoutRestaurant);
-        
+
         // Assert
         expect(deliveryInfo['canDeliver'], isFalse);
         expect(deliveryInfo['reason'], equals('Restaurante não selecionado'));
@@ -389,10 +395,10 @@ void main() {
         // Arrange
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_cart', 'invalid json');
-        
+
         // Act
         final cart = await cartService.getCart();
-        
+
         // Assert
         expect(cart.isEmpty, isTrue);
       });
@@ -401,22 +407,25 @@ void main() {
         // Arrange
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('cart_history', 'invalid json');
-        
+
         // Act
         final history = await cartService.getCartHistory();
-        
+
         // Assert
         expect(history, isEmpty);
       });
 
-      test('should handle promo code validation with case insensitivity', () async {
+      test('should handle promo code validation with case insensitivity',
+          () async {
         // Arrange
         const subtotal = 100.0;
-        
+
         // Act
-        final discount1 = await cartService.validatePromoCode('primeira10', subtotal);
-        final discount2 = await cartService.validatePromoCode('PRIMEIRA10', subtotal);
-        
+        final discount1 =
+            await cartService.validatePromoCode('primeira10', subtotal);
+        final discount2 =
+            await cartService.validatePromoCode('PRIMEIRA10', subtotal);
+
         // Assert
         expect(discount1, equals(discount2));
       });
@@ -426,10 +435,11 @@ void main() {
         final restaurantWithInvalidTime = mockRestaurant.copyWith(
           deliveryTime: 'invalid format',
         );
-        
+
         // Act
-        final deliveryTime = cartService.calculateDeliveryTime(restaurantWithInvalidTime);
-        
+        final deliveryTime =
+            cartService.calculateDeliveryTime(restaurantWithInvalidTime);
+
         // Assert
         expect(deliveryTime, equals('invalid format'));
       });

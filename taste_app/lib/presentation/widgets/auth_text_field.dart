@@ -76,13 +76,15 @@ class _AuthTextFieldState extends State<AuthTextField> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: AppDimensions.paddingXSmall),
+        const SizedBox(height: AppDimensions.paddingXSmall),
         TextFormField(
           controller: widget.controller,
           focusNode: _focusNode,
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType ??
-              (widget.isEmail ? TextInputType.emailAddress : TextInputType.text),
+              (widget.isEmail
+                  ? TextInputType.emailAddress
+                  : TextInputType.text),
           validator: widget.validator,
           enabled: widget.enabled,
           maxLines: widget.maxLines,
@@ -90,7 +92,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
           onChanged: widget.onChanged,
           autofocus: widget.autofocus,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: widget.enabled ? AppColors.textPrimary : AppColors.textSecondary,
+            color: widget.enabled
+                ? AppColors.textPrimary
+                : AppColors.textSecondary,
           ),
           decoration: InputDecoration(
             hintText: widget.hint,
@@ -118,35 +122,35 @@ class _AuthTextFieldState extends State<AuthTextField> {
                 : AppColors.background.withOpacity(0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.border,
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.border,
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.primary,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.error,
                 width: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.error,
                 width: 2,
               ),

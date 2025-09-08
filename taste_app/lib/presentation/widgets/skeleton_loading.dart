@@ -62,8 +62,8 @@ class RestaurantCardSkeleton extends StatelessWidget {
             height: 80,
             borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(width: 16),
-          
+          const SizedBox(width: 16),
+
           // Conteúdo
           Expanded(
             child: Column(
@@ -74,15 +74,15 @@ class RestaurantCardSkeleton extends StatelessWidget {
                   width: double.infinity,
                   height: 16,
                 ),
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
+
                 // Categoria
                 SkeletonLoading(
                   width: MediaQuery.of(context).size.width * 0.3,
                   height: 12,
                 ),
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
+
                 // Rating e tempo
                 Row(
                   children: [
@@ -90,7 +90,7 @@ class RestaurantCardSkeleton extends StatelessWidget {
                       width: 60,
                       height: 12,
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     SkeletonLoading(
                       width: MediaQuery.of(context).size.width * 0.2,
                       height: 12,
@@ -132,8 +132,8 @@ class HorizontalRestaurantListSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
-        
+        const SizedBox(height: 16),
+
         // Lista horizontal
         SizedBox(
           height: 200,
@@ -154,22 +154,22 @@ class HorizontalRestaurantListSkeleton extends StatelessWidget {
                       height: 120,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    SizedBox(height: 8),
-                    
+                    const SizedBox(height: 8),
+
                     // Nome
                     const SkeletonLoading(
                       width: double.infinity,
                       height: 16,
                     ),
-                    SizedBox(height: 4),
-                    
+                    const SizedBox(height: 4),
+
                     // Categoria
                     const SkeletonLoading(
                       width: 100,
                       height: 12,
                     ),
-                    SizedBox(height: 4),
-                    
+                    const SizedBox(height: 4),
+
                     // Rating
                     const SkeletonLoading(
                       width: 80,
@@ -213,8 +213,8 @@ class CategoriesGridSkeleton extends StatelessWidget {
                 height: 60,
                 borderRadius: BorderRadius.circular(30),
               ),
-              SizedBox(height: 8),
-              
+              const SizedBox(height: 8),
+
               // Nome da categoria
               const SkeletonLoading(
                 width: double.infinity,
@@ -252,7 +252,7 @@ class HomePageSkeleton extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.3,
                         height: 16,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       SkeletonLoading(
                         width: MediaQuery.of(context).size.width * 0.4,
                         height: 20,
@@ -268,7 +268,7 @@ class HomePageSkeleton extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Search skeleton
           SliverToBoxAdapter(
             child: Container(
@@ -280,7 +280,7 @@ class HomePageSkeleton extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Map skeleton
           SliverToBoxAdapter(
             child: Container(
@@ -292,9 +292,9 @@ class HomePageSkeleton extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          
+
           // Categories title skeleton
           SliverToBoxAdapter(
             child: Padding(
@@ -305,23 +305,23 @@ class HomePageSkeleton extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          
+
           // Categories skeleton
           const SliverToBoxAdapter(
             child: CategoriesGridSkeleton(),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          
+
           // Horizontal list skeleton
           const SliverToBoxAdapter(
             child: HorizontalRestaurantListSkeleton(),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          
+
           // Vertical list skeleton
           SliverList(
             delegate: SliverChildBuilderDelegate(

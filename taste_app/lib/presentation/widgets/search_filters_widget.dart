@@ -49,9 +49,9 @@ class SearchFilters {
 
   bool get hasActiveFilters {
     return categoryId != null ||
-           maxDistance != null ||
-           minRating != null ||
-           isOpen != null;
+        maxDistance != null ||
+        minRating != null ||
+        isOpen != null;
   }
 
   int get activeFiltersCount {
@@ -101,10 +101,10 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
     with TickerProviderStateMixin {
   late SearchFilters _currentFilters;
   late AnimationController _animationController;
-  
+
   // Opções de distância (em km)
   final List<double> _distanceOptions = [1, 2, 5, 10, 15, 20];
-  
+
   // Opções de avaliação
   final List<double> _ratingOptions = [3.0, 3.5, 4.0, 4.5];
 
@@ -112,12 +112,12 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
   void initState() {
     super.initState();
     _currentFilters = widget.initialFilters;
-    
+
     _animationController = AnimationController(
       duration: AnimationService.normal,
       vsync: this,
     );
-    
+
     _animationController.forward();
   }
 
@@ -153,7 +153,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
     if (widget.isCompact) {
       return _buildCompactFilters();
     }
-    
+
     return _buildFullFilters();
   }
 
@@ -186,9 +186,9 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
               ),
           ],
         ),
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         _buildQuickFilters(),
-        SizedBox(height: AppDimensions.paddingMedium),
+        const SizedBox(height: AppDimensions.paddingMedium),
         _buildApplyButton(),
       ],
     );
@@ -200,15 +200,15 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildCategoryFilter(),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildDistanceFilter(),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildRatingFilter(),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildOpenNowFilter(),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildActionButtons(),
         ],
       ),
@@ -258,13 +258,13 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
           children: widget.categories.map((category) {
             final isSelected = _currentFilters.categoryId == category.id;
-            
+
             return GestureDetector(
               onTap: () {
                 AnimationService.selectionHaptic();
@@ -277,7 +277,8 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusSmall),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : AppColors.divider,
                   ),
@@ -286,11 +287,14 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                   category.name,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isSelected ? AppColors.surface : AppColors.textDark,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
               ),
-            ).scaleIn(delay: Duration(milliseconds: widget.categories.indexOf(category) * 50));
+            ).scaleIn(
+                delay: Duration(
+                    milliseconds: widget.categories.indexOf(category) * 50));
           }).toList(),
         ),
       ],
@@ -308,13 +312,13 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
           children: _distanceOptions.map((distance) {
             final isSelected = _currentFilters.maxDistance == distance;
-            
+
             return GestureDetector(
               onTap: () {
                 AnimationService.selectionHaptic();
@@ -327,7 +331,8 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusSmall),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : AppColors.divider,
                   ),
@@ -338,20 +343,25 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                     Icon(
                       AppIcons.location,
                       size: AppDimensions.iconSmall,
-                      color: isSelected ? AppColors.surface : AppColors.textLight,
+                      color:
+                          isSelected ? AppColors.surface : AppColors.textLight,
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       '${distance.toInt()} km',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isSelected ? AppColors.surface : AppColors.textDark,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color:
+                            isSelected ? AppColors.surface : AppColors.textDark,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ],
                 ),
               ),
-            ).scaleIn(delay: Duration(milliseconds: _distanceOptions.indexOf(distance) * 50));
+            ).scaleIn(
+                delay: Duration(
+                    milliseconds: _distanceOptions.indexOf(distance) * 50));
           }).toList(),
         ),
       ],
@@ -369,13 +379,13 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
           children: _ratingOptions.map((rating) {
             final isSelected = _currentFilters.minRating == rating;
-            
+
             return GestureDetector(
               onTap: () {
                 AnimationService.selectionHaptic();
@@ -388,7 +398,8 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusSmall),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : AppColors.divider,
                   ),
@@ -401,26 +412,32 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                       size: AppDimensions.iconSmall,
                       color: isSelected ? AppColors.surface : AppColors.warning,
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       rating.toString(),
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isSelected ? AppColors.surface : AppColors.textDark,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color:
+                            isSelected ? AppColors.surface : AppColors.textDark,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
-                    SizedBox(width: 2),
+                    const SizedBox(width: 2),
                     Text(
                       '+',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: isSelected ? AppColors.surface : AppColors.textLight,
+                        color: isSelected
+                            ? AppColors.surface
+                            : AppColors.textLight,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
                   ],
                 ),
               ),
-            ).scaleIn(delay: Duration(milliseconds: _ratingOptions.indexOf(rating) * 50));
+            ).scaleIn(
+                delay: Duration(
+                    milliseconds: _ratingOptions.indexOf(rating) * 50));
           }).toList(),
         ),
       ],
@@ -455,7 +472,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             AnimationService.selectionHaptic();
             _updateOpenNowFilter(value ? true : null);
           },
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
         ),
       ],
     );
@@ -477,7 +494,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
               ),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: _buildQuickFilterChip(
                 label: 'Perto',
@@ -488,7 +505,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                 ),
               ),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: _buildQuickFilterChip(
                 label: 'Top rated',
@@ -535,7 +552,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
               size: AppDimensions.iconSmall,
               color: isSelected ? AppColors.surface : AppColors.textLight,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
@@ -597,7 +614,8 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
                   vertical: AppDimensions.paddingMedium,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusSmall),
                 ),
               ),
               child: Text(
@@ -610,7 +628,7 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
             ),
           ),
         if (_currentFilters.hasActiveFilters)
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           flex: _currentFilters.hasActiveFilters ? 2 : 1,
           child: ElevatedButton(
@@ -670,11 +688,11 @@ class _SearchFiltersWidgetState extends State<SearchFiltersWidget>
     setState(() {
       _currentFilters = const SearchFilters();
     });
-    
+
     if (widget.onClearFilters != null) {
       widget.onClearFilters!();
     }
-    
+
     // Analytics: rastrear limpeza de filtros
     AnalyticsService.instance.trackEvent(
       'search_filters_cleared',
@@ -721,7 +739,7 @@ class ActiveFiltersWidget extends StatelessWidget {
           updatedAt: DateTime.now(),
         ),
       );
-      
+
       activeFilters.add(
         _buildFilterChip(
           label: category.name,
@@ -776,7 +794,7 @@ class ActiveFiltersWidget extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Wrap(
             spacing: AppDimensions.paddingSmall,
             runSpacing: AppDimensions.paddingSmall,
@@ -812,7 +830,7 @@ class ActiveFiltersWidget extends StatelessWidget {
             size: 12,
             color: AppColors.primary,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             label,
             style: AppTextStyles.bodySmall.copyWith(
@@ -821,13 +839,13 @@ class ActiveFiltersWidget extends StatelessWidget {
               fontSize: 11,
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           GestureDetector(
             onTap: () {
               AnimationService.lightHaptic();
               onRemove();
             },
-            child: Icon(
+            child: const Icon(
               AppIcons.close,
               size: 12,
               color: AppColors.primary,
@@ -840,7 +858,7 @@ class ActiveFiltersWidget extends StatelessWidget {
 
   void _removeFilter(String filterType) {
     SearchFilters newFilters;
-    
+
     switch (filterType) {
       case 'category':
         newFilters = filters.copyWith(categoryId: null);
@@ -857,7 +875,7 @@ class ActiveFiltersWidget extends StatelessWidget {
       default:
         return;
     }
-    
+
     onFiltersChanged(newFilters);
   }
 }

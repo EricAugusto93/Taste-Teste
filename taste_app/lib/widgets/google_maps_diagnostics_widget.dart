@@ -7,10 +7,12 @@ class GoogleMapsDiagnosticsWidget extends StatefulWidget {
   const GoogleMapsDiagnosticsWidget({super.key});
 
   @override
-  State<GoogleMapsDiagnosticsWidget> createState() => _GoogleMapsDiagnosticsWidgetState();
+  State<GoogleMapsDiagnosticsWidget> createState() =>
+      _GoogleMapsDiagnosticsWidgetState();
 }
 
-class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidget> {
+class _GoogleMapsDiagnosticsWidgetState
+    extends State<GoogleMapsDiagnosticsWidget> {
   Map<String, dynamic>? _diagnostics;
   bool _isLoading = false;
 
@@ -111,13 +113,16 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
         _buildStatusCard(
           'Inicialização',
           diagnostics['initialization']?['completed'] ?? false,
-          diagnostics['initialization']?['completed'] == true ? 'Concluída' : 'Pendente',
+          diagnostics['initialization']?['completed'] == true
+              ? 'Concluída'
+              : 'Pendente',
         ),
         if (diagnostics['connectivity'] != null) ...[
           const SizedBox(height: 8),
           _buildConnectivityCard(diagnostics['connectivity']),
         ],
-        if (diagnostics['issues'] != null && (diagnostics['issues'] as List).isNotEmpty) ...[
+        if (diagnostics['issues'] != null &&
+            (diagnostics['issues'] as List).isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildIssuesCard(diagnostics['issues']),
         ],
@@ -213,11 +218,11 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.warning, color: Colors.red, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.warning, color: Colors.red, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Problemas Detectados',
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
@@ -249,7 +254,8 @@ class _GoogleMapsDiagnosticsWidgetState extends State<GoogleMapsDiagnosticsWidge
               Text('Plataforma: ${diagnostics['platform'] ?? 'unknown'}'),
               Text('Timestamp: ${diagnostics['timestamp'] ?? 'unknown'}'),
               if (diagnostics['apiKey'] != null)
-                Text('API Key: ${diagnostics['apiKey']['value'] ?? 'not_configured'}'),
+                Text(
+                    'API Key: ${diagnostics['apiKey']['value'] ?? 'not_configured'}'),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {

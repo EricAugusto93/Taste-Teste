@@ -37,14 +37,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScale;
   late Animation<double> _headerOpacity;
-  
+
   bool _isHeaderCollapsed = false;
   bool _isFavorite = false;
   bool _isInWantToKnow = false;
   bool _isInNotSureReturn = false;
   String? _distance;
   String? _estimatedTime;
-  
+
   static const double _headerHeight = 300.0;
   static const double _collapsedHeaderHeight = 100.0;
 
@@ -70,12 +70,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _headerOpacity = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -83,7 +83,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       parent: _headerAnimationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _fabScale = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -91,7 +91,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       parent: _fabAnimationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _fabAnimationController.forward();
   }
 
@@ -103,7 +103,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   void _onScroll() {
     const threshold = _headerHeight - _collapsedHeaderHeight;
     final offset = _scrollController.offset;
-    
+
     if (offset > threshold && !_isHeaderCollapsed) {
       setState(() {
         _isHeaderCollapsed = true;
@@ -118,7 +118,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   }
 
   Future<void> _calculateDistance() async {
-    if (widget.locationRepository == null || 
+    if (widget.locationRepository == null ||
         widget.userLocation == null ||
         widget.restaurant.latitude == null ||
         widget.restaurant.longitude == null) {
@@ -130,17 +130,17 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         latitude: widget.restaurant.latitude!,
         longitude: widget.restaurant.longitude!,
       );
-      
+
       final distance = _calculateDistanceBetweenPoints(
         widget.userLocation!.latitude,
         widget.userLocation!.longitude,
         restaurantLocation.latitude,
         restaurantLocation.longitude,
       );
-      
+
       final formattedDistance = _formatDistance(distance);
       final estimatedTime = _calculateEstimatedTime(distance);
-      
+
       if (mounted) {
         setState(() {
           _distance = formattedDistance;
@@ -157,11 +157,13 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
     try {
       // Verificar lista "Quero conhecer"
       final wantToKnowItems = await UserListsService.getWantToKnowItems();
-      final isInWantToKnow = wantToKnowItems.any((item) => item.id == widget.restaurant.id);
+      final isInWantToKnow =
+          wantToKnowItems.any((item) => item.id == widget.restaurant.id);
 
       // Verificar lista "Não sei se volto"
       final notSureReturnItems = await UserListsService.getNotSureReturnItems();
-      final isInNotSureReturn = notSureReturnItems.any((item) => item.id == widget.restaurant.id);
+      final isInNotSureReturn =
+          notSureReturnItems.any((item) => item.id == widget.restaurant.id);
 
       if (mounted) {
         setState(() {
@@ -177,9 +179,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   String _calculateEstimatedTime(double distanceInKm) {
     final timeInHours = distanceInKm / 30.0;
     final timeInMinutes = (timeInHours * 60).round();
-    
+
     if (timeInMinutes < 60) {
-      return '${timeInMinutes} min';
+      return '$timeInMinutes min';
     } else {
       final hours = timeInMinutes ~/ 60;
       final minutes = timeInMinutes % 60;
@@ -191,15 +193,16 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
     setState(() {
       _isFavorite = !_isFavorite;
     });
-    
+
     HapticFeedback.lightImpact();
-    
+
     _fabAnimationController.reverse().then((_) {
       _fabAnimationController.forward();
     });
-    
+
     try {
-      Logger.info('Restaurante ${_isFavorite ? "adicionado aos" : "removido dos"} favoritos');
+      Logger.info(
+          'Restaurante ${_isFavorite ? "adicionado aos" : "removido dos"} favoritos');
     } catch (e) {
       Logger.error('Erro ao alterar favorito: $e');
       setState(() {
@@ -212,10 +215,11 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   Future<void> _toggleWantToKnow() async {
     try {
       bool success;
-      
+
       if (_isInWantToKnow) {
         // Remover da lista
-        success = await UserListsService.removeWantToKnowItem(widget.restaurant.id);
+        success =
+            await UserListsService.removeWantToKnowItem(widget.restaurant.id);
       } else {
         // Adicionar à lista
         final item = WantToKnowItem(
@@ -235,11 +239,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         });
 
         HapticFeedback.lightImpact();
-        _showSnackBar(
-          _isInWantToKnow 
-            ? 'Adicionado à lista "Quero conhecer"' 
-            : 'Removido da lista "Quero conhecer"'
-        );
+        _showSnackBar(_isInWantToKnow
+            ? 'Adicionado à lista "Quero conhecer"'
+            : 'Removido da lista "Quero conhecer"');
       }
     } catch (e) {
       Logger.error('Erro ao atualizar lista "Quero conhecer": $e');
@@ -251,10 +253,11 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   Future<void> _toggleNotSureReturn() async {
     try {
       bool success;
-      
+
       if (_isInNotSureReturn) {
         // Remover da lista
-        success = await UserListsService.removeNotSureReturnItem(widget.restaurant.id);
+        success = await UserListsService.removeNotSureReturnItem(
+            widget.restaurant.id);
       } else {
         // Adicionar à lista
         final item = NotSureReturnItem(
@@ -276,11 +279,9 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         });
 
         HapticFeedback.lightImpact();
-        _showSnackBar(
-          _isInNotSureReturn 
-            ? 'Adicionado à lista "Não sei se volto"' 
-            : 'Removido da lista "Não sei se volto"'
-        );
+        _showSnackBar(_isInNotSureReturn
+            ? 'Adicionado à lista "Não sei se volto"'
+            : 'Removido da lista "Não sei se volto"');
       }
     } catch (e) {
       Logger.error('Erro ao atualizar lista "Não sei se volto": $e');
@@ -289,16 +290,18 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   }
 
   Future<void> _openDirections() async {
-    if (widget.restaurant.latitude == null || widget.restaurant.longitude == null) {
+    if (widget.restaurant.latitude == null ||
+        widget.restaurant.longitude == null) {
       _showSnackBar('Localização do restaurante não disponível');
       return;
     }
-    
+
     try {
       final lat = widget.restaurant.latitude!;
       final lng = widget.restaurant.longitude!;
-      final url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
-      
+      final url =
+          'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
+
       if (await canLaunchUrl(Uri.parse(url))) {
         await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       } else {
@@ -315,7 +318,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       _showSnackBar('Telefone não disponível');
       return;
     }
-    
+
     try {
       final phoneUrl = 'tel:${widget.restaurant.phone}';
       if (await canLaunchUrl(Uri.parse(phoneUrl))) {
@@ -336,7 +339,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
+          borderRadius:
+              BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
         ),
       ),
     );
@@ -414,9 +418,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             borderRadius: BorderRadius.circular(20),
           ),
           child: IconButton(
-            icon: Icon(Icons.share, color: Colors.white),
+            icon: const Icon(Icons.share, color: Colors.white),
             onPressed: () {
-              _showSnackBar('Funcionalidade de compartilhamento em desenvolvimento');
+              _showSnackBar(
+                  'Funcionalidade de compartilhamento em desenvolvimento');
             },
           ),
         ),
@@ -485,7 +490,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   if (widget.restaurant.description != null)
                     Text(
                       widget.restaurant.description!,
@@ -495,7 +500,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       RatingWidget(
@@ -505,7 +510,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                         showReviewCount: false,
                         showRatingValue: false,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         widget.restaurant.rating.toStringAsFixed(1),
                         style: AppTextStyles.bodyMedium.copyWith(
@@ -513,14 +518,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       if (_distance != null) ...[
                         Icon(
                           Icons.location_on,
                           size: 16,
                           color: Colors.white.withOpacity(0.9),
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
                           _distance!,
                           style: AppTextStyles.bodyMedium.copyWith(
@@ -529,24 +534,23 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                         ),
                       ],
                       const Spacer(),
-                      if (widget.restaurant.deliveryTime != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '${widget.restaurant.deliveryTime} min',
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${widget.restaurant.deliveryTime} min',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ],
@@ -568,7 +572,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             _buildMapSection(),
             _buildMenuSection(),
             _buildReviewsSection(),
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -599,28 +603,28 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildInfoRow(
             Icons.access_time,
             'Status',
             widget.restaurant.isOpen ? 'Aberto agora' : 'Fechado',
-            valueColor: widget.restaurant.isOpen ? AppColors.success : AppColors.error,
+            valueColor:
+                widget.restaurant.isOpen ? AppColors.success : AppColors.error,
           ),
-          if (widget.restaurant.deliveryTime != null)
-            _buildInfoRow(
-              Icons.delivery_dining,
-              'Tempo de entrega',
-              '${widget.restaurant.deliveryTime} min',
-            ),
-          if (widget.restaurant.deliveryFee != null)
-            _buildInfoRow(
-              Icons.attach_money,
-              'Taxa de entrega',
-              widget.restaurant.deliveryFee! > 0
-                  ? 'R\$ ${widget.restaurant.deliveryFee!.toStringAsFixed(2)}'
-                  : 'Grátis',
-              valueColor: widget.restaurant.deliveryFee! > 0 ? null : AppColors.success,
-            ),
+          _buildInfoRow(
+            Icons.delivery_dining,
+            'Tempo de entrega',
+            '${widget.restaurant.deliveryTime} min',
+          ),
+          _buildInfoRow(
+            Icons.attach_money,
+            'Taxa de entrega',
+            widget.restaurant.deliveryFee! > 0
+                ? 'R\$ ${widget.restaurant.deliveryFee!.toStringAsFixed(2)}'
+                : 'Grátis',
+            valueColor:
+                widget.restaurant.deliveryFee! > 0 ? null : AppColors.success,
+          ),
           // TODO: Adicionar campo minimumOrder no RestaurantModel
           // if (widget.restaurant.minimumOrder != null)
           //   _buildInfoRow(
@@ -628,7 +632,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
           //     'Pedido mínimo',
           //     'R\$ ${widget.restaurant.minimumOrder!.toStringAsFixed(2)}',
           //   ),
-          if (widget.restaurant.phone != null && widget.restaurant.phone!.isNotEmpty)
+          if (widget.restaurant.phone != null &&
+              widget.restaurant.phone!.isNotEmpty)
             _buildInfoRow(
               Icons.phone,
               'Telefone',
@@ -668,7 +673,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 size: 20,
                 color: AppColors.textSecondary,
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -690,7 +695,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 ),
               ),
               if (onTap != null)
-                Icon(
+                const Icon(
                   Icons.chevron_right,
                   color: AppColors.textSecondary,
                 ),
@@ -753,7 +758,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                     ),
                   ],
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.directions,
                   size: 20,
                   color: AppColors.primary,
@@ -800,12 +805,12 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 onPressed: () {
                   // TODO: Navegar para página completa do cardápio
                 },
-                child: Text('Ver tudo'),
+                child: const Text('Ver tudo'),
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 16),
+          const Text(
             'Cardápio completo disponível em breve',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -850,11 +855,11 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 onPressed: () {
                   // TODO: Navegar para página de avaliações
                 },
-                child: Text('Ver todas'),
+                child: const Text('Ver todas'),
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               RatingStarsWidget(
@@ -862,14 +867,14 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 size: 24,
                 color: AppColors.warning,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 widget.restaurant.rating.toStringAsFixed(1),
                 style: AppTextStyles.h3.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 '(${widget.restaurant.reviewCount ?? 0} avaliações)',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -878,8 +883,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 16),
+          const Text(
             'Avaliações detalhadas disponíveis em breve',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -896,7 +901,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
       children: [
         // Row horizontal com os 3 botões de listas
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -906,8 +911,10 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                 child: FloatingActionButton(
                   heroTag: 'favorite',
                   onPressed: _toggleFavorite,
-                  backgroundColor: _isFavorite ? AppColors.error : AppColors.surface,
-                  foregroundColor: _isFavorite ? Colors.white : AppColors.textPrimary,
+                  backgroundColor:
+                      _isFavorite ? AppColors.error : AppColors.surface,
+                  foregroundColor:
+                      _isFavorite ? Colors.white : AppColors.textPrimary,
                   mini: true,
                   child: Icon(
                     _isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -915,15 +922,17 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                   ),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               // Botão Quero Conhecer
               ScaleTransition(
                 scale: _fabScale,
                 child: FloatingActionButton(
                   heroTag: 'want_to_know',
                   onPressed: _toggleWantToKnow,
-                  backgroundColor: _isInWantToKnow ? AppColors.success : AppColors.surface,
-                  foregroundColor: _isInWantToKnow ? Colors.white : AppColors.textPrimary,
+                  backgroundColor:
+                      _isInWantToKnow ? AppColors.success : AppColors.surface,
+                  foregroundColor:
+                      _isInWantToKnow ? Colors.white : AppColors.textPrimary,
                   mini: true,
                   child: Icon(
                     _isInWantToKnow ? Icons.bookmark : Icons.bookmark_border,
@@ -931,15 +940,18 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
                   ),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               // Botão Não Sei Se Volto
               ScaleTransition(
                 scale: _fabScale,
                 child: FloatingActionButton(
                   heroTag: 'not_sure_return',
                   onPressed: _toggleNotSureReturn,
-                  backgroundColor: _isInNotSureReturn ? AppColors.warning : AppColors.surface,
-                  foregroundColor: _isInNotSureReturn ? Colors.white : AppColors.textPrimary,
+                  backgroundColor: _isInNotSureReturn
+                      ? AppColors.warning
+                      : AppColors.surface,
+                  foregroundColor:
+                      _isInNotSureReturn ? Colors.white : AppColors.textPrimary,
                   mini: true,
                   child: Icon(
                     _isInNotSureReturn ? Icons.help : Icons.help_outline,
@@ -950,7 +962,7 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             ],
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         // Botão de pedir (mantido como estava)
         ScaleTransition(
           scale: _fabScale,
@@ -962,8 +974,8 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
             },
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
-            icon: Icon(Icons.shopping_cart),
-            label: Text('Pedir'),
+            icon: const Icon(Icons.shopping_cart),
+            label: const Text('Pedir'),
           ),
         ),
       ],
@@ -971,19 +983,21 @@ class _RestaurantDetailPageState extends State<RestaurantDetailPage>
   }
 
   /// Calcula distância entre dois pontos usando fórmula de Haversine
-  double _calculateDistanceBetweenPoints(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistanceBetweenPoints(
+      double lat1, double lon1, double lat2, double lon2) {
     const double earthRadius = 6371; // Raio da Terra em km
-    
+
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
-    
-    final double a = 
-        math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(_degreesToRadians(lat1)) * math.cos(_degreesToRadians(lat2)) *
-        math.sin(dLon / 2) * math.sin(dLon / 2);
-    
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degreesToRadians(lat1)) *
+            math.cos(_degreesToRadians(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+
     final double c = 2 * math.asin(math.sqrt(a));
-    
+
     return earthRadius * c;
   }
 

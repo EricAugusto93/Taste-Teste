@@ -64,7 +64,7 @@ class _CartPageState extends ConsumerState<CartPage> {
         if (cart.isNotEmpty)
           TextButton(
             onPressed: _showClearCartDialog,
-            child: Text(
+            child: const Text(
               'Limpar',
               style: TextStyle(color: AppColors.error),
             ),
@@ -91,31 +91,32 @@ class _CartPageState extends ConsumerState<CartPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Informações do restaurante
-                if (cart.restaurant != null) _buildRestaurantInfo(cart.restaurant!),
-                
+                if (cart.restaurant != null)
+                  _buildRestaurantInfo(cart.restaurant!),
+
                 const SizedBox(height: AppDimensions.paddingLarge),
-                
+
                 // Lista de itens
                 _buildItemsList(cart.items),
-                
+
                 const SizedBox(height: AppDimensions.paddingLarge),
-                
+
                 // Código promocional
                 _buildPromoCodeSection(cart),
-                
+
                 const SizedBox(height: AppDimensions.paddingLarge),
-                
+
                 // Informações de entrega
                 DeliveryInfoWidget(
                   deliveryTime: '30-45 min',
                   deliveryFee: cart.deliveryFee,
                 ),
-                
+
                 const SizedBox(height: AppDimensions.paddingLarge),
-                
+
                 // Resumo do pedido
                 _buildOrderSummary(cart),
-                
+
                 const SizedBox(height: 100), // Espaço para o bottom bar
               ],
             ),
@@ -186,25 +187,27 @@ class _CartPageState extends ConsumerState<CartPage> {
         ),
         const SizedBox(height: AppDimensions.paddingMedium),
         ...items.map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
-          child: CartItemWidget(
-            item: item,
-            onIncrease: () {
-              ref.read(cartNotifierProvider.notifier)
-                  .updateItemQuantity(item.id, item.quantity + 1);
-            },
-            onDecrease: () {
-              if (item.quantity > 1) {
-                ref.read(cartNotifierProvider.notifier)
-                    .updateItemQuantity(item.id, item.quantity - 1);
-              }
-            },
-            onRemove: () {
-              ref.read(cartNotifierProvider.notifier)
-                  .removeItem(item.id);
-            },
-          ),
-        )),
+              padding:
+                  const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
+              child: CartItemWidget(
+                item: item,
+                onIncrease: () {
+                  ref
+                      .read(cartNotifierProvider.notifier)
+                      .updateItemQuantity(item.id, item.quantity + 1);
+                },
+                onDecrease: () {
+                  if (item.quantity > 1) {
+                    ref
+                        .read(cartNotifierProvider.notifier)
+                        .updateItemQuantity(item.id, item.quantity - 1);
+                  }
+                },
+                onRemove: () {
+                  ref.read(cartNotifierProvider.notifier).removeItem(item.id);
+                },
+              ),
+            )),
       ],
     );
   }
@@ -236,7 +239,6 @@ class _CartPageState extends ConsumerState<CartPage> {
               ),
           ],
         ),
-        
         if (cart.promoCode != null) ...[
           const SizedBox(height: AppDimensions.paddingSmall),
           Container(
@@ -281,7 +283,8 @@ class _CartPageState extends ConsumerState<CartPage> {
           PromoCodeWidget(
             onApply: (code) async {
               try {
-                await ref.read(cartNotifierProvider.notifier)
+                await ref
+                    .read(cartNotifierProvider.notifier)
                     .applyPromoCode(code);
                 setState(() {
                   _showPromoCode = false;
@@ -320,27 +323,26 @@ class _CartPageState extends ConsumerState<CartPage> {
             style: AppTextStyles.headingSmall,
           ),
           const SizedBox(height: AppDimensions.paddingMedium),
-          
-          _buildSummaryRow('Subtotal', 'R\$ ${cart.subtotal.toStringAsFixed(2)}'),
-          _buildSummaryRow('Taxa de entrega', 'R\$ ${cart.deliveryFee.toStringAsFixed(2)}'),
-          _buildSummaryRow('Taxa de serviço', 'R\$ ${cart.serviceFee.toStringAsFixed(2)}'),
-          
+          _buildSummaryRow(
+              'Subtotal', 'R\$ ${cart.subtotal.toStringAsFixed(2)}'),
+          _buildSummaryRow(
+              'Taxa de entrega', 'R\$ ${cart.deliveryFee.toStringAsFixed(2)}'),
+          _buildSummaryRow(
+              'Taxa de serviço', 'R\$ ${cart.serviceFee.toStringAsFixed(2)}'),
           if (cart.discount > 0)
             _buildSummaryRow(
               'Desconto',
               '- R\$ ${cart.discount.toStringAsFixed(2)}',
               color: AppColors.success,
             ),
-          
           const Divider(height: AppDimensions.paddingLarge),
-          
           _buildSummaryRow(
             'Total',
             'R\$ ${cart.total.toStringAsFixed(2)}',
             isTotal: true,
           ),
-          
-          if (!cart.meetsMinimumOrder && cart.restaurant?.minOrderValue != null) ...[
+          if (!cart.meetsMinimumOrder &&
+              cart.restaurant?.minOrderValue != null) ...[
             const SizedBox(height: AppDimensions.paddingSmall),
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingSmall),
@@ -410,7 +412,7 @@ class _CartPageState extends ConsumerState<CartPage> {
 
   Widget _buildBottomBar(CartModel cart) {
     final canProceed = cart.meetsMinimumOrder && cart.allItemsAvailable;
-    
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: const BoxDecoration(
@@ -445,9 +447,11 @@ class _CartPageState extends ConsumerState<CartPage> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: AppDimensions.paddingMedium),
+                    padding: const EdgeInsets.only(
+                        left: AppDimensions.paddingMedium),
                     child: CustomButton(
-                      text: canProceed ? 'Finalizar Pedido' : 'Pedido Incompleto',
+                      text:
+                          canProceed ? 'Finalizar Pedido' : 'Pedido Incompleto',
                       onPressed: canProceed ? _proceedToCheckout : null,
                       isLoading: ref.watch(cartSavingProvider),
                     ),
@@ -483,7 +487,7 @@ class _CartPageState extends ConsumerState<CartPage> {
               NavigationHelper.safeGoBack(context);
               ref.read(cartNotifierProvider.notifier).clearCart();
             },
-            child: Text(
+            child: const Text(
               'Limpar',
               style: TextStyle(color: AppColors.error),
             ),

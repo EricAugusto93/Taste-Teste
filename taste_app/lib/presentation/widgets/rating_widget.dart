@@ -36,7 +36,7 @@ class RatingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final config = _getRatingConfig();
-    
+
     return Row(
       mainAxisAlignment: alignment,
       mainAxisSize: MainAxisSize.min,
@@ -71,7 +71,7 @@ class RatingWidget extends StatelessWidget {
       children: List.generate(5, (index) {
         final starValue = index + 1;
         final starFill = _getStarFill(starValue);
-        
+
         return Padding(
           padding: EdgeInsets.only(
             right: index < 4 ? config.starSpacing : 0,
@@ -202,7 +202,7 @@ class _StarClipper extends CustomClipper<Rect> {
   @override
   bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
     return oldClipper is _StarClipper &&
-           oldClipper.fillPercentage != fillPercentage;
+        oldClipper.fillPercentage != fillPercentage;
   }
 }
 
@@ -229,7 +229,8 @@ class DetailedRatingWidget extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusMedium)),
+          borderRadius: const BorderRadius.all(
+              Radius.circular(AppDimensions.radiusMedium)),
           border: Border.all(color: AppColors.divider),
         ),
         child: Column(
@@ -257,7 +258,7 @@ class DetailedRatingWidget extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: AppDimensions.paddingSmall),
+                          const SizedBox(width: AppDimensions.paddingSmall),
                           RatingWidget(
                             rating: rating,
                             size: RatingSize.medium,
@@ -277,7 +278,7 @@ class DetailedRatingWidget extends StatelessWidget {
                   ),
                 ),
                 if (onTap != null)
-                  Icon(
+                  const Icon(
                     Icons.arrow_forward_ios,
                     size: AppDimensions.iconSmall,
                     color: AppColors.textLight,
@@ -295,15 +296,17 @@ class DetailedRatingWidget extends StatelessWidget {
   }
 
   Widget _buildRatingDistribution() {
-    final total = ratingDistribution!.values.fold(0, (sum, count) => sum + count);
-    
+    final total =
+        ratingDistribution!.values.fold(0, (sum, count) => sum + count);
+
     return Column(
       children: List.generate(5, (index) {
         final stars = 5 - index;
         final count = ratingDistribution![stars] ?? 0;
         final percentage = total > 0 ? count / total : 0.0;
-        final percentageText = total > 0 ? '${(percentage * 100).toStringAsFixed(0)}%' : '0%';
-        
+        final percentageText =
+            total > 0 ? '${(percentage * 100).toStringAsFixed(0)}%' : '0%';
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Row(
@@ -315,13 +318,13 @@ class DetailedRatingWidget extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(width: 4),
-              Icon(
+              const SizedBox(width: 4),
+              const Icon(
                 Icons.star,
                 size: 12,
                 color: AppColors.warning,
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Container(
                   height: 8,
@@ -341,7 +344,7 @@ class DetailedRatingWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               SizedBox(
                 width: 40,
                 child: Text(
@@ -353,7 +356,7 @@ class DetailedRatingWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               SizedBox(
                 width: 30,
                 child: Text(
@@ -402,24 +405,26 @@ class CompactRatingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.symmetric(
-        horizontal: AppDimensions.paddingSmall,
-        vertical: 4,
-      ),
+      padding: padding ??
+          const EdgeInsets.symmetric(
+            horizontal: AppDimensions.paddingSmall,
+            vertical: 4,
+          ),
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.surface,
-        borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusSmall)),
+        borderRadius:
+            const BorderRadius.all(Radius.circular(AppDimensions.radiusSmall)),
         border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.star,
             size: 12,
             color: AppColors.warning,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             rating.toStringAsFixed(1),
             style: AppTextStyles.bodySmall.copyWith(
@@ -428,7 +433,7 @@ class CompactRatingWidget extends StatelessWidget {
             ),
           ),
           if (reviewCount != null && reviewCount! > 0) ...[
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               '(${_formatReviewCount(reviewCount!)})',
               style: AppTextStyles.bodySmall.copyWith(

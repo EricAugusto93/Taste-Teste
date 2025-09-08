@@ -14,7 +14,7 @@ class EmptyStateWidget extends StatelessWidget {
   final bool showAction;
   final double? emojiSize;
   final EdgeInsetsGeometry? padding;
-  
+
   const EmptyStateWidget({
     super.key,
     required this.emoji,
@@ -26,9 +26,9 @@ class EmptyStateWidget extends StatelessWidget {
     this.emojiSize,
     this.padding,
   });
-  
+
   // Factory constructors para estados específicos
-  
+
   /// Estado vazio para busca sem resultados
   factory EmptyStateWidget.searchEmpty({
     String? query,
@@ -37,7 +37,7 @@ class EmptyStateWidget extends StatelessWidget {
     return EmptyStateWidget(
       emoji: '🔍',
       title: 'Nenhum resultado encontrado',
-      subtitle: query != null 
+      subtitle: query != null
           ? 'Não encontramos resultados para "$query".\nTente buscar com outras palavras.'
           : 'Digite algo para buscar restaurantes,\npratos ou categorias.',
       actionText: query != null ? 'Limpar filtros' : null,
@@ -45,7 +45,7 @@ class EmptyStateWidget extends StatelessWidget {
       showAction: query != null,
     );
   }
-  
+
   /// Estado vazio para favoritos
   factory EmptyStateWidget.favoritesEmpty({
     VoidCallback? onExplore,
@@ -58,7 +58,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onExplore,
     );
   }
-  
+
   /// Estado vazio para pedidos
   factory EmptyStateWidget.ordersEmpty({
     VoidCallback? onStartOrder,
@@ -71,7 +71,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onStartOrder,
     );
   }
-  
+
   /// Estado vazio para carrinho
   factory EmptyStateWidget.cartEmpty({
     VoidCallback? onAddItems,
@@ -84,7 +84,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onAddItems,
     );
   }
-  
+
   /// Estado vazio para notificações
   factory EmptyStateWidget.notificationsEmpty() {
     return const EmptyStateWidget(
@@ -94,7 +94,7 @@ class EmptyStateWidget extends StatelessWidget {
       showAction: false,
     );
   }
-  
+
   /// Estado vazio para endereços
   factory EmptyStateWidget.addressesEmpty({
     VoidCallback? onAddAddress,
@@ -107,7 +107,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onAddAddress,
     );
   }
-  
+
   /// Estado vazio para cartões de pagamento
   factory EmptyStateWidget.cardsEmpty({
     VoidCallback? onAddCard,
@@ -120,7 +120,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onAddCard,
     );
   }
-  
+
   /// Estado de erro de conexão
   factory EmptyStateWidget.connectionError({
     VoidCallback? onRetry,
@@ -133,7 +133,7 @@ class EmptyStateWidget extends StatelessWidget {
       onActionTap: onRetry,
     );
   }
-  
+
   /// Estado de erro genérico
   factory EmptyStateWidget.error({
     String? message,
@@ -142,12 +142,13 @@ class EmptyStateWidget extends StatelessWidget {
     return EmptyStateWidget(
       emoji: '⚠️',
       title: 'Algo deu errado',
-      subtitle: message ?? 'Ocorreu um erro inesperado.\nTente novamente em alguns instantes.',
+      subtitle: message ??
+          'Ocorreu um erro inesperado.\nTente novamente em alguns instantes.',
       actionText: 'Tentar novamente',
       onActionTap: onRetry,
     );
   }
-  
+
   /// Estado de manutenção
   factory EmptyStateWidget.maintenance() {
     return const EmptyStateWidget(
@@ -157,7 +158,7 @@ class EmptyStateWidget extends StatelessWidget {
       showAction: false,
     );
   }
-  
+
   /// Estado de localização desabilitada
   factory EmptyStateWidget.locationDisabled({
     VoidCallback? onEnableLocation,
@@ -165,12 +166,13 @@ class EmptyStateWidget extends StatelessWidget {
     return EmptyStateWidget(
       emoji: '📍',
       title: 'Localização desabilitada',
-      subtitle: 'Permita o acesso à localização\npara encontrar restaurantes próximos.',
+      subtitle:
+          'Permita o acesso à localização\npara encontrar restaurantes próximos.',
       actionText: 'Habilitar localização',
       onActionTap: onEnableLocation,
     );
   }
-  
+
   /// Estado de restaurantes fechados
   factory EmptyStateWidget.restaurantsClosed() {
     return const EmptyStateWidget(
@@ -180,7 +182,7 @@ class EmptyStateWidget extends StatelessWidget {
       showAction: false,
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -195,9 +197,9 @@ class EmptyStateWidget extends StatelessWidget {
               fontSize: emojiSize ?? 64,
             ),
           ),
-          
-          SizedBox(height: AppDimensions.paddingLarge),
-          
+
+          const SizedBox(height: AppDimensions.paddingLarge),
+
           // Título
           Text(
             title,
@@ -207,9 +209,9 @@ class EmptyStateWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
-          
+
+          const SizedBox(height: AppDimensions.paddingMedium),
+
           // Subtítulo
           Text(
             subtitle,
@@ -219,10 +221,10 @@ class EmptyStateWidget extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           // Botão de ação
           if (showAction && actionText != null && onActionTap != null) ...[
-            SizedBox(height: AppDimensions.paddingXLarge),
+            const SizedBox(height: AppDimensions.paddingXLarge),
             CustomButton(
               text: actionText!,
               onPressed: onActionTap,
@@ -241,7 +243,7 @@ class LoadingStateWidget extends StatelessWidget {
   final bool showMessage;
   final Color? indicatorColor;
   final double? indicatorSize;
-  
+
   const LoadingStateWidget({
     super.key,
     this.message,
@@ -249,7 +251,7 @@ class LoadingStateWidget extends StatelessWidget {
     this.indicatorColor,
     this.indicatorSize,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -265,9 +267,8 @@ class LoadingStateWidget extends StatelessWidget {
               strokeWidth: 3,
             ),
           ),
-          
           if (showMessage) ...[
-            SizedBox(height: AppDimensions.paddingLarge),
+            const SizedBox(height: AppDimensions.paddingLarge),
             Text(
               message ?? 'Carregando...',
               style: AppTextStyles.bodyLarge.copyWith(
@@ -290,7 +291,7 @@ class SuccessStateWidget extends StatefulWidget {
   final VoidCallback? onActionTap;
   final bool autoHide;
   final Duration autoHideDuration;
-  
+
   const SuccessStateWidget({
     super.key,
     required this.title,
@@ -300,7 +301,7 @@ class SuccessStateWidget extends StatefulWidget {
     this.autoHide = false,
     this.autoHideDuration = const Duration(seconds: 3),
   });
-  
+
   @override
   State<SuccessStateWidget> createState() => _SuccessStateWidgetState();
 }
@@ -309,7 +310,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -317,7 +318,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -325,9 +326,9 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _animationController.forward();
-    
+
     if (widget.autoHide) {
       Future.delayed(widget.autoHideDuration, () {
         if (mounted) {
@@ -336,13 +337,13 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
       });
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -370,7 +371,7 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
                       ),
                     ],
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.check,
                     color: Colors.white,
                     size: 40,
@@ -379,9 +380,9 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
               );
             },
           ),
-          
-          SizedBox(height: AppDimensions.paddingLarge),
-          
+
+          const SizedBox(height: AppDimensions.paddingLarge),
+
           // Título
           Text(
             widget.title,
@@ -391,9 +392,9 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
             ),
             textAlign: TextAlign.center,
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
-          
+
+          const SizedBox(height: AppDimensions.paddingMedium),
+
           // Subtítulo
           Text(
             widget.subtitle,
@@ -403,10 +404,10 @@ class _SuccessStateWidgetState extends State<SuccessStateWidget>
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           // Botão de ação
           if (widget.actionText != null && widget.onActionTap != null) ...[
-            SizedBox(height: AppDimensions.paddingXLarge),
+            const SizedBox(height: AppDimensions.paddingXLarge),
             CustomButton(
               text: widget.actionText!,
               onPressed: widget.onActionTap,

@@ -31,11 +31,14 @@ void main() {
     group('SearchInterpretation Class', () {
       test('should create SearchInterpretation instance', () {
         // Criar uma instância de SearchInterpretation
-        final interpretation = SearchInterpretation(
+        const interpretation = SearchInterpretation(
           originalQuery: 'pizza italiana',
           normalizedQuery: 'pizza italiana',
           intention: SearchIntention.cuisine,
-          entities: {'cuisine': ['italiana'], 'dish': ['pizza']},
+          entities: {
+            'cuisine': ['italiana'],
+            'dish': ['pizza']
+          },
           corrections: [],
           expandedTerms: ['pizzaria', 'margherita'],
           confidence: 0.8,
@@ -49,7 +52,7 @@ void main() {
 
       test('should have toString method', () {
         // Verificar método toString
-        final interpretation = SearchInterpretation(
+        const interpretation = SearchInterpretation(
           originalQuery: 'sushi',
           normalizedQuery: 'sushi',
           intention: SearchIntention.dish,
@@ -68,7 +71,7 @@ void main() {
 
       test('should handle empty entities and corrections', () {
         // Testar com listas vazias
-        final interpretation = SearchInterpretation(
+        const interpretation = SearchInterpretation(
           originalQuery: 'test',
           normalizedQuery: 'test',
           intention: SearchIntention.general,
@@ -107,7 +110,5 @@ void main() {
         expect(interpretation.entities['dietary'], contains('vegetariano'));
       });
     });
-
-
   });
 }

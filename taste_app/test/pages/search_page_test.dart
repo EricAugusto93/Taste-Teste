@@ -77,26 +77,26 @@ void main() {
         MaterialApp(
           home: Scaffold(
             appBar: AppBar(
-              title: Text('Buscar'),
+              title: const Text('Buscar'),
             ),
-            body: Center(
+            body: const Center(
               child: Text('SearchPage Test'),
             ),
           ),
         ),
       );
-      
+
       expect(find.text('Buscar'), findsOneWidget);
       expect(find.text('SearchPage Test'), findsOneWidget);
     });
-    
+
     testWidgets('should display search field', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(16),
                   child: TextField(
                     key: Key('search_field'),
@@ -117,16 +117,16 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Buscar restaurantes, pratos...'), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
       expect(find.byIcon(Icons.filter_list), findsOneWidget);
       expect(find.text('Digite para buscar'), findsOneWidget);
     });
-    
+
     testWidgets('should handle search input', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: TextField(
               key: Key('search_field'),
@@ -137,41 +137,41 @@ void main() {
           ),
         ),
       );
-      
-      final searchField = find.byKey(Key('search_field'));
+
+      final searchField = find.byKey(const Key('search_field'));
       expect(searchField, findsOneWidget);
-      
+
       await tester.enterText(searchField, 'pizza');
       await tester.pump();
-      
+
       expect(find.text('pizza'), findsOneWidget);
     });
-    
+
     testWidgets('should display search suggestions', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Column(
               children: [
-                TextField(
+                const TextField(
                   decoration: InputDecoration(
                     hintText: 'Buscar...',
                   ),
                 ),
                 Expanded(
                   child: ListView(
-                    children: [
-                      const ListTile(
+                    children: const [
+                      ListTile(
                         leading: Icon(Icons.history),
                         title: Text('pizza'),
                         subtitle: Text('Busca recente'),
                       ),
-                      const ListTile(
+                      ListTile(
                         leading: Icon(Icons.trending_up),
                         title: Text('hambúrguer'),
                         subtitle: Text('Popular'),
                       ),
-                      const ListTile(
+                      ListTile(
                         leading: Icon(Icons.restaurant),
                         title: Text('sushi'),
                         subtitle: Text('Sugestão'),
@@ -184,7 +184,7 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('pizza'), findsOneWidget);
       expect(find.text('hambúrguer'), findsOneWidget);
       expect(find.text('sushi'), findsOneWidget);
@@ -192,7 +192,7 @@ void main() {
       expect(find.text('Popular'), findsOneWidget);
       expect(find.text('Sugestão'), findsOneWidget);
     });
-    
+
     testWidgets('should display search results', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -204,11 +204,11 @@ void main() {
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: restaurant.imageUrl != null 
-                          ? NetworkImage(restaurant.imageUrl!) 
+                      backgroundImage: restaurant.imageUrl != null
+                          ? NetworkImage(restaurant.imageUrl!)
                           : null,
-                      child: restaurant.imageUrl == null 
-                          ? Icon(Icons.restaurant) 
+                      child: restaurant.imageUrl == null
+                          ? const Icon(Icons.restaurant)
                           : null,
                     ),
                     title: Text(restaurant.name),
@@ -219,15 +219,15 @@ void main() {
                           const Text(restaurant.description!),
                         const Row(
                           children: [
-                            const Icon(Icons.star, size: 16, color: Colors.amber),
-                            const Text('${restaurant.rating}'),
-                            const SizedBox(width: 8),
-                            const Text(restaurant.deliveryTime),
+                            Icon(Icons.star, size: 16, color: Colors.amber),
+                            Text('${restaurant.rating}'),
+                            SizedBox(width: 8),
+                            Text(restaurant.deliveryTime),
                           ],
                         ),
                       ],
                     ),
-                    trailing: Icon(Icons.favorite_border),
+                    trailing: const Icon(Icons.favorite_border),
                   ),
                 );
               },
@@ -235,7 +235,7 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Pizzaria Bella'), findsOneWidget);
       expect(find.text('Burger House'), findsOneWidget);
       expect(find.text('Melhor pizza da cidade'), findsOneWidget);
@@ -243,30 +243,30 @@ void main() {
       expect(find.text('4.5'), findsOneWidget);
       expect(find.text('4.2'), findsOneWidget);
     });
-    
+
     testWidgets('should display empty state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.search_off,
                     size: 64,
                     color: Colors.grey,
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
+                  SizedBox(height: 16),
+                  Text(
                     'Nenhum resultado encontrado',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     'Tente buscar por outro termo',
                     style: TextStyle(
                       color: Colors.grey,
@@ -278,20 +278,20 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.byIcon(Icons.search_off), findsOneWidget);
       expect(find.text('Nenhum resultado encontrado'), findsOneWidget);
       expect(find.text('Tente buscar por outro termo'), findsOneWidget);
     });
-    
+
     testWidgets('should handle filter button tap', (tester) async {
       bool filterTapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: IconButton(
-              icon: Icon(Icons.filter_list),
+              icon: const Icon(Icons.filter_list),
               onPressed: () {
                 filterTapped = true;
               },
@@ -299,14 +299,14 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.tap(find.byIcon(Icons.filter_list));
       await tester.pump();
-      
+
       expect(filterTapped, isTrue);
     });
   });
-  
+
   group('Search Filters Tests', () {
     testWidgets('should display filter options', (tester) async {
       await tester.pumpWidget(
@@ -326,17 +326,17 @@ void main() {
                   spacing: 8,
                   children: [
                     FilterChip(
-                      label: Text('Entrega grátis'),
+                      label: const Text('Entrega grátis'),
                       selected: false,
                       onSelected: (selected) {},
                     ),
                     FilterChip(
-                      label: Text('Avaliação 4+'),
+                      label: const Text('Avaliação 4+'),
                       selected: true,
                       onSelected: (selected) {},
                     ),
                     FilterChip(
-                      label: Text('Aberto agora'),
+                      label: const Text('Aberto agora'),
                       selected: false,
                       onSelected: (selected) {},
                     ),
@@ -347,22 +347,22 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Filtros'), findsOneWidget);
       expect(find.text('Entrega grátis'), findsOneWidget);
       expect(find.text('Avaliação 4+'), findsOneWidget);
       expect(find.text('Aberto agora'), findsOneWidget);
       expect(find.byType(FilterChip), findsNWidgets(3));
     });
-    
+
     testWidgets('should handle filter selection', (tester) async {
       bool filterSelected = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: FilterChip(
-              label: Text('Entrega grátis'),
+              label: const Text('Entrega grátis'),
               selected: false,
               onSelected: (selected) {
                 filterSelected = selected;
@@ -371,18 +371,18 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.tap(find.byType(FilterChip));
       await tester.pump();
-      
+
       expect(filterSelected, isTrue);
     });
   });
-  
+
   group('Search History Tests', () {
     testWidgets('should display search history', (tester) async {
       final searchHistory = ['pizza', 'hambúrguer', 'sushi', 'japonês'];
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -394,16 +394,16 @@ void main() {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Buscas recentes',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const TextButton(
+                      TextButton(
                         onPressed: () {},
-                        child: Text('Limpar'),
+                        child: const Text('Limpar'),
                       ),
                     ],
                   ),
@@ -413,10 +413,10 @@ void main() {
                     itemCount: searchHistory.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        leading: Icon(Icons.history),
+                        leading: const Icon(Icons.history),
                         title: Text(searchHistory[index]),
                         trailing: IconButton(
-                          icon: Icon(Icons.close),
+                          icon: const Icon(Icons.close),
                           onPressed: () {},
                         ),
                       );
@@ -428,7 +428,7 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Buscas recentes'), findsOneWidget);
       expect(find.text('Limpar'), findsOneWidget);
       expect(find.text('pizza'), findsOneWidget);
@@ -438,10 +438,10 @@ void main() {
       expect(find.byIcon(Icons.history), findsNWidgets(4));
       expect(find.byIcon(Icons.close), findsNWidgets(4));
     });
-    
+
     testWidgets('should handle clear history', (tester) async {
       bool historyCleard = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -449,15 +449,15 @@ void main() {
               onPressed: () {
                 historyCleard = true;
               },
-              child: Text('Limpar'),
+              child: const Text('Limpar'),
             ),
           ),
         ),
       );
-      
+
       await tester.tap(find.text('Limpar'));
       await tester.pump();
-      
+
       expect(historyCleard, isTrue);
     });
   });

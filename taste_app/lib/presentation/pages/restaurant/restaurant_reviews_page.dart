@@ -28,7 +28,8 @@ class RestaurantReviewsPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<RestaurantReviewsPage> createState() => _RestaurantReviewsPageState();
+  ConsumerState<RestaurantReviewsPage> createState() =>
+      _RestaurantReviewsPageState();
 }
 
 class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
@@ -37,7 +38,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
     RestaurantRemoteDataSourceImpl(),
     CacheService.instance,
   );
-  
+
   RestaurantModel? _restaurant;
   List<ReviewModel> _reviews = [];
   List<ReviewModel> _filteredReviews = [];
@@ -46,16 +47,16 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
   bool _isLoadingMore = false;
   bool _isSubmitting = false;
   String? _error;
-  
+
   // Paginação
   int _currentPage = 1;
   final int _pageSize = 20;
   bool _hasMoreReviews = true;
-  
+
   // Filtros
   int? _selectedRating;
   ReviewSortOption _sortOption = ReviewSortOption.newest;
-  
+
   @override
   void initState() {
     super.initState();
@@ -78,7 +79,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
 
       _restaurant = results[0] as RestaurantModel?;
       final rawReviews = results[1] as List<ReviewModel>;
-      
+
       // Remover duplicatas baseado no ID da review
       final uniqueReviews = <String, ReviewModel>{};
       for (final review in rawReviews) {
@@ -87,15 +88,18 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
         }
       }
       _reviews = uniqueReviews.values.toList();
-      
+
       // Extrair distribuição das estatísticas
       final stats = results[2] as Map<String, dynamic>;
-      _ratingDistribution = (stats['rating_distribution'] as Map<String, dynamic>?)
-          ?.map((key, value) => MapEntry(int.parse(key), value as int)) ?? {};
-      
+      _ratingDistribution = (stats['rating_distribution']
+                  as Map<String, dynamic>?)
+              ?.map((key, value) => MapEntry(int.parse(key), value as int)) ??
+          {};
+
       _applyFiltersAndSort();
-      
-      debugPrint('✅ Carregadas ${_reviews.length} reviews únicas para o restaurante');
+
+      debugPrint(
+          '✅ Carregadas ${_reviews.length} reviews únicas para o restaurante');
     } catch (e) {
       _error = e.toString();
       debugPrint('❌ Erro ao carregar reviews: $e');
@@ -110,14 +114,14 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
 
   void _applyFiltersAndSort() {
     var filteredReviews = List<ReviewModel>.from(_reviews);
-    
+
     // Aplicar filtro de rating
     if (_selectedRating != null) {
       filteredReviews = filteredReviews
           .where((review) => review.rating == _selectedRating)
           .toList();
     }
-    
+
     // Aplicar ordenação
     switch (_sortOption) {
       case ReviewSortOption.newest:
@@ -133,44 +137,46 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
         filteredReviews.sort((a, b) => a.rating.compareTo(b.rating));
         break;
       case ReviewSortOption.mostHelpful:
-        filteredReviews.sort((a, b) => b.helpfulCount.compareTo(a.helpfulCount));
+        filteredReviews
+            .sort((a, b) => b.helpfulCount.compareTo(a.helpfulCount));
         break;
     }
-    
+
     setState(() {
       _filteredReviews = filteredReviews;
     });
   }
-  
+
   Future<void> _loadMoreReviews() async {
     if (_isLoadingMore || !_hasMoreReviews) return;
-    
+
     setState(() {
       _isLoadingMore = true;
     });
-    
+
     try {
       final newReviews = await ReviewService.instance.getRestaurantReviews(
         widget.restaurantId,
         limit: _pageSize,
         offset: _currentPage * _pageSize,
       );
-      
+
       if (newReviews.isNotEmpty) {
         // Criar mapa de reviews existentes para evitar duplicatas
         final existingIds = _reviews.map((r) => r.id).toSet();
         final uniqueNewReviews = newReviews
             .where((review) => !existingIds.contains(review.id))
             .toList();
-        
+
         setState(() {
           _reviews.addAll(uniqueNewReviews);
           _currentPage++;
           _hasMoreReviews = newReviews.length == _pageSize;
         });
         _applyFiltersAndSort();
-        
-        debugPrint('✅ Carregadas ${uniqueNewReviews.length} novas reviews (${newReviews.length - uniqueNewReviews.length} duplicatas ignoradas)');
+
+        debugPrint(
+            '✅ Carregadas ${uniqueNewReviews.length} novas reviews (${newReviews.length - uniqueNewReviews.length} duplicatas ignoradas)');
       } else {
         setState(() {
           _hasMoreReviews = false;
@@ -203,11 +209,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
         actions: [
           IconButton(
             onPressed: _showSortOptions,
-            icon: Icon(Icons.sort),
+            icon: const Icon(Icons.sort),
           ),
           IconButton(
             onPressed: _showFilterOptions,
-            icon: Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list),
           ),
         ],
       ),
@@ -215,7 +221,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showRatingDialog,
         backgroundColor: AppColors.primary,
-        icon: Icon(Icons.star_border, color: AppColors.surface),
+        icon: const Icon(Icons.star_border, color: AppColors.surface),
         label: Text(
           'Avaliar',
           style: AppTextStyles.bodyMedium.copyWith(
@@ -245,11 +251,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       children: [
         // Estatísticas de avaliação
         if (_restaurant != null) _buildReviewStats(),
-        
+
         // Filtros ativos
         if (_selectedRating != null || _sortOption != ReviewSortOption.newest)
           _buildActiveFilters(),
-        
+
         // Lista de avaliações
         Expanded(
           child: _filteredReviews.isEmpty
@@ -286,7 +292,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           if (_selectedRating != null) ...[
             _buildFilterChip(
               label: '$_selectedRating estrelas',
@@ -297,7 +303,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
                 _applyFiltersAndSort();
               },
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
           ],
           if (_sortOption != ReviewSortOption.newest)
             _buildFilterChip(
@@ -338,10 +344,10 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(
+            child: const Icon(
               Icons.close,
               size: 16,
               color: AppColors.primary,
@@ -357,12 +363,12 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.message_outlined,
             size: 64,
             color: AppColors.textLight,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           Text(
             _selectedRating != null
                 ? 'Nenhuma avaliação com $_selectedRating estrelas'
@@ -370,7 +376,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
             style: AppTextStyles.headingMedium,
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Text(
             _selectedRating != null
                 ? 'Tente remover os filtros para ver mais avaliações'
@@ -441,7 +447,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
 
   Future<void> _showRatingDialog() async {
     if (_restaurant == null || _isSubmitting) return;
-    
+
     await showDialog(
       context: context,
       builder: (context) => RatingDialog(
@@ -449,11 +455,11 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
         onSubmit: (rating, comment) async {
           // Prevenir submissões múltiplas
           if (_isSubmitting) return;
-          
+
           setState(() {
             _isSubmitting = true;
           });
-          
+
           try {
             // Mostrar loading
             if (mounted) {
@@ -462,12 +468,12 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
                 barrierDismissible: false,
                 builder: (context) => Center(
                   child: Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Column(
+                    child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(color: AppColors.primary),
@@ -493,7 +499,7 @@ class _RestaurantReviewsPageState extends ConsumerState<RestaurantReviewsPage> {
             // Mostrar sucesso
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Avaliação salva com sucesso!'),
                   backgroundColor: AppColors.success,
                 ),
@@ -563,14 +569,14 @@ class _SortOptionsSheet extends StatelessWidget {
             'Ordenar por',
             style: AppTextStyles.headingMedium,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           ...ReviewSortOption.values.map((option) => ListTile(
-            title: Text(option.label),
-            trailing: currentOption == option
-                ? Icon(Icons.check, color: AppColors.primary)
-                : null,
-            onTap: () => onOptionSelected(option),
-          )),
+                title: Text(option.label),
+                trailing: currentOption == option
+                    ? const Icon(Icons.check, color: AppColors.primary)
+                    : null,
+                onTap: () => onOptionSelected(option),
+              )),
         ],
       ),
     );
@@ -601,32 +607,36 @@ class _FilterOptionsSheet extends StatelessWidget {
             'Filtrar por avaliação',
             style: AppTextStyles.headingMedium,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           ListTile(
-            title: Text('Todas as avaliações'),
+            title: const Text('Todas as avaliações'),
             trailing: currentRating == null
-                ? Icon(Icons.check, color: AppColors.primary)
+                ? const Icon(Icons.check, color: AppColors.primary)
                 : null,
             onTap: () => onRatingSelected(null),
           ),
           ...List.generate(5, (index) {
             final rating = 5 - index;
             final count = ratingDistribution[rating] ?? 0;
-            
+
             return ListTile(
               title: Row(
                 children: [
-                  ...List.generate(rating, (i) => Icon(
-                    Icons.star,
-                    size: 16,
-                    color: AppColors.warning,
-                  )),
-                  ...List.generate(5 - rating, (i) => Icon(
-                    Icons.star_border,
-                    size: 16,
-                    color: AppColors.textLight,
-                  )),
-                  SizedBox(width: AppDimensions.paddingSmall),
+                  ...List.generate(
+                      rating,
+                      (i) => const Icon(
+                            Icons.star,
+                            size: 16,
+                            color: AppColors.warning,
+                          )),
+                  ...List.generate(
+                      5 - rating,
+                      (i) => const Icon(
+                            Icons.star_border,
+                            size: 16,
+                            color: AppColors.textLight,
+                          )),
+                  const SizedBox(width: AppDimensions.paddingSmall),
                   Text(
                     '($count)',
                     style: AppTextStyles.bodySmall.copyWith(
@@ -636,7 +646,7 @@ class _FilterOptionsSheet extends StatelessWidget {
                 ],
               ),
               trailing: currentRating == rating
-                  ? Icon(Icons.check, color: AppColors.primary)
+                  ? const Icon(Icons.check, color: AppColors.primary)
                   : null,
               onTap: count > 0 ? () => onRatingSelected(rating) : null,
               enabled: count > 0,

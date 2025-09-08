@@ -40,24 +40,25 @@ CartModel _createMockCart({
   bool isEmpty = false,
 }) {
   List<CartItemModel> mockItems;
-  
+
   if (isEmpty) {
     mockItems = <CartItemModel>[];
   } else {
-    mockItems = items ?? [
-      CartItemModel.fromMenuItem(
-        menuItem: _createMockMenuItem(
-          restaurantId: restaurant?.id ?? 'rest1',
-        ),
-        quantity: 2,
-      ),
-    ];
+    mockItems = items ??
+        [
+          CartItemModel.fromMenuItem(
+            menuItem: _createMockMenuItem(
+              restaurantId: restaurant?.id ?? 'rest1',
+            ),
+            quantity: 2,
+          ),
+        ];
   }
-  
+
   final mockSubtotal = subtotal ?? (isEmpty ? 0.0 : 50.0);
   final mockDeliveryFee = deliveryFee ?? 5.0;
   final mockTotal = total ?? (mockSubtotal + mockDeliveryFee);
-  
+
   return CartModel(
     id: id ?? 'mock_cart',
     items: mockItems,
@@ -118,32 +119,32 @@ PaymentMethodModel _createMockPaymentMethod({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   group('OrderService', () {
     late OrderService orderService;
     late RestaurantModel mockRestaurant;
     late CartModel mockCart;
     late AddressModel mockAddress;
     late PaymentMethodModel mockPaymentMethod;
-    
+
     setUp(() {
       orderService = OrderService();
-      
+
       mockRestaurant = TestHelpers.createMockRestaurant(
         id: 'rest1',
         name: 'Pizza Palace',
         isOpen: true,
       );
-      
+
       mockCart = _createMockCart(
         restaurant: mockRestaurant,
         subtotal: 50.0,
       );
-      
+
       mockAddress = _createMockAddress();
       mockPaymentMethod = _createMockPaymentMethod();
     });
-    
+
     group('Singleton Pattern', () {
       test('should return the same instance', () {
         final instance1 = OrderService();
@@ -151,7 +152,7 @@ void main() {
         expect(instance1, same(instance2));
       });
     });
-    
+
     group('Order Creation', () {
       test('should create order successfully with valid data', () async {
         // Act
@@ -161,7 +162,7 @@ void main() {
           paymentMethod: mockPaymentMethod,
           notes: 'Test order',
         );
-        
+
         // Assert
         expect(order.id, isNotEmpty);
         expect(order.restaurant.id, equals(mockRestaurant.id));
@@ -175,14 +176,14 @@ void main() {
         expect(order.trackingCode, isNotEmpty);
         expect(order.estimatedDeliveryTime, isNotNull);
       });
-      
+
       test('should throw exception for empty cart', () async {
         // Arrange
         final emptyCart = _createMockCart(
           restaurant: mockRestaurant,
           isEmpty: true,
         );
-        
+
         // Act & Assert
         expect(
           () => orderService.createOrder(
@@ -197,11 +198,11 @@ void main() {
           )),
         );
       });
-      
+
       test('should throw exception for cart without restaurant', () async {
         // Arrange
         final cartWithoutRestaurant = _createMockCart(restaurant: null);
-        
+
         // Act & Assert
         expect(
           () => orderService.createOrder(
@@ -216,7 +217,7 @@ void main() {
           )),
         );
       });
-      
+
       test('should throw exception for closed restaurant', () async {
         // Arrange
         final closedRestaurant = TestHelpers.createMockRestaurant(
@@ -226,7 +227,7 @@ void main() {
         final cartWithClosedRestaurant = _createMockCart(
           restaurant: closedRestaurant,
         );
-        
+
         // Act & Assert
         expect(
           () => orderService.createOrder(
@@ -241,19 +242,19 @@ void main() {
           )),
         );
       });
-      
+
       test('should throw exception for order below minimum', () async {
         // Arrange
         final restaurantWithMinOrder = TestHelpers.createMockRestaurant(
           id: 'rest2',
           isOpen: true,
         ).copyWith(minOrderValue: 20.0);
-        
+
         final cartBelowMinimum = _createMockCart(
           restaurant: restaurantWithMinOrder,
           subtotal: 10.0, // Below minimum of 20.0
         );
-        
+
         // Act & Assert
         expect(
           () => orderService.createOrder(
@@ -269,7 +270,7 @@ void main() {
         );
       });
     });
-    
+
     group('Order Retrieval', () {
       test('should get user orders', () async {
         // Arrange
@@ -278,15 +279,15 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final orders = await orderService.getUserOrders();
-        
+
         // Assert
         expect(orders, isNotEmpty);
         expect(orders.first.restaurant.id, equals(mockRestaurant.id));
       });
-      
+
       test('should get order by ID', () async {
         // Arrange
         final createdOrder = await orderService.createOrder(
@@ -294,23 +295,23 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final foundOrder = await orderService.getOrderById(createdOrder.id);
-        
+
         // Assert
         expect(foundOrder, isNotNull);
         expect(foundOrder!.id, equals(createdOrder.id));
       });
-      
+
       test('should return null for non-existent order ID', () async {
         // Act
         final foundOrder = await orderService.getOrderById('non_existent_id');
-        
+
         // Assert
         expect(foundOrder, isNull);
       });
-      
+
       test('should get orders by status', () async {
         // Arrange
         await orderService.createOrder(
@@ -318,15 +319,18 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
-        final pendingOrders = await orderService.getOrdersByStatus(OrderStatus.pending);
-        
+        final pendingOrders =
+            await orderService.getOrdersByStatus(OrderStatus.pending);
+
         // Assert
         expect(pendingOrders, isNotEmpty);
-        expect(pendingOrders.every((order) => order.status == OrderStatus.pending), isTrue);
+        expect(
+            pendingOrders.every((order) => order.status == OrderStatus.pending),
+            isTrue);
       });
-      
+
       test('should get active orders', () async {
         // Arrange
         await orderService.createOrder(
@@ -334,10 +338,10 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final activeOrders = await orderService.getActiveOrders();
-        
+
         // Assert
         expect(activeOrders, isNotEmpty);
         const activeStatuses = [
@@ -352,7 +356,7 @@ void main() {
           isTrue,
         );
       });
-      
+
       test('should get order history', () async {
         // Arrange
         final order = await orderService.createOrder(
@@ -360,13 +364,13 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Update to delivered status
         await orderService.updateOrderStatus(order.id, OrderStatus.delivered);
-        
+
         // Act
         final history = await orderService.getOrderHistory();
-        
+
         // Assert
         expect(history, isNotEmpty);
         const finishedStatuses = [
@@ -380,7 +384,7 @@ void main() {
         );
       });
     });
-    
+
     group('Order Status Management', () {
       test('should update order status successfully', () async {
         // Arrange
@@ -389,18 +393,18 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final updatedOrder = await orderService.updateOrderStatus(
           order.id,
           OrderStatus.confirmed,
         );
-        
+
         // Assert
         expect(updatedOrder.status, equals(OrderStatus.confirmed));
         expect(updatedOrder.confirmedAt, isNotNull);
       });
-      
+
       test('should throw exception for non-existent order', () async {
         // Act & Assert
         expect(
@@ -415,7 +419,7 @@ void main() {
           )),
         );
       });
-      
+
       test('should set correct timestamps for different statuses', () async {
         // Arrange
         final order = await orderService.createOrder(
@@ -423,21 +427,21 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act & Assert - Confirmed
         final confirmedOrder = await orderService.updateOrderStatus(
           order.id,
           OrderStatus.confirmed,
         );
         expect(confirmedOrder.confirmedAt, isNotNull);
-        
+
         // Act & Assert - Preparing
         final preparingOrder = await orderService.updateOrderStatus(
           order.id,
           OrderStatus.preparing,
         );
         expect(preparingOrder.preparedAt, isNotNull);
-        
+
         // Act & Assert - Delivered
         final deliveredOrder = await orderService.updateOrderStatus(
           order.id,
@@ -446,7 +450,7 @@ void main() {
         expect(deliveredOrder.deliveredAt, isNotNull);
       });
     });
-    
+
     group('Order Cancellation', () {
       test('should cancel order successfully', () async {
         // Arrange
@@ -455,19 +459,19 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final cancelledOrder = await orderService.cancelOrder(
           order.id,
           'Changed my mind',
         );
-        
+
         // Assert
         expect(cancelledOrder.status, equals(OrderStatus.cancelled));
         expect(cancelledOrder.cancelledAt, isNotNull);
         expect(cancelledOrder.cancellationReason, equals('Changed my mind'));
       });
-      
+
       test('should throw exception for non-existent order', () async {
         // Act & Assert
         expect(
@@ -480,7 +484,7 @@ void main() {
         );
       });
     });
-    
+
     group('Order Tracking', () {
       test('should track order successfully', () async {
         // Arrange
@@ -489,10 +493,10 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Act
         final trackingInfo = await orderService.trackOrder(order.id);
-        
+
         // Assert
         expect(trackingInfo['orderId'], equals(order.id));
         expect(trackingInfo['status'], equals(order.status.name));
@@ -501,7 +505,7 @@ void main() {
         expect(trackingInfo['currentLocation'], isNotNull);
         expect(trackingInfo['lastUpdate'], isNotNull);
       });
-      
+
       test('should throw exception for non-existent order', () async {
         // Act & Assert
         expect(
@@ -514,24 +518,24 @@ void main() {
         );
       });
     });
-    
+
     group('Streams', () {
       test('should emit orders through stream', () async {
         // Arrange
         final streamFuture = orderService.ordersStream.first;
-        
+
         // Act
         await orderService.createOrder(
           cart: mockCart,
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Assert
         final orders = await streamFuture;
         expect(orders, isNotEmpty);
       });
-      
+
       test('should emit order updates through stream', () async {
         // Arrange
         final order = await orderService.createOrder(
@@ -539,18 +543,18 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         final streamFuture = orderService.orderUpdatesStream.first;
-        
+
         // Act
         await orderService.updateOrderStatus(order.id, OrderStatus.confirmed);
-        
+
         // Assert
         final updatedOrder = await streamFuture;
         expect(updatedOrder.status, equals(OrderStatus.confirmed));
       });
     });
-    
+
     group('Edge Cases', () {
       test('should handle multiple orders correctly', () async {
         // Arrange & Act
@@ -559,20 +563,20 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         final order2 = await orderService.createOrder(
           cart: mockCart,
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Assert
         expect(order1.id, isNot(equals(order2.id)));
-        
+
         final allOrders = await orderService.getUserOrders();
         expect(allOrders.length, greaterThanOrEqualTo(2));
       });
-      
+
       test('should generate unique order IDs', () async {
         // Act
         final order1 = await orderService.createOrder(
@@ -580,18 +584,18 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         final order2 = await orderService.createOrder(
           cart: mockCart,
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Assert
         expect(order1.id, isNot(equals(order2.id)));
         expect(order1.trackingCode, isNot(equals(order2.trackingCode)));
       });
-      
+
       test('should calculate estimated delivery time correctly', () async {
         // Act
         final order = await orderService.createOrder(
@@ -599,11 +603,11 @@ void main() {
           deliveryAddress: mockAddress,
           paymentMethod: mockPaymentMethod,
         );
-        
+
         // Assert
         expect(order.estimatedDeliveryTime, isNotNull);
         expect(
-          order.estimatedDeliveryTime!.isAfter(DateTime.now()),
+          order.estimatedDeliveryTime.isAfter(DateTime.now()),
           isTrue,
         );
       });

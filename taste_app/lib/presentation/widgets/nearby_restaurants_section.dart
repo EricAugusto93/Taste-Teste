@@ -45,14 +45,14 @@ class NearbyRestaurantsSection extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
               ),
               if (onSeeAll != null)
                 TextButton(
                   onPressed: onSeeAll,
-                  child: Text(
+                  child: const Text(
                     'Ver todos',
                     style: TextStyle(
                       color: AppColors.primary,
@@ -63,8 +63,8 @@ class NearbyRestaurantsSection extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 16),
-        
+        const SizedBox(height: 16),
+
         // Lista horizontal de restaurantes
         SizedBox(
           height: 280,
@@ -93,7 +93,7 @@ class NearbyRestaurantsSection extends StatelessWidget {
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.all(24),
-      child: Column(
+      child: const Column(
         children: [
           Icon(
             Icons.location_off,
@@ -172,7 +172,7 @@ class NearbyRestaurantCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Botão de favorito
                 Positioned(
                   top: 8,
@@ -191,7 +191,7 @@ class NearbyRestaurantCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.favorite_border,
                         size: 18,
                         color: AppColors.textLight,
@@ -199,7 +199,7 @@ class NearbyRestaurantCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Badge de distância (placeholder)
                 Positioned(
                   bottom: 8,
@@ -213,9 +213,9 @@ class NearbyRestaurantCard extends StatelessWidget {
                       color: Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
+                    child: const Text(
                       '2.5 km',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -225,7 +225,7 @@ class NearbyRestaurantCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Informações do restaurante
             Expanded(
               child: Padding(
@@ -243,29 +243,29 @@ class NearbyRestaurantCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
-                    
+                    const SizedBox(height: 4),
+
                     // Categoria
-                    Text(
+                    const Text(
                       'Restaurante',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 8),
-                    
+                    const SizedBox(height: 8),
+
                     // Rating e tempo de entrega
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star,
                           size: 14,
                           color: AppColors.primary,
                         ),
-                        SizedBox(width: 2),
+                        const SizedBox(width: 2),
                         Text(
                           restaurant.rating.toString(),
                           style: const TextStyle(
@@ -273,13 +273,13 @@ class NearbyRestaurantCard extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(
+                        const SizedBox(width: 8),
+                        const Icon(
                           Icons.access_time,
                           size: 14,
                           color: AppColors.textLight,
                         ),
-                        SizedBox(width: 2),
+                        const SizedBox(width: 2),
                         Expanded(
                           child: Text(
                             restaurant.deliveryTime,
@@ -293,9 +293,9 @@ class NearbyRestaurantCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     const Spacer(),
-                    
+
                     // Taxa de entrega
                     if (restaurant.deliveryFee > 0)
                       Text(
@@ -307,9 +307,9 @@ class NearbyRestaurantCard extends StatelessWidget {
                         ),
                       )
                     else
-                      Text(
+                      const Text(
                         'Entrega grátis',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: Colors.green,
                           fontWeight: FontWeight.w600,

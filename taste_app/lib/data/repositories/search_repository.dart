@@ -44,8 +44,6 @@ class SearchResult {
   }
 }
 
-
-
 /// Interface do repositório de busca
 abstract class SearchRepository {
   Future<SearchResult> searchRestaurants(SearchParams params);
@@ -57,11 +55,15 @@ abstract class SearchRepository {
   Future<void> removeRecentSearch(String userId, String query);
   Future<void> clearRecentSearches(String userId);
   Future<List<RestaurantModel>> getFeaturedRestaurants();
-  Future<List<RestaurantModel>> getNearbyRestaurants(double latitude, double longitude, {double radius = 10.0});
+  Future<List<RestaurantModel>> getNearbyRestaurants(
+      double latitude, double longitude,
+      {double radius = 10.0});
   Future<List<String>> getSearchHistory();
   Future<List<String>> getPopularSearchTerms();
   Future<List<RestaurantModel>> searchByCategory(String categoryId);
-  Future<List<RestaurantModel>> searchNearbyRestaurants(double latitude, double longitude, {double radiusKm = 10.0});
+  Future<List<RestaurantModel>> searchNearbyRestaurants(
+      double latitude, double longitude,
+      {double radiusKm = 10.0});
   Future<void> addToSearchHistory(String query);
 }
 
@@ -70,12 +72,13 @@ class SearchRepositoryImpl implements SearchRepository {
   final SupabaseClient _supabase;
   final LocationService _locationService;
   final _cacheService = InjectionContainer.get<CacheService>();
-  
+
   SearchRepositoryImpl({
     SupabaseClient? supabase,
     LocationService? locationService,
-  }) : _supabase = supabase ?? Supabase.instance.client,
-       _locationService = locationService ?? InjectionContainer.get<LocationService>();
+  })  : _supabase = supabase ?? Supabase.instance.client,
+        _locationService =
+            locationService ?? InjectionContainer.get<LocationService>();
 
   @override
   Future<SearchResult> searchRestaurants(SearchParams params) async {
@@ -88,9 +91,7 @@ class SearchRepositoryImpl implements SearchRepository {
       });
 
       // Construir query base
-      var query = _supabase
-          .from('restaurants')
-          .select('''
+      var query = _supabase.from('restaurants').select('''
             *,
             categories!inner(id, name, icon, color),
             restaurant_hours(*),
@@ -106,10 +107,11 @@ class SearchRepositoryImpl implements SearchRepository {
 
       // Aplicar paginação
       final offset = (params.page - 1) * params.pageSize;
-      final paginatedQuery = sortedQuery.range(offset, offset + params.pageSize - 1);
+      final paginatedQuery =
+          sortedQuery.range(offset, offset + params.pageSize - 1);
 
       final response = await paginatedQuery;
-      
+
       if (response == null) {
         return const SearchResult(
           restaurants: [],
@@ -138,12 +140,12 @@ class SearchRepositoryImpl implements SearchRepository {
           }
           return restaurant;
         }).toList();
-        
+
         // Aplicar filtro de distância máxima se especificado
         if (params.maxDistance != null) {
           restaurantsWithDistance = restaurantsWithDistance
-              .where((restaurant) => 
-                  restaurant.distance != null && 
+              .where((restaurant) =>
+                  restaurant.distance != null &&
                   restaurant.distance! <= params.maxDistance!)
               .toList();
         }
@@ -188,8 +190,7 @@ class SearchRepositoryImpl implements SearchRepository {
     // Filtro por texto
     if (params.query != null && params.query!.isNotEmpty) {
       query = query.or(
-        'name.ilike.%${params.query}%,description.ilike.%${params.query}%,tags.ilike.%${params.query}%'
-      );
+          'name.ilike.%${params.query}%,description.ilike.%${params.query}%,tags.ilike.%${params.query}%');
     }
 
     // Filtro por categoria
@@ -245,22 +246,20 @@ class SearchRepositoryImpl implements SearchRepository {
       case 'relevance':
       default:
         // Ordenação por relevância: rating + popularidade
-        return query.order('rating', ascending: false)
-                   .order('review_count', ascending: false);
+        return query
+            .order('rating', ascending: false)
+            .order('review_count', ascending: false);
     }
   }
 
   Future<int> _getTotalCount(SearchParams params) async {
     try {
-      var countQuery = _supabase
-          .from('restaurants')
-          .select('id');
-      
+      var countQuery = _supabase.from('restaurants').select('id');
+
       // Aplicar apenas filtros, não ordenação para contagem
       if (params.query != null && params.query!.isNotEmpty) {
         countQuery = countQuery.or(
-          'name.ilike.%${params.query}%,description.ilike.%${params.query}%,tags.ilike.%${params.query}%'
-        );
+            'name.ilike.%${params.query}%,description.ilike.%${params.query}%,tags.ilike.%${params.query}%');
       }
       if (params.categoryId != null) {
         countQuery = countQuery.eq('category_id', params.categoryId!);
@@ -271,7 +270,7 @@ class SearchRepositoryImpl implements SearchRepository {
       if (params.isOpen != null && params.isOpen!) {
         countQuery = countQuery.eq('is_open', true);
       }
-      
+
       final response = await countQuery;
       return response.length;
     } catch (e) {
@@ -280,7 +279,8 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
     return _locationService.calculateDistance(lat1, lon1, lat2, lon2);
   }
 
@@ -288,17 +288,17 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<CategoryModel>> getCategories() async {
     try {
       Logger.info('Buscando categorias');
-      
+
       // Gerar chave de cache
       const cacheKey = 'categories_active';
-      
+
       // Tentar buscar do cache primeiro
       final cachedData = await _cacheService.getCategory(cacheKey);
       if (cachedData != null) {
         Logger.info('Categorias carregadas do cache');
         return cachedData;
       }
-      
+
       final response = await _supabase
           .from('categories')
           .select('*')
@@ -329,7 +329,7 @@ class SearchRepositoryImpl implements SearchRepository {
 
       // Gerar chave de cache
       final cacheKey = 'search_suggestions_${query.toLowerCase()}';
-      
+
       // Tentar buscar do cache primeiro
       final cachedData = await _cacheService.getSearch(cacheKey);
       if (cachedData != null) {
@@ -360,27 +360,27 @@ class SearchRepositoryImpl implements SearchRepository {
           .limit(3);
 
       final suggestions = <String>{};
-      
+
       // Adicionar sugestões de restaurantes
       for (final item in restaurantSuggestions) {
         suggestions.add(item['name'] as String);
       }
-      
+
       // Adicionar sugestões de categorias
       for (final item in categorySuggestions) {
         suggestions.add(item['name'] as String);
       }
-      
+
       // Adicionar sugestões de tags
       for (final item in tagSuggestions) {
         suggestions.add(item['tag'] as String);
       }
 
       final result = suggestions.toList();
-      
+
       // Salvar no cache com TTL menor para sugestões
       await _cacheService.setSearch(cacheKey, result);
-      
+
       Logger.info('Sugestões encontradas', {'count': result.length});
       return result;
     } catch (e, stackTrace) {
@@ -393,22 +393,22 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<String>> getPopularSearches() async {
     try {
       Logger.info('Buscando buscas populares');
-      
+
       final response = await _supabase
           .from('popular_searches')
           .select('query')
           .order('search_count', ascending: false)
           .limit(10);
 
-      final searches = response
-          .map<String>((item) => item['query'] as String)
-          .toList();
+      final searches =
+          response.map<String>((item) => item['query'] as String).toList();
 
       Logger.info('Buscas populares carregadas', {'count': searches.length});
       return searches;
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Se a tabela não existir (404) ou outro erro, usar valores padrão
-      Logger.warning('Erro ao carregar buscas populares, usando valores padrão: $e');
+      Logger.warning(
+          'Erro ao carregar buscas populares, usando valores padrão: $e');
       return [
         'Pizza',
         'Hambúrguer',
@@ -426,7 +426,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<String>> getRecentSearches(String userId) async {
     try {
       Logger.info('Buscando histórico de buscas', {'userId': userId});
-      
+
       final response = await _supabase
           .from('user_search_history')
           .select('query')
@@ -434,15 +434,15 @@ class SearchRepositoryImpl implements SearchRepository {
           .order('created_at', ascending: false)
           .limit(10);
 
-      final searches = response
-          .map<String>((item) => item['query'] as String)
-          .toList();
+      final searches =
+          response.map<String>((item) => item['query'] as String).toList();
 
       Logger.info('Histórico carregado', {'count': searches.length});
       return searches;
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Se a tabela não existir (404) ou outro erro, retornar lista vazia
-      Logger.warning('Erro ao carregar histórico de buscas, retornando lista vazia: $e');
+      Logger.warning(
+          'Erro ao carregar histórico de buscas, retornando lista vazia: $e');
       return [];
     }
   }
@@ -465,13 +465,11 @@ class SearchRepositoryImpl implements SearchRepository {
           .eq('query', query);
 
       // Inserir nova busca
-      await _supabase
-          .from('user_search_history')
-          .insert({
-            'user_id': userId,
-            'query': query,
-            'created_at': DateTime.now().toIso8601String(),
-          });
+      await _supabase.from('user_search_history').insert({
+        'user_id': userId,
+        'query': query,
+        'created_at': DateTime.now().toIso8601String(),
+      });
 
       // Manter apenas as 20 buscas mais recentes
       await _cleanupOldSearches(userId);
@@ -480,9 +478,10 @@ class SearchRepositoryImpl implements SearchRepository {
       await _updatePopularSearchCount(query);
 
       Logger.info('Busca recente salva');
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Se a tabela não existir (404) ou outro erro, falhar silenciosamente
-      Logger.warning('Erro ao salvar busca recente (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao salvar busca recente (tabela pode não existir): $e');
     }
   }
 
@@ -501,9 +500,10 @@ class SearchRepositoryImpl implements SearchRepository {
           .eq('query', query);
 
       Logger.info('Busca recente removida');
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Se a tabela não existir (404) ou outro erro, falhar silenciosamente
-      Logger.warning('Erro ao remover busca recente (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao remover busca recente (tabela pode não existir): $e');
     }
   }
 
@@ -518,7 +518,7 @@ class SearchRepositoryImpl implements SearchRepository {
           .eq('user_id', userId);
 
       Logger.info('Histórico limpo');
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Se a tabela não existir (404) ou outro erro, falhar silenciosamente
       Logger.warning('Erro ao limpar histórico (tabela pode não existir): $e');
     }
@@ -528,7 +528,7 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<List<RestaurantModel>> getFeaturedRestaurants() async {
     try {
       Logger.info('Buscando restaurantes em destaque');
-      
+
       final response = await _supabase
           .from('restaurants')
           .select('''
@@ -544,7 +544,8 @@ class SearchRepositoryImpl implements SearchRepository {
           .map<RestaurantModel>((json) => RestaurantModel.fromJson(json))
           .toList();
 
-      Logger.info('Restaurantes em destaque carregados', {'count': restaurants.length});
+      Logger.info(
+          'Restaurantes em destaque carregados', {'count': restaurants.length});
       return restaurants;
     } catch (e, stackTrace) {
       Logger.error('Erro ao carregar restaurantes em destaque', e, stackTrace);
@@ -554,7 +555,7 @@ class SearchRepositoryImpl implements SearchRepository {
 
   @override
   Future<List<RestaurantModel>> getNearbyRestaurants(
-    double latitude, 
+    double latitude,
     double longitude, {
     double radius = 10.0,
   }) async {
@@ -565,12 +566,11 @@ class SearchRepositoryImpl implements SearchRepository {
         'radius': radius,
       });
 
-      final response = await _supabase
-          .rpc('get_nearby_restaurants', params: {
-            'lat': latitude,
-            'lng': longitude,
-            'radius_km': radius,
-          });
+      final response = await _supabase.rpc('get_nearby_restaurants', params: {
+        'lat': latitude,
+        'lng': longitude,
+        'radius_km': radius,
+      });
 
       final restaurants = response
           .map<RestaurantModel>((json) => RestaurantModel.fromJson(json))
@@ -582,7 +582,8 @@ class SearchRepositoryImpl implements SearchRepository {
 
       // Note: Sorting by distance would require adding distance property to RestaurantModel
 
-      Logger.info('Restaurantes próximos carregados', {'count': restaurants.length});
+      Logger.info(
+          'Restaurantes próximos carregados', {'count': restaurants.length});
       return restaurants;
     } catch (e, stackTrace) {
       Logger.error('Erro ao carregar restaurantes próximos', e, stackTrace);
@@ -602,7 +603,7 @@ class SearchRepositoryImpl implements SearchRepository {
 
       if (oldSearches.isNotEmpty) {
         final idsToDelete = oldSearches.map((item) => item['id']).toList();
-        
+
         await _supabase
             .from('user_search_history')
             .delete()
@@ -610,7 +611,8 @@ class SearchRepositoryImpl implements SearchRepository {
       }
     } catch (e) {
       // Se a tabela não existir (404) ou outro erro, falhar silenciosamente
-      Logger.warning('Erro ao limpar buscas antigas (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao limpar buscas antigas (tabela pode não existir): $e');
     }
   }
 
@@ -625,27 +627,23 @@ class SearchRepositoryImpl implements SearchRepository {
 
       if (existing != null) {
         // Incrementar contador
-        await _supabase
-            .from('popular_searches')
-            .update({
-              'search_count': existing['search_count'] + 1,
-              'updated_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', existing['id']);
+        await _supabase.from('popular_searches').update({
+          'search_count': existing['search_count'] + 1,
+          'updated_at': DateTime.now().toIso8601String(),
+        }).eq('id', existing['id']);
       } else {
         // Criar nova entrada
-        await _supabase
-            .from('popular_searches')
-            .insert({
-              'query': query,
-              'search_count': 1,
-              'created_at': DateTime.now().toIso8601String(),
-              'updated_at': DateTime.now().toIso8601String(),
-            });
+        await _supabase.from('popular_searches').insert({
+          'query': query,
+          'search_count': 1,
+          'created_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
+        });
       }
     } catch (e) {
       // Se a tabela não existir (404) ou outro erro, falhar silenciosamente
-      Logger.warning('Erro ao atualizar contador de busca popular (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao atualizar contador de busca popular (tabela pode não existir): $e');
     }
   }
 
@@ -659,12 +657,11 @@ class SearchRepositoryImpl implements SearchRepository {
           .order('created_at', ascending: false)
           .limit(10);
 
-      return response
-          .map<String>((item) => item['query'] as String)
-          .toList();
+      return response.map<String>((item) => item['query'] as String).toList();
     } catch (e) {
       // Se a tabela não existir (404) ou outro erro, retornar lista vazia
-      Logger.warning('Erro ao obter histórico de buscas (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao obter histórico de buscas (tabela pode não existir): $e');
       return [];
     }
   }
@@ -679,12 +676,11 @@ class SearchRepositoryImpl implements SearchRepository {
           .order('search_count', ascending: false)
           .limit(10);
 
-      return response
-          .map<String>((item) => item['query'] as String)
-          .toList();
+      return response.map<String>((item) => item['query'] as String).toList();
     } catch (e) {
       // Se a tabela não existir (404) ou outro erro, retornar lista vazia
-      Logger.warning('Erro ao obter termos populares (tabela pode não existir): $e');
+      Logger.warning(
+          'Erro ao obter termos populares (tabela pode não existir): $e');
       return [];
     }
   }

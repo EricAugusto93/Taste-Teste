@@ -22,7 +22,8 @@ void main() {
     });
 
     group('getCurrentLocation', () {
-      test('should return LocationModel when position is obtained successfully', () async {
+      test('should return LocationModel when position is obtained successfully',
+          () async {
         // Arrange
         final mockPosition = Position(
           latitude: -23.5505,
@@ -98,7 +99,8 @@ void main() {
 
         // Assert
         expect(result, isNotNull);
-        verify(mockLocationService.getCurrentLocation(forceRefresh: true)).called(1);
+        verify(mockLocationService.getCurrentLocation(forceRefresh: true))
+            .called(1);
       });
     });
 
@@ -257,11 +259,11 @@ void main() {
     group('calculateDistanceInMeters', () {
       test('should calculate distance correctly', () {
         // Arrange
-        final from = LocationModel(
+        const from = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        final to = LocationModel(
+        const to = LocationModel(
           latitude: -23.5506,
           longitude: -46.6334,
         );
@@ -283,11 +285,11 @@ void main() {
 
       test('should return 0.0 when exception occurs', () {
         // Arrange
-        final from = LocationModel(
+        const from = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        final to = LocationModel(
+        const to = LocationModel(
           latitude: -23.5506,
           longitude: -46.6334,
         );
@@ -310,11 +312,11 @@ void main() {
     group('calculateDistanceInKilometers', () {
       test('should calculate distance in km correctly', () {
         // Arrange
-        final from = LocationModel(
+        const from = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        final to = LocationModel(
+        const to = LocationModel(
           latitude: -23.5506,
           longitude: -46.6334,
         );
@@ -336,11 +338,11 @@ void main() {
 
       test('should return 0.0 when exception occurs', () {
         // Arrange
-        final from = LocationModel(
+        const from = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        final to = LocationModel(
+        const to = LocationModel(
           latitude: -23.5506,
           longitude: -46.6334,
         );
@@ -394,7 +396,7 @@ void main() {
     group('getCachedLocation', () {
       test('should return cached location when cache is valid', () {
         // Arrange
-        final cachedLocation = LocationModel(
+        const cachedLocation = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
@@ -411,7 +413,7 @@ void main() {
 
       test('should return null when cache is invalid', () {
         // Arrange
-        final cachedLocation = LocationModel(
+        const cachedLocation = LocationModel(
           latitude: -23.5505,
           longitude: -46.6333,
         );
@@ -488,7 +490,8 @@ void main() {
     });
 
     group('openAppSettings', () {
-      test('should return true when settings are opened successfully', () async {
+      test('should return true when settings are opened successfully',
+          () async {
         // Arrange
         when(mockLocationService.openAppSettings())
             .thenAnswer((_) async => true);

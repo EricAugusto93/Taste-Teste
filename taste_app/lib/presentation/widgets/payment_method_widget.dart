@@ -11,14 +11,15 @@ import 'widgets.dart';
 
 class PaymentMethodWidget extends ConsumerStatefulWidget {
   final Function(PaymentMethodModel) onPaymentMethodSelected;
-  
+
   const PaymentMethodWidget({
     super.key,
     required this.onPaymentMethodSelected,
   });
 
   @override
-  ConsumerState<PaymentMethodWidget> createState() => _PaymentMethodWidgetState();
+  ConsumerState<PaymentMethodWidget> createState() =>
+      _PaymentMethodWidgetState();
 }
 
 class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
@@ -47,7 +48,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -70,7 +71,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
               ],
             ),
           ),
-          
+
           // Lista de métodos de pagamento
           Flexible(
             child: paymentMethods.isEmpty
@@ -81,19 +82,21 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                       horizontal: AppDimensions.paddingMedium,
                     ),
                     itemCount: paymentMethods.length,
-                    separatorBuilder: (context, index) => SizedBox(
+                    separatorBuilder: (context, index) => const SizedBox(
                       height: AppDimensions.paddingSmall,
                     ),
                     itemBuilder: (context, index) {
                       final paymentMethod = paymentMethods[index];
-                      final isSelected = checkoutState.selectedPaymentMethod?.id == paymentMethod.id;
-                      
+                      final isSelected =
+                          checkoutState.selectedPaymentMethod?.id ==
+                              paymentMethod.id;
+
                       return _buildPaymentMethodCard(paymentMethod, isSelected);
                     },
                   ),
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
+
+          const SizedBox(height: AppDimensions.paddingMedium),
         ],
       ),
     );
@@ -105,19 +108,19 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             AppIcons.creditCard,
             size: 64,
             color: AppColors.textLight,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           Text(
             'Nenhum método de pagamento',
             style: AppTextStyles.headingSmall.copyWith(
               color: AppColors.textLight,
             ),
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Adicione um método de pagamento para continuar',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -125,7 +128,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           CustomButton(
             text: 'Adicionar método',
             onPressed: _showAddPaymentMethodDialog,
@@ -135,18 +138,19 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
     );
   }
 
-  Widget _buildPaymentMethodCard(PaymentMethodModel paymentMethod, bool isSelected) {
+  Widget _buildPaymentMethodCard(
+      PaymentMethodModel paymentMethod, bool isSelected) {
     return GestureDetector(
-      onTap: paymentMethod.isEnabled 
+      onTap: paymentMethod.isEnabled
           ? () => widget.onPaymentMethodSelected(paymentMethod)
           : null,
       child: Container(
         padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? AppColors.primary.withOpacity(0.1) 
-              : paymentMethod.isEnabled 
-                  ? AppColors.background 
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.1)
+              : paymentMethod.isEnabled
+                  ? AppColors.background
                   : AppColors.background.withOpacity(0.5),
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(
@@ -160,24 +164,24 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingSmall),
               decoration: BoxDecoration(
-                color: isSelected 
+                color: isSelected
                     ? AppColors.primary.withOpacity(0.2)
                     : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
               ),
               child: Icon(
                 _getPaymentMethodIcon(paymentMethod.type),
-                color: isSelected 
-                    ? AppColors.primary 
-                    : paymentMethod.isEnabled 
-                        ? AppColors.textLight 
+                color: isSelected
+                    ? AppColors.primary
+                    : paymentMethod.isEnabled
+                        ? AppColors.textLight
                         : AppColors.textLight.withOpacity(0.5),
                 size: AppDimensions.iconMedium,
               ),
             ),
-            
-            SizedBox(width: AppDimensions.paddingMedium),
-            
+
+            const SizedBox(width: AppDimensions.paddingMedium),
+
             // Informações do método de pagamento
             Expanded(
               child: Column(
@@ -187,20 +191,20 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     paymentMethod.name,
                     style: AppTextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isSelected 
-                          ? AppColors.primary 
-                          : paymentMethod.isEnabled 
-                              ? AppColors.textPrimary 
+                      color: isSelected
+                          ? AppColors.primary
+                          : paymentMethod.isEnabled
+                              ? AppColors.textPrimary
                               : AppColors.textLight.withOpacity(0.5),
                     ),
                   ),
                   if (paymentMethod.description.isNotEmpty) ...[
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       paymentMethod.description,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: paymentMethod.isEnabled 
-                            ? AppColors.textLight 
+                        color: paymentMethod.isEnabled
+                            ? AppColors.textLight
                             : AppColors.textLight.withOpacity(0.5),
                       ),
                       maxLines: 2,
@@ -208,7 +212,7 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     ),
                   ],
                   if (!paymentMethod.isEnabled) ...[
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Indisponível',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -220,9 +224,10 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                 ],
               ),
             ),
-            
+
             // Informações adicionais (para cartões)
-            if (paymentMethod.isCardType && paymentMethod.metadata.isNotEmpty) ...[
+            if (paymentMethod.isCardType &&
+                paymentMethod.metadata.isNotEmpty) ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -244,9 +249,9 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
                     ),
                 ],
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
             ],
-            
+
             // Indicador de seleção
             if (isSelected)
               Icon(
@@ -314,14 +319,15 @@ class _PaymentMethodWidgetState extends ConsumerState<PaymentMethodWidget> {
 /// Dialog para adicionar método de pagamento
 class PaymentMethodFormDialog extends StatefulWidget {
   final Function(PaymentMethodModel) onSave;
-  
+
   const PaymentMethodFormDialog({
     super.key,
     required this.onSave,
   });
 
   @override
-  State<PaymentMethodFormDialog> createState() => _PaymentMethodFormDialogState();
+  State<PaymentMethodFormDialog> createState() =>
+      _PaymentMethodFormDialogState();
 }
 
 class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
@@ -330,7 +336,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
   final _cardHolderController = TextEditingController();
   final _expiryDateController = TextEditingController();
   final _cvvController = TextEditingController();
-  
+
   String _selectedType = PaymentMethodType.creditCard;
   bool _isLoading = false;
 
@@ -362,7 +368,8 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
           children: [
             // Handle
             Container(
-              margin: const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
+              margin:
+                  const EdgeInsets.only(bottom: AppDimensions.paddingMedium),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
@@ -370,40 +377,42 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // Header
             Text(
               'Adicionar método de pagamento',
               style: AppTextStyles.headingMedium,
             ),
-            
-            SizedBox(height: AppDimensions.paddingLarge),
-            
+
+            const SizedBox(height: AppDimensions.paddingLarge),
+
             // Seleção do tipo
             _buildPaymentTypeSelector(),
-            
-            SizedBox(height: AppDimensions.paddingLarge),
-            
+
+            const SizedBox(height: AppDimensions.paddingLarge),
+
             // Formulário baseado no tipo
-            if (_selectedType == PaymentMethodType.creditCard || 
+            if (_selectedType == PaymentMethodType.creditCard ||
                 _selectedType == PaymentMethodType.debitCard)
               _buildCardForm()
             else
               _buildOtherPaymentForm(),
-            
-            SizedBox(height: AppDimensions.paddingLarge),
-            
+
+            const SizedBox(height: AppDimensions.paddingLarge),
+
             // Botões
             Row(
               children: [
                 Expanded(
                   child: CustomButton(
                     text: 'Cancelar',
-                    onPressed: _isLoading ? null : () => NavigationHelper.safeGoBack(context),
+                    onPressed: _isLoading
+                        ? null
+                        : () => NavigationHelper.safeGoBack(context),
                     variant: ButtonVariant.outlined,
                   ),
                 ),
-                SizedBox(width: AppDimensions.paddingMedium),
+                const SizedBox(width: AppDimensions.paddingMedium),
                 Expanded(
                   child: CustomButton(
                     text: _isLoading ? 'Salvando...' : 'Salvar',
@@ -426,7 +435,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       PaymentMethodType.pix,
       PaymentMethodType.cash,
     ];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -436,7 +445,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           children: types.map((type) {
@@ -453,10 +462,11 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                   vertical: AppDimensions.paddingSmall,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected 
+                  color: isSelected
                       ? AppColors.primary.withOpacity(0.1)
                       : AppColors.background,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                  borderRadius:
+                      BorderRadius.circular(AppDimensions.radiusMedium),
                   border: Border.all(
                     color: isSelected ? AppColors.primary : AppColors.border,
                   ),
@@ -467,14 +477,18 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                     Icon(
                       _getPaymentMethodIcon(type),
                       size: AppDimensions.iconSmall,
-                      color: isSelected ? AppColors.primary : AppColors.textLight,
+                      color:
+                          isSelected ? AppColors.primary : AppColors.textLight,
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     Text(
                       PaymentMethodType.getLabel(type),
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -508,9 +522,9 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
               return null;
             },
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
-          
+
+          const SizedBox(height: AppDimensions.paddingMedium),
+
           // Nome do portador
           CustomTextField(
             controller: _cardHolderController,
@@ -524,9 +538,9 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
               return null;
             },
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
-          
+
+          const SizedBox(height: AppDimensions.paddingMedium),
+
           // Data de validade e CVV
           Row(
             children: [
@@ -547,7 +561,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
                   },
                 ),
               ),
-              SizedBox(width: AppDimensions.paddingMedium),
+              const SizedBox(width: AppDimensions.paddingMedium),
               Expanded(
                 child: CustomTextField(
                   controller: _cvvController,
@@ -575,7 +589,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
 
   Widget _buildOtherPaymentForm() {
     String description = '';
-    
+
     switch (_selectedType) {
       case PaymentMethodType.pix:
         description = 'PIX será processado na hora da entrega';
@@ -586,7 +600,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       default:
         description = 'Método de pagamento será configurado';
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
@@ -596,12 +610,12 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             AppIcons.info,
             color: AppColors.primary,
             size: AppDimensions.iconMedium,
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Expanded(
             child: Text(
               description,
@@ -617,16 +631,16 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
 
   void _savePaymentMethod() async {
     // Para cartões, validar formulário
-    if ((_selectedType == PaymentMethodType.creditCard || 
-         _selectedType == PaymentMethodType.debitCard) &&
+    if ((_selectedType == PaymentMethodType.creditCard ||
+            _selectedType == PaymentMethodType.debitCard) &&
         !_formKey.currentState!.validate()) {
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final paymentMethod = PaymentMethodFactory.createCustom(
         type: _selectedType,
@@ -634,7 +648,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
         description: _getPaymentMethodDescription(),
         metadata: _getPaymentMethodMetadata(),
       );
-      
+
       widget.onSave(paymentMethod);
     } catch (e) {
       if (mounted) {
@@ -659,7 +673,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       case PaymentMethodType.creditCard:
       case PaymentMethodType.debitCard:
         final cardNumber = _cardNumberController.text.replaceAll(' ', '');
-        final lastFour = cardNumber.length >= 4 
+        final lastFour = cardNumber.length >= 4
             ? cardNumber.substring(cardNumber.length - 4)
             : cardNumber;
         return '${PaymentMethodType.getLabel(_selectedType)} •••• $lastFour';
@@ -688,7 +702,7 @@ class _PaymentMethodFormDialogState extends State<PaymentMethodFormDialog> {
       case PaymentMethodType.debitCard:
         final cardNumber = _cardNumberController.text.replaceAll(' ', '');
         return {
-          'lastFourDigits': cardNumber.length >= 4 
+          'lastFourDigits': cardNumber.length >= 4
               ? cardNumber.substring(cardNumber.length - 4)
               : cardNumber,
           'cardHolder': _cardHolderController.text.trim(),

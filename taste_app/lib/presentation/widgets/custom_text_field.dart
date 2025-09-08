@@ -21,7 +21,7 @@ class CustomTextField extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
   final Color? fillColor;
   final double? borderRadius;
-  
+
   const CustomTextField({
     super.key,
     this.hintText,
@@ -41,7 +41,7 @@ class CustomTextField extends StatelessWidget {
     this.fillColor,
     this.borderRadius,
   });
-  
+
   /// Factory para campo de busca específico
   factory CustomTextField.search({
     Key? key,
@@ -58,18 +58,19 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       onChanged: onChanged,
       onTap: onTap,
-      prefixIcon: prefixIcon ?? const Icon(
-        Icons.search,
-        color: AppColors.textLight,
-        size: AppDimensions.iconMedium,
-      ),
+      prefixIcon: prefixIcon ??
+          const Icon(
+            Icons.search,
+            color: AppColors.textLight,
+            size: AppDimensions.iconMedium,
+          ),
       suffixIcon: suffixIcon,
       isSearchField: true,
       fillColor: AppColors.surface,
       borderRadius: AppDimensions.searchFieldRadius,
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -81,7 +82,7 @@ class CustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       maxLines: maxLines,
       validator: validator,
-      style: isSearchField 
+      style: isSearchField
           ? AppTextStyles.searchPlaceholder.copyWith(color: AppColors.textDark)
           : AppTextStyles.bodyLarge.copyWith(color: AppColors.textDark),
       decoration: InputDecoration(
@@ -97,41 +98,48 @@ class CustomTextField extends StatelessWidget {
         errorBorder: _buildErrorBorder(),
         focusedErrorBorder: _buildErrorBorder(),
         hintStyle: AppTextStyles.searchPlaceholder,
-        labelStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight),
-        contentPadding: contentPadding ?? EdgeInsets.symmetric(
-          horizontal: isSearchField ? AppDimensions.paddingLarge : AppDimensions.paddingMedium,
-          vertical: AppDimensions.paddingMedium,
-        ),
+        labelStyle:
+            AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight),
+        contentPadding: contentPadding ??
+            EdgeInsets.symmetric(
+              horizontal: isSearchField
+                  ? AppDimensions.paddingLarge
+                  : AppDimensions.paddingMedium,
+              vertical: AppDimensions.paddingMedium,
+            ),
       ),
     );
   }
-  
+
   OutlineInputBorder _buildBorder() {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(
-        borderRadius ?? (isSearchField ? AppDimensions.searchFieldRadius : AppDimensions.mediumRadius)
-      ),
+      borderRadius: BorderRadius.circular(borderRadius ??
+          (isSearchField
+              ? AppDimensions.searchFieldRadius
+              : AppDimensions.mediumRadius)),
       borderSide: BorderSide.none,
     );
   }
-  
+
   OutlineInputBorder _buildFocusedBorder() {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(
-        borderRadius ?? (isSearchField ? AppDimensions.searchFieldRadius : AppDimensions.mediumRadius)
-      ),
+      borderRadius: BorderRadius.circular(borderRadius ??
+          (isSearchField
+              ? AppDimensions.searchFieldRadius
+              : AppDimensions.mediumRadius)),
       borderSide: const BorderSide(
         color: AppColors.primary,
         width: 2,
       ),
     );
   }
-  
+
   OutlineInputBorder _buildErrorBorder() {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(
-        borderRadius ?? (isSearchField ? AppDimensions.searchFieldRadius : AppDimensions.mediumRadius)
-      ),
+      borderRadius: BorderRadius.circular(borderRadius ??
+          (isSearchField
+              ? AppDimensions.searchFieldRadius
+              : AppDimensions.mediumRadius)),
       borderSide: const BorderSide(
         color: AppColors.error,
         width: 2,
@@ -147,7 +155,7 @@ class SearchField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
   final bool readOnly;
-  
+
   const SearchField({
     super.key,
     this.hintText,
@@ -156,7 +164,7 @@ class SearchField extends StatelessWidget {
     this.onTap,
     this.readOnly = false,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -168,14 +176,14 @@ class SearchField extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         onTap: onTap,
-        prefixIcon: Icon(
+        prefixIcon: const Icon(
           Icons.search,
           color: AppColors.textLight,
           size: AppDimensions.iconMedium,
         ),
         suffixIcon: controller?.text.isNotEmpty == true
             ? IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.clear,
                   color: AppColors.textLight,
                   size: AppDimensions.iconMedium,

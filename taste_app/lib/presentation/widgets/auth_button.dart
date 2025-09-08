@@ -34,11 +34,13 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isEnabled = onPressed != null && !isLoading;
-    
+
     Color getBackgroundColor() {
       if (backgroundColor != null) return backgroundColor!;
       if (isSecondary) {
-        return isEnabled ? AppColors.surface : AppColors.surface.withOpacity(0.5);
+        return isEnabled
+            ? AppColors.surface
+            : AppColors.surface.withOpacity(0.5);
       }
       return isEnabled ? AppColors.primary : AppColors.primary.withOpacity(0.5);
     }
@@ -48,7 +50,9 @@ class AuthButton extends StatelessWidget {
       if (isSecondary) {
         return isEnabled ? AppColors.primary : AppColors.textSecondary;
       }
-      return isEnabled ? AppColors.textPrimary : AppColors.textPrimary.withOpacity(0.7);
+      return isEnabled
+          ? AppColors.textPrimary
+          : AppColors.textPrimary.withOpacity(0.7);
     }
 
     return SizedBox(
@@ -62,7 +66,8 @@ class AuthButton extends StatelessWidget {
           elevation: isSecondary ? 0 : (isEnabled ? 2 : 0),
           shadowColor: AppColors.shadow,
           shape: RoundedRectangleBorder(
-            borderRadius: borderRadius ?? BorderRadius.circular(AppDimensions.radiusMedium),
+            borderRadius: borderRadius ??
+                BorderRadius.circular(AppDimensions.radiusMedium),
             side: isSecondary
                 ? BorderSide(
                     color: isEnabled ? AppColors.primary : AppColors.border,
@@ -70,10 +75,11 @@ class AuthButton extends StatelessWidget {
                   )
                 : BorderSide.none,
           ),
-          padding: padding ?? const EdgeInsets.symmetric(
-            horizontal: AppDimensions.paddingLarge,
-            vertical: AppDimensions.paddingMedium,
-          ),
+          padding: padding ??
+              const EdgeInsets.symmetric(
+                horizontal: AppDimensions.paddingLarge,
+                vertical: AppDimensions.paddingMedium,
+              ),
         ),
         child: isLoading
             ? SizedBox(
@@ -92,7 +98,7 @@ class AuthButton extends StatelessWidget {
                 children: [
                   if (icon != null) ...[
                     icon!,
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                   ],
                   Text(
                     text,
@@ -154,7 +160,7 @@ class SocialAuthButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
@@ -165,7 +171,7 @@ class SocialAuthButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   icon,
-                  SizedBox(width: AppDimensions.paddingMedium),
+                  const SizedBox(width: AppDimensions.paddingMedium),
                   Text(
                     text,
                     style: AppTextStyles.buttonText.copyWith(

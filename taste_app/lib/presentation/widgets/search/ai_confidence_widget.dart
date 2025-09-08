@@ -31,7 +31,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool _showFeedback = false;
   bool _feedbackSubmitted = false;
   String? _selectedFeedback;
@@ -43,7 +43,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -51,7 +51,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -0.5),
       end: Offset.zero,
@@ -59,7 +59,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
-    
+
     _animationController.forward();
   }
 
@@ -72,7 +72,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
   @override
   Widget build(BuildContext context) {
     // Só exibir se a confiança for significativa ou houver interpretação especial
-    if (widget.interpretation.confidence < 0.3 && 
+    if (widget.interpretation.confidence < 0.3 &&
         widget.interpretation.intention == SearchIntention.general &&
         widget.interpretation.entities.isEmpty) {
       return const SizedBox.shrink();
@@ -110,12 +110,11 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
-                  if (widget.interpretation.entities.isNotEmpty) ...
-                    _buildEntitiesInfo(),
-                  if (_showFeedback && !_feedbackSubmitted) ...
-                    _buildFeedbackSection(),
-                  if (_feedbackSubmitted) ...
-                    _buildThankYouMessage(),
+                  if (widget.interpretation.entities.isNotEmpty)
+                    ..._buildEntitiesInfo(),
+                  if (_showFeedback && !_feedbackSubmitted)
+                    ..._buildFeedbackSection(),
+                  if (_feedbackSubmitted) ..._buildThankYouMessage(),
                 ],
               ),
             ),
@@ -133,7 +132,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
           color: _getConfidenceColor(),
           size: AppDimensions.iconSmall,
         ),
-        SizedBox(width: AppDimensions.paddingSmall),
+        const SizedBox(width: AppDimensions.paddingSmall),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +154,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
           ),
         ),
         _buildConfidenceIndicator(),
-        SizedBox(width: AppDimensions.paddingSmall),
+        const SizedBox(width: AppDimensions.paddingSmall),
         if (!_feedbackSubmitted)
           GestureDetector(
             onTap: () {
@@ -197,7 +196,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildEntitiesInfo() {
     return [
-      SizedBox(height: AppDimensions.paddingSmall),
+      const SizedBox(height: AppDimensions.paddingSmall),
       Wrap(
         spacing: AppDimensions.paddingSmall,
         runSpacing: AppDimensions.paddingXSmall,
@@ -226,16 +225,16 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildFeedbackSection() {
     return [
-      SizedBox(height: AppDimensions.paddingMedium),
+      const SizedBox(height: AppDimensions.paddingMedium),
       const Divider(color: AppColors.divider),
-      SizedBox(height: AppDimensions.paddingSmall),
+      const SizedBox(height: AppDimensions.paddingSmall),
       Text(
         'Os resultados foram úteis?',
         style: AppTextStyles.bodyMedium.copyWith(
           fontWeight: FontWeight.w600,
         ),
       ),
-      SizedBox(height: AppDimensions.paddingSmall),
+      const SizedBox(height: AppDimensions.paddingSmall),
       Row(
         children: [
           _buildFeedbackButton(
@@ -244,7 +243,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
             AppColors.success,
             AppIcons.thumbsUp,
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           _buildFeedbackButton(
             'Não muito',
             'negative',
@@ -263,7 +262,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
     IconData icon,
   ) {
     final isSelected = _selectedFeedback == value;
-    
+
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -290,7 +289,7 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
                 color: isSelected ? color : AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              SizedBox(width: AppDimensions.paddingXSmall),
+              const SizedBox(width: AppDimensions.paddingXSmall),
               Text(
                 text,
                 style: AppTextStyles.bodySmall.copyWith(
@@ -307,17 +306,17 @@ class _AIConfidenceWidgetState extends State<AIConfidenceWidget>
 
   List<Widget> _buildThankYouMessage() {
     return [
-      SizedBox(height: AppDimensions.paddingMedium),
+      const SizedBox(height: AppDimensions.paddingMedium),
       const Divider(color: AppColors.divider),
-      SizedBox(height: AppDimensions.paddingSmall),
+      const SizedBox(height: AppDimensions.paddingSmall),
       Row(
         children: [
-          Icon(
+          const Icon(
             Icons.check,
             color: AppColors.success,
             size: AppDimensions.iconSmall,
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Text(
             'Obrigado pelo feedback!',
             style: AppTextStyles.bodyMedium.copyWith(

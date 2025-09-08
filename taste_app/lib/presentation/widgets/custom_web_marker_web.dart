@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:js' as js;
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'custom_web_marker.dart';
@@ -18,14 +17,14 @@ class CustomWebMarkerWeb {
     if (kDebugMode) {
       debugPrint('🚀 CustomWebMarkerWeb: Inicializando sistema de markers...');
     }
-    
+
     _map = map as js.JsObject?;
     _isInitialized = true;
 
     // Execute any pending marker creations
     final pendingList = List<Function()>.from(_pendingCreations);
     _pendingCreations.clear();
-    
+
     for (final creation in pendingList) {
       try {
         creation();
@@ -37,7 +36,8 @@ class CustomWebMarkerWeb {
     }
 
     if (kDebugMode) {
-      debugPrint('✅ CustomWebMarkerWeb inicializado com ${pendingList.length} markers pendentes');
+      debugPrint(
+          '✅ CustomWebMarkerWeb inicializado com ${pendingList.length} markers pendentes');
     }
   }
 
@@ -52,9 +52,10 @@ class CustomWebMarkerWeb {
     // If not initialized, queue the creation
     if (!_isInitialized || _map == null) {
       if (kDebugMode) {
-        debugPrint('⏳ Sistema não inicializado, enfileirando marker: ${marker.markerId}');
+        debugPrint(
+            '⏳ Sistema não inicializado, enfileirando marker: ${marker.markerId}');
       }
-      
+
       _pendingCreations.add(() {
         _createAdvancedMarkerImmediate(marker);
       });
@@ -71,7 +72,8 @@ class CustomWebMarkerWeb {
       final google = js.context['google'];
       if (google == null || google['maps'] == null) {
         if (kDebugMode) {
-          debugPrint('❌ Google Maps API não disponível para ${marker.markerId}');
+          debugPrint(
+              '❌ Google Maps API não disponível para ${marker.markerId}');
         }
         return null;
       }
@@ -80,7 +82,8 @@ class CustomWebMarkerWeb {
       final markerLib = google['maps']['marker'];
       if (markerLib == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ Biblioteca marker não carregada, usando fallback para ${marker.markerId}');
+          debugPrint(
+              '⚠️ Biblioteca marker não carregada, usando fallback para ${marker.markerId}');
         }
         return _createFallbackAdvancedMarker(marker);
       }
@@ -88,7 +91,8 @@ class CustomWebMarkerWeb {
       final advancedMarkerClass = markerLib['AdvancedMarkerElement'];
       if (advancedMarkerClass == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ AdvancedMarkerElement não disponível, usando fallback para ${marker.markerId}');
+          debugPrint(
+              '⚠️ AdvancedMarkerElement não disponível, usando fallback para ${marker.markerId}');
         }
         return _createFallbackAdvancedMarker(marker);
       }
@@ -97,7 +101,8 @@ class CustomWebMarkerWeb {
       js.JsObject? currentMap = _getCurrentMapInstance();
       if (currentMap == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ Instância do mapa não encontrada para ${marker.markerId}');
+          debugPrint(
+              '⚠️ Instância do mapa não encontrada para ${marker.markerId}');
         }
         return null;
       }
@@ -119,8 +124,8 @@ class CustomWebMarkerWeb {
             emoji: emoji,
             isSelected: false, // Can be enhanced to track selected state
             isCluster: marker.markerId.startsWith('cluster_'),
-            clusterCount: marker.markerId.startsWith('cluster_') 
-                ? _extractClusterCount(marker.title!) 
+            clusterCount: marker.markerId.startsWith('cluster_')
+                ? _extractClusterCount(marker.title!)
                 : null,
           );
         }
@@ -137,7 +142,7 @@ class CustomWebMarkerWeb {
 
       // Create the AdvancedMarkerElement
       final jsMarker = js.JsObject(advancedMarkerClass, [options]);
-      
+
       // Store the marker
       _markers[marker.markerId] = jsMarker;
 
@@ -153,7 +158,8 @@ class CustomWebMarkerWeb {
       return jsMarker;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Erro ao criar AdvancedMarkerElement ${marker.markerId}: $e');
+        debugPrint(
+            '❌ Erro ao criar AdvancedMarkerElement ${marker.markerId}: $e');
       }
       return _createFallbackAdvancedMarker(marker);
     }
@@ -204,13 +210,13 @@ class CustomWebMarkerWeb {
   /// Extract emoji from title string
   static String? _extractEmojiFromTitle(String title) {
     if (title.isEmpty) return null;
-    
+
     // Check if first character is an emoji
     final firstChar = title.isNotEmpty ? title[0] : '';
     if (_isEmoji(firstChar)) {
       return firstChar;
     }
-    
+
     return null;
   }
 
@@ -225,11 +231,11 @@ class CustomWebMarkerWeb {
   static bool _isEmoji(String char) {
     final codeUnit = char.codeUnits.first;
     return (codeUnit >= 0x1F600 && codeUnit <= 0x1F64F) || // Emoticons
-           (codeUnit >= 0x1F300 && codeUnit <= 0x1F5FF) || // Misc Symbols
-           (codeUnit >= 0x1F680 && codeUnit <= 0x1F6FF) || // Transport
-           (codeUnit >= 0x1F1E6 && codeUnit <= 0x1F1FF) || // Regional indicators
-           (codeUnit >= 0x2600 && codeUnit <= 0x26FF) ||   // Misc symbols
-           (codeUnit >= 0x2700 && codeUnit <= 0x27BF);     // Dingbats
+        (codeUnit >= 0x1F300 && codeUnit <= 0x1F5FF) || // Misc Symbols
+        (codeUnit >= 0x1F680 && codeUnit <= 0x1F6FF) || // Transport
+        (codeUnit >= 0x1F1E6 && codeUnit <= 0x1F1FF) || // Regional indicators
+        (codeUnit >= 0x2600 && codeUnit <= 0x26FF) || // Misc symbols
+        (codeUnit >= 0x2700 && codeUnit <= 0x27BF); // Dingbats
   }
 
   /// Create emoji content element
@@ -241,7 +247,7 @@ class CustomWebMarkerWeb {
       ..style.userSelect = 'none'
       ..style.cursor = 'pointer'
       ..text = emoji;
-    
+
     return div;
   }
 
@@ -253,7 +259,7 @@ class CustomWebMarkerWeb {
     String? clusterCount,
   }) {
     final container = html.DivElement();
-    
+
     // Balloon container with positioning
     container.style
       ..position = 'relative'
@@ -343,7 +349,7 @@ class CustomWebMarkerWeb {
 
     // Assemble the marker
     container.children.addAll([tailBorder, tail, balloon]);
-    
+
     return container;
   }
 
@@ -354,10 +360,14 @@ class CustomWebMarkerWeb {
       if (marker != null) {
         final eventClass = js.context['google']?['maps']?['event'];
         if (eventClass != null) {
-          eventClass.callMethod('addListener', [marker, 'click', js.allowInterop((_) {
-            onTap();
-          })]);
-          
+          eventClass.callMethod('addListener', [
+            marker,
+            'click',
+            js.allowInterop((_) {
+              onTap();
+            })
+          ]);
+
           if (kDebugMode) {
             debugPrint('✅ Click listener adicionado para: $markerId');
           }
@@ -378,7 +388,7 @@ class CustomWebMarkerWeb {
         // Remove from map
         marker['map'] = null;
         _markers.remove(markerId);
-        
+
         if (kDebugMode) {
           debugPrint('✅ Marker removido: $markerId');
         }
@@ -399,11 +409,12 @@ class CustomWebMarkerWeb {
           'lat': position.latitude,
           'lng': position.longitude,
         });
-        
+
         marker['position'] = newPosition;
-        
+
         if (kDebugMode) {
-          debugPrint('✅ Posição atualizada para $markerId: ${position.latitude}, ${position.longitude}');
+          debugPrint(
+              '✅ Posição atualizada para $markerId: ${position.latitude}, ${position.longitude}');
         }
       }
     } catch (e) {
@@ -418,13 +429,13 @@ class CustomWebMarkerWeb {
     try {
       final google = js.context['google'];
       if (google == null) return false;
-      
+
       final maps = google['maps'];
       if (maps == null) return false;
-      
+
       final marker = maps['marker'];
       if (marker == null) return false;
-      
+
       final advancedMarker = marker['AdvancedMarkerElement'];
       return advancedMarker != null;
     } catch (e) {
@@ -441,7 +452,7 @@ class CustomWebMarkerWeb {
       for (final markerId in _markers.keys.toList()) {
         removeMarker(markerId);
       }
-      
+
       if (kDebugMode) {
         debugPrint('✅ Todos os markers removidos');
       }

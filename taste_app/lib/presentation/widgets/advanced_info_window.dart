@@ -186,8 +186,8 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
               ),
             ),
           ),
-          SizedBox(width: 12),
-          
+          const SizedBox(width: 12),
+
           // Informações principais
           Expanded(
             child: Column(
@@ -202,18 +202,18 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     _buildRatingChip(),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     if (widget.distance != null) _buildDistanceChip(),
                   ],
                 ),
               ],
             ),
           ),
-          
+
           // Botão fechar
           GestureDetector(
             onTap: _close,
@@ -224,7 +224,7 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.close,
                 size: 16,
                 color: Colors.grey,
@@ -250,20 +250,20 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
                 text: '${widget.restaurant.deliveryTime} min',
                 color: Colors.orange,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               if (widget.restaurant.priceRange != null)
                 _buildInfoChip(
                   icon: Icons.attach_money,
                   text: widget.restaurant.priceRange!,
                   color: Colors.green,
                 ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               _buildStatusChip(),
             ],
           ),
-          
+
           if (widget.restaurant.description?.isNotEmpty == true) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               widget.restaurant.description!,
               style: AppTextStyles.bodySmall.copyWith(
@@ -333,7 +333,7 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
             size: 12,
             color: _getRatingColor(),
           ),
-          SizedBox(width: 2),
+          const SizedBox(width: 2),
           Text(
             widget.restaurant.rating.toStringAsFixed(1),
             style: TextStyle(
@@ -361,12 +361,12 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             Icons.location_on,
             size: 12,
             color: Colors.blue,
           ),
-          SizedBox(width: 2),
+          const SizedBox(width: 2),
           Text(
             widget.distance!,
             style: const TextStyle(
@@ -399,7 +399,7 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
             size: 10,
             color: color,
           ),
-          SizedBox(width: 2),
+          const SizedBox(width: 2),
           Text(
             text,
             style: TextStyle(
@@ -432,7 +432,7 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
               shape: BoxShape.circle,
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             isOpen ? 'Aberto' : 'Fechado',
             style: TextStyle(
@@ -472,7 +472,7 @@ class _AdvancedInfoWindowState extends State<AdvancedInfoWindow>
               size: 14,
               color: color,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(

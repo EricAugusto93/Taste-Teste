@@ -41,10 +41,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Você deve aceitar os termos de uso'),
           backgroundColor: AppColors.error,
         ),
@@ -53,17 +53,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     }
 
     final authNotifier = ref.read(authProvider.notifier);
-    
+
     try {
       await authNotifier.signUp(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      
+
       if (mounted) {
         // Mostrar mensagem de sucesso e navegar para verificação
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Conta criada! Verifique seu e-mail para ativar.'),
             backgroundColor: AppColors.success,
           ),
@@ -89,14 +89,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: AppColors.textPrimary,
           ),
@@ -124,7 +124,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: AppDimensions.paddingSmall),
+                            const SizedBox(height: AppDimensions.paddingSmall),
                             Text(
                               'Preencha os dados para criar sua conta',
                               style: AppTextStyles.bodyLarge.copyWith(
@@ -135,85 +135,85 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           ],
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingXLarge),
+
                       // Formulário de registro
                       AuthTextField(
                         label: 'Nome completo',
                         hint: 'Digite seu nome completo',
                         controller: _nameController,
                         validator: AuthValidators.name,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.person_outline,
                           color: AppColors.textSecondary,
                         ),
                         autofocus: true,
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
+
                       AuthTextField(
                         label: 'E-mail',
                         hint: 'Digite seu e-mail',
                         controller: _emailController,
                         isEmail: true,
                         validator: AuthValidators.email,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
+
                       AuthTextField(
                         label: 'Telefone (opcional)',
                         hint: '(11) 99999-9999',
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         validator: AuthValidators.phoneOptional,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.phone_outlined,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
+
                       AuthTextField(
                         label: 'Senha',
                         hint: 'Digite uma senha forte',
                         controller: _passwordController,
                         isPassword: true,
                         validator: AuthValidators.strongPassword,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingMedium),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingMedium),
+
                       // Indicadores de força da senha
                       _buildPasswordStrengthIndicator(),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
+
                       AuthTextField(
                         label: 'Confirmar senha',
                         hint: 'Digite a senha novamente',
                         controller: _confirmPasswordController,
                         isPassword: true,
                         validator: _validateConfirmPassword,
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
+
                       // Termos e condições
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,8 +241,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     style: AppTextStyles.bodyMedium.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
-                                    children: [
-                                      const TextSpan(text: 'Eu aceito os '),
+                                    children: const [
+                                      TextSpan(text: 'Eu aceito os '),
                                       TextSpan(
                                         text: 'Termos de Uso',
                                         style: TextStyle(
@@ -250,7 +250,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                           decoration: TextDecoration.underline,
                                         ),
                                       ),
-                                      const TextSpan(text: ' e a '),
+                                      TextSpan(text: ' e a '),
                                       TextSpan(
                                         text: 'Política de Privacidade',
                                         style: TextStyle(
@@ -266,7 +266,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           ),
                         ],
                       ),
-                      
+
                       // Marketing
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,18 +300,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           ),
                         ],
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingXLarge),
+
                       // Botão de registro
                       AuthButton(
                         text: 'Criar Conta',
                         onPressed: _handleRegister,
                         isLoading: authState.isLoading,
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingXLarge),
-                      
+
+                      const SizedBox(height: AppDimensions.paddingXLarge),
+
                       // Link para login
                       Center(
                         child: Row(
@@ -332,8 +332,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           ],
                         ),
                       ),
-                      
-                      SizedBox(height: AppDimensions.paddingLarge),
+
+                      const SizedBox(height: AppDimensions.paddingLarge),
                     ],
                   ),
                 ),
@@ -345,11 +345,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget _buildPasswordStrengthIndicator() {
     final password = _passwordController.text;
     final strength = _calculatePasswordStrength(password);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Row(
           children: [
             Text(
@@ -367,7 +367,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             ),
           ],
         ),
-        SizedBox(height: AppDimensions.paddingXSmall),
+        const SizedBox(height: AppDimensions.paddingXSmall),
         LinearProgressIndicator(
           value: strength / 4,
           backgroundColor: AppColors.border,

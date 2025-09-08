@@ -10,7 +10,8 @@ import 'package:taste_app/core/services/cache_service.dart';
 
 void main() {
   group('Memory Leak Tests', () {
-    testWidgets('Widget creation and disposal memory test', (WidgetTester tester) async {
+    testWidgets('Widget creation and disposal memory test',
+        (WidgetTester tester) async {
       // Criar e destruir widgets múltiplas vezes para detectar vazamentos
       final restaurant = RestaurantModel(
         id: 'test_restaurant',
@@ -44,21 +45,21 @@ void main() {
             ),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Destruir widget
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       // Se chegou até aqui sem erros de memória, o teste passou
       expect(true, isTrue);
     });
@@ -92,64 +93,67 @@ void main() {
             home: RestaurantDetailsPage(restaurant: restaurant),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Navegar para página de busca
         await tester.pumpWidget(
           MaterialApp(
             home: SearchPage(),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Navegar para página de favoritos
         await tester.pumpWidget(
           MaterialApp(
             home: FavoritesPage(),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Voltar para página vazia
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       expect(true, isTrue);
     });
 
-    testWidgets('List widget memory management test', (WidgetTester tester) async {
+    testWidgets('List widget memory management test',
+        (WidgetTester tester) async {
       // Testar listas grandes para verificar gerenciamento de memória
       for (int cycle = 0; cycle < 10; cycle++) {
-        final restaurants = List.generate(100, (index) => RestaurantModel(
-          id: 'restaurant_${cycle}_$index',
-          name: 'Restaurant $cycle $index',
-          description: 'Description for restaurant $cycle $index',
-          imageUrl: 'https://example.com/image_${cycle}_$index.jpg',
-          rating: 4.0 + (index % 10) / 10,
-          deliveryTime: '${20 + (index % 30)} min',
-          deliveryFee: 5.0 + (index % 10),
-          category: 'Category ${index % 5}',
-          isOpen: index % 2 == 0,
-          latitude: -23.5505 + (index % 100) / 1000,
-          longitude: -46.6333 + (index % 100) / 1000,
-          address: 'Address $cycle $index',
-          phone: '(11) 9999-${index.toString().padLeft(4, '0')}',
-          minOrderValue: 20.0 + (index % 20),
-          isFeatured: false,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ));
+        final restaurants = List.generate(
+            100,
+            (index) => RestaurantModel(
+                  id: 'restaurant_${cycle}_$index',
+                  name: 'Restaurant $cycle $index',
+                  description: 'Description for restaurant $cycle $index',
+                  imageUrl: 'https://example.com/image_${cycle}_$index.jpg',
+                  rating: 4.0 + (index % 10) / 10,
+                  deliveryTime: '${20 + (index % 30)} min',
+                  deliveryFee: 5.0 + (index % 10),
+                  category: 'Category ${index % 5}',
+                  isOpen: index % 2 == 0,
+                  latitude: -23.5505 + (index % 100) / 1000,
+                  longitude: -46.6333 + (index % 100) / 1000,
+                  address: 'Address $cycle $index',
+                  phone: '(11) 9999-${index.toString().padLeft(4, '0')}',
+                  minOrderValue: 20.0 + (index % 20),
+                  isFeatured: false,
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                ));
 
         await tester.pumpWidget(
           MaterialApp(
@@ -164,30 +168,30 @@ void main() {
             ),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Fazer scroll para carregar mais itens
         await tester.fling(
           find.byType(ListView),
           const Offset(0, -1000),
           500,
         );
-        
+
         await tester.pump();
-        
+
         // Limpar lista
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       expect(true, isTrue);
     });
 
@@ -195,7 +199,7 @@ void main() {
       // Testar serviços para vazamentos de memória
       final analyticsService = AnalyticsService();
       final cacheService = CacheService();
-      
+
       // Usar serviços intensivamente
       for (int i = 0; i < 1000; i++) {
         // Analytics events
@@ -203,19 +207,19 @@ void main() {
           'iteration': i,
           'data': 'test_data_$i',
         });
-        
+
         // Cache operations
         await cacheService.set('test_key_$i', {
           'iteration': i,
           'data': List.generate(10, (j) => 'item_${i}_$j'),
         });
-        
+
         if (i % 100 == 0) {
           // Limpar cache periodicamente
           await cacheService.clear();
         }
       }
-      
+
       // Verificar que os serviços ainda funcionam
       await cacheService.set('final_test', {'status': 'ok'});
       final result = await cacheService.get('final_test');
@@ -223,7 +227,8 @@ void main() {
       expect(result!['status'], equals('ok'));
     });
 
-    testWidgets('Animation memory management test', (WidgetTester tester) async {
+    testWidgets('Animation memory management test',
+        (WidgetTester tester) async {
       // Testar animações para vazamentos de memória
       for (int i = 0; i < 30; i++) {
         await tester.pumpWidget(
@@ -243,22 +248,22 @@ void main() {
             ),
           ),
         );
-        
+
         // Aguardar animação
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Destruir widget animado
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       expect(true, isTrue);
     });
 
@@ -280,26 +285,27 @@ void main() {
             ),
           ),
         );
-        
+
         // Aguardar alguns eventos do stream
         await tester.pump(const Duration(milliseconds: 300));
-        
+
         // Destruir StreamBuilder
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       expect(true, isTrue);
     });
 
-    testWidgets('Image widget memory management test', (WidgetTester tester) async {
+    testWidgets('Image widget memory management test',
+        (WidgetTester tester) async {
       // Testar widgets de imagem para vazamentos
       for (int i = 0; i < 25; i++) {
         await tester.pumpWidget(
@@ -338,21 +344,21 @@ void main() {
             ),
           ),
         );
-        
+
         await tester.pump();
-        
+
         // Destruir widgets de imagem
         await tester.pumpWidget(
-          MaterialApp(
+          const MaterialApp(
             home: Scaffold(
               body: SizedBox.shrink(),
             ),
           ),
         );
-        
+
         await tester.pump();
       }
-      
+
       expect(true, isTrue);
     });
   });

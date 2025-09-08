@@ -11,9 +11,9 @@ class AppUser {
   final String? avatarUrl;
   final DateTime? createdAt;
   final Map<String, dynamic>? metadata;
-  
+
   const AppUser({
-    required this.id, 
+    required this.id,
     required this.email,
     this.name,
     this.avatarUrl,
@@ -26,8 +26,8 @@ class AppUser {
     return AppUser(
       id: user.id,
       email: user.email ?? '',
-      name: user.userMetadata?['name'] as String? ?? 
-            user.userMetadata?['full_name'] as String?,
+      name: user.userMetadata?['name'] as String? ??
+          user.userMetadata?['full_name'] as String?,
       avatarUrl: user.userMetadata?['avatar_url'] as String?,
       createdAt: DateTime.tryParse(user.createdAt),
       metadata: user.userMetadata,
@@ -72,10 +72,10 @@ class AuthResponse {
   final String? error;
   final Session? session;
   final bool success;
-  
+
   const AuthResponse({
-    this.user, 
-    this.error, 
+    this.user,
+    this.error,
     this.session,
     this.success = false,
   });
@@ -83,8 +83,8 @@ class AuthResponse {
   /// Factory para sucesso
   factory AuthResponse.success({required AppUser user, Session? session}) {
     return AuthResponse(
-      user: user, 
-      session: session, 
+      user: user,
+      session: session,
       success: true,
     );
   }
@@ -103,17 +103,18 @@ class AuthService {
 
   // Cliente Supabase
   SupabaseClient get _supabase => SupabaseConfig.client;
-  
+
   // Estado atual
   AppUser? _currentUser;
   Session? _currentSession;
-  final StreamController<AppUser?> _authStateController = StreamController<AppUser?>.broadcast();
+  final StreamController<AppUser?> _authStateController =
+      StreamController<AppUser?>.broadcast();
   StreamSubscription<AuthState>? _authSubscription;
 
   /// ID do usuário atual
   String? get userId => _currentUser?.id;
 
-  /// Email do usuário atual  
+  /// Email do usuário atual
   String? get userEmail => _currentUser?.email;
 
   /// Usuário atual
@@ -134,20 +135,20 @@ class AuthService {
   /// Verifica se a sessão expirou
   bool _isSessionExpired() {
     if (_currentSession?.expiresAt == null) return true;
-    return DateTime.now().isAfter(
-      DateTime.fromMillisecondsSinceEpoch(_currentSession!.expiresAt! * 1000)
-    );
+    return DateTime.now().isAfter(DateTime.fromMillisecondsSinceEpoch(
+        _currentSession!.expiresAt! * 1000));
   }
 
   /// Inicializa o serviço
   Future<void> initialize() async {
     try {
       debugPrint('🔐 AuthService: Inicializando com Supabase');
-      
+
       // Verificar se há uma sessão existente
       final session = _supabase.auth.currentSession;
       if (session?.user != null) {
-        debugPrint('🔐 AuthService: Sessão existente encontrada para ${session!.user.email}');
+        debugPrint(
+            '🔐 AuthService: Sessão existente encontrada para ${session!.user.email}');
         _updateAuthState(session);
       }
 
@@ -186,19 +187,20 @@ class AuthService {
   Future<AuthResponse> signInWithEmail(String email, String password) async {
     try {
       debugPrint('🔐 AuthService: Tentando login para $email');
-      
+
       final response = await _supabase.auth.signInWithPassword(
         email: email.trim(),
         password: password,
       );
 
       if (response.user != null && response.session != null) {
-        debugPrint('✅ AuthService: Login bem-sucedido para ${response.user!.email}');
+        debugPrint(
+            '✅ AuthService: Login bem-sucedido para ${response.user!.email}');
         final appUser = AppUser.fromSupabaseUser(response.user!);
-        
+
         // O estado será atualizado automaticamente pelo listener
         return AuthResponse.success(
-          user: appUser, 
+          user: appUser,
           session: response.session,
         );
       } else {
@@ -215,12 +217,13 @@ class AuthService {
   }
 
   /// Registra usuário com email e senha
-  Future<AuthResponse> signUpWithEmail(String email, String password, {String? name}) async {
+  Future<AuthResponse> signUpWithEmail(String email, String password,
+      {String? name}) async {
     try {
       debugPrint('🔐 AuthService: Tentando registro para $email');
 
       final metadata = name != null ? {'full_name': name} : <String, dynamic>{};
-      
+
       final response = await _supabase.auth.signUp(
         email: email.trim(),
         password: password,
@@ -228,14 +231,15 @@ class AuthService {
       );
 
       if (response.user != null) {
-        debugPrint('✅ AuthService: Registro bem-sucedido para ${response.user!.email}');
+        debugPrint(
+            '✅ AuthService: Registro bem-sucedido para ${response.user!.email}');
         final appUser = AppUser.fromSupabaseUser(response.user!);
-        
+
         // Criar perfil do usuário na tabela user_profiles se necessário
         await _createUserProfile(response.user!);
-        
+
         return AuthResponse.success(
-          user: appUser, 
+          user: appUser,
           session: response.session,
         );
       } else {
@@ -243,7 +247,8 @@ class AuthService {
         return AuthResponse.error('Registro falhou');
       }
     } on AuthException catch (e) {
-      debugPrint('❌ AuthService: Erro de autenticação no registro: ${e.message}');
+      debugPrint(
+          '❌ AuthService: Erro de autenticação no registro: ${e.message}');
       return AuthResponse.error(_getLocalizedError(e.message));
     } catch (e) {
       debugPrint('❌ AuthService: Erro geral no registro: $e');
@@ -306,12 +311,12 @@ class AuthService {
   Future<void> resetPassword(String email) async {
     try {
       debugPrint('🔐 AuthService: Reset de senha para $email');
-      
+
       await _supabase.auth.resetPasswordForEmail(
         email.trim(),
         redirectTo: kIsWeb ? '${Uri.base.origin}/reset-password' : null,
       );
-      
+
       debugPrint('✅ AuthService: Email de reset enviado');
     } on AuthException catch (e) {
       debugPrint('❌ AuthService: Erro no reset: ${e.message}');
@@ -347,9 +352,9 @@ class AuthService {
       debugPrint('⚠️ AuthService: forceLocalAuth só funciona em modo debug');
       return;
     }
-    
+
     debugPrint('🔓 AuthService: Criando usuário dev mock para desenvolvimento');
-    
+
     try {
       // Criar usuário mock para desenvolvimento
       _currentUser = const AppUser(
@@ -360,39 +365,41 @@ class AuthService {
         createdAt: null,
         metadata: {'dev_mode': true},
       );
-      
+
       // Criar uma sessão mock mínima (sem usar construtor Session real)
       // Isso permite que isAuthenticated retorne true
       final mockSessionData = {
         'access_token': 'dev_token_${DateTime.now().millisecondsSinceEpoch}',
         'user_id': 'dev_user_001',
-        'expires_at': DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch,
+        'expires_at': DateTime.now()
+            .add(const Duration(hours: 24))
+            .millisecondsSinceEpoch,
       };
-      
+
       // Para simular uma sessão, vamos definir _currentSession como uma instância mock
       // mas sem usar o construtor real para evitar erros
       debugPrint('✅ AuthService: Usuário dev criado - ${_currentUser!.email}');
-      debugPrint('📝 AuthService: hasValidSession simulado para desenvolvimento');
-      
+      debugPrint(
+          '📝 AuthService: hasValidSession simulado para desenvolvimento');
+
       // Simular que temos uma sessão válida criando um objeto mock simples
       _currentSession = _createMockSession();
-      
-      debugPrint('🎯 AuthService: isAuthenticated = ${isAuthenticated}');
-      
+
+      debugPrint('🎯 AuthService: isAuthenticated = $isAuthenticated');
     } catch (e) {
       debugPrint('❌ AuthService: Erro ao criar usuário dev: $e');
     }
   }
-  
+
   /// Cria uma sessão mock para desenvolvimento
   Session? _createMockSession() {
     if (!kDebugMode) return null;
-    
+
     try {
       final now = DateTime.now();
       return Session(
         accessToken: 'dev_access_token',
-        refreshToken: 'dev_refresh_token', 
+        refreshToken: 'dev_refresh_token',
         expiresIn: 86400, // 24 horas
         tokenType: 'bearer',
         user: User(
@@ -415,7 +422,7 @@ class AuthService {
   /// Converte mensagens de erro para português
   String _getLocalizedError(String message) {
     final lowerMessage = message.toLowerCase();
-    
+
     if (lowerMessage.contains('invalid login credentials')) {
       return 'Email ou senha incorretos';
     }
@@ -431,10 +438,11 @@ class AuthService {
     if (lowerMessage.contains('email')) {
       return 'Problema com o email fornecido';
     }
-    if (lowerMessage.contains('network') || lowerMessage.contains('connection')) {
+    if (lowerMessage.contains('network') ||
+        lowerMessage.contains('connection')) {
       return 'Problema de conexão. Verifique sua internet.';
     }
-    
+
     return message; // Retorna original se não encontrou tradução
   }
 

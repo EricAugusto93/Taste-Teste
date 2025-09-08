@@ -13,11 +13,11 @@ import 'package:mockito/mockito.dart';
 // Mock classes
 class MockAuthService extends Mock implements AuthService {
   @override
-  Stream<AuthState> get authStateChanges => Stream.empty();
-  
+  Stream<AuthState> get authStateChanges => const Stream.empty();
+
   @override
   User? get currentUser => null;
-  
+
   @override
   String? get userId => null;
 }
@@ -32,15 +32,17 @@ class TestAuthNotifier extends AuthNotifier {
 }
 
 class TestUserProfileNotifier extends UserProfileNotifier {
-  TestUserProfileNotifier(UserProfileState initialState, super.repository, super.ref) {
+  TestUserProfileNotifier(
+      UserProfileState initialState, super.repository, super.ref) {
     state = initialState;
   }
-  
+
   @override
   Future<void> loadCurrentUserProfile() async {
     // Não faz nada nos testes
   }
 }
+
 void main() {
   late UserProfile mockUserProfile;
   late UserStats mockUserStats;
@@ -65,14 +67,14 @@ void main() {
       createdAt: DateTime(2024, 1, 1),
       updatedAt: DateTime(2024, 1, 1),
     );
-    
-    mockUserStats = UserStats(
+
+    mockUserStats = const UserStats(
       reviewsCount: 5,
       favoritesCount: 12,
       searchesCount: 25,
       averageRating: 4.5,
     );
-    
+
     mockUser = User(
       id: 'user-1',
       appMetadata: {},
@@ -84,13 +86,13 @@ void main() {
       email: 'joao@teste.com',
       createdAt: DateTime.now().toIso8601String(),
     );
-    
+
     mockAuthState = AppAuthState(
       isAuthenticated: true,
       user: mockUser,
       isLoading: false,
     );
-    
+
     mockProfileState = UserProfileState(
       profile: mockUserProfile,
       stats: mockUserStats,
@@ -98,13 +100,13 @@ void main() {
       error: null,
     );
 
-    guestAuthState = AppAuthState(
+    guestAuthState = const AppAuthState(
       isAuthenticated: false,
       user: null,
       isLoading: false,
     );
 
-    emptyProfileState = UserProfileState(
+    emptyProfileState = const UserProfileState(
       profile: null,
       stats: null,
       isLoading: false,
@@ -118,15 +120,15 @@ void main() {
   }) {
     final testAuthState = authState ?? mockAuthState;
     final testProfileState = profileState ?? mockProfileState;
-    
+
     return ProviderScope(
       overrides: [
         authProvider.overrideWith((ref) => TestAuthNotifier(testAuthState)),
         userProfileProvider.overrideWith((ref) => TestUserProfileNotifier(
-          testProfileState,
-          ref.read(userProfileRepositoryProvider),
-          ref,
-        )),
+              testProfileState,
+              ref.read(userProfileRepositoryProvider),
+              ref,
+            )),
         currentUserProvider.overrideWith((ref) => testAuthState.user),
       ],
       child: MaterialApp(
@@ -134,7 +136,8 @@ void main() {
         routes: {
           '/login': (context) => const Scaffold(body: Text('Login Page')),
           '/register': (context) => const Scaffold(body: Text('Register Page')),
-          '/favorites': (context) => const Scaffold(body: Text('Favorites Page')),
+          '/favorites': (context) =>
+              const Scaffold(body: Text('Favorites Page')),
         },
       ),
     );
@@ -142,7 +145,8 @@ void main() {
 
   group('ProfilePage Tests', () {
     group('Guest User (Not Authenticated)', () {
-      testWidgets('should show guest profile when user is not authenticated', (tester) async {
+      testWidgets('should show guest profile when user is not authenticated',
+          (tester) async {
         // Act
         await tester.pumpWidget(
           createTestWidget(
@@ -153,40 +157,45 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
 
         // Assert
-      expect(find.text('Acesse sua conta'), findsOneWidget);
-      expect(find.text('Faça login para acessar seu perfil, favoritos e muito mais'), findsOneWidget);
-      expect(find.text('Fazer Login'), findsOneWidget);
-      expect(find.text('Criar conta'), findsOneWidget);
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+        expect(find.text('Acesse sua conta'), findsOneWidget);
+        expect(
+            find.text(
+                'Faça login para acessar seu perfil, favoritos e muito mais'),
+            findsOneWidget);
+        expect(find.text('Fazer Login'), findsOneWidget);
+        expect(find.text('Criar conta'), findsOneWidget);
+        expect(find.byIcon(Icons.person_outline), findsOneWidget);
       });
-      
-      testWidgets('should have login button when user is not authenticated', (tester) async {
+
+      testWidgets('should have login button when user is not authenticated',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget(
-          authState: AppAuthState(
+          authState: const AppAuthState(
             isAuthenticated: false,
             user: null,
             isLoading: false,
           ),
         ));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('Fazer Login'), findsOneWidget);
         expect(find.text('Criar conta'), findsOneWidget);
       });
-      
-      testWidgets('should have register button when user is not authenticated', (tester) async {
+
+      testWidgets('should have register button when user is not authenticated',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget(
-          authState: AppAuthState(
+          authState: const AppAuthState(
             isAuthenticated: false,
             user: null,
             isLoading: false,
           ),
         ));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('Criar conta'), findsOneWidget);
         expect(find.text('Fazer Login'), findsOneWidget);
@@ -194,37 +203,39 @@ void main() {
     });
 
     group('Authenticated User', () {
-      
-      testWidgets('should show user profile when authenticated', (tester) async {
+      testWidgets('should show user profile when authenticated',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('João Silva'), findsOneWidget);
         expect(find.text('joao@teste.com'), findsOneWidget);
         expect(find.text('Suas estatísticas'), findsOneWidget);
         expect(find.text('Ações rápidas'), findsOneWidget);
       });
-      
+
       testWidgets('should display user stats correctly', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('5'), findsOneWidget); // Reviews count
         expect(find.text('12'), findsOneWidget); // Favorites count
         expect(find.text('25'), findsOneWidget); // Searches count
         expect(find.text('Avaliações'), findsOneWidget);
-        expect(find.text('Favoritos'), findsAtLeastNWidgets(1)); // Pode aparecer em stats e actions
+        expect(find.text('Favoritos'),
+            findsAtLeastNWidgets(1)); // Pode aparecer em stats e actions
         expect(find.text('Buscas'), findsOneWidget);
       });
-      
-      testWidgets('should show loading widget when profile is loading', (tester) async {
+
+      testWidgets('should show loading widget when profile is loading',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget(
-          profileState: UserProfileState(
+          profileState: const UserProfileState(
             profile: null,
             stats: null,
             isLoading: true,
@@ -232,15 +243,16 @@ void main() {
           ),
         ));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
       });
-      
-      testWidgets('should show error widget when there is an error', (tester) async {
+
+      testWidgets('should show error widget when there is an error',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget(
-          profileState: UserProfileState(
+          profileState: const UserProfileState(
             profile: null,
             stats: null,
             isLoading: false,
@@ -248,88 +260,92 @@ void main() {
           ),
         ));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('Erro ao carregar perfil'), findsOneWidget);
         expect(find.text('Tentar novamente'), findsOneWidget);
       });
-      
+
       testWidgets('should have favorites quick action button', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.byKey(const Key('quick_action_favorites')), findsOneWidget);
         expect(find.text('Favoritos'), findsAtLeastNWidgets(1));
       });
-      
-      testWidgets('should show edit profile dialog when edit button is tapped', (tester) async {
+
+      testWidgets('should show edit profile dialog when edit button is tapped',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         await tester.tap(find.byIcon(Icons.edit));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('Editar Perfil'), findsOneWidget);
         expect(find.text('Nome'), findsOneWidget);
         expect(find.text('Cancelar'), findsOneWidget);
         expect(find.text('Salvar'), findsOneWidget);
       });
-      
+
       testWidgets('should have notifications menu item', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.text('Notificações'), findsAtLeastNWidgets(1));
       });
-      
+
       testWidgets('should have logout menu item', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.byKey(const Key('logout_menu_item')), findsOneWidget);
       });
-      
+
       testWidgets('should have logout confirmation button', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert - Just verify the logout menu item exists
         expect(find.byKey(const Key('logout_menu_item')), findsOneWidget);
       });
-      
-      testWidgets('should refresh profile when pull to refresh is triggered', (tester) async {
+
+      testWidgets('should refresh profile when pull to refresh is triggered',
+          (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
-        await tester.fling(find.byType(CustomScrollView), const Offset(0, 300), 1000);
+
+        await tester.fling(
+            find.byType(CustomScrollView), const Offset(0, 300), 1000);
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert - Test notifiers don't need verification as they extend the real notifiers
       });
-      
+
       testWidgets('should display basic menu items', (tester) async {
         // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert - Check for visible menu items
         expect(find.text('Meus Pedidos'), findsOneWidget);
         expect(find.text('Endereços'), findsOneWidget);
         expect(find.text('Cartões'), findsOneWidget);
         expect(find.byKey(const Key('logout_menu_item')), findsOneWidget);
       });
-      
-      testWidgets('should display user initials when no avatar is available', (tester) async {
+
+      testWidgets('should display user initials when no avatar is available',
+          (tester) async {
         // Arrange
         final profileWithoutAvatar = UserProfile(
           id: 'user-1',
@@ -342,7 +358,7 @@ void main() {
           createdAt: DateTime(2024, 1, 1),
           updatedAt: DateTime(2024, 1, 1),
         );
-        
+
         // Act
         await tester.pumpWidget(createTestWidget(
           profileState: UserProfileState(
@@ -353,7 +369,7 @@ void main() {
           ),
         ));
         await tester.pump(const Duration(milliseconds: 100));
-        
+
         // Assert
         expect(find.byKey(const Key('user_initials_text')), findsOneWidget);
         expect(find.text('MS'), findsOneWidget); // Initials from Maria Santos

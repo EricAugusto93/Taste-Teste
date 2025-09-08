@@ -48,7 +48,7 @@ class SearchPerformanceWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           _buildMetrics(),
           if (interpretation != null) ...[_buildAIMetrics()],
         ],
@@ -59,12 +59,12 @@ class SearchPerformanceWidget extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        Icon(
+        const Icon(
           Icons.analytics,
           color: AppColors.textLight,
           size: AppDimensions.iconSmall,
         ),
-        SizedBox(width: AppDimensions.paddingSmall),
+        const SizedBox(width: AppDimensions.paddingSmall),
         Text(
           'Performance Debug',
           style: AppTextStyles.bodyMedium.copyWith(
@@ -132,9 +132,9 @@ class SearchPerformanceWidget extends StatelessWidget {
 
     return Column(
       children: [
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         const Divider(color: AppColors.divider),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         _buildMetricRow(
           'Confiança IA',
           '${(interpretation!.confidence * 100).toStringAsFixed(1)}%',
@@ -153,7 +153,9 @@ class SearchPerformanceWidget extends StatelessWidget {
         _buildMetricRow(
           'Correções',
           '${interpretation!.corrections.length}',
-          interpretation!.corrections.isNotEmpty ? AppColors.warning : AppColors.textLight,
+          interpretation!.corrections.isNotEmpty
+              ? AppColors.warning
+              : AppColors.textLight,
         ),
         _buildMetricRow(
           'Expansões',
@@ -178,7 +180,7 @@ class SearchPerformanceWidget extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Expanded(
             child: Text(
               value,
