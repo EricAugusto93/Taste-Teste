@@ -31,7 +31,8 @@ class CategoryPage extends ConsumerStatefulWidget {
 
 class _CategoryPageState extends ConsumerState<CategoryPage>
     with TickerProviderStateMixin {
-  final RestaurantRepository _restaurantRepository = getIt<RestaurantRepository>();
+  final RestaurantRepository _restaurantRepository =
+      getIt<RestaurantRepository>();
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
 
@@ -61,8 +62,6 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
     }
   }
 
-
-
   Future<void> _loadRestaurants() async {
     try {
       _restaurants = await _restaurantRepository.getRestaurantsByCategory(
@@ -73,8 +72,6 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
       debugPrint('Erro ao carregar restaurantes: $e');
     }
   }
-
-
 
   void _sortRestaurants() {
     switch (_sortBy) {
@@ -116,7 +113,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
         body: EnhancedErrorWidget(
           title: 'Erro ao carregar categoria',
           message: error.toString(),
-          onRetry: () => ref.invalidate(categoryByIdProvider(widget.categoryId)),
+          onRetry: () =>
+              ref.invalidate(categoryByIdProvider(widget.categoryId)),
           errorType: ErrorType.general,
         ),
       ),
@@ -150,7 +148,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
-      backgroundColor: Color(int.parse(category.color.replaceFirst('#', '0xFF'))),
+      backgroundColor:
+          Color(int.parse(category.color.replaceFirst('#', '0xFF'))),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           category.name,
@@ -166,7 +165,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               end: Alignment.bottomCenter,
               colors: [
                 Color(int.parse(category.color.replaceFirst('#', '0xFF'))),
-                Color(int.parse(category.color.replaceFirst('#', '0xFF'))).withOpacity(0.8),
+                Color(int.parse(category.color.replaceFirst('#', '0xFF')))
+                    .withOpacity(0.8),
               ],
             ),
           ),
@@ -174,13 +174,13 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Icon(
                   _getCategoryIconFromString(category.icon),
                   size: 60,
                   color: Colors.white,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   '${_restaurants.length} restaurantes',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -194,7 +194,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.filter_list, color: Colors.white),
+          icon: const Icon(Icons.filter_list, color: Colors.white),
           onPressed: () {
             setState(() {
               _showFilters = !_showFilters;
@@ -265,7 +265,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
   Widget _buildFiltersSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(
           bottom: BorderSide(
@@ -284,7 +284,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               color: AppColors.textDark,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             children: [
@@ -321,18 +321,19 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
     );
   }
 
-  Widget _buildExploreTab(Category category, AsyncValue<List<Category>> activeCategoriesAsync) {
+  Widget _buildExploreTab(
+      Category category, AsyncValue<List<Category>> activeCategoriesAsync) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionTitle('Categorias Relacionadas'),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           _buildRelatedCategories(activeCategoriesAsync),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           _buildSectionTitle('Dicas da Categoria'),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           _buildCategoryTips(category),
         ],
       ),
@@ -349,7 +350,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
     );
   }
 
-  Widget _buildRelatedCategories(AsyncValue<List<Category>> activeCategoriesAsync) {
+  Widget _buildRelatedCategories(
+      AsyncValue<List<Category>> activeCategoriesAsync) {
     return activeCategoriesAsync.when(
       loading: () => const Center(
         child: CircularProgressIndicator(),
@@ -362,7 +364,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
             .where((cat) => cat.id != widget.categoryId)
             .take(6)
             .toList();
-        
+
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -401,7 +403,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
               end: Alignment.bottomRight,
               colors: [
                 Color(int.parse(category.color.replaceFirst('#', '0xFF'))),
-                Color(int.parse(category.color.replaceFirst('#', '0xFF'))).withOpacity(0.8),
+                Color(int.parse(category.color.replaceFirst('#', '0xFF')))
+                    .withOpacity(0.8),
               ],
             ),
           ),
@@ -413,7 +416,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 size: 32,
                 color: Colors.white,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 category.name,
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -455,7 +458,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                 size: 20,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,7 +470,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
                       color: AppColors.textDark,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     tip['description']!,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -529,12 +532,14 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
           {
             'type': 'time',
             'title': 'Melhor horário',
-            'description': 'Pizzarias costumam ser mais movimentadas entre 19h e 22h',
+            'description':
+                'Pizzarias costumam ser mais movimentadas entre 19h e 22h',
           },
           {
             'type': 'quality',
             'title': 'Dica de qualidade',
-            'description': 'Procure por pizzarias com forno a lenha para sabor autêntico',
+            'description':
+                'Procure por pizzarias com forno a lenha para sabor autêntico',
           },
         ];
       case 'burger':
@@ -542,7 +547,8 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
           {
             'type': 'price',
             'title': 'Economia',
-            'description': 'Muitas hamburguerias oferecem promoções no meio da semana',
+            'description':
+                'Muitas hamburguerias oferecem promoções no meio da semana',
           },
           {
             'type': 'quality',
@@ -555,12 +561,14 @@ class _CategoryPageState extends ConsumerState<CategoryPage>
           {
             'type': 'time',
             'title': 'Horário de pico',
-            'description': 'Evite horários de almoço (12h-14h) e jantar (19h-21h) para menos espera',
+            'description':
+                'Evite horários de almoço (12h-14h) e jantar (19h-21h) para menos espera',
           },
           {
             'type': 'quality',
             'title': 'Avaliações',
-            'description': 'Verifique as avaliações recentes para garantir qualidade',
+            'description':
+                'Verifique as avaliações recentes para garantir qualidade',
           },
         ];
     }

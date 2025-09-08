@@ -30,9 +30,9 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
           children: [
             // Ícone animado
             if (showAnimation) _buildAnimatedIcon(),
-            
+
             const SizedBox(height: AppDimensions.paddingLarge),
-            
+
             // Card principal
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingLarge),
@@ -60,21 +60,21 @@ class NoRestaurantsFoundWidget extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: AppDimensions.paddingMedium),
-                  
+
                   // Subtexto
                   Text(
-                    customSubtitle ?? 'Tente alterar os filtros ou buscar por outra categoria.',
+                    customSubtitle ??
+                        'Tente alterar os filtros ou buscar por outra categoria.',
                     style: AppTextStyles.emptyStateSubtitle,
                     textAlign: TextAlign.center,
                   ),
-                  
+
                   const SizedBox(height: AppDimensions.paddingLarge),
-                  
+
                   // Botão CTA
-                  if (onChangeFilters != null)
-                    _buildActionButton(),
+                  if (onChangeFilters != null) _buildActionButton(),
                 ],
               ),
             ),
@@ -218,10 +218,10 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
             onChangeFilters: onChangeFilters,
             showAnimation: true,
           ),
-          
+
           if (suggestions != null && suggestions!.isNotEmpty) ...[
-            SizedBox(height: AppDimensions.paddingLarge),
-            
+            const SizedBox(height: AppDimensions.paddingLarge),
+
             // Sugestões
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -238,7 +238,7 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: AppDimensions.paddingSmall),
+                  const SizedBox(height: AppDimensions.paddingSmall),
                   ...suggestions!.map(
                     (suggestion) => Padding(
                       padding: const EdgeInsets.only(
@@ -246,12 +246,12 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.lightbulb_outline,
                             size: AppDimensions.iconSmall,
                             color: AppColors.primary,
                           ),
-                          SizedBox(width: AppDimensions.paddingSmall),
+                          const SizedBox(width: AppDimensions.paddingSmall),
                           Expanded(
                             child: Text(
                               suggestion,
@@ -266,14 +266,14 @@ class NoRestaurantsWithSuggestionsWidget extends StatelessWidget {
               ),
             ),
           ],
-          
+
           // Botão para limpar filtros
           if (onClearFilters != null) ...[
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             TextButton.icon(
               onPressed: onClearFilters,
-              icon: Icon(Icons.clear_all),
-              label: Text('Limpar todos os filtros'),
+              icon: const Icon(Icons.clear_all),
+              label: const Text('Limpar todos os filtros'),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.textLight,
               ),

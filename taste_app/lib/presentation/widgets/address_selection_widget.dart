@@ -11,17 +11,19 @@ import 'widgets.dart';
 
 class AddressSelectionWidget extends ConsumerStatefulWidget {
   final Function(AddressModel) onAddressSelected;
-  
+
   const AddressSelectionWidget({
     super.key,
     required this.onAddressSelected,
   });
 
   @override
-  ConsumerState<AddressSelectionWidget> createState() => _AddressSelectionWidgetState();
+  ConsumerState<AddressSelectionWidget> createState() =>
+      _AddressSelectionWidgetState();
 }
 
-class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget> {
+class _AddressSelectionWidgetState
+    extends ConsumerState<AddressSelectionWidget> {
   @override
   Widget build(BuildContext context) {
     final checkoutState = ref.watch(checkoutNotifierProvider);
@@ -47,7 +49,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -70,7 +72,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
               ],
             ),
           ),
-          
+
           // Lista de endereços
           Flexible(
             child: addresses.isEmpty
@@ -81,19 +83,20 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                       horizontal: AppDimensions.paddingMedium,
                     ),
                     itemCount: addresses.length,
-                    separatorBuilder: (context, index) => SizedBox(
+                    separatorBuilder: (context, index) => const SizedBox(
                       height: AppDimensions.paddingSmall,
                     ),
                     itemBuilder: (context, index) {
                       final address = addresses[index];
-                      final isSelected = checkoutState.selectedAddress?.id == address.id;
-                      
+                      final isSelected =
+                          checkoutState.selectedAddress?.id == address.id;
+
                       return _buildAddressCard(address, isSelected);
                     },
                   ),
           ),
-          
-          SizedBox(height: AppDimensions.paddingMedium),
+
+          const SizedBox(height: AppDimensions.paddingMedium),
         ],
       ),
     );
@@ -105,19 +108,19 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             AppIcons.location,
             size: 64,
             color: AppColors.textLight,
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           Text(
             'Nenhum endereço cadastrado',
             style: AppTextStyles.headingSmall.copyWith(
               color: AppColors.textLight,
             ),
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Text(
             'Adicione um endereço para continuar',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -125,7 +128,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: AppDimensions.paddingLarge),
+          const SizedBox(height: AppDimensions.paddingLarge),
           CustomButton(
             text: 'Adicionar endereço',
             onPressed: _showAddAddressDialog,
@@ -141,7 +144,9 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
       child: Container(
         padding: const EdgeInsets.all(AppDimensions.paddingMedium),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.background,
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.1)
+              : AppColors.background,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,
@@ -154,7 +159,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
             Container(
               padding: const EdgeInsets.all(AppDimensions.paddingSmall),
               decoration: BoxDecoration(
-                color: isSelected 
+                color: isSelected
                     ? AppColors.primary.withOpacity(0.2)
                     : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
@@ -165,9 +170,9 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                 size: AppDimensions.iconMedium,
               ),
             ),
-            
-            SizedBox(width: AppDimensions.paddingMedium),
-            
+
+            const SizedBox(width: AppDimensions.paddingMedium),
+
             // Informações do endereço
             Expanded(
               child: Column(
@@ -179,11 +184,13 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                         address.label,
                         style: AppTextStyles.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
                         ),
                       ),
                       if (address.isDefault) ...[
-                        SizedBox(width: AppDimensions.paddingSmall),
+                        const SizedBox(width: AppDimensions.paddingSmall),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppDimensions.paddingSmall,
@@ -191,7 +198,8 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.success.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                            borderRadius: BorderRadius.circular(
+                                AppDimensions.radiusSmall),
                           ),
                           child: Text(
                             'Padrão',
@@ -204,7 +212,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                       ],
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     address.shortAddress,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -216,7 +224,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                 ],
               ),
             ),
-            
+
             // Botão de editar/remover
             PopupMenuButton<String>(
               icon: Icon(
@@ -257,7 +265,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                 ),
               ],
             ),
-            
+
             // Indicador de seleção
             if (isSelected)
               Icon(
@@ -277,7 +285,8 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
       builder: (context) => AddressFormDialog(
         onSave: (address) async {
           try {
-            await ref.read(checkoutNotifierProvider.notifier)
+            await ref
+                .read(checkoutNotifierProvider.notifier)
                 .addAddress(address);
             if (mounted) {
               NavigationHelper.safeGoBack(context);
@@ -310,7 +319,8 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
         address: address,
         onSave: (updatedAddress) async {
           try {
-            await ref.read(checkoutNotifierProvider.notifier)
+            await ref
+                .read(checkoutNotifierProvider.notifier)
                 .addAddress(updatedAddress);
             if (mounted) {
               NavigationHelper.safeGoBack(context);
@@ -340,17 +350,18 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Remover endereço'),
+        title: const Text('Remover endereço'),
         content: Text('Deseja remover o endereço "${address.label}"?'),
         actions: [
           TextButton(
             onPressed: () => NavigationHelper.safeGoBack(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
               try {
-                await ref.read(checkoutNotifierProvider.notifier)
+                await ref
+                    .read(checkoutNotifierProvider.notifier)
                     .removeAddress(address.id);
                 if (mounted) {
                   NavigationHelper.safeGoBack(context);
@@ -373,7 +384,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
                 }
               }
             },
-            child: Text(
+            child: const Text(
               'Remover',
               style: TextStyle(color: AppColors.error),
             ),
@@ -399,7 +410,7 @@ class _AddressSelectionWidgetState extends ConsumerState<AddressSelectionWidget>
 class AddressFormDialog extends StatefulWidget {
   final AddressModel? address;
   final Function(AddressModel) onSave;
-  
+
   const AddressFormDialog({
     super.key,
     this.address,
@@ -421,7 +432,7 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
   final _stateController = TextEditingController();
   final _zipCodeController = TextEditingController();
   final _referenceController = TextEditingController();
-  
+
   String _selectedType = AddressType.home;
   bool _isDefault = false;
   bool _isLoading = false;
@@ -465,7 +476,8 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.address == null ? 'Adicionar endereço' : 'Editar endereço'),
+      title: Text(
+          widget.address == null ? 'Adicionar endereço' : 'Editar endereço'),
       content: SizedBox(
         width: double.maxFinite,
         child: Form(
@@ -490,7 +502,7 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                         },
                       ),
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     DropdownButton<String>(
                       value: _selectedType,
                       items: AddressType.all.map((type) {
@@ -509,9 +521,9 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Rua e número
                 Row(
                   children: [
@@ -528,7 +540,7 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                         },
                       ),
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     Expanded(
                       child: CustomTextField(
                         controller: _numberController,
@@ -543,18 +555,18 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Complemento
                 CustomTextField(
                   controller: _complementController,
                   labelText: 'Complemento (opcional)',
                   hintText: 'Apto, bloco, etc.',
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Bairro
                 CustomTextField(
                   controller: _neighborhoodController,
@@ -566,9 +578,9 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                     return null;
                   },
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Cidade e estado
                 Row(
                   children: [
@@ -585,7 +597,7 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                         },
                       ),
                     ),
-                    SizedBox(width: AppDimensions.paddingSmall),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     Expanded(
                       child: CustomTextField(
                         controller: _stateController,
@@ -601,9 +613,9 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // CEP
                 CustomTextField(
                   controller: _zipCodeController,
@@ -616,21 +628,21 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
                     return null;
                   },
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Referência
                 CustomTextField(
                   controller: _referenceController,
                   labelText: 'Ponto de referência (opcional)',
                   hintText: 'Próximo ao mercado',
                 ),
-                
-                SizedBox(height: AppDimensions.paddingMedium),
-                
+
+                const SizedBox(height: AppDimensions.paddingMedium),
+
                 // Endereço padrão
                 CheckboxListTile(
-                  title: Text('Definir como endereço padrão'),
+                  title: const Text('Definir como endereço padrão'),
                   value: _isDefault,
                   onChanged: (value) {
                     setState(() {
@@ -647,8 +659,9 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: _isLoading ? null : () => NavigationHelper.safeGoBack(context),
-          child: Text('Cancelar'),
+          onPressed:
+              _isLoading ? null : () => NavigationHelper.safeGoBack(context),
+          child: const Text('Cancelar'),
         ),
         CustomButton(
           text: _isLoading ? 'Salvando...' : 'Salvar',
@@ -661,11 +674,11 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
 
   void _saveAddress() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final now = DateTime.now();
       final address = AddressModel(
@@ -675,21 +688,21 @@ class _AddressFormDialogState extends State<AddressFormDialog> {
         type: _selectedType,
         street: _streetController.text.trim(),
         number: _numberController.text.trim(),
-        complement: _complementController.text.trim().isEmpty 
-            ? null 
+        complement: _complementController.text.trim().isEmpty
+            ? null
             : _complementController.text.trim(),
         neighborhood: _neighborhoodController.text.trim(),
         city: _cityController.text.trim(),
         state: _stateController.text.trim(),
         zipCode: _zipCodeController.text.trim(),
-        reference: _referenceController.text.trim().isEmpty 
-            ? null 
+        reference: _referenceController.text.trim().isEmpty
+            ? null
             : _referenceController.text.trim(),
         isDefault: _isDefault,
         createdAt: widget.address?.createdAt ?? now,
         updatedAt: now,
       );
-      
+
       widget.onSave(address);
     } catch (e) {
       if (mounted) {

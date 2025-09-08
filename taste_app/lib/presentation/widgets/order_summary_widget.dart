@@ -15,7 +15,7 @@ class OrderSummaryWidget extends ConsumerWidget {
   final VoidCallback? onEditCart;
   final VoidCallback? onEditAddress;
   final VoidCallback? onEditPayment;
-  
+
   const OrderSummaryWidget({
     super.key,
     this.onEditCart,
@@ -27,7 +27,7 @@ class OrderSummaryWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
     final checkoutState = ref.watch(checkoutNotifierProvider);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -45,24 +45,24 @@ class OrderSummaryWidget extends ConsumerWidget {
               style: AppTextStyles.headingMedium,
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Itens do carrinho
           _buildCartItems(cart),
-          
+
           const Divider(height: 1),
-          
+
           // Endereço de entrega
           if (checkoutState.selectedAddress != null)
             _buildDeliveryAddress(checkoutState.selectedAddress!),
-          
+
           // Método de pagamento
           if (checkoutState.selectedPaymentMethod != null)
             _buildPaymentMethod(checkoutState.selectedPaymentMethod!),
-          
+
           const Divider(height: 1),
-          
+
           // Resumo financeiro
           _buildFinancialSummary(cart),
         ],
@@ -97,83 +97,85 @@ class OrderSummaryWidget extends ConsumerWidget {
                 ),
             ],
           ),
-          
-          SizedBox(height: AppDimensions.paddingSmall),
-          
+
+          const SizedBox(height: AppDimensions.paddingSmall),
+
           // Lista de itens (limitada a 3 para não ocupar muito espaço)
           ...cart.items.take(3).map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: AppDimensions.paddingSmall),
-            child: Row(
-              children: [
-                // Imagem do item
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  child: Image.network(
-                    item.imageUrl,
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 40,
-                      height: 40,
-                      color: AppColors.border,
-                      child: Icon(
-                        AppIcons.image,
-                        color: AppColors.textLight,
-                        size: 20,
+                padding:
+                    const EdgeInsets.only(bottom: AppDimensions.paddingSmall),
+                child: Row(
+                  children: [
+                    // Imagem do item
+                    ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(AppDimensions.radiusSmall),
+                      child: Image.network(
+                        item.imageUrl,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 40,
+                          height: 40,
+                          color: AppColors.border,
+                          child: const Icon(
+                            AppIcons.image,
+                            color: AppColors.textLight,
+                            size: 20,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                
-                SizedBox(width: AppDimensions.paddingSmall),
-                
-                // Informações do item
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.name,
-                        style: AppTextStyles.bodyMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                    const SizedBox(width: AppDimensions.paddingSmall),
+
+                    // Informações do item
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: AppTextStyles.bodyMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (item.observations?.isNotEmpty == true)
+                            Text(
+                              item.observations!,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textLight,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
                       ),
-                      if (item.observations?.isNotEmpty == true)
+                    ),
+
+                    // Quantidade e preço
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
                         Text(
-                          item.observations!,
-                          style: AppTextStyles.bodySmall.copyWith(
+                          '${item.quantity}x',
+                          style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textLight,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                    ],
-                  ),
-                ),
-                
-                // Quantidade e preço
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${item.quantity}x',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textLight,
-                      ),
-                    ),
-                    Text(
-                      'R\$ ${item.totalPrice.toStringAsFixed(2)}',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                        Text(
+                          'R\$ ${item.totalPrice.toStringAsFixed(2)}',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          )),
-          
+              )),
+
           // Mostrar "e mais X itens" se houver mais de 3
           if (cart.items.length > 3)
             Padding(
@@ -218,9 +220,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 ),
             ],
           ),
-          
-          SizedBox(height: AppDimensions.paddingSmall),
-          
+          const SizedBox(height: AppDimensions.paddingSmall),
           Row(
             children: [
               Icon(
@@ -228,7 +228,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 color: AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,9 +282,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 ),
             ],
           ),
-          
-          SizedBox(height: AppDimensions.paddingSmall),
-          
+          const SizedBox(height: AppDimensions.paddingSmall),
           Row(
             children: [
               Icon(
@@ -292,7 +290,7 @@ class OrderSummaryWidget extends ConsumerWidget {
                 color: AppColors.textLight,
                 size: AppDimensions.iconSmall,
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,23 +328,23 @@ class OrderSummaryWidget extends ConsumerWidget {
             'Subtotal',
             'R\$ ${cart.subtotal.toStringAsFixed(2)}',
           ),
-          
+
           // Taxa de entrega
           _buildSummaryRow(
             'Taxa de entrega',
-            cart.deliveryFee > 0 
+            cart.deliveryFee > 0
                 ? 'R\$ ${cart.deliveryFee.toStringAsFixed(2)}'
                 : 'Grátis',
             valueColor: cart.deliveryFee == 0 ? AppColors.success : null,
           ),
-          
+
           // Taxa de serviço
           if (cart.serviceFee > 0)
             _buildSummaryRow(
               'Taxa de serviço',
               'R\$ ${cart.serviceFee.toStringAsFixed(2)}',
             ),
-          
+
           // Desconto
           if (cart.discount > 0)
             _buildSummaryRow(
@@ -354,11 +352,11 @@ class OrderSummaryWidget extends ConsumerWidget {
               '- R\$ ${cart.discount.toStringAsFixed(2)}',
               valueColor: AppColors.success,
             ),
-          
-          SizedBox(height: AppDimensions.paddingSmall),
+
+          const SizedBox(height: AppDimensions.paddingSmall),
           const Divider(),
-          SizedBox(height: AppDimensions.paddingSmall),
-          
+          const SizedBox(height: AppDimensions.paddingSmall),
+
           // Total
           _buildSummaryRow(
             'Total',
@@ -439,7 +437,7 @@ class OrderSummaryWidget extends ConsumerWidget {
 /// Widget compacto para mostrar resumo em outras telas
 class CompactOrderSummary extends ConsumerWidget {
   final VoidCallback? onTap;
-  
+
   const CompactOrderSummary({
     super.key,
     this.onTap,
@@ -448,11 +446,11 @@ class CompactOrderSummary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
-    
+
     if (cart.items.isEmpty) {
       return const SizedBox.shrink();
     }
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -484,9 +482,9 @@ class CompactOrderSummary extends ConsumerWidget {
                 size: AppDimensions.iconMedium,
               ),
             ),
-            
-            SizedBox(width: AppDimensions.paddingMedium),
-            
+
+            const SizedBox(width: AppDimensions.paddingMedium),
+
             // Informações do pedido
             Expanded(
               child: Column(
@@ -510,7 +508,7 @@ class CompactOrderSummary extends ConsumerWidget {
                 ],
               ),
             ),
-            
+
             // Total e seta
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,

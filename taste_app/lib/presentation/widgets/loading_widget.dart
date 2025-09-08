@@ -13,7 +13,7 @@ class LoadingWidget extends StatelessWidget {
   final bool showMessage;
   final bool useLottie;
   final String? lottieAsset;
-  
+
   const LoadingWidget({
     super.key,
     this.message,
@@ -23,7 +23,7 @@ class LoadingWidget extends StatelessWidget {
     this.useLottie = false,
     this.lottieAsset,
   });
-  
+
   /// Factory para loading simples
   factory LoadingWidget.simple({
     Key? key,
@@ -37,7 +37,7 @@ class LoadingWidget extends StatelessWidget {
       showMessage: false,
     );
   }
-  
+
   /// Factory para loading com Lottie
   factory LoadingWidget.lottie({
     Key? key,
@@ -53,7 +53,7 @@ class LoadingWidget extends StatelessWidget {
       lottieAsset: lottieAsset ?? 'assets/lottie/loading.json',
     );
   }
-  
+
   /// Factory para tela cheia
   factory LoadingWidget.fullScreen({
     Key? key,
@@ -69,7 +69,7 @@ class LoadingWidget extends StatelessWidget {
       size: 80,
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -89,7 +89,7 @@ class LoadingWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildLoadingIndicator() {
     if (useLottie && lottieAsset != null) {
       return SizedBox(
@@ -101,7 +101,7 @@ class LoadingWidget extends StatelessWidget {
         ),
       );
     }
-    
+
     return SizedBox(
       width: size ?? AppDimensions.iconLarge,
       height: size ?? AppDimensions.iconLarge,
@@ -120,14 +120,14 @@ class ListLoadingWidget extends StatelessWidget {
   final int itemCount;
   final double itemHeight;
   final EdgeInsetsGeometry? padding;
-  
+
   const ListLoadingWidget({
     super.key,
     this.itemCount = 5,
     this.itemHeight = 80,
     this.padding,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -136,14 +136,15 @@ class ListLoadingWidget extends StatelessWidget {
       itemBuilder: (context, index) => _buildShimmerItem(),
     );
   }
-  
+
   Widget _buildShimmerItem() {
     return Container(
       height: itemHeight,
       margin: const EdgeInsets.only(bottom: AppDimensions.marginMedium),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.shimmer,
-        borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
+        borderRadius:
+            BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
       ),
       child: const ShimmerEffect(),
     );
@@ -155,14 +156,14 @@ class ShimmerEffect extends StatefulWidget {
   final Widget? child;
   final Color? baseColor;
   final Color? highlightColor;
-  
+
   const ShimmerEffect({
     super.key,
     this.child,
     this.baseColor,
     this.highlightColor,
   });
-  
+
   @override
   State<ShimmerEffect> createState() => _ShimmerEffectState();
 }
@@ -171,7 +172,7 @@ class _ShimmerEffectState extends State<ShimmerEffect>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -188,13 +189,13 @@ class _ShimmerEffectState extends State<ShimmerEffect>
     ));
     _controller.repeat();
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -228,13 +229,13 @@ class _ShimmerEffectState extends State<ShimmerEffect>
 class OverlayLoadingWidget extends StatelessWidget {
   final String? message;
   final bool dismissible;
-  
+
   const OverlayLoadingWidget({
     super.key,
     this.message,
     this.dismissible = false,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -242,9 +243,10 @@ class OverlayLoadingWidget extends StatelessWidget {
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
+            borderRadius:
+                BorderRadius.all(Radius.circular(AppDimensions.cardRadius)),
           ),
           child: LoadingWidget(
             message: message ?? 'Carregando...',

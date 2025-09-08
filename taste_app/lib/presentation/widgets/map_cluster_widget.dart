@@ -2,12 +2,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import '../../data/models/restaurant_model.dart';
 import '../../data/models/location_model.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../../core/utils/logger.dart';
 
 /// Classe para representar um cluster de restaurantes
 class RestaurantCluster {
@@ -28,14 +25,14 @@ class RestaurantCluster {
     if (restaurant.latitude == null || restaurant.longitude == null) {
       return false;
     }
-    
+
     final distance = _calculateDistance(
       center.latitude,
       center.longitude,
       restaurant.latitude!,
       restaurant.longitude!,
     );
-    
+
     return distance <= radius;
   }
 
@@ -47,17 +44,18 @@ class RestaurantCluster {
   }
 
   /// Calcular distância entre dois pontos em metros
-  static double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  static double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
     const double earthRadius = 6371000; // metros
     final double dLat = (lat2 - lat1) * (math.pi / 180);
     final double dLon = (lon2 - lon1) * (math.pi / 180);
-    
+
     final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(lat1 * (math.pi / 180)) *
             math.cos(lat2 * (math.pi / 180)) *
             math.sin(dLon / 2) *
             math.sin(dLon / 2);
-    
+
     final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     return earthRadius * c;
   }
@@ -68,7 +66,7 @@ class MapClusterManager {
   static const double _defaultClusterRadius = 100.0; // metros
   static const int _minClusterSize = 2;
   static const int _maxClusterSize = 99;
-  
+
   // Cache para otimização
   static final Map<String, List<RestaurantCluster>> _clusterCache = {};
   static final Map<String, DateTime> _cacheTimestamps = {};
@@ -85,10 +83,11 @@ class MapClusterManager {
 
     // Ajustar raio do cluster baseado no zoom
     final adjustedRadius = _getAdjustedRadius(clusterRadius, zoomLevel);
-    
+
     // Gerar chave do cache
-    final cacheKey = _generateCacheKey(restaurants, adjustedRadius, minClusterSize);
-    
+    final cacheKey =
+        _generateCacheKey(restaurants, adjustedRadius, minClusterSize);
+
     // Verificar cache
     if (_isValidCache(cacheKey)) {
       return _clusterCache[cacheKey]!;
@@ -96,7 +95,7 @@ class MapClusterManager {
 
     final clusters = <RestaurantCluster>[];
     final processedRestaurants = <String>{};
-    
+
     // Ordenar restaurantes por latitude para otimização
     final sortedRestaurants = List<RestaurantModel>.from(restaurants)
       ..sort((a, b) => (a.latitude ?? 0).compareTo(b.latitude ?? 0));
@@ -125,7 +124,7 @@ class MapClusterManager {
         );
 
         clusters.add(cluster);
-        
+
         // Marcar restaurantes como processados
         for (final r in nearbyRestaurants) {
           processedRestaurants.add(r.id);
@@ -135,11 +134,11 @@ class MapClusterManager {
         processedRestaurants.add(restaurant.id);
       }
     }
-    
+
     // Salvar no cache
     _clusterCache[cacheKey] = clusters;
     _cacheTimestamps[cacheKey] = DateTime.now();
-    
+
     // Limpar cache antigo
     _cleanExpiredCache();
 
@@ -160,12 +159,13 @@ class MapClusterManager {
     // Buscar para trás
     for (int i = centerIndex - 1; i >= 0; i--) {
       final restaurant = sortedRestaurants[i];
-      
+
       // Otimização: se a diferença de latitude for muito grande, parar
-      if ((centerRestaurant.latitude! - restaurant.latitude!).abs() > radiusInDegrees) {
+      if ((centerRestaurant.latitude! - restaurant.latitude!).abs() >
+          radiusInDegrees) {
         break;
       }
-      
+
       if (restaurant.id == centerRestaurant.id ||
           processedRestaurants.contains(restaurant.id) ||
           restaurant.latitude == null ||
@@ -184,16 +184,17 @@ class MapClusterManager {
         nearby.add(restaurant);
       }
     }
-    
+
     // Buscar para frente
     for (int i = centerIndex + 1; i < sortedRestaurants.length; i++) {
       final restaurant = sortedRestaurants[i];
-      
+
       // Otimização: se a diferença de latitude for muito grande, parar
-      if ((restaurant.latitude! - centerRestaurant.latitude!).abs() > radiusInDegrees) {
+      if ((restaurant.latitude! - centerRestaurant.latitude!).abs() >
+          radiusInDegrees) {
         break;
       }
-      
+
       if (processedRestaurants.contains(restaurant.id) ||
           restaurant.latitude == null ||
           restaurant.longitude == null) {
@@ -227,15 +228,16 @@ class MapClusterManager {
     final double dLat = (lat2 - lat1) * (math.pi / 180);
     final double dLon = (lon2 - lon1) * (math.pi / 180);
     final double avgLat = (lat1 + lat2) / 2 * (math.pi / 180);
-    
+
     final double x = dLon * math.cos(avgLat);
     final double y = dLat;
-    
+
     return math.sqrt(x * x + y * y) * earthRadius;
   }
 
   /// Calcular centro geográfico do cluster
-  static LocationModel _calculateClusterCenter(List<RestaurantModel> restaurants) {
+  static LocationModel _calculateClusterCenter(
+      List<RestaurantModel> restaurants) {
     double totalLat = 0;
     double totalLng = 0;
     int count = 0;
@@ -260,7 +262,7 @@ class MapClusterManager {
     List<RestaurantCluster> clusters,
   ) {
     final clusteredIds = <String>{};
-    
+
     for (final cluster in clusters) {
       for (final restaurant in cluster.restaurants) {
         clusteredIds.add(restaurant.id);
@@ -271,7 +273,7 @@ class MapClusterManager {
         .where((restaurant) => !clusteredIds.contains(restaurant.id))
         .toList();
   }
-  
+
   /// Gerar chave do cache
   static String _generateCacheKey(
     List<RestaurantModel> restaurants,
@@ -281,35 +283,35 @@ class MapClusterManager {
     final ids = restaurants.map((r) => r.id).join(',');
     return '${ids.hashCode}_${radius}_$minClusterSize';
   }
-  
+
   /// Verificar se o cache é válido
   static bool _isValidCache(String cacheKey) {
-    if (!_clusterCache.containsKey(cacheKey) || 
+    if (!_clusterCache.containsKey(cacheKey) ||
         !_cacheTimestamps.containsKey(cacheKey)) {
       return false;
     }
-    
+
     final timestamp = _cacheTimestamps[cacheKey]!;
     return DateTime.now().difference(timestamp) < _cacheExpiration;
   }
-  
+
   /// Limpar cache expirado
   static void _cleanExpiredCache() {
     final now = DateTime.now();
     final expiredKeys = <String>[];
-    
+
     _cacheTimestamps.forEach((key, timestamp) {
       if (now.difference(timestamp) >= _cacheExpiration) {
         expiredKeys.add(key);
       }
     });
-    
+
     for (final key in expiredKeys) {
       _clusterCache.remove(key);
       _cacheTimestamps.remove(key);
     }
   }
-  
+
   /// Ajustar raio do cluster baseado no nível de zoom
   static double _getAdjustedRadius(double baseRadius, double zoomLevel) {
     // Quanto maior o zoom, menor o raio do cluster
@@ -319,7 +321,7 @@ class MapClusterManager {
     if (zoomLevel >= 12) return baseRadius * 1.5;
     return baseRadius * 2.0;
   }
-  
+
   /// Limpar todo o cache
   static void clearCache() {
     _clusterCache.clear();
@@ -346,14 +348,14 @@ class ClusterMarkerWidget {
     final pulsePaint = Paint()
       ..color = backgroundColor.withOpacity(0.3)
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, radius + 8, pulsePaint);
 
     // Desenhar sombra
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 3, center.dy + 3),
       radius,
@@ -369,7 +371,7 @@ class ClusterMarkerWidget {
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, radius, mainPaint);
 
     // Desenhar borda com gradiente
@@ -382,14 +384,14 @@ class ClusterMarkerWidget {
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
-    
+
     canvas.drawCircle(center, radius, borderPaint);
 
     // Desenhar círculo interno
     final innerPaint = Paint()
       ..color = backgroundColor.withOpacity(0.8)
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(
       center,
       size / 3,
@@ -415,7 +417,7 @@ class ClusterMarkerWidget {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
@@ -431,7 +433,7 @@ class ClusterMarkerWidget {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -475,7 +477,7 @@ class ClusterMarkerWidget {
   }) async {
     final animatedSize = baseSize + (animationValue * 15);
     final color = backgroundColor ?? getClusterColor(count);
-    
+
     return createClusterMarker(
       count: count,
       size: animatedSize,

@@ -28,7 +28,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   ConnectivityStatus _currentStatus = ConnectivityStatus.unknown;
   bool _showBanner = false;
 
@@ -50,7 +50,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
       duration: widget.animationDuration,
       vsync: this,
     );
-    
+
     _slideAnimation = Tween<double>(
       begin: -1.0,
       end: 0.0,
@@ -58,7 +58,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -72,21 +72,22 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
     // Obtém o status inicial
     _currentStatus = ConnectivityService.instance.status;
     _updateBannerVisibility();
-    
+
     // Escuta mudanças no status
-    ConnectivityService.instance.statusStream.addListener(_onConnectivityChanged);
+    ConnectivityService.instance.statusStream
+        .addListener(_onConnectivityChanged);
   }
 
   void _onConnectivityChanged() {
     final newStatus = ConnectivityService.instance.status;
-    
+
     if (_currentStatus != newStatus) {
       setState(() {
         _currentStatus = newStatus;
       });
-      
+
       _updateBannerVisibility();
-      
+
       // Feedback háptico para mudanças importantes
       if (newStatus == ConnectivityStatus.connected) {
         InteractionService.lightHaptic();
@@ -98,12 +99,12 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
 
   void _updateBannerVisibility() {
     final shouldShow = _shouldShowBanner();
-    
+
     if (shouldShow != _showBanner) {
       setState(() {
         _showBanner = shouldShow;
       });
-      
+
       if (_showBanner) {
         _animationController.forward();
       } else {
@@ -146,7 +147,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
 
   Widget _buildBanner() {
     final bannerData = _getBannerData();
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
@@ -172,7 +173,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner>
               color: bannerData.textColor,
               size: AppDimensions.iconSmall,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Expanded(
               child: Text(
                 bannerData.message,
@@ -285,7 +286,7 @@ class ConnectivityIndicator extends StatelessWidget {
       valueListenable: ConnectivityService.instance.statusStream,
       builder: (context, status, child) {
         final data = _getIndicatorData(status);
-        
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -295,7 +296,7 @@ class ConnectivityIndicator extends StatelessWidget {
               size: iconSize,
             ),
             if (showLabel) ...[
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 data.label,
                 style: AppTextStyles.caption.copyWith(

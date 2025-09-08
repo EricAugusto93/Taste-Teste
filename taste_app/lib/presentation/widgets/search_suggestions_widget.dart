@@ -40,7 +40,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Row(
         children: [
-          SizedBox(
+          const SizedBox(
             width: 16,
             height: 16,
             child: CircularProgressIndicator(
@@ -48,7 +48,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Text(
             'Buscando sugestões...',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -65,12 +65,12 @@ class SearchSuggestionsWidget extends StatelessWidget {
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             AppIcons.search,
             size: AppDimensions.iconSmall,
             color: AppColors.textLight,
           ),
-          SizedBox(width: AppDimensions.paddingMedium),
+          const SizedBox(width: AppDimensions.paddingMedium),
           Text(
             'Digite para buscar restaurantes...',
             style: AppTextStyles.bodyMedium.copyWith(
@@ -100,13 +100,13 @@ class SearchSuggestionsWidget extends StatelessWidget {
         children: [
           // Header com contador e botão limpar
           if (suggestions.isNotEmpty) _buildSuggestionsHeader(),
-          
+
           // Lista de sugestões
           ...suggestions.asMap().entries.map((entry) {
             final index = entry.key;
             final suggestion = entry.value;
             return _buildSuggestionItem(suggestion, index);
-          }).toList(),
+          }),
         ],
       ),
     ).slideIn(
@@ -131,12 +131,12 @@ class SearchSuggestionsWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          const Icon(
             AppIcons.search,
             size: AppDimensions.iconSmall,
             color: AppColors.textLight,
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           Text(
             '${suggestions.length} sugestão${suggestions.length != 1 ? 'ões' : ''}',
             style: AppTextStyles.bodySmall.copyWith(
@@ -150,7 +150,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
                 AnimationService.lightHaptic();
                 onClearSuggestions!();
               },
-              child: Icon(
+              child: const Icon(
                 AppIcons.close,
                 size: AppDimensions.iconSmall,
                 color: AppColors.textLight,
@@ -164,7 +164,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
   Widget _buildSuggestionItem(String suggestion, int index) {
     // Destacar a parte que corresponde à query atual
     final highlightedText = _buildHighlightedText(suggestion, currentQuery);
-    
+
     return AnimationService.staggeredListItem(
       index: index,
       duration: AnimationService.fast,
@@ -183,12 +183,12 @@ class SearchSuggestionsWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   AppIcons.search,
                   size: AppDimensions.iconSmall,
                   color: AppColors.textLight,
                 ),
-                SizedBox(width: AppDimensions.paddingMedium),
+                const SizedBox(width: AppDimensions.paddingMedium),
                 Expanded(
                   child: highlightedText,
                 ),
@@ -238,8 +238,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
           color: AppColors.textDark,
         ),
         children: [
-          if (before.isNotEmpty)
-            TextSpan(text: before),
+          if (before.isNotEmpty) TextSpan(text: before),
           TextSpan(
             text: match,
             style: AppTextStyles.bodyMedium.copyWith(
@@ -247,8 +246,7 @@ class SearchSuggestionsWidget extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          if (after.isNotEmpty)
-            TextSpan(text: after),
+          if (after.isNotEmpty) TextSpan(text: after),
         ],
       ),
     );
@@ -288,7 +286,7 @@ class CategorySuggestionsWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category == selectedCategory;
-          
+
           return AnimationService.staggeredListItem(
             index: index,
             duration: AnimationService.fast,
@@ -302,7 +300,8 @@ class CategorySuggestionsWidget extends StatelessWidget {
                   category,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isSelected ? AppColors.surface : AppColors.textDark,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
                 selected: isSelected,
@@ -359,12 +358,12 @@ class QuickSearchHistoryWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 AppIcons.clock,
                 size: AppDimensions.iconSmall,
                 color: AppColors.textLight,
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Text(
                 'Buscas Recentes',
                 style: AppTextStyles.bodySmall.copyWith(
@@ -374,14 +373,14 @@ class QuickSearchHistoryWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           Wrap(
             spacing: AppDimensions.paddingSmall,
             runSpacing: AppDimensions.paddingSmall,
             children: displayItems.asMap().entries.map((entry) {
               final index = entry.key;
               final search = entry.value;
-              
+
               return AnimationService.staggeredListItem(
                 index: index,
                 duration: AnimationService.fast,
@@ -415,13 +414,13 @@ class QuickSearchHistoryWidget extends StatelessWidget {
                           ),
                         ),
                         if (onRemoveSearch != null) ...[
-                          SizedBox(width: AppDimensions.paddingSmall),
+                          const SizedBox(width: AppDimensions.paddingSmall),
                           GestureDetector(
                             onTap: () {
                               AnimationService.lightHaptic();
                               onRemoveSearch!(search);
                             },
-                            child: Icon(
+                            child: const Icon(
                               AppIcons.close,
                               size: 12,
                               color: AppColors.textLight,

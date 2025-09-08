@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taste_app/data/services/location/location_service.dart' as app_location;
+import 'package:taste_app/data/services/location/location_service.dart'
+    as app_location;
 import 'package:taste_app/data/models/location_model.dart';
 
 void main() {
@@ -112,7 +113,8 @@ void main() {
         expect(locationService.currentPosition, isNull);
         expect(locationService.cachedLocation, isNull);
         expect(locationService.isLocationEnabled, isFalse);
-        expect(locationService.permissionStatus, equals(PermissionStatus.denied));
+        expect(
+            locationService.permissionStatus, equals(PermissionStatus.denied));
         expect(locationService.isCacheValid, isFalse);
       });
     });
@@ -126,14 +128,16 @@ void main() {
         const lng2 = -43.1729;
 
         // Act
-        final distance = locationService.calculateDistance(lat1, lng1, lat2, lng2);
+        final distance =
+            locationService.calculateDistance(lat1, lng1, lat2, lng2);
 
         // Assert
         expect(distance, greaterThan(350000)); // Aproximadamente 357km
         expect(distance, lessThan(400000));
       });
 
-      test('should calculate distance between two coordinates in kilometers', () {
+      test('should calculate distance between two coordinates in kilometers',
+          () {
         // Arrange
         const lat1 = -23.5505; // São Paulo
         const lng1 = -46.6333;
@@ -141,7 +145,8 @@ void main() {
         const lng2 = -43.1729;
 
         // Act
-        final distance = locationService.calculateDistanceInKm(lat1, lng1, lat2, lng2);
+        final distance =
+            locationService.calculateDistanceInKm(lat1, lng1, lat2, lng2);
 
         // Assert
         expect(distance, greaterThan(350)); // Aproximadamente 357km
@@ -216,15 +221,19 @@ void main() {
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        
+
         final locations = [
-          const LocationModel(latitude: -23.5600, longitude: -46.6400), // Próximo
-          const LocationModel(latitude: -22.9068, longitude: -43.1729), // Rio - Longe
-          const LocationModel(latitude: -23.5510, longitude: -46.6340), // Muito próximo
+          const LocationModel(
+              latitude: -23.5600, longitude: -46.6400), // Próximo
+          const LocationModel(
+              latitude: -22.9068, longitude: -43.1729), // Rio - Longe
+          const LocationModel(
+              latitude: -23.5510, longitude: -46.6340), // Muito próximo
         ];
 
         // Act
-        final nearest = locationService.findNearestLocation(userLocation, locations);
+        final nearest =
+            locationService.findNearestLocation(userLocation, locations);
 
         // Assert
         expect(nearest, isNotNull);
@@ -238,13 +247,14 @@ void main() {
           latitude: -23.5505,
           longitude: -46.6333,
         );
-        
+
         final locations = [
           const LocationModel(latitude: -23.5510, longitude: -46.6340), // ~1km
-          const LocationModel(latitude: -22.9068, longitude: -43.1729), // ~357km
+          const LocationModel(
+              latitude: -22.9068, longitude: -43.1729), // ~357km
           const LocationModel(latitude: -23.5500, longitude: -46.6330), // ~500m
         ];
-        
+
         const radiusInMeters = 2000.0; // 2km
 
         // Act
@@ -296,7 +306,8 @@ void main() {
         // Assert
         // Como não temos acesso direto às configurações privadas,
         // verificamos se o método executa sem erro
-        expect(() => locationService.updateSettings(newSettings), returnsNormally);
+        expect(
+            () => locationService.updateSettings(newSettings), returnsNormally);
       });
     });
 
@@ -309,7 +320,8 @@ void main() {
         expect(locationService.currentPosition, isNull);
         expect(locationService.cachedLocation, isNull);
         expect(locationService.isLocationEnabled, isFalse);
-        expect(locationService.permissionStatus, equals(PermissionStatus.denied));
+        expect(
+            locationService.permissionStatus, equals(PermissionStatus.denied));
         expect(locationService.isCacheValid, isFalse);
       });
 
@@ -324,10 +336,10 @@ void main() {
     test('should create LocationException with message', () {
       // Arrange
       const message = 'Test error message';
-      
+
       // Act
-      final exception = app_location.LocationException(message);
-      
+      const exception = app_location.LocationException(message);
+
       // Assert
       expect(exception.message, equals(message));
       expect(exception.toString(), equals('LocationException: $message'));
@@ -336,10 +348,10 @@ void main() {
     test('should create LocationServiceDisabledException', () {
       // Arrange
       const message = 'Service disabled';
-      
+
       // Act
-      final exception = app_location.LocationServiceDisabledException(message);
-      
+      const exception = app_location.LocationServiceDisabledException(message);
+
       // Assert
       expect(exception, isA<app_location.LocationException>());
       expect(exception.message, equals(message));
@@ -348,10 +360,10 @@ void main() {
     test('should create LocationPermissionDeniedException', () {
       // Arrange
       const message = 'Permission denied';
-      
+
       // Act
-      final exception = app_location.LocationPermissionDeniedException(message);
-      
+      const exception = app_location.LocationPermissionDeniedException(message);
+
       // Assert
       expect(exception, isA<app_location.LocationException>());
       expect(exception.message, equals(message));
@@ -360,10 +372,10 @@ void main() {
     test('should create LocationTimeoutException', () {
       // Arrange
       const message = 'Timeout occurred';
-      
+
       // Act
-      final exception = app_location.LocationTimeoutException(message);
-      
+      const exception = app_location.LocationTimeoutException(message);
+
       // Assert
       expect(exception, isA<app_location.LocationException>());
       expect(exception.message, equals(message));

@@ -6,7 +6,8 @@ class SmoothTransitionWidget extends StatelessWidget {
   final Widget child;
   final Duration duration;
   final Curve curve;
-  final Widget Function(Widget child, Animation<double> animation)? transitionBuilder;
+  final Widget Function(Widget child, Animation<double> animation)?
+      transitionBuilder;
 
   const SmoothTransitionWidget({
     super.key,
@@ -63,7 +64,7 @@ class LoadingTransitionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SmoothTransitionWidget(
       duration: duration,
-      child: isLoading 
+      child: isLoading
           ? KeyedSubtree(
               key: const ValueKey('loading'),
               child: loadingWidget,
@@ -94,7 +95,7 @@ class StateTransitionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentWidget = stateWidgets[currentState];
-    
+
     if (currentWidget == null) {
       return const SizedBox.shrink();
     }
@@ -133,7 +134,7 @@ class StaggeredListTransition extends StatelessWidget {
       children: children.asMap().entries.map((entry) {
         final index = entry.key;
         final child = entry.value;
-        
+
         return TweenAnimationBuilder<double>(
           duration: animationDuration + (staggerDelay * index),
           tween: Tween(begin: 0.0, end: 1.0),
@@ -189,7 +190,7 @@ class _BounceAnimationWidgetState extends State<BounceAnimationWidget>
       duration: widget.duration,
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: widget.scaleDown,
@@ -209,11 +210,11 @@ class _BounceAnimationWidgetState extends State<BounceAnimationWidget>
     if (widget.enableHaptic) {
       InteractionService.lightHaptic();
     }
-    
+
     _controller.forward().then((_) {
       _controller.reverse();
     });
-    
+
     widget.onTap?.call();
   }
 
@@ -250,7 +251,7 @@ class SlidePageTransition extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Offset begin;
-    
+
     switch (direction) {
       case SlideDirection.rightToLeft:
         begin = const Offset(1.0, 0.0);
@@ -296,12 +297,11 @@ class SlidePageRoute<T> extends PageRouteBuilder<T> {
     required this.page,
     this.direction = SlideDirection.rightToLeft,
     this.duration = const Duration(milliseconds: 300),
-    RouteSettings? settings,
+    super.settings,
   }) : super(
           pageBuilder: (context, animation, secondaryAnimation) => page,
           transitionDuration: duration,
           reverseTransitionDuration: duration,
-          settings: settings,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlidePageTransition(
               animation: animation,

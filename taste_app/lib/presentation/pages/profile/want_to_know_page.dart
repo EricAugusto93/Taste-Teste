@@ -51,7 +51,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Quero conhecer',
             style: TextStyle(
               color: Colors.white,
@@ -70,7 +70,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Quero conhecer',
           style: TextStyle(
             color: Colors.white,
@@ -123,18 +123,18 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   color: const Color(0xFFFF8C00).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.restaurant_menu,
                   color: Color(0xFFFF8C00),
                   size: 24,
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Lugares para descobrir',
                       style: TextStyle(
                         color: Colors.white,
@@ -193,7 +193,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: item.imageUrl != null && item.imageUrl.isNotEmpty
+            child: item.imageUrl.isNotEmpty
                 ? Image.network(
                     item.imageUrl,
                     height: 160,
@@ -204,7 +204,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                         height: 160,
                         width: double.infinity,
                         color: Colors.grey[300],
-                        child: Icon(
+                        child: const Icon(
                           Icons.restaurant,
                           size: 48,
                           color: Colors.grey,
@@ -216,14 +216,14 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     height: 160,
                     width: double.infinity,
                     color: Colors.grey[300],
-                    child: Icon(
+                    child: const Icon(
                       Icons.restaurant,
                       size: 48,
                       color: Colors.grey,
                     ),
                   ),
           ),
-          
+
           // Conteúdo
           Padding(
             padding: const EdgeInsets.all(16),
@@ -242,7 +242,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     ),
                     IconButton(
                       onPressed: () => _removeItem(item.id),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.close,
                         color: Colors.grey,
                         size: 20,
@@ -250,9 +250,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 4),
-                
+                const SizedBox(height: 4),
                 Row(
                   children: [
                     Container(
@@ -274,17 +272,15 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_outlined,
                       size: 16,
                       color: AppColors.textLight,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         item.location,
@@ -295,9 +291,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 8),
-                
+                const SizedBox(height: 8),
                 Text(
                   'Adicionado há ${_getTimeAgo(item.addedDate)}',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -325,20 +319,20 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                 color: const Color(0xFFFF8C00).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.restaurant_menu,
                 size: 64,
                 color: Color(0xFFFF8C00),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               'Nenhum lugar salvo ainda',
               style: AppTextStyles.headingMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Explore restaurantes e adicione os que você quer conhecer à sua lista!',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -346,7 +340,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 NavigationHelper.safeGoBack(context);
@@ -362,7 +356,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
+              child: const Text(
                 'Explorar restaurantes',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -378,12 +372,12 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
   Future<void> _removeItem(String itemId) async {
     try {
       final success = await UserListsService.removeWantToKnowItem(itemId);
-      
+
       if (success) {
         setState(() {
           _items.removeWhere((item) => item.id == itemId);
         });
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -421,7 +415,7 @@ class _WantToKnowPageState extends ConsumerState<WantToKnowPage> {
   String _getTimeAgo(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} dias';
     } else if (difference.inHours > 0) {

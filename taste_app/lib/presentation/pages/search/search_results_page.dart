@@ -54,22 +54,22 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
   List<RestaurantModel> _restaurants = [];
   List<RestaurantModel> _allRestaurants = [];
   List<CategoryModel> _categories = [];
-  
+
   bool _isLoading = false;
   bool _isLoadingMore = false;
   bool _hasMoreResults = true;
   bool _showFilters = false;
   bool _showSortOptions = false;
   bool _isViewModeChanging = false;
-  
+
   SearchFilters _currentFilters = const SearchFilters();
   String _currentSortBy = 'relevance';
   String _currentViewMode = 'list'; // 'list', 'grid' ou 'map'
-  
+
   int _currentPage = 1;
   final int _pageSize = 20;
   LocationModel? _userLocation;
-  
+
   // Opções de ordenação
   final List<Map<String, String>> _sortOptions = [
     {'key': 'relevance', 'label': 'Relevância'},
@@ -85,26 +85,26 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     super.initState();
     _searchRepository = SearchRepositoryImpl(_searchService);
     _scrollController.addListener(_onScroll);
-    
+
     _filterAnimationController = AnimationController(
       duration: AnimationService.normal,
       vsync: this,
     );
-    
+
     _sortAnimationController = AnimationController(
       duration: AnimationService.normal,
       vsync: this,
     );
-    
+
     // Aplicar filtros iniciais se fornecidos
     if (widget.initialFilters != null) {
       _currentFilters = SearchFilters.fromMap(widget.initialFilters!);
     }
-    
+
     if (widget.categoryId != null) {
       _currentFilters = _currentFilters.copyWith(categoryId: widget.categoryId);
     }
-    
+
     // Carregar dados iniciais
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadInitialData();
@@ -222,7 +222,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
           _restaurants.addAll(results.restaurants);
           _allRestaurants.addAll(results.restaurants);
         }
-        
+
         _hasMoreResults = results.restaurants.length == _pageSize;
         _currentPage++;
       });
@@ -273,7 +273,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
       backgroundColor: AppColors.surface,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(
+        icon: const Icon(
           AppIcons.back,
           color: AppColors.textDark,
         ),
@@ -314,7 +314,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
           tooltip: _getViewModeTooltip(),
         ),
         IconButton(
-          icon: Icon(
+          icon: const Icon(
             AppIcons.search,
             color: AppColors.textDark,
           ),
@@ -351,7 +351,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
             ),
           ),
           _buildFilterButton(),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
           _buildSortButton(),
         ],
       ),
@@ -360,7 +360,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
 
   Widget _buildFilterButton() {
     final hasActiveFilters = _isFiltersActive();
-    
+
     return GestureDetector(
       onTap: () {
         AnimationService.mediumHaptic();
@@ -386,16 +386,17 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
               size: AppDimensions.iconSmall,
               color: hasActiveFilters ? AppColors.surface : AppColors.textDark,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Filtros',
               style: AppTextStyles.bodySmall.copyWith(
-                color: hasActiveFilters ? AppColors.surface : AppColors.textDark,
+                color:
+                    hasActiveFilters ? AppColors.surface : AppColors.textDark,
                 fontWeight: FontWeight.w600,
               ),
             ),
             if (hasActiveFilters) ...[
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(
@@ -423,7 +424,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
       (option) => option['key'] == _currentSortBy,
       orElse: () => _sortOptions.first,
     );
-    
+
     return GestureDetector(
       onTap: () {
         AnimationService.mediumHaptic();
@@ -442,12 +443,12 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               AppIcons.sort,
               size: AppDimensions.iconSmall,
               color: AppColors.textDark,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               currentSort['label']!,
               style: AppTextStyles.bodySmall.copyWith(
@@ -455,7 +456,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Icon(
               _showSortOptions ? AppIcons.chevronUp : AppIcons.chevronDown,
               size: AppDimensions.iconSmall,
@@ -524,13 +525,13 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: AppDimensions.paddingSmall),
+                const SizedBox(height: AppDimensions.paddingSmall),
                 Wrap(
                   spacing: AppDimensions.paddingSmall,
                   runSpacing: AppDimensions.paddingSmall,
                   children: _sortOptions.map((option) {
                     final isSelected = option['key'] == _currentSortBy;
-                    
+
                     return GestureDetector(
                       onTap: () {
                         AnimationService.selectionHaptic();
@@ -542,17 +543,26 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
                           vertical: AppDimensions.paddingSmall,
                         ),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary : AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.surface,
+                          borderRadius:
+                              BorderRadius.circular(AppDimensions.radiusSmall),
                           border: Border.all(
-                            color: isSelected ? AppColors.primary : AppColors.divider,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.divider,
                           ),
                         ),
                         child: Text(
                           option['label']!,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: isSelected ? AppColors.surface : AppColors.textDark,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                            color: isSelected
+                                ? AppColors.surface
+                                : AppColors.textDark,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ),
@@ -589,7 +599,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
           child: _buildCurrentView(),
         ),
         if (_isViewModeChanging)
-          ViewModeLoadingOverlay(
+          const ViewModeLoadingOverlay(
             message: 'Alterando visualização...',
           ),
       ],
@@ -660,10 +670,10 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     setState(() {
       _isViewModeChanging = true;
     });
-    
+
     // Pequeno delay para mostrar o loading
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     setState(() {
       // Ciclo: list -> grid -> map -> list
       switch (_currentViewMode) {
@@ -680,14 +690,14 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
           _currentViewMode = 'list';
       }
     });
-    
+
     // Delay adicional para animação suave
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     setState(() {
       _isViewModeChanging = false;
     });
-    
+
     // Analytics: rastrear mudança de visualização
     AnalyticsService.instance.trackCustomEvent(
       eventName: 'search_view_mode_changed',
@@ -697,14 +707,14 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
       },
     );
   }
-  
+
   void _loadUserLocation() {
     final locationState = ref.read(locationProvider);
     setState(() {
       _userLocation = locationState.currentLocation;
     });
   }
-  
+
   IconData _getViewModeIcon() {
     switch (_currentViewMode) {
       case 'list':
@@ -717,7 +727,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
         return AppIcons.menu;
     }
   }
-  
+
   String _getViewModeTooltip() {
     switch (_currentViewMode) {
       case 'list':
@@ -730,7 +740,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
         return 'Alterar visualização';
     }
   }
-  
+
   Widget _buildCurrentView() {
     switch (_currentViewMode) {
       case 'list':
@@ -743,7 +753,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
         return _buildListView();
     }
   }
-  
+
   Widget _buildMapView() {
     return EnhancedMapWidget(
       userLocation: _userLocation,
@@ -786,10 +796,10 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     setState(() {
       _currentFilters = filters;
     });
-    
+
     _performSearch(reset: true);
     _toggleFilters();
-    
+
     // Analytics: rastrear aplicação de filtros
     AnalyticsService.instance.trackCustomEvent(
       eventName: 'search_filters_applied',
@@ -804,9 +814,9 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     setState(() {
       _currentFilters = const SearchFilters();
     });
-    
+
     _performSearch(reset: true);
-    
+
     // Analytics: rastrear limpeza de filtros
     AnalyticsService.instance.trackCustomEvent(
       eventName: 'search_filters_cleared',
@@ -820,10 +830,10 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
     setState(() {
       _currentSortBy = sortBy;
     });
-    
+
     _performSearch(reset: true);
     _toggleSortOptions();
-    
+
     // Analytics: rastrear mudança de ordenação
     AnalyticsService.instance.trackCustomEvent(
       eventName: 'search_sort_changed',
@@ -842,16 +852,16 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage>
       category: restaurant.category,
       source: 'search_results',
     );
-    
+
     // Navegar para detalhes do restaurante
     context.push('/restaurant/${restaurant.id}');
   }
 
   bool _isFiltersActive() {
     return _currentFilters.categoryId != null ||
-           _currentFilters.maxDistance != null ||
-           _currentFilters.minRating != null ||
-           _currentFilters.isOpen != null;
+        _currentFilters.maxDistance != null ||
+        _currentFilters.minRating != null ||
+        _currentFilters.isOpen != null;
   }
 
   int _getActiveFiltersCount() {
@@ -893,7 +903,7 @@ extension SearchFiltersExtension on SearchFilters {
       'sortBy': sortBy,
     };
   }
-  
+
   static SearchFilters fromMap(Map<String, dynamic> map) {
     return SearchFilters(
       categoryId: map['categoryId'],

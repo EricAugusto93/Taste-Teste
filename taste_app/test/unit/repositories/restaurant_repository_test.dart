@@ -35,13 +35,14 @@ void main() {
 
       test('should return filtered restaurants by category', () async {
         // Arrange
-        final categoryId = 'italian';
+        const categoryId = 'italian';
         final filteredRestaurants = [mockRestaurants.first];
         when(mockRepository.getRestaurants(categoryId: categoryId))
             .thenAnswer((_) async => filteredRestaurants);
 
         // Act
-        final result = await mockRepository.getRestaurants(categoryId: categoryId);
+        final result =
+            await mockRepository.getRestaurants(categoryId: categoryId);
 
         // Assert
         expect(result, equals(filteredRestaurants));
@@ -93,9 +94,10 @@ void main() {
     });
 
     group('searchRestaurants', () {
-      test('should return filtered restaurants when search is successful', () async {
+      test('should return filtered restaurants when search is successful',
+          () async {
         // Arrange
-        final searchQuery = 'pizza';
+        const searchQuery = 'pizza';
         final filteredRestaurants = [mockRestaurants.first];
         when(mockRepository.searchRestaurants(any))
             .thenAnswer((_) async => filteredRestaurants);
@@ -108,10 +110,10 @@ void main() {
         verify(mockRepository.searchRestaurants(searchQuery)).called(1);
       });
 
-      test('should return empty list when no restaurants match search', () async {
+      test('should return empty list when no restaurants match search',
+          () async {
         // Arrange
-        when(mockRepository.searchRestaurants(any))
-            .thenAnswer((_) async => []);
+        when(mockRepository.searchRestaurants(any)).thenAnswer((_) async => []);
 
         // Act
         final result = await mockRepository.searchRestaurants('nonexistent');
@@ -153,11 +155,12 @@ void main() {
     });
 
     group('getNearbyRestaurants', () {
-      test('should return nearby restaurants when location is provided', () async {
+      test('should return nearby restaurants when location is provided',
+          () async {
         // Arrange
-        final latitude = -23.5505;
-        final longitude = -46.6333;
-        final radiusKm = 5.0;
+        const latitude = -23.5505;
+        const longitude = -46.6333;
+        const radiusKm = 5.0;
         when(mockRepository.getNearbyRestaurants(
           latitude: latitude,
           longitude: longitude,

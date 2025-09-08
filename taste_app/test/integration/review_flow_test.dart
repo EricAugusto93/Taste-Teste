@@ -16,20 +16,20 @@ void main() {
               body: const SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Text('Detalhes do Restaurante'),
-                    const SizedBox(height: 20),
-                    const Text('Avaliações'),
-                    const Card(
+                    Text('Detalhes do Restaurante'),
+                    SizedBox(height: 20),
+                    Text('Avaliações'),
+                    Card(
                       key: Key('review_item'),
                       child: ListTile(
                         leading: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star, color: Colors.amber),
-                            const Icon(Icons.star_border),
+                            Icon(Icons.star, color: Colors.amber),
+                            Icon(Icons.star, color: Colors.amber),
+                            Icon(Icons.star, color: Colors.amber),
+                            Icon(Icons.star, color: Colors.amber),
+                            Icon(Icons.star_border),
                           ],
                         ),
                         title: Text('Ótimo restaurante!'),
@@ -43,7 +43,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar elementos das avaliações
@@ -57,27 +57,27 @@ void main() {
       int selectedStars = 0;
       String comment = '';
       bool showSuccess = false;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
             home: StatefulBuilder(
               builder: (context, setState) {
                 if (showSuccess) {
-                   return Scaffold(
-                     body: const Center(
-                       child: Column(
-                         mainAxisAlignment: MainAxisAlignment.center,
-                         children: [
-                           const Text('Avaliação enviada'),
-                           const SizedBox(height: 20),
-                           const Text('Obrigado pela avaliação'),
-                         ],
-                       ),
-                     ),
-                   );
-                 }
-                
+                  return const Scaffold(
+                    body: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Avaliação enviada'),
+                          SizedBox(height: 20),
+                          Text('Obrigado pela avaliação'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 if (showReviewForm) {
                   return Scaffold(
                     appBar: AppBar(
@@ -88,7 +88,7 @@ void main() {
                       ),
                     ),
                     body: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
                           const Text('Avaliar Restaurante'),
@@ -98,10 +98,13 @@ void main() {
                             children: List.generate(5, (index) {
                               return IconButton(
                                 icon: Icon(
-                                  index < selectedStars ? Icons.star : Icons.star_border,
+                                  index < selectedStars
+                                      ? Icons.star
+                                      : Icons.star_border,
                                   color: Colors.amber,
                                 ),
-                                onPressed: () => setState(() => selectedStars = index + 1),
+                                onPressed: () =>
+                                    setState(() => selectedStars = index + 1),
                               );
                             }),
                           ),
@@ -119,14 +122,14 @@ void main() {
                                 setState(() => showSuccess = true);
                               }
                             },
-                            child: const Text('Enviar'),
+                            child: Text('Enviar'),
                           ),
                         ],
                       ),
                     ),
                   );
                 }
-                
+
                 return Scaffold(
                   appBar: AppBar(
                     title: const Text('Restaurante Teste'),
@@ -137,7 +140,7 @@ void main() {
                       const SizedBox(height: 20),
                       const ElevatedButton(
                         onPressed: () => setState(() => showReviewForm = true),
-                        child: const Text('Avaliar'),
+                        child: Text('Avaliar'),
                       ),
                     ],
                   ),
@@ -147,7 +150,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Tocar no botão de avaliar
@@ -180,7 +183,7 @@ void main() {
     testWidgets('Review validation and error handling', (tester) async {
       bool showReviewForm = false;
       bool showError = false;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -199,7 +202,7 @@ void main() {
                       ),
                     ),
                     body: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
                           const Text('Avaliar Restaurante'),
@@ -208,7 +211,8 @@ void main() {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(5, (index) {
                               return IconButton(
-                                icon: const Icon(Icons.star_border, color: Colors.amber),
+                                icon: const Icon(Icons.star_border,
+                                    color: Colors.amber),
                                 onPressed: () {},
                               );
                             }),
@@ -221,21 +225,21 @@ void main() {
                           const SizedBox(height: 20),
                           const ElevatedButton(
                             onPressed: () => setState(() => showError = true),
-                            child: const Text('Enviar'),
+                            child: Text('Enviar'),
                           ),
                         ],
                       ),
                     ),
                   );
                 }
-                
+
                 return Scaffold(
                   body: Column(
                     children: [
                       const Text('Restaurante Teste'),
                       const ElevatedButton(
                         onPressed: () => setState(() => showReviewForm = true),
-                        child: const Text('Avaliar'),
+                        child: Text('Avaliar'),
                       ),
                     ],
                   ),
@@ -245,7 +249,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Abrir formulário
@@ -266,7 +270,7 @@ void main() {
 
     testWidgets('View all reviews', (tester) async {
       bool showAllReviews = false;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -283,13 +287,13 @@ void main() {
                     ),
                     body: ListView(
                       children: const [
-                        const Card(
+                        Card(
                           child: ListTile(
                             title: Text('Ótimo restaurante!'),
                             subtitle: Text('João Silva'),
                           ),
                         ),
-                        const Card(
+                        Card(
                           child: ListTile(
                             title: Text('Comida deliciosa!'),
                             subtitle: Text('Maria Santos'),
@@ -299,7 +303,7 @@ void main() {
                     ),
                   );
                 }
-                
+
                 return Scaffold(
                   body: Column(
                     children: [
@@ -307,7 +311,7 @@ void main() {
                       const Text('Avaliações'),
                       const ElevatedButton(
                         onPressed: () => setState(() => showAllReviews = true),
-                        child: const Text('Ver todas'),
+                        child: Text('Ver todas'),
                       ),
                     ],
                   ),
@@ -317,7 +321,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Tocar em "Ver todas"
@@ -336,7 +340,7 @@ void main() {
 
     testWidgets('Review sorting and filtering', (tester) async {
       bool showFilters = false;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -347,12 +351,13 @@ void main() {
                     children: [
                       const Column(
                         children: [
-                          const Text('Avaliações'),
+                          Text('Avaliações'),
                           IconButton(
-                            icon: const Icon(Icons.filter_list),
-                            onPressed: () => setState(() => showFilters = !showFilters),
+                            icon: Icon(Icons.filter_list),
+                            onPressed: () =>
+                                setState(() => showFilters = !showFilters),
                           ),
-                          const Expanded(
+                          Expanded(
                             child: Text('Lista de avaliações'),
                           ),
                         ],
@@ -367,14 +372,16 @@ void main() {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text('Ordenar por:'),
-                                    const ListTile(
-                                      title: const Text('Mais recentes'),
-                                      onTap: () => setState(() => showFilters = false),
+                                    Text('Ordenar por:'),
+                                    ListTile(
+                                      title: Text('Mais recentes'),
+                                      onTap: () =>
+                                          setState(() => showFilters = false),
                                     ),
-                                    const ListTile(
-                                      title: const Text('Melhor avaliação'),
-                                      onTap: () => setState(() => showFilters = false),
+                                    ListTile(
+                                      title: Text('Melhor avaliação'),
+                                      onTap: () =>
+                                          setState(() => showFilters = false),
                                     ),
                                   ],
                                 ),
@@ -390,7 +397,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Abrir filtros

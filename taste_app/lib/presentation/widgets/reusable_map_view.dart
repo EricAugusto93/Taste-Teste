@@ -152,8 +152,9 @@ class _ReusableMapViewState extends State<ReusableMapView>
   void _startDistanceUpdates() {
     // Otimizado: apenas atualiza distâncias uma vez na inicialização
     // Timer periódico removido para melhor performance
-    if (widget.locationRepository == null || widget.userLocation == null) return;
-    
+    if (widget.locationRepository == null || widget.userLocation == null)
+      return;
+
     _updateDistances();
   }
 
@@ -165,7 +166,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
     try {
       final distances = <String, String>{};
-      
+
       for (final restaurant in widget.restaurants) {
         if (restaurant.latitude != null && restaurant.longitude != null) {
           final distance = widget.locationRepository!.calculateDistanceInMeters(
@@ -175,12 +176,12 @@ class _ReusableMapViewState extends State<ReusableMapView>
               longitude: restaurant.longitude!,
             ),
           );
-          
-          distances[restaurant.id] = widget.locationRepository!
-              .formatDistanceForDisplay(distance);
+
+          distances[restaurant.id] =
+              widget.locationRepository!.formatDistanceForDisplay(distance);
         }
       }
-      
+
       if (mounted) {
         setState(() {
           _restaurantDistances = distances;
@@ -194,9 +195,9 @@ class _ReusableMapViewState extends State<ReusableMapView>
   /// Mostrar InfoWindow avançada
   void _showAdvancedInfoWindow(RestaurantModel restaurant, Offset position) {
     if (!widget.showAdvancedInfoWindow) return;
-    
+
     _hideInfoWindow();
-    
+
     // Comentado temporariamente até implementar InfoWindowOverlay
     // setState(() {
     //   _activeInfoWindow = InfoWindowOverlay(
@@ -232,10 +233,11 @@ class _ReusableMapViewState extends State<ReusableMapView>
   /// Converter coordenadas do mapa para posição na tela
   Future<Offset?> _getScreenPosition(gmaps.LatLng latLng) async {
     if (_controller == null || !_isMapReady) return null;
-    
+
     try {
       final screenCoordinate = await _controller!.getScreenCoordinate(latLng);
-      return Offset(screenCoordinate.x.toDouble(), screenCoordinate.y.toDouble());
+      return Offset(
+          screenCoordinate.x.toDouble(), screenCoordinate.y.toDouble());
     } catch (e) {
       Logger.error('Erro ao obter posição na tela: $e');
       return null;
@@ -248,7 +250,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
       Logger.warning('Mapa não está pronto para criar marcadores');
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -260,16 +262,16 @@ class _ReusableMapViewState extends State<ReusableMapView>
       if (widget.showUserLocation && widget.userLocation != null) {
         // Usa marcador sem animação para melhor performance na web
         final userMarkerIcon = await AdvancedMapMarker.createAnimatedUserMarker(
-          size: 60,  // Tamanho menor para melhor performance
-          animationValue: 0.0,  // Sem animação
+          size: 60, // Tamanho menor para melhor performance
+          animationValue: 0.0, // Sem animação
         );
-        
+
         final userMarker = CustomWebMarkerUtils.createUserLocationMarker(
           lat: widget.userLocation!.latitude,
           lng: widget.userLocation!.longitude,
           customIcon: gmaps.BitmapDescriptor.fromBytes(userMarkerIcon),
         );
-        
+
         customMarkers.add(userMarker);
       }
 
@@ -281,7 +283,8 @@ class _ReusableMapViewState extends State<ReusableMapView>
       }
 
       // Converter CustomWebMarkers para platform-specific markers
-      final result = CustomWebMarkerUtils.convertMarkersForPlatform(customMarkers);
+      final result =
+          CustomWebMarkerUtils.convertMarkersForPlatform(customMarkers);
 
       if (mounted) {
         setState(() {
@@ -307,10 +310,10 @@ class _ReusableMapViewState extends State<ReusableMapView>
       minClusterSize: 2,
       zoomLevel: _currentZoom,
     );
-    
+
     _unclusteredRestaurants = widget.restaurants
-        .where((restaurant) => !_clusters.any(
-            (cluster) => cluster.restaurants.contains(restaurant)))
+        .where((restaurant) => !_clusters
+            .any((cluster) => cluster.restaurants.contains(restaurant)))
         .toList();
 
     // Criar marcadores de cluster
@@ -329,7 +332,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
         customIcon: gmaps.BitmapDescriptor.fromBytes(clusterIcon),
         onTap: () => _onClusterTap(cluster),
       );
-      
+
       markers.add(clusterMarker);
     }
 
@@ -354,7 +357,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     if (restaurant.latitude == null || restaurant.longitude == null) return;
 
     final isSelected = _selectedMarkerId == restaurant.id;
-    
+
     final markerIcon = widget.showAdvancedMarkers
         ? await AdvancedMapMarker.createEmojiMarker(
             emoji: restaurant.emoji ?? '🍽️',
@@ -383,16 +386,16 @@ class _ReusableMapViewState extends State<ReusableMapView>
       customIcon: gmaps.BitmapDescriptor.fromBytes(markerIcon),
       onTap: () async => await _onMarkerTap(restaurant),
     );
-    
+
     markers.add(restaurantMarker);
   }
 
   /// Lidar com toque em marcador
   Future<void> _onMarkerTap(RestaurantModel restaurant) async {
     if (!mounted || !_isMapReady) return;
-    
+
     _markerAnimationController.forward();
-    
+
     setState(() {
       _selectedMarkerId = restaurant.id;
     });
@@ -402,7 +405,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
       final position = await _getScreenPosition(
         gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
       );
-      
+
       if (position != null) {
         _showAdvancedInfoWindow(restaurant, position);
       }
@@ -448,8 +451,10 @@ class _ReusableMapViewState extends State<ReusableMapView>
     if (locations.length == 1) {
       final point = locations.first;
       return gmaps.LatLngBounds(
-        southwest: gmaps.LatLng(point.latitude - 0.005, point.longitude - 0.005),
-        northeast: gmaps.LatLng(point.latitude + 0.005, point.longitude + 0.005),
+        southwest:
+            gmaps.LatLng(point.latitude - 0.005, point.longitude - 0.005),
+        northeast:
+            gmaps.LatLng(point.latitude + 0.005, point.longitude + 0.005),
       );
     }
 
@@ -473,7 +478,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   void _onMapCreated(gmaps.GoogleMapController controller) {
     _controller = controller;
-    
+
     // Aguarda mais tempo para garantir que o mapa esteja completamente inicializado
     // especialmente importante no Flutter Web
     Future.delayed(const Duration(milliseconds: 800), () {
@@ -481,12 +486,12 @@ class _ReusableMapViewState extends State<ReusableMapView>
         setState(() {
           _isMapReady = true;
         });
-        
+
         // Aguarda mais um pouco antes de criar marcadores
         Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted && _isMapReady) {
             _createMarkers();
-            
+
             // Ajustar câmera para mostrar todos os marcadores
             if (widget.restaurants.isNotEmpty || widget.userLocation != null) {
               _fitMarkersInView();
@@ -562,7 +567,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
 
   void _onCameraMove(gmaps.CameraPosition position) {
     _currentZoom = position.zoom;
-    
+
     // Debounce para evitar muitas atualizações
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
@@ -580,7 +585,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     //     (r) => r.id == _selectedMarkerId,
     //     orElse: () => widget.restaurants.first,
     //   );
-    //   
+    //
     //   if (restaurant.latitude != null && restaurant.longitude != null) {
     //     _getScreenPosition(
     //       gmaps.LatLng(restaurant.latitude!, restaurant.longitude!),
@@ -685,22 +690,23 @@ class _ReusableMapViewState extends State<ReusableMapView>
               onCameraIdle: _onCameraIdle,
               padding: widget.padding,
             ),
-            
+
             // Loading overlay
             if (_isLoading)
               Container(
                 color: Colors.white.withOpacity(0.8),
                 child: const Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.primary),
                   ),
                 ),
               ),
-            
+
             // InfoWindow personalizada - comentado temporariamente
             // if (_activeInfoWindow != null)
             //   _activeInfoWindow!.build(context),
-            
+
             // Botão de localização personalizado
             if (widget.showMyLocationButton)
               Positioned(
@@ -711,7 +717,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
                   backgroundColor: Colors.white,
                   foregroundColor: AppColors.primary,
                   onPressed: _goToUserLocation,
-                  child: Icon(Icons.my_location),
+                  child: const Icon(Icons.my_location),
                 ),
               ),
           ],
@@ -749,35 +755,40 @@ class _ReusableMapViewState extends State<ReusableMapView>
     try {
       // Aguardar um pequeno delay para garantir estabilidade
       await Future.delayed(const Duration(milliseconds: 50));
-      
+
       // Verificar novamente se ainda está válido
       if (_controller == null || !mounted) return;
 
       // Usar animação customizada com múltiplos steps para efeito ease-in-out
       final currentPosition = await _controller!.getVisibleRegion();
       final currentCenter = gmaps.LatLng(
-        (currentPosition.northeast.latitude + currentPosition.southwest.latitude) / 2,
-        (currentPosition.northeast.longitude + currentPosition.southwest.longitude) / 2,
+        (currentPosition.northeast.latitude +
+                currentPosition.southwest.latitude) /
+            2,
+        (currentPosition.northeast.longitude +
+                currentPosition.southwest.longitude) /
+            2,
       );
-      
-      final steps = 20;
-      final stepDuration = Duration(milliseconds: duration.inMilliseconds ~/ steps);
-      
+
+      const steps = 20;
+      final stepDuration =
+          Duration(milliseconds: duration.inMilliseconds ~/ steps);
+
       for (int i = 1; i <= steps; i++) {
         // Verificar se ainda está montado a cada step
         if (!mounted || _controller == null) break;
-        
+
         final progress = i / steps;
         // Aplicar ease-in-out usando função cúbica
         final easedProgress = _easeInOutCubic(progress);
-        
-        final interpolatedLat = currentCenter.latitude + 
+
+        final interpolatedLat = currentCenter.latitude +
             (target.latitude - currentCenter.latitude) * easedProgress;
-        final interpolatedLng = currentCenter.longitude + 
+        final interpolatedLng = currentCenter.longitude +
             (target.longitude - currentCenter.longitude) * easedProgress;
-        final interpolatedZoom = _currentZoom + 
-            (zoom - _currentZoom) * easedProgress;
-        
+        final interpolatedZoom =
+            _currentZoom + (zoom - _currentZoom) * easedProgress;
+
         try {
           await _controller!.animateCamera(
             gmaps.CameraUpdate.newLatLngZoom(
@@ -789,14 +800,14 @@ class _ReusableMapViewState extends State<ReusableMapView>
           Logger.warning('Erro em step de animação: $stepError');
           break; // Parar a animação em caso de erro
         }
-        
+
         if (i < steps) {
           await Future.delayed(stepDuration);
         }
       }
     } catch (e) {
       Logger.error('Erro na animação da câmera: $e');
-      
+
       try {
         // Fallback mais seguro
         if (_controller != null && mounted) {
@@ -826,7 +837,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
     try {
       // Aguardar um frame adicional para garantir que o mapa está totalmente inicializado
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       // Verificar novamente se o controller ainda está válido
       if (_controller == null || !mounted) return;
 
@@ -836,7 +847,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
       );
     } catch (e) {
       Logger.error('Erro na animação para bounds: $e');
-      
+
       // Fallback: calcular centro e zoom manualmente
       try {
         if (_controller != null && mounted) {
@@ -844,12 +855,14 @@ class _ReusableMapViewState extends State<ReusableMapView>
             (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
             (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
           );
-          
+
           // Estimar zoom baseado na distância dos bounds
-          final latDiff = (bounds.northeast.latitude - bounds.southwest.latitude).abs();
-          final lngDiff = (bounds.northeast.longitude - bounds.southwest.longitude).abs();
+          final latDiff =
+              (bounds.northeast.latitude - bounds.southwest.latitude).abs();
+          final lngDiff =
+              (bounds.northeast.longitude - bounds.southwest.longitude).abs();
           final maxDiff = latDiff > lngDiff ? latDiff : lngDiff;
-          
+
           double targetZoom;
           if (maxDiff > 0.1) {
             targetZoom = 10.0;
@@ -860,7 +873,7 @@ class _ReusableMapViewState extends State<ReusableMapView>
           } else {
             targetZoom = 16.0;
           }
-          
+
           // Usar newLatLngZoom como fallback mais seguro
           await _controller!.animateCamera(
             gmaps.CameraUpdate.newLatLngZoom(center, targetZoom),

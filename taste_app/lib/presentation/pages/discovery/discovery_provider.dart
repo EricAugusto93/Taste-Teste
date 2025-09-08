@@ -17,6 +17,7 @@ class DiscoveryState {
   final Position? userLocation;
   final String? error;
   final bool hasLocationPermission;
+  final String? searchQuery; // <-- adicionado
 
   const DiscoveryState({
     this.isLoading = false,
@@ -25,6 +26,7 @@ class DiscoveryState {
     this.userLocation,
     this.error,
     this.hasLocationPermission = false,
+    this.searchQuery, // <-- adicionado
   });
 
   DiscoveryState copyWith({
@@ -34,6 +36,7 @@ class DiscoveryState {
     Position? userLocation,
     String? error,
     bool? hasLocationPermission,
+    String? searchQuery, // <-- adicionado
   }) {
     return DiscoveryState(
       isLoading: isLoading ?? this.isLoading,
@@ -42,6 +45,7 @@ class DiscoveryState {
       userLocation: userLocation ?? this.userLocation,
       error: error ?? this.error,
       hasLocationPermission: hasLocationPermission ?? this.hasLocationPermission,
+      searchQuery: searchQuery ?? this.searchQuery, // <-- adicionado
     );
   }
 }

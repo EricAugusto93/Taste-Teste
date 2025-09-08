@@ -30,7 +30,7 @@ class DeliveryInfoWidget extends StatelessWidget {
     if (isCompact) {
       return _buildCompactInfo();
     }
-    
+
     return _buildFullInfo();
   }
 
@@ -39,7 +39,7 @@ class DeliveryInfoWidget extends StatelessWidget {
       mainAxisAlignment: alignment,
       children: [
         _buildTimeInfo(),
-        SizedBox(width: AppDimensions.paddingMedium),
+        const SizedBox(width: AppDimensions.paddingMedium),
         _buildFeeInfo(),
       ],
     );
@@ -52,12 +52,12 @@ class DeliveryInfoWidget extends StatelessWidget {
         Row(
           children: [
             _buildTimeInfo(),
-            SizedBox(width: AppDimensions.paddingMedium),
+            const SizedBox(width: AppDimensions.paddingMedium),
             _buildFeeInfo(),
           ],
         ),
         if (showMinOrder && minOrderValue != null && minOrderValue! > 0) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           _buildMinOrderInfo(),
         ],
       ],
@@ -73,10 +73,12 @@ class DeliveryInfoWidget extends StatelessWidget {
           size: isCompact ? 12 : AppDimensions.iconSmall,
           color: textColor ?? AppColors.textLight,
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           deliveryTime,
-          style: (isCompact ? AppTextStyles.bodySmall : AppTextStyles.bodyMedium).copyWith(
+          style:
+              (isCompact ? AppTextStyles.bodySmall : AppTextStyles.bodyMedium)
+                  .copyWith(
             color: textColor ?? AppColors.textLight,
           ),
         ),
@@ -86,25 +88,25 @@ class DeliveryInfoWidget extends StatelessWidget {
 
   Widget _buildFeeInfo() {
     final isFreeFee = deliveryFee <= 0;
-    
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           AppIcons.delivery,
           size: isCompact ? 12 : AppDimensions.iconSmall,
-          color: isFreeFee 
-              ? AppColors.success 
+          color: isFreeFee
+              ? AppColors.success
               : (textColor ?? AppColors.textLight),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
-          isFreeFee 
-              ? 'Grátis' 
-              : 'R\$ ${deliveryFee.toStringAsFixed(2)}',
-          style: (isCompact ? AppTextStyles.bodySmall : AppTextStyles.bodyMedium).copyWith(
-            color: isFreeFee 
-                ? AppColors.success 
+          isFreeFee ? 'Grátis' : 'R\$ ${deliveryFee.toStringAsFixed(2)}',
+          style:
+              (isCompact ? AppTextStyles.bodySmall : AppTextStyles.bodyMedium)
+                  .copyWith(
+            color: isFreeFee
+                ? AppColors.success
                 : (textColor ?? AppColors.textLight),
             fontWeight: isFreeFee ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -122,7 +124,7 @@ class DeliveryInfoWidget extends StatelessWidget {
           size: isCompact ? 10 : 12,
           color: textColor ?? AppColors.textLight,
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           'Mín. R\$ ${minOrderValue!.toStringAsFixed(2)}',
           style: AppTextStyles.bodySmall.copyWith(
@@ -174,24 +176,24 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
               color: AppColors.textDark,
             ),
           ),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const SizedBox(height: AppDimensions.paddingMedium),
           _buildInfoRow(
             icon: AppIcons.clock,
             label: 'Tempo de entrega',
             value: deliveryTime,
             valueColor: isOpen ? null : AppColors.error,
           ),
-          SizedBox(height: AppDimensions.paddingSmall),
+          const SizedBox(height: AppDimensions.paddingSmall),
           _buildInfoRow(
             icon: AppIcons.delivery,
             label: 'Taxa de entrega',
-            value: deliveryFee <= 0 
-                ? 'Grátis' 
+            value: deliveryFee <= 0
+                ? 'Grátis'
                 : 'R\$ ${deliveryFee.toStringAsFixed(2)}',
             valueColor: deliveryFee <= 0 ? AppColors.success : null,
           ),
           if (minOrderValue != null && minOrderValue! > 0) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             _buildInfoRow(
               icon: AppIcons.receipt,
               label: 'Pedido mínimo',
@@ -199,7 +201,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
             ),
           ],
           if (deliveryArea != null) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             _buildInfoRow(
               icon: AppIcons.location,
               label: 'Área de entrega',
@@ -207,7 +209,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
             ),
           ],
           if (!isOpen && nextOpenTime != null) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             _buildInfoRow(
               icon: AppIcons.clock,
               label: 'Próxima abertura',
@@ -216,7 +218,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
             ),
           ],
           if (paymentMethods != null && paymentMethods!.isNotEmpty) ...[
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             _buildPaymentMethods(),
           ],
         ],
@@ -237,7 +239,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
           size: AppDimensions.iconSmall,
           color: AppColors.textLight,
         ),
-        SizedBox(width: AppDimensions.paddingSmall),
+        const SizedBox(width: AppDimensions.paddingSmall),
         Expanded(
           child: Text(
             label,
@@ -263,12 +265,12 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(
+            const Icon(
               AppIcons.payment,
               size: AppDimensions.iconSmall,
               color: AppColors.textLight,
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               'Formas de pagamento',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -277,7 +279,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: AppDimensions.paddingSmall),
+        const SizedBox(height: AppDimensions.paddingSmall),
         Wrap(
           spacing: AppDimensions.paddingSmall,
           runSpacing: AppDimensions.paddingSmall,
@@ -300,7 +302,7 @@ class DetailedDeliveryInfoWidget extends StatelessWidget {
                     size: 12,
                     color: AppColors.textLight,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     method,
                     style: AppTextStyles.bodySmall.copyWith(
@@ -353,7 +355,7 @@ class DeliveryStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusConfig = _getStatusConfig(status);
-    
+
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
@@ -371,7 +373,7 @@ class DeliveryStatusWidget extends StatelessWidget {
                 size: AppDimensions.iconMedium,
                 color: statusConfig.iconColor,
               ),
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,7 +409,7 @@ class DeliveryStatusWidget extends StatelessWidget {
             ],
           ),
           if (estimatedTime != null) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             Row(
               children: [
                 Icon(
@@ -415,7 +417,7 @@ class DeliveryStatusWidget extends StatelessWidget {
                   size: AppDimensions.iconSmall,
                   color: statusConfig.textColor.withOpacity(0.8),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   'Previsão: $estimatedTime',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -426,7 +428,7 @@ class DeliveryStatusWidget extends StatelessWidget {
             ),
           ],
           if (trackingCode != null) ...[
-            SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: AppDimensions.paddingSmall),
             Row(
               children: [
                 Icon(
@@ -434,7 +436,7 @@ class DeliveryStatusWidget extends StatelessWidget {
                   size: AppDimensions.iconSmall,
                   color: statusConfig.textColor.withOpacity(0.8),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   'Código: $trackingCode',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -508,7 +510,7 @@ class DeliveryStatusWidget extends StatelessWidget {
           borderColor: AppColors.error.withOpacity(0.3),
         );
       default:
-        return DeliveryStatusConfig(
+        return const DeliveryStatusConfig(
           title: 'Aguardando',
           subtitle: 'Aguardando confirmação do restaurante',
           icon: AppIcons.clock,

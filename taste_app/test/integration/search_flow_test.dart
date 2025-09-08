@@ -9,7 +9,7 @@ void main() {
     testWidgets('Search for restaurants and view results', (tester) async {
       bool showResults = false;
       String searchTerm = '';
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -21,8 +21,8 @@ void main() {
                       const Padding(
                         padding: EdgeInsets.all(16.0),
                         child: TextField(
-                          key: const Key('search_field'),
-                          decoration: const InputDecoration(
+                          key: Key('search_field'),
+                          decoration: InputDecoration(
                             hintText: 'Buscar restaurantes...',
                             suffixIcon: Icon(Icons.search),
                           ),
@@ -37,10 +37,10 @@ void main() {
                             ? ListView(
                                 children: [
                                   const Card(
-                                    key: const Key('restaurant_card'),
+                                    key: Key('restaurant_card'),
                                     child: ListTile(
                                       title: Text('Pizzaria $searchTerm'),
-                                      subtitle: const Text('Italiana'),
+                                      subtitle: Text('Italiana'),
                                     ),
                                   ),
                                 ],
@@ -54,8 +54,10 @@ void main() {
                   bottomNavigationBar: BottomNavigationBar(
                     currentIndex: 1,
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.search), label: 'Search'),
                     ],
                   ),
                 );
@@ -64,7 +66,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar se chegamos na busca
@@ -82,7 +84,7 @@ void main() {
 
     testWidgets('Search with no results', (tester) async {
       String searchTerm = '';
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -94,8 +96,8 @@ void main() {
                       const Padding(
                         padding: EdgeInsets.all(16.0),
                         child: TextField(
-                          key: const Key('search_field'),
-                          decoration: const InputDecoration(
+                          key: Key('search_field'),
+                          decoration: InputDecoration(
                             hintText: 'Buscar restaurantes...',
                           ),
                           onChanged: (value) {
@@ -118,8 +120,10 @@ void main() {
                   bottomNavigationBar: BottomNavigationBar(
                     currentIndex: 1,
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.search), label: 'Search'),
                     ],
                   ),
                 );
@@ -128,11 +132,12 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Buscar por algo que não existe
-      await tester.enterText(find.byKey(const Key('search_field')), 'xyzabc123nonexistent');
+      await tester.enterText(
+          find.byKey(const Key('search_field')), 'xyzabc123nonexistent');
       await tester.pumpAndSettle();
 
       // Verificar mensagem de nenhum resultado
@@ -142,7 +147,7 @@ void main() {
     testWidgets('Search suggestions and autocomplete', (tester) async {
       String searchTerm = '';
       List<String> suggestions = [];
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -154,8 +159,8 @@ void main() {
                       const Padding(
                         padding: EdgeInsets.all(16.0),
                         child: TextField(
-                          key: const Key('search_field'),
-                          decoration: const InputDecoration(
+                          key: Key('search_field'),
+                          decoration: InputDecoration(
                             hintText: 'Buscar restaurantes...',
                           ),
                           onChanged: (value) {
@@ -194,8 +199,10 @@ void main() {
                   bottomNavigationBar: BottomNavigationBar(
                     currentIndex: 1,
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.search), label: 'Search'),
                     ],
                   ),
                 );
@@ -204,7 +211,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Digitar parcialmente

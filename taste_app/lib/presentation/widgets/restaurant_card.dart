@@ -53,7 +53,8 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
         margin: widget.margin,
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: const BorderRadius.all(Radius.circular(AppDimensions.radiusMedium)),
+          borderRadius: const BorderRadius.all(
+              Radius.circular(AppDimensions.radiusMedium)),
           boxShadow: [
             BoxShadow(
               color: AppColors.shadow.withOpacity(0.1),
@@ -88,7 +89,8 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               _buildHeader(),
               const SizedBox(height: AppDimensions.paddingSmall),
               _buildRatingAndCategory(),
-              if (widget.showDistance && widget.restaurant.distance != null) ...[
+              if (widget.showDistance &&
+                  widget.restaurant.distance != null) ...[
                 const SizedBox(height: AppDimensions.paddingSmall),
                 _buildDistanceInfo(),
               ],
@@ -200,7 +202,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: 80,
               height: 80,
               color: AppColors.background,
-              child: Icon(
+              child: const Icon(
                 AppIcons.restaurant,
                 size: 24,
                 color: AppColors.textLight,
@@ -210,7 +212,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
               width: 80,
               height: 80,
               color: AppColors.background,
-              child: Icon(
+              child: const Icon(
                 AppIcons.restaurant,
                 size: 24,
                 color: AppColors.textLight,
@@ -282,7 +284,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
           reviewCount: widget.restaurant.reviewCount,
           size: RatingSize.small,
         ),
-        SizedBox(width: AppDimensions.paddingMedium),
+        const SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           child: Text(
             widget.restaurant.category,
@@ -297,7 +299,6 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
     );
   }
 
-
   Widget _buildDistanceInfo() {
     if (widget.restaurant.distance == null) {
       return const SizedBox.shrink();
@@ -305,12 +306,12 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
 
     return Row(
       children: [
-        Icon(
+        const Icon(
           AppIcons.location,
           size: AppDimensions.iconSmall,
           color: AppColors.textLight,
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           '${widget.restaurant.distance!.toStringAsFixed(1)} km',
           style: AppTextStyles.bodySmall.copyWith(
@@ -330,9 +331,9 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
         showFeedback: true,
       );
     }
-    
+
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
-    
+
     return GestureDetector(
       onTap: _isLoading ? null : _toggleFavorite,
       child: Container(
@@ -402,12 +403,12 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             AppIcons.discount,
             size: 12,
             color: AppColors.surface,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             'PROMOÇÃO',
             style: AppTextStyles.bodySmall.copyWith(
@@ -430,13 +431,13 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
 
     try {
       InteractionService.mediumHaptic();
-      
+
       final favoritesNotifier = ref.read(favoritesProvider.notifier);
       final success = await favoritesNotifier.toggleFavorite(widget.restaurant);
-      
+
       if (success) {
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
-        
+
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
           'favorite_action',
@@ -450,17 +451,18 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
         if (widget.onFavoriteChanged != null) {
           widget.onFavoriteChanged!(isFavorite);
         }
-        
+
         // Mostrar feedback
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isFavorite 
+                isFavorite
                     ? '${widget.restaurant.name} adicionado aos favoritos'
                     : '${widget.restaurant.name} removido dos favoritos',
               ),
-              backgroundColor: isFavorite ? AppColors.success : AppColors.warning,
+              backgroundColor:
+                  isFavorite ? AppColors.success : AppColors.warning,
               duration: const Duration(seconds: 2),
             ),
           );
@@ -473,7 +475,7 @@ class _RestaurantCardState extends ConsumerState<RestaurantCard> {
       // Mostrar erro para o usuário
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
           ),
@@ -536,7 +538,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
         _animationController.forward().then((_) {
           _animationController.reverse();
         });
-        
+
         if (widget.onTap != null) {
           widget.onTap!();
         }
@@ -573,7 +575,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeader(),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           _buildRatingAndCategory(),
                           const Spacer(),
                         ],
@@ -606,7 +608,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
               width: double.infinity,
               height: double.infinity,
               color: AppColors.background,
-              child: Icon(
+              child: const Icon(
                 AppIcons.restaurant,
                 size: 32,
                 color: AppColors.textLight,
@@ -656,7 +658,7 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
           reviewCount: widget.restaurant.reviewCount,
           size: RatingSize.small,
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 2),
         Text(
           widget.restaurant.category,
           style: AppTextStyles.bodySmall.copyWith(
@@ -670,10 +672,9 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
     );
   }
 
-
   Widget _buildFavoriteButton() {
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
-    
+
     return GestureDetector(
       onTap: _isLoading ? null : _toggleFavorite,
       child: Container(
@@ -743,12 +744,12 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             AppIcons.discount,
             size: 8,
             color: AppColors.surface,
           ),
-          SizedBox(width: 2),
+          const SizedBox(width: 2),
           Text(
             'PROMO',
             style: AppTextStyles.bodySmall.copyWith(
@@ -771,13 +772,13 @@ class _RestaurantGridCardState extends ConsumerState<RestaurantGridCard>
 
     try {
       InteractionService.mediumHaptic();
-      
+
       final favoritesNotifier = ref.read(favoritesProvider.notifier);
       final success = await favoritesNotifier.toggleFavorite(widget.restaurant);
-      
+
       if (success) {
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
-        
+
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
           'favorite_action',

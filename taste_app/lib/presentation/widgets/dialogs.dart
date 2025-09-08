@@ -87,31 +87,31 @@ class ConfirmationDialog extends StatelessWidget {
                   color: confirmColor ?? AppColors.primary,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             },
-            
+
             // Título
             Text(
               title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
-            
+            const SizedBox(height: 8),
+
             // Mensagem
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textLight,
-                height: 1.5,
-              ),
+                    color: AppColors.textLight,
+                    height: 1.5,
+                  ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
-            
+            const SizedBox(height: 24),
+
             // Botões
             Row(
               children: [
@@ -126,7 +126,7 @@ class ConfirmationDialog extends StatelessWidget {
                     },
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: confirmText,
@@ -210,13 +210,13 @@ class _RatingDialogState extends State<RatingDialog> {
             Text(
               'Avaliar ${widget.restaurantName}',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
-            
+            const SizedBox(height: 24),
+
             // Estrelas de avaliação
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -238,20 +238,20 @@ class _RatingDialogState extends State<RatingDialog> {
                 );
               }),
             ),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             // Texto da avaliação
             if (_rating > 0) ...{
               Text(
                 _getRatingText(_rating),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textLight,
-                  fontWeight: FontWeight.w500,
-                ),
+                      color: AppColors.textLight,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             },
-            
+
             // Campo de comentário
             TextField(
               controller: _commentController,
@@ -260,16 +260,16 @@ class _RatingDialogState extends State<RatingDialog> {
                 hintText: 'Deixe um comentário (opcional)',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppColors.textLight),
+                  borderSide: const BorderSide(color: AppColors.textLight),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: const BorderSide(color: AppColors.primary),
                 ),
               ),
             ),
-            SizedBox(height: 24),
-            
+            const SizedBox(height: 24),
+
             // Botões
             Row(
               children: [
@@ -281,7 +281,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     },
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: _isSubmitting ? 'Enviando...' : 'Enviar',
@@ -304,7 +304,7 @@ class _RatingDialogState extends State<RatingDialog> {
   Future<void> _handleSubmit() async {
     // Debounce: prevenir múltiplos cliques em menos de 2 segundos
     final now = DateTime.now();
-    if (_lastSubmitAttempt != null && 
+    if (_lastSubmitAttempt != null &&
         now.difference(_lastSubmitAttempt!).inSeconds < 2) {
       return;
     }
@@ -319,12 +319,12 @@ class _RatingDialogState extends State<RatingDialog> {
     try {
       // Aguardar um pouco para dar feedback visual
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       // Chamar callback se fornecido
       if (widget.onSubmit != null) {
         await widget.onSubmit!(_rating, _commentController.text);
       }
-      
+
       // Fechar dialog somente após sucesso
       if (mounted) {
         NavigationHelper.safeGoBack(context);
@@ -335,7 +335,7 @@ class _RatingDialogState extends State<RatingDialog> {
         setState(() {
           _isSubmitting = false;
         });
-        
+
         // Mostrar erro via SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -409,36 +409,36 @@ class LocationPermissionDialog extends StatelessWidget {
                 color: AppColors.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.location_on,
                 size: 32,
                 color: AppColors.primary,
               ),
             ),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             // Título
             Text(
               'Permissão de Localização',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
-            
+            const SizedBox(height: 8),
+
             // Mensagem
             Text(
               'Para encontrar os melhores restaurantes próximos a você, precisamos acessar sua localização.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textLight,
-                height: 1.5,
-              ),
+                    color: AppColors.textLight,
+                    height: 1.5,
+                  ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
-            
+            const SizedBox(height: 24),
+
             // Botões
             Row(
               children: [
@@ -451,7 +451,7 @@ class LocationPermissionDialog extends StatelessWidget {
                     },
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
                     text: 'Configurar',

@@ -134,30 +134,30 @@ class MapPin extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             
             // Rating e categoria
             Row(
               children: [
-                if (restaurant.rating != null) ..[
-                  Icon(
-                    AppIcons.star,
-                    size: 12,
-                    color: AppColors.warning,
+                ..[
+                Icon(
+                  AppIcons.star,
+                  size: 12,
+                  color: AppColors.warning,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  restaurant.rating!.toStringAsFixed(1),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
                   ),
-                  SizedBox(width: 4),
-                  Text(
-                    restaurant.rating!.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
+                ),
+              ],
                 
-                if (restaurant.rating != null && restaurant.category != null) ..[
-                  SizedBox(width: 8),
+                if (restaurant.category != null) ..[
+                  const SizedBox(width: 8),
                   Container(
                     width: 2,
                     height: 2,
@@ -184,7 +184,7 @@ class MapPin extends StatelessWidget {
               ],
             ),
             
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             
             // Status e distância
             Row(
@@ -200,7 +200,7 @@ class MapPin extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   (restaurant.isOpen ?? false) ? 'Aberto' : 'Fechado',
                   style: TextStyle(

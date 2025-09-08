@@ -115,7 +115,7 @@ class _ViewModeLoadingWidgetState extends State<ViewModeLoadingWidget>
           
           // Mensagem opcional
           if (widget.message != null) ..[
-            SizedBox(height: AppDimensions.paddingMedium),
+            const SizedBox(height: AppDimensions.paddingMedium),
             Text(
               widget.message!,
               style: AppTextStyles.bodyMedium.copyWith(

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:taste_app/data/models/category_model.dart';
@@ -80,7 +79,7 @@ void main() {
       final filteredRestaurants = mockRestaurants
           .where((r) => r.categoryId == mockCategory.id)
           .toList();
-      
+
       expect(filteredRestaurants.length, 2);
       expect(filteredRestaurants.every((r) => r.categoryId == '1'), true);
     });
@@ -88,7 +87,7 @@ void main() {
     test('should sort restaurants by rating', () {
       final sortedRestaurants = List<RestaurantModel>.from(mockRestaurants)
         ..sort((a, b) => b.rating.compareTo(a.rating));
-      
+
       expect(sortedRestaurants.first.rating, 4.5);
       expect(sortedRestaurants.last.rating, 4.2);
     });
@@ -108,20 +107,17 @@ void main() {
     });
 
     test('should handle restaurant availability', () {
-      final openRestaurants = mockRestaurants
-          .where((r) => r.isOpen)
-          .toList();
-      
+      final openRestaurants = mockRestaurants.where((r) => r.isOpen).toList();
+
       expect(openRestaurants.length, 2);
       expect(openRestaurants.every((r) => r.isOpen), true);
     });
 
     test('should calculate average rating', () {
-      final totalRating = mockRestaurants
-          .map((r) => r.rating)
-          .reduce((a, b) => a + b);
+      final totalRating =
+          mockRestaurants.map((r) => r.rating).reduce((a, b) => a + b);
       final averageRating = totalRating / mockRestaurants.length;
-      
+
       expect(averageRating, 4.35);
     });
 
@@ -132,10 +128,9 @@ void main() {
     });
 
     test('should handle featured restaurants', () {
-      final featuredRestaurants = mockRestaurants
-          .where((r) => r.isFeatured)
-          .toList();
-      
+      final featuredRestaurants =
+          mockRestaurants.where((r) => r.isFeatured).toList();
+
       expect(featuredRestaurants.length, 1);
       expect(featuredRestaurants.first.name, 'Pizzaria Bella');
     });

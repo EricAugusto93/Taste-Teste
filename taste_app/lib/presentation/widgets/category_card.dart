@@ -48,7 +48,7 @@ class CategoryCard extends StatelessWidget {
   final bool isSelected;
   final double? width;
   final double? height;
-  
+
   const CategoryCard({
     super.key,
     required this.category,
@@ -57,20 +57,25 @@ class CategoryCard extends StatelessWidget {
     this.width,
     this.height,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: AppDimensions.animationDurationShort),
+        duration:
+            const Duration(milliseconds: AppDimensions.animationDurationShort),
         width: width,
         height: height ?? AppDimensions.categoryCardHeight,
         decoration: BoxDecoration(
-          color: isSelected ? _getColorFromString(category.color) : AppColors.surface,
+          color: isSelected
+              ? _getColorFromString(category.color)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.cardRadius),
           border: Border.all(
-            color: isSelected ? _getColorFromString(category.color) : Colors.transparent,
+            color: isSelected
+                ? _getColorFromString(category.color)
+                : Colors.transparent,
             width: 2,
           ),
           boxShadow: [
@@ -89,7 +94,7 @@ class CategoryCard extends StatelessWidget {
               width: AppDimensions.categoryImageSize,
               height: AppDimensions.categoryImageSize,
               decoration: BoxDecoration(
-                color: isSelected 
+                color: isSelected
                     ? AppColors.surface.withOpacity(0.2)
                     : _getColorFromString(category.color).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppDimensions.mediumRadius),
@@ -97,12 +102,14 @@ class CategoryCard extends StatelessWidget {
               child: Icon(
                 _getIconFromString(category.icon),
                 size: AppDimensions.iconLarge,
-                color: isSelected ? AppColors.surface : _getColorFromString(category.color),
+                color: isSelected
+                    ? AppColors.surface
+                    : _getColorFromString(category.color),
               ),
             ),
-            
-            SizedBox(height: AppDimensions.paddingSmall),
-            
+
+            const SizedBox(height: AppDimensions.paddingSmall),
+
             // Nome da categoria
             Text(
               category.name,
@@ -129,7 +136,7 @@ class CategoriesGrid extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final int crossAxisCount;
   final double? childAspectRatio;
-  
+
   const CategoriesGrid({
     super.key,
     required this.categories,
@@ -139,7 +146,7 @@ class CategoriesGrid extends StatelessWidget {
     this.crossAxisCount = AppDimensions.categoryGridCrossAxisCount,
     this.childAspectRatio,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -149,7 +156,8 @@ class CategoriesGrid extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
-          childAspectRatio: childAspectRatio ?? AppDimensions.categoryGridAspectRatio,
+          childAspectRatio:
+              childAspectRatio ?? AppDimensions.categoryGridAspectRatio,
           crossAxisSpacing: AppDimensions.gridSpacing,
           mainAxisSpacing: AppDimensions.gridSpacing,
         ),
@@ -174,7 +182,7 @@ class CategoriesHorizontalList extends StatelessWidget {
   final String? selectedCategoryId;
   final EdgeInsetsGeometry? padding;
   final double itemWidth;
-  
+
   const CategoriesHorizontalList({
     super.key,
     required this.categories,
@@ -183,16 +191,17 @@ class CategoriesHorizontalList extends StatelessWidget {
     this.padding,
     this.itemWidth = 100,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: AppDimensions.categoryCardHeight + AppDimensions.paddingMedium,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: padding ?? const EdgeInsets.symmetric(
-          horizontal: AppDimensions.paddingMedium,
-        ),
+        padding: padding ??
+            const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingMedium,
+            ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
@@ -218,26 +227,29 @@ class CategoryChip extends StatelessWidget {
   final CategoryModel category;
   final bool isSelected;
   final VoidCallback? onTap;
-  
+
   const CategoryChip({
     super.key,
     required this.category,
     this.isSelected = false,
     this.onTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: AppDimensions.animationDurationShort),
+        duration:
+            const Duration(milliseconds: AppDimensions.animationDurationShort),
         padding: const EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingMedium,
           vertical: AppDimensions.paddingSmall,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? _getColorFromString(category.color) : AppColors.surface,
+          color: isSelected
+              ? _getColorFromString(category.color)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
           border: Border.all(
             color: _getColorFromString(category.color),
@@ -250,13 +262,17 @@ class CategoryChip extends StatelessWidget {
             Icon(
               _getIconFromString(category.icon),
               size: AppDimensions.iconSmall,
-              color: isSelected ? AppColors.surface : _getColorFromString(category.color),
+              color: isSelected
+                  ? AppColors.surface
+                  : _getColorFromString(category.color),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             Text(
               category.name,
               style: AppTextStyles.bodySmall.copyWith(
-                color: isSelected ? AppColors.surface : _getColorFromString(category.color),
+                color: isSelected
+                    ? AppColors.surface
+                    : _getColorFromString(category.color),
                 fontWeight: FontWeight.w600,
               ),
             ),

@@ -32,7 +32,8 @@ class FavoriteButtonEnhanced extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FavoriteButtonEnhanced> createState() => _FavoriteButtonEnhancedState();
+  ConsumerState<FavoriteButtonEnhanced> createState() =>
+      _FavoriteButtonEnhancedState();
 }
 
 class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
@@ -42,7 +43,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
   late Animation<double> _scaleAnimation;
   late Animation<double> _pulseAnimation;
   bool _isLoading = false;
-  bool _showQuickActions = false;
+  final bool _showQuickActions = false;
 
   @override
   void initState() {
@@ -55,7 +56,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.1,
@@ -63,7 +64,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     _pulseAnimation = Tween<double>(
       begin: 1.0,
       end: 1.05,
@@ -83,7 +84,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
   @override
   Widget build(BuildContext context) {
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
-    
+
     return AnimatedBuilder(
       animation: Listenable.merge([_scaleAnimation, _pulseAnimation]),
       builder: (context, child) {
@@ -106,7 +107,8 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
               child: InkWell(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
                 onTap: _isLoading ? null : _toggleFavorite,
-                onLongPress: widget.showQuickActions ? _showQuickActionsMenu : null,
+                onLongPress:
+                    widget.showQuickActions ? _showQuickActionsMenu : null,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimensions.paddingMedium,
@@ -130,23 +132,26 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                         Icon(
                           isFavorite ? AppIcons.heartFilled : AppIcons.heart,
                           size: 24,
-                          color: isFavorite ? AppColors.error : AppColors.textLight,
+                          color: isFavorite
+                              ? AppColors.error
+                              : AppColors.textLight,
                         ),
-                      
                       if (widget.showLabel) ...[
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           isFavorite ? 'Favoritado' : 'Favoritar',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: isFavorite ? AppColors.error : AppColors.textDark,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: isFavorite
+                                        ? AppColors.error
+                                        : AppColors.textDark,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                       ],
-                      
                       if (widget.showQuickActions && isFavorite) ...[
-                        SizedBox(width: 4),
-                        Icon(
+                        const SizedBox(width: 4),
+                        const Icon(
                           Icons.keyboard_arrow_down,
                           size: 16,
                           color: AppColors.textLight,
@@ -174,15 +179,15 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
       _animationController.forward().then((_) {
         _animationController.reverse();
       });
-      
+
       InteractionService.mediumHaptic();
-      
+
       final favoritesNotifier = ref.read(favoritesProvider.notifier);
       final success = await favoritesNotifier.toggleFavorite(widget.restaurant);
-      
+
       if (success) {
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
-        
+
         // Animação de pulso para favoritos
         if (isFavorite) {
           _pulseController.repeat(reverse: true);
@@ -193,7 +198,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
             }
           });
         }
-        
+
         AnalyticsService.instance.trackEvent(
           'favorite_action',
           parameters: {
@@ -206,7 +211,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
         if (widget.onFavoriteChanged != null) {
           widget.onFavoriteChanged!(isFavorite);
         }
-        
+
         if (widget.showFeedback && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -217,41 +222,44 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                     color: Colors.white,
                     size: 20,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      isFavorite 
+                      isFavorite
                           ? '${widget.restaurant.name} adicionado aos favoritos'
                           : '${widget.restaurant.name} removido dos favoritos',
                     ),
                   ),
                 ],
               ),
-              backgroundColor: isFavorite ? AppColors.success : AppColors.warning,
+              backgroundColor:
+                  isFavorite ? AppColors.success : AppColors.warning,
               duration: const Duration(seconds: 3),
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(AppDimensions.paddingMedium),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
               ),
-              action: isFavorite ? SnackBarAction(
-                label: 'Ver Favoritos',
-                textColor: Colors.white,
-                onPressed: () {
-                  // Navegar para página de favoritos
-                },
-              ) : null,
+              action: isFavorite
+                  ? SnackBarAction(
+                      label: 'Ver Favoritos',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        // Navegar para página de favoritos
+                      },
+                    )
+                  : null,
             ),
           );
         }
       }
     } catch (e) {
       debugPrint('Erro ao alterar favorito: $e');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
                 Icon(
                   Icons.error_outline,
@@ -259,7 +267,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                   size: 20,
                 ),
                 SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text('Erro ao alterar favorito. Tente novamente.'),
                 ),
               ],
@@ -284,7 +292,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
 
   void _showQuickActionsMenu() {
     InteractionService.lightHaptic();
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -308,7 +316,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             Padding(
               padding: const EdgeInsets.all(AppDimensions.paddingLarge),
               child: Column(
@@ -317,19 +325,19 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                   Text(
                     'Ações Rápidas',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
+                        ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     widget.restaurant.name,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textLight,
-                    ),
+                          color: AppColors.textLight,
+                        ),
                   ),
-                  SizedBox(height: 24),
-                  
+                  const SizedBox(height: 24),
+
                   // Ações
                   _buildQuickAction(
                     icon: Icons.star_rate,
@@ -340,7 +348,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       // Implementar navegação para avaliação
                     },
                   ),
-                  
+
                   _buildQuickAction(
                     icon: Icons.share,
                     title: 'Compartilhar',
@@ -350,7 +358,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       // Implementar compartilhamento
                     },
                   ),
-                  
+
                   _buildQuickAction(
                     icon: Icons.list_alt,
                     title: 'Adicionar à Lista',
@@ -360,7 +368,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       // Implementar adição à lista
                     },
                   ),
-                  
+
                   _buildQuickAction(
                     icon: Icons.notifications,
                     title: 'Notificações',
@@ -370,9 +378,9 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       // Implementar configuração de notificações
                     },
                   ),
-                  
-                  SizedBox(height: 16),
-                  
+
+                  const SizedBox(height: 16),
+
                   CustomButton(
                     text: 'Fechar',
                     onPressed: () => NavigationHelper.safeGoBack(context),
@@ -415,7 +423,7 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,20 +431,20 @@ class _FavoriteButtonEnhancedState extends ConsumerState<FavoriteButtonEnhanced>
                       Text(
                         title,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textDark,
-                        ),
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textDark,
+                            ),
                       ),
                       Text(
                         subtitle,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textLight,
-                        ),
+                              color: AppColors.textLight,
+                            ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.chevron_right,
                   color: AppColors.textLight,
                   size: 20,
@@ -512,7 +520,8 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
     final activeColor = widget.activeColor ?? AppColors.error;
     final inactiveColor = widget.inactiveColor ?? AppColors.textLight;
-    final backgroundColor = widget.backgroundColor ?? AppColors.surface.withOpacity(0.9);
+    final backgroundColor =
+        widget.backgroundColor ?? AppColors.surface.withOpacity(0.9);
 
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -522,9 +531,10 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
           child: GestureDetector(
             onTap: _isLoading ? null : _toggleFavorite,
             child: Container(
-              padding: widget.padding ?? EdgeInsets.all(
-                widget.showBackground ? AppDimensions.paddingSmall : 0,
-              ),
+              padding: widget.padding ??
+                  EdgeInsets.all(
+                    widget.showBackground ? AppDimensions.paddingSmall : 0,
+                  ),
               decoration: widget.showBackground
                   ? BoxDecoration(
                       color: backgroundColor,
@@ -573,15 +583,15 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
       _animationController.forward().then((_) {
         _animationController.reverse();
       });
-      
+
       InteractionService.mediumHaptic();
-      
+
       final favoritesNotifier = ref.read(favoritesProvider.notifier);
       final success = await favoritesNotifier.toggleFavorite(widget.restaurant);
-      
+
       if (success) {
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
-        
+
         // Analytics: rastrear ação de favoritar
         AnalyticsService.instance.trackEvent(
           'favorite_action',
@@ -595,17 +605,18 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
         if (widget.onFavoriteChanged != null) {
           widget.onFavoriteChanged!(isFavorite);
         }
-        
+
         // Mostrar feedback se habilitado
         if (widget.showFeedback && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isFavorite 
+                isFavorite
                     ? '${widget.restaurant.name} adicionado aos favoritos'
                     : '${widget.restaurant.name} removido dos favoritos',
               ),
-              backgroundColor: isFavorite ? AppColors.success : AppColors.warning,
+              backgroundColor:
+                  isFavorite ? AppColors.success : AppColors.warning,
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -620,12 +631,12 @@ class _FavoriteButtonState extends ConsumerState<FavoriteButton>
       }
     } catch (e) {
       debugPrint('Erro ao alterar favorito: $e');
-      
+
       // Mostrar erro para o usuário
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao alterar favorito. Tente novamente.'),
+            content: const Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -738,15 +749,17 @@ class FavoriteButtonWithQuickRating extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FavoriteButtonWithQuickRating> createState() => _FavoriteButtonWithQuickRatingState();
+  ConsumerState<FavoriteButtonWithQuickRating> createState() =>
+      _FavoriteButtonWithQuickRatingState();
 }
 
-class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWithQuickRating>
+class _FavoriteButtonWithQuickRatingState
+    extends ConsumerState<FavoriteButtonWithQuickRating>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isLoading = false;
-  bool _showQuickRating = false;
+  final bool _showQuickRating = false;
   int _selectedRating = 0;
   final ReviewRepository _reviewRepository = ReviewRepository();
 
@@ -775,7 +788,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
   @override
   Widget build(BuildContext context) {
     final isFavorite = ref.watch(isFavoriteProvider(widget.restaurant.id));
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -802,7 +815,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                     ],
                   ),
                   child: _isLoading
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
@@ -812,23 +825,25 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                       : Icon(
                           isFavorite ? AppIcons.heartFilled : AppIcons.heart,
                           size: 24,
-                          color: isFavorite ? AppColors.error : AppColors.textLight,
+                          color: isFavorite
+                              ? AppColors.error
+                              : AppColors.textLight,
                         ),
                 ),
               ),
             );
           },
         ),
-        
+
         // Indicador de avaliação rápida
         if (isFavorite) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Manter pressionado\npara avaliar',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textLight,
-              fontSize: 10,
-            ),
+                  color: AppColors.textLight,
+                  fontSize: 10,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -847,15 +862,15 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       _animationController.forward().then((_) {
         _animationController.reverse();
       });
-      
+
       InteractionService.mediumHaptic();
-      
+
       final favoritesNotifier = ref.read(favoritesProvider.notifier);
       final success = await favoritesNotifier.toggleFavorite(widget.restaurant);
-      
+
       if (success) {
         final isFavorite = ref.read(isFavoriteProvider(widget.restaurant.id));
-        
+
         AnalyticsService.instance.trackEvent(
           'favorite_action',
           parameters: {
@@ -868,16 +883,17 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
         if (widget.onFavoriteChanged != null) {
           widget.onFavoriteChanged!(isFavorite);
         }
-        
+
         if (widget.showFeedback && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isFavorite 
+                isFavorite
                     ? '${widget.restaurant.name} adicionado aos favoritos'
                     : '${widget.restaurant.name} removido dos favoritos',
               ),
-              backgroundColor: isFavorite ? AppColors.success : AppColors.warning,
+              backgroundColor:
+                  isFavorite ? AppColors.success : AppColors.warning,
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -890,11 +906,11 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       }
     } catch (e) {
       debugPrint('Erro ao alterar favorito: $e');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao alterar favorito. Tente novamente.'),
+            content: const Text('Erro ao alterar favorito. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -915,7 +931,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
 
   void _showQuickRatingDialog() {
     InteractionService.lightHaptic();
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -930,20 +946,20 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
               Text(
                 'Avaliação Rápida',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 widget.restaurant.name,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textLight,
-                ),
+                      color: AppColors.textLight,
+                    ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 24),
-              
+              const SizedBox(height: 24),
+
               // Estrelas de avaliação
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -957,7 +973,9 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Icon(
-                        index < _selectedRating ? Icons.star : Icons.star_border,
+                        index < _selectedRating
+                            ? Icons.star
+                            : Icons.star_border,
                         size: 32,
                         color: AppColors.primary,
                       ),
@@ -965,18 +983,18 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                   );
                 }),
               ),
-              SizedBox(height: 16),
-              
+              const SizedBox(height: 16),
+
               if (_selectedRating > 0)
                 Text(
                   _getRatingText(_selectedRating),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textLight,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.textLight,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
-              SizedBox(height: 24),
-              
+              const SizedBox(height: 24),
+
               // Botões
               Row(
                 children: [
@@ -991,7 +1009,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
                       },
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: CustomButton(
                       text: 'Avaliar',
@@ -1014,22 +1032,9 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
 
   Future<void> _submitQuickRating() async {
     if (_selectedRating == 0) return;
-    
+
     try {
       final user = ref.read(authProvider);
-      if (user == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Faça login para avaliar restaurantes'),
-              backgroundColor: AppColors.warning,
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(AppDimensions.paddingMedium),
-            ),
-          );
-        }
-        return;
-      }
 
       final review = ReviewModel(
         id: '',
@@ -1047,11 +1052,11 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
       );
 
       await _reviewRepository.createReview(review);
-      
+
       if (widget.onRatingChanged != null) {
         widget.onRatingChanged!(_selectedRating);
       }
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1065,7 +1070,7 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
           ),
         );
       }
-      
+
       // Analytics
       AnalyticsService.instance.trackEvent(
         'quick_rating_submitted',
@@ -1075,17 +1080,16 @@ class _FavoriteButtonWithQuickRatingState extends ConsumerState<FavoriteButtonWi
           'rating': _selectedRating,
         },
       );
-      
     } catch (e) {
       debugPrint('Erro ao enviar avaliação rápida: $e');
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Erro ao enviar avaliação. Tente novamente.'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(AppDimensions.paddingMedium),
+            margin: EdgeInsets.all(AppDimensions.paddingMedium),
           ),
         );
       }

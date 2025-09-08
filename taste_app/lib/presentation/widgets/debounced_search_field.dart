@@ -76,12 +76,12 @@ class _DebouncedSearchFieldState extends State<DebouncedSearchField> {
     super.initState();
     _controller = widget.controller ?? TextEditingController();
     _focusNode = widget.focusNode ?? FocusNode();
-    
+
     if (widget.initialValue != null) {
       _controller.text = widget.initialValue!;
       _lastSearchTerm = widget.initialValue!;
     }
-    
+
     _controller.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
   }
@@ -100,17 +100,17 @@ class _DebouncedSearchFieldState extends State<DebouncedSearchField> {
 
   void _onTextChanged() {
     final currentText = _controller.text;
-    
+
     // Cancelar timer anterior
     _debounceTimer?.cancel();
-    
+
     // Se o texto não mudou, não fazer nada
     if (currentText == _lastSearchTerm) return;
-    
+
     setState(() {
       _isSearching = currentText.isNotEmpty;
     });
-    
+
     // Configurar novo timer
     _debounceTimer = Timer(widget.debounceDuration, () {
       if (mounted && currentText != _lastSearchTerm) {
@@ -161,42 +161,50 @@ class _DebouncedSearchFieldState extends State<DebouncedSearchField> {
       style: widget.textStyle ?? AppTextStyles.bodyMedium,
       decoration: InputDecoration(
         hintText: widget.hintText,
-        hintStyle: widget.hintStyle ?? AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textLight,
-        ),
-        prefixIcon: widget.prefixIcon ?? (widget.showSearchIcon
-            ? Icon(
-                AppIcons.search,
-                color: _focusNode.hasFocus ? AppColors.primary : AppColors.textLight,
-                size: 20,
-              )
-            : null),
+        hintStyle: widget.hintStyle ??
+            AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textLight,
+            ),
+        prefixIcon: widget.prefixIcon ??
+            (widget.showSearchIcon
+                ? Icon(
+                    AppIcons.search,
+                    color: _focusNode.hasFocus
+                        ? AppColors.primary
+                        : AppColors.textLight,
+                    size: 20,
+                  )
+                : null),
         suffixIcon: _buildSuffixIcon(),
-        contentPadding: widget.contentPadding ?? const EdgeInsets.symmetric(
-          horizontal: AppDimensions.paddingMedium,
-          vertical: AppDimensions.paddingSmall,
-        ),
-        border: widget.border ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            widget.borderRadius ?? AppDimensions.radiusMedium,
-          ),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: widget.border ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            widget.borderRadius ?? AppDimensions.radiusMedium,
-          ),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: widget.border ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            widget.borderRadius ?? AppDimensions.radiusMedium,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.primary,
-            width: 2,
-          ),
-        ),
+        contentPadding: widget.contentPadding ??
+            const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingMedium,
+              vertical: AppDimensions.paddingSmall,
+            ),
+        border: widget.border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(
+                widget.borderRadius ?? AppDimensions.radiusMedium,
+              ),
+              borderSide: BorderSide.none,
+            ),
+        enabledBorder: widget.border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(
+                widget.borderRadius ?? AppDimensions.radiusMedium,
+              ),
+              borderSide: BorderSide.none,
+            ),
+        focusedBorder: widget.border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(
+                widget.borderRadius ?? AppDimensions.radiusMedium,
+              ),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 2,
+              ),
+            ),
         filled: widget.filled,
         fillColor: widget.fillColor ?? AppColors.surface,
         counterText: '', // Remove contador de caracteres
@@ -230,7 +238,7 @@ class _DebouncedSearchFieldState extends State<DebouncedSearchField> {
     // Mostrar botão de limpar se há texto
     if (_controller.text.isNotEmpty) {
       return IconButton(
-        icon: Icon(
+        icon: const Icon(
           Icons.clear,
           size: 20,
         ),
@@ -304,9 +312,9 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
 
   void _onFocusChanged() {
     setState(() {
-      _showSuggestions = _focusNode.hasFocus && 
-                        widget.suggestions != null && 
-                        widget.suggestions!.isNotEmpty;
+      _showSuggestions = _focusNode.hasFocus &&
+          widget.suggestions != null &&
+          widget.suggestions!.isNotEmpty;
     });
   }
 
@@ -338,11 +346,13 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
               ),
             ),
             if (widget.onFiltersToggle != null) ...[
-              SizedBox(width: AppDimensions.paddingSmall),
+              const SizedBox(width: AppDimensions.paddingSmall),
               IconButton(
                 icon: Icon(
                   AppIcons.filter,
-                  color: widget.showFilters ? AppColors.primary : AppColors.textLight,
+                  color: widget.showFilters
+                      ? AppColors.primary
+                      : AppColors.textLight,
                 ),
                 onPressed: widget.onFiltersToggle,
                 tooltip: 'Filtros',
@@ -350,7 +360,7 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
             ]
           ],
         ),
-        
+
         // Sugestões
         if (_showSuggestions && widget.suggestions != null)
           Container(
@@ -374,7 +384,7 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
                 final suggestion = widget.suggestions![index];
                 return ListTile(
                   dense: true,
-                  leading: Icon(
+                  leading: const Icon(
                     AppIcons.search,
                     size: 16,
                     color: AppColors.textLight,
@@ -388,7 +398,7 @@ class _AdvancedSearchFieldState extends State<AdvancedSearchField> {
               },
             ),
           ),
-        
+
         // Filtros
         if (widget.showFilters && widget.filtersWidget != null)
           Container(

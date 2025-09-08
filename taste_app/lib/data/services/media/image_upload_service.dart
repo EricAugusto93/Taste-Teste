@@ -9,7 +9,8 @@ import '../auth/auth_service.dart';
 /// Serviço para upload e gerenciamento de imagens no Supabase Storage
 class ImageUploadService {
   static ImageUploadService? _instance;
-  static ImageUploadService get instance => _instance ??= ImageUploadService._();
+  static ImageUploadService get instance =>
+      _instance ??= ImageUploadService._();
   ImageUploadService._();
 
   /// Cliente Supabase
@@ -46,7 +47,7 @@ class ImageUploadService {
       // Gerar nome único para o arquivo
       final extension = path.extension(fileName).toLowerCase();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final uniqueFileName = '${timestamp}_${userId}$extension';
+      final uniqueFileName = '${timestamp}_$userId$extension';
       final filePath = '$folder/$uniqueFileName';
 
       debugPrint('Fazendo upload da imagem: $filePath');
@@ -63,9 +64,8 @@ class ImageUploadService {
       }
 
       // Obter URL pública
-      final publicUrl = _client.storage
-          .from(_bucketName)
-          .getPublicUrl(filePath);
+      final publicUrl =
+          _client.storage.from(_bucketName).getPublicUrl(filePath);
 
       debugPrint('Upload concluído: $publicUrl');
       return publicUrl;
@@ -75,7 +75,8 @@ class ImageUploadService {
     } catch (e) {
       if (e is AuthException) rethrow;
       debugPrint('Erro inesperado no upload: $e');
-      throw const app_exceptions.ServerException('Erro inesperado no upload da imagem');
+      throw const app_exceptions.ServerException(
+          'Erro inesperado no upload da imagem');
     }
   }
 
@@ -89,11 +90,12 @@ class ImageUploadService {
     int? maxHeight,
   }) async {
     if (imagesBytes.length != fileNames.length) {
-      throw const app_exceptions.CacheException('Número de imagens e nomes devem ser iguais');
+      throw const app_exceptions.CacheException(
+          'Número de imagens e nomes devem ser iguais');
     }
 
     final urls = <String>[];
-    
+
     for (int i = 0; i < imagesBytes.length; i++) {
       try {
         final url = await uploadImage(
@@ -126,7 +128,7 @@ class ImageUploadService {
       // Extrair o caminho do arquivo da URL
       final uri = Uri.parse(imageUrl);
       final pathSegments = uri.pathSegments;
-      
+
       // Encontrar o índice do bucket
       final bucketIndex = pathSegments.indexOf(_bucketName);
       if (bucketIndex == -1 || bucketIndex >= pathSegments.length - 1) {
@@ -135,7 +137,7 @@ class ImageUploadService {
 
       // Extrair o caminho do arquivo
       final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
-      
+
       debugPrint('Removendo imagem: $filePath');
 
       // Verificar se o usuário tem permissão (arquivo deve estar em sua pasta)
@@ -144,9 +146,7 @@ class ImageUploadService {
       }
 
       // Remover arquivo
-      final result = await _client.storage
-          .from(_bucketName)
-          .remove([filePath]);
+      final result = await _client.storage.from(_bucketName).remove([filePath]);
 
       if (result.isEmpty) {
         throw const app_exceptions.ServerException('Falha ao remover imagem');
@@ -159,7 +159,8 @@ class ImageUploadService {
     } catch (e) {
       if (e is AuthException || e is app_exceptions.CacheException) rethrow;
       debugPrint('Erro inesperado na remoção: $e');
-      throw const app_exceptions.ServerException('Erro inesperado na remoção da imagem');
+      throw const app_exceptions.ServerException(
+          'Erro inesperado na remoção da imagem');
     }
   }
 
@@ -182,9 +183,7 @@ class ImageUploadService {
     int offset = 0,
   }) async {
     try {
-      final result = await _client.storage
-          .from(_bucketName)
-          .list(path: folder);
+      final result = await _client.storage.from(_bucketName).list(path: folder);
 
       return result
           .where((file) => _isImageFile(file.name))
@@ -196,10 +195,12 @@ class ImageUploadService {
           .toList();
     } on StorageException catch (e) {
       debugPrint('Erro ao listar imagens: ${e.message}');
-      throw app_exceptions.ServerException('Erro ao listar imagens: ${e.message}');
+      throw app_exceptions.ServerException(
+          'Erro ao listar imagens: ${e.message}');
     } catch (e) {
       debugPrint('Erro inesperado ao listar imagens: $e');
-      throw const app_exceptions.ServerException('Erro inesperado ao listar imagens');
+      throw const app_exceptions.ServerException(
+          'Erro inesperado ao listar imagens');
     }
   }
 
@@ -208,14 +209,14 @@ class ImageUploadService {
     try {
       final uri = Uri.parse(imageUrl);
       final pathSegments = uri.pathSegments;
-      
+
       final bucketIndex = pathSegments.indexOf(_bucketName);
       if (bucketIndex == -1 || bucketIndex >= pathSegments.length - 1) {
         return null;
       }
 
       final filePath = pathSegments.sublist(bucketIndex + 1).join('/');
-      
+
       // Use list method to get file info since info method doesn't exist
       final result = await _client.storage
           .from(_bucketName)
@@ -257,7 +258,8 @@ class ImageUploadService {
       throw app_exceptions.ServerException('Erro ao gerar URL: ${e.message}');
     } catch (e) {
       debugPrint('Erro inesperado ao criar URL assinada: $e');
-      throw const app_exceptions.ServerException('Erro inesperado ao gerar URL');
+      throw const app_exceptions.ServerException(
+          'Erro inesperado ao gerar URL');
     }
   }
 
@@ -271,7 +273,8 @@ class ImageUploadService {
     try {
       final image = img.decodeImage(imageBytes);
       if (image == null) {
-        throw const app_exceptions.CacheException('Não foi possível decodificar a imagem');
+        throw const app_exceptions.CacheException(
+            'Não foi possível decodificar a imagem');
       }
 
       // Redimensionar se necessário
@@ -321,12 +324,12 @@ class ImageUploadService {
       }
 
       // Listar arquivos do usuário
-      final userFiles = await _client.storage
-          .from(_bucketName)
-          .list(path: 'restaurants');
+      final userFiles =
+          await _client.storage.from(_bucketName).list(path: 'restaurants');
 
       final userImages = userFiles
-          .where((file) => file.name.contains(userId) && _isImageFile(file.name))
+          .where(
+              (file) => file.name.contains(userId) && _isImageFile(file.name))
           .toList();
 
       final totalSize = userImages.fold<int>(

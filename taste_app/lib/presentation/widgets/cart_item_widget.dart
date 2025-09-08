@@ -52,19 +52,19 @@ class CartItemWidget extends StatelessWidget {
                   ? Image.network(
                       item.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
+                      errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.fastfood,
                         color: AppColors.primary,
                       ),
                     )
-                  : Icon(
+                  : const Icon(
                       Icons.fastfood,
                       color: AppColors.primary,
                     ),
             ),
           ),
           const SizedBox(width: AppDimensions.paddingMedium),
-          
+
           // Informações do produto
           Expanded(
             child: Column(
@@ -73,19 +73,19 @@ class CartItemWidget extends StatelessWidget {
                 Text(
                   item.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textDark,
-                  ),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textDark,
+                      ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (item.description != null) ...[
+                ...[
                   const SizedBox(height: 4),
                   Text(
                     item.description!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textLight,
-                    ),
+                          color: AppColors.textLight,
+                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -94,14 +94,14 @@ class CartItemWidget extends StatelessWidget {
                 Text(
                   'R\$ ${(item.price * item.quantity).toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
                 ),
               ],
             ),
           ),
-          
+
           // Controles de quantidade
           if (isEditable) ...[
             Column(
@@ -132,10 +132,11 @@ class CartItemWidget extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         item.quantity.toString(),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textDark,
+                                ),
                       ),
                     ),
                     GestureDetector(
@@ -188,9 +189,9 @@ class CartItemWidget extends StatelessWidget {
               child: Text(
                 '${item.quantity}x',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
               ),
             ),
           ],

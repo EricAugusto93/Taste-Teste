@@ -14,20 +14,20 @@ import '../services/auth/auth_service.dart';
 class FavoritesRepositoryImpl implements FavoritesRepository {
   final SupabaseClient _supabaseClient;
   final CacheService _cacheService = CacheService();
-  
+
   // Cache local para melhor performance
   final Map<String, bool> _favoritesCache = {};
   final Map<String, DateTime> _cacheTimestamps = {};
   static const Duration _cacheDuration = Duration(minutes: 5);
-  
+
   // ID do usuário mock para demonstração
   static const String _mockUserId = 'mock_user_123';
-  
+
   // Chave para persistir favoritos mock excluídos
   static const String _excludedMockFavoritesKey = 'excluded_mock_favorites';
 
   FavoritesRepositoryImpl(this._supabaseClient);
-  
+
   /// Finalizar o repositório
   void dispose() {
     // Cleanup cache
@@ -75,10 +75,12 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     String? comment,
   }) async {
     try {
-      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
-      
-      debugPrint('🟢 Adicionando favorito: restaurantId=$restaurantId, userId=$currentUserId');
-      
+      final currentUserId =
+          userId ?? AuthService.instance.userId ?? _mockUserId;
+
+      debugPrint(
+          '🟢 Adicionando favorito: restaurantId=$restaurantId, userId=$currentUserId');
+
       // Primeiro, verificar se já não é favorito
       final existingCheck = await _supabaseClient
           .from('favorites')
@@ -86,23 +88,24 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           .eq('user_id', currentUserId)
           .eq('restaurant_id', restaurantId)
           .maybeSingle();
-          
+
       if (existingCheck != null) {
         debugPrint('⚠️ Restaurante já está nos favoritos');
         _updateCache(restaurantId, true, currentUserId);
         return const Right(true);
       }
-      
+
       // Inserir no Supabase
       await _supabaseClient.from('favorites').insert({
         'user_id': currentUserId,
         'restaurant_id': restaurantId,
         'created_at': DateTime.now().toIso8601String(),
       });
-      
+
       // Atualizar cache local após sucesso
       _updateCache(restaurantId, true, currentUserId);
-      debugPrint('✅ Restaurante $restaurantId adicionado aos favoritos no Supabase');
+      debugPrint(
+          '✅ Restaurante $restaurantId adicionado aos favoritos no Supabase');
       return const Right(true);
     } on PostgrestException catch (e) {
       debugPrint('❌ Erro PostgreSQL ao adicionar favorito: ${e.message}');
@@ -110,7 +113,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     } catch (e) {
       debugPrint('❌ Erro geral ao adicionar favorito: $e');
       // Fallback: salvar apenas no cache local
-      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
+      final currentUserId =
+          userId ?? AuthService.instance.userId ?? _mockUserId;
       _updateCache(restaurantId, true, currentUserId);
       return const Right(true);
     }
@@ -122,19 +126,21 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     String? userId,
   }) async {
     try {
-      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
-      
-      debugPrint('🔴 Removendo favorito: restaurantId=$restaurantId, userId=$currentUserId');
-      
+      final currentUserId =
+          userId ?? AuthService.instance.userId ?? _mockUserId;
+
+      debugPrint(
+          '🔴 Removendo favorito: restaurantId=$restaurantId, userId=$currentUserId');
+
       // Remover do Supabase
       final deleteResult = await _supabaseClient
           .from('favorites')
           .delete()
           .eq('user_id', currentUserId)
           .eq('restaurant_id', restaurantId);
-          
+
       debugPrint('✅ Favorito removido do Supabase: $deleteResult');
-      
+
       // Atualizar cache local após sucesso
       _updateCache(restaurantId, false, currentUserId);
       debugPrint('✅ Restaurante $restaurantId removido dos favoritos');
@@ -145,7 +151,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     } catch (e) {
       debugPrint('❌ Erro geral ao remover favorito: $e');
       // Fallback: remover apenas do cache local
-      final currentUserId = userId ?? AuthService.instance.userId ?? _mockUserId;
+      final currentUserId =
+          userId ?? AuthService.instance.userId ?? _mockUserId;
       _updateCache(restaurantId, false, currentUserId);
       return const Right(true);
     }
@@ -157,7 +164,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Right(false);
       }
@@ -170,7 +177,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
 
       // Usar serviço de sincronização
       final isFav = _favoritesCache[cacheKey] ?? false;
-      
+
       // Atualizar cache
       _updateCache(restaurantId, isFav, currentUserId);
 
@@ -189,9 +196,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }) async {
     try {
       final currentUserId = userId ?? AuthService.instance.userId;
-      
+
       debugPrint('📋 Buscando favoritos para usuário: $currentUserId');
-      
+
       if (currentUserId == null) {
         debugPrint('⚠️ Usuário não autenticado, retornando lista vazia');
         return const Right([]);
@@ -230,16 +237,17 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       if (offset != null) {
         query = query.range(offset, offset + (limit ?? 20) - 1);
       }
 
       final response = await query;
-      debugPrint('📋 Resposta do Supabase: ${response.length} favoritos encontrados');
+      debugPrint(
+          '📋 Resposta do Supabase: ${response.length} favoritos encontrados');
 
       final restaurants = <Restaurant>[];
-      
+
       for (final item in response) {
         try {
           final restaurantData = item['restaurants'] as Map<String, dynamic>;
@@ -251,20 +259,21 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         }
       }
 
-      debugPrint('✅ Carregados ${restaurants.length} restaurantes favoritos do Supabase');
-      
+      debugPrint(
+          '✅ Carregados ${restaurants.length} restaurantes favoritos do Supabase');
+
       // Atualizar cache dos favoritos para cada restaurante
       for (final restaurant in restaurants) {
         _updateCache(restaurant.id, true, currentUserId);
       }
-      
+
       return Right(restaurants);
     } on PostgrestException catch (e) {
       debugPrint('❌ Erro PostgreSQL ao buscar favoritos: ${e.message}');
       return Left(ServerFailure('Erro ao buscar favoritos: ${e.message}'));
     } catch (e) {
       debugPrint('❌ Erro geral ao buscar favoritos: $e');
-      return Left(ServerFailure('Erro inesperado ao buscar favoritos'));
+      return const Left(ServerFailure('Erro inesperado ao buscar favoritos'));
     }
   }
 
@@ -277,7 +286,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Left(AuthFailure('Usuário não autenticado'));
       }
@@ -303,16 +312,14 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
             .eq('restaurant_id', restaurantId);
       } else {
         // Criar novo favorito com avaliação
-        await _supabaseClient
-            .from('favorites')
-            .insert({
-              'user_id': currentUserId,
-              'restaurant_id': restaurantId,
-              'rating': rating,
-              'comment': comment,
-              'created_at': DateTime.now().toIso8601String(),
-              'reviewed_at': DateTime.now().toIso8601String(),
-            });
+        await _supabaseClient.from('favorites').insert({
+          'user_id': currentUserId,
+          'restaurant_id': restaurantId,
+          'rating': rating,
+          'comment': comment,
+          'created_at': DateTime.now().toIso8601String(),
+          'reviewed_at': DateTime.now().toIso8601String(),
+        });
       }
 
       // Atualizar cache
@@ -325,7 +332,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       return Left(ServerFailure('Erro ao adicionar avaliação: ${e.message}'));
     } catch (e) {
       debugPrint('Erro ao adicionar avaliação: $e');
-      return const Left(ServerFailure('Erro inesperado ao adicionar avaliação'));
+      return const Left(
+          ServerFailure('Erro inesperado ao adicionar avaliação'));
     }
   }
 
@@ -333,7 +341,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Either<Failure, int>> getFavoritesCount({String? userId}) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Right(0);
       }
@@ -358,20 +366,19 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Either<Failure, List<String>>> getFavoriteIds({String? userId}) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Right([]);
       }
 
       // Gerar chave de cache
       final cacheKey = 'favorite_ids_$currentUserId';
-      
+
       // Tentar buscar do cache primeiro
       final cachedData = await _cacheService.get(cacheKey);
       if (cachedData != null) {
-        final ids = (cachedData as List<dynamic>)
-            .map((id) => id as String)
-            .toList();
+        final ids =
+            (cachedData as List<dynamic>).map((id) => id as String).toList();
         return Right(ids);
       }
 
@@ -380,9 +387,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           .select('restaurant_id')
           .eq('user_id', currentUserId);
 
-      final ids = response
-          .map((item) => item['restaurant_id'] as String)
-          .toList();
+      final ids =
+          response.map((item) => item['restaurant_id'] as String).toList();
 
       // Salvar no cache
       await _cacheService.set(
@@ -397,7 +403,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       return Left(ServerFailure('Erro ao buscar IDs favoritos: ${e.message}'));
     } catch (e) {
       debugPrint('Erro ao buscar IDs favoritos: $e');
-      return const Left(ServerFailure('Erro inesperado ao buscar IDs favoritos'));
+      return const Left(
+          ServerFailure('Erro inesperado ao buscar IDs favoritos'));
     }
   }
 
@@ -412,17 +419,18 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     try {
       // IDs dos restaurantes favoritos mock
       // final mockFavoriteIds = ['mock_1', 'mock_3', 'mock_5', 'mock_8', 'mock_12'];
-      
+
       // Obter lista de favoritos mock excluídos
       final excludedIds = await _getExcludedMockFavorites();
-      
+
       // Filtrar IDs que não foram excluídos
       // final activeIds = mockFavoriteIds.where((id) => !excludedIds.contains(id)).toList();
-      
+
       // Retornar lista vazia por enquanto (modo simplificado)
       final favoriteRestaurants = <Restaurant>[];
-      
-      debugPrint('Carregados ${favoriteRestaurants.length} restaurantes favoritos mock (${excludedIds.length} excluídos)');
+
+      debugPrint(
+          'Carregados ${favoriteRestaurants.length} restaurantes favoritos mock (${excludedIds.length} excluídos)');
       return favoriteRestaurants;
     } catch (e) {
       debugPrint('Erro ao carregar favoritos mock: $e');
@@ -439,10 +447,11 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
 
   /// Verificar se o cache é válido
   bool _isCacheValid(String cacheKey) {
-    if (!_favoritesCache.containsKey(cacheKey) || !_cacheTimestamps.containsKey(cacheKey)) {
+    if (!_favoritesCache.containsKey(cacheKey) ||
+        !_cacheTimestamps.containsKey(cacheKey)) {
       return false;
     }
-    
+
     final timestamp = _cacheTimestamps[cacheKey]!;
     return DateTime.now().difference(timestamp) < _cacheDuration;
   }
@@ -471,13 +480,12 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     }
   }
 
-
   /// Remove um ID da lista de favoritos mock excluídos
   Future<void> _removeExcludedMockFavorite(String restaurantId) async {
     try {
       final excludedIds = await _getExcludedMockFavorites();
       excludedIds.remove(restaurantId);
-      
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         _excludedMockFavoritesKey,
@@ -503,9 +511,10 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Either<Failure, bool>> restoreMockFavorite(String restaurantId) async {
     try {
       if (!restaurantId.startsWith('mock_')) {
-        return const Left(ValidationFailure('ID deve ser de um restaurante mock'));
+        return const Left(
+            ValidationFailure('ID deve ser de um restaurante mock'));
       }
-      
+
       await _removeExcludedMockFavorite(restaurantId);
       debugPrint('Favorito mock $restaurantId foi restaurado');
       return const Right(true);
@@ -526,10 +535,10 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Either<Failure, bool>> syncFavorites({String? userId}) async {
     try {
       clearCache();
-      
+
       // Pré-carregar favoritos para cache
       final result = await getFavoriteIds(userId: userId);
-      
+
       return result.fold(
         (failure) => Left(failure),
         (ids) {
@@ -552,7 +561,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Right([]);
       }
@@ -573,10 +582,11 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> exportFavorites({String? userId}) async {
+  Future<Either<Failure, Map<String, dynamic>>> exportFavorites(
+      {String? userId}) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Left(AuthFailure('Usuário não autenticado'));
       }
@@ -607,23 +617,21 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   }) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return const Left(AuthFailure('Usuário não autenticado'));
       }
 
       final favorites = data['favorites'] as List<dynamic>;
-      
+
       for (final favorite in favorites) {
-        await _supabaseClient
-            .from('favorites')
-            .upsert({
-              'user_id': currentUserId,
-              'restaurant_id': favorite['restaurant_id'],
-              'rating': favorite['rating'],
-              'comment': favorite['comment'],
-              'created_at': favorite['created_at'],
-            });
+        await _supabaseClient.from('favorites').upsert({
+          'user_id': currentUserId,
+          'restaurant_id': favorite['restaurant_id'],
+          'rating': favorite['rating'],
+          'comment': favorite['comment'],
+          'created_at': favorite['created_at'],
+        });
       }
 
       clearCache();
@@ -638,7 +646,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   Future<Map<String, dynamic>> getFavoritesStats({String? userId}) async {
     try {
       final currentUserId = userId ?? _getCurrentUserId();
-      
+
       if (currentUserId == null) {
         return {
           'total_count': 0,

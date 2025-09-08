@@ -21,19 +21,21 @@ class MapFallbackWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     String defaultMessage;
     List<String> issues = GoogleMapsConfig.configurationIssues;
-    
+
     if (kIsWeb) {
       if (!GoogleMapsConfig.hasValidApiKey) {
-        defaultMessage = 'API Key do Google Maps não configurada\nConfigure GOOGLE_MAPS_API_KEY no arquivo .env';
+        defaultMessage =
+            'API Key do Google Maps não configurada\nConfigure GOOGLE_MAPS_API_KEY no arquivo .env';
       } else if (!GoogleMapsConfig.isAvailable) {
-        defaultMessage = 'Google Maps não carregado\nVerifique sua conexão com a internet';
+        defaultMessage =
+            'Google Maps não carregado\nVerifique sua conexão com a internet';
       } else {
         defaultMessage = 'Erro ao carregar o mapa\nTente novamente';
       }
     } else {
       defaultMessage = 'Erro ao carregar o mapa\nVerifique sua conexão';
     }
-    
+
     // Se há problemas específicos identificados, mostra eles
     if (issues.isNotEmpty) {
       defaultMessage = issues.join('\n');
@@ -53,36 +55,37 @@ class MapFallbackWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.map_outlined,
             size: 48,
             color: AppColors.textLight,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             message ?? defaultMessage,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.textLight,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
           ),
           if (onRetry != null) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: Icon(Icons.refresh, size: 18),
-              label: Text('Tentar novamente'),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Tentar novamente'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
           ],
           if (kIsWeb && !GoogleMapsConfig.hasValidApiKey) ...[
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -94,7 +97,7 @@ class MapFallbackWidget extends StatelessWidget {
                   width: 1,
                 ),
               ),
-              child: Column(
+              child: const Column(
                 children: [
                   Icon(
                     Icons.info_outline,
@@ -115,7 +118,8 @@ class MapFallbackWidget extends StatelessWidget {
               ),
             ),
           ],
-          if (kDebugMode) ...[            SizedBox(height: 8),
+          if (kDebugMode) ...[
+            const SizedBox(height: 8),
             Text(
               'Debug: ${GoogleMapsConfig.debugInfo}',
               textAlign: TextAlign.center,
@@ -165,7 +169,9 @@ class _SafeGoogleMapState extends State<SafeGoogleMap> {
         setState(() {
           _isLoading = false;
           // Verifica se há erro baseado na configuração
-          _hasError = kIsWeb && (!GoogleMapsConfig.hasValidApiKey || !GoogleMapsConfig.isAvailable);
+          _hasError = kIsWeb &&
+              (!GoogleMapsConfig.hasValidApiKey ||
+                  !GoogleMapsConfig.isAvailable);
         });
       }
     });
@@ -176,7 +182,7 @@ class _SafeGoogleMapState extends State<SafeGoogleMap> {
       _isLoading = true;
       _hasError = false;
     });
-    
+
     try {
       // Tenta reinicializar o Google Maps
       await GoogleMapsConfig.retryInitialization();
@@ -199,7 +205,7 @@ class _SafeGoogleMapState extends State<SafeGoogleMap> {
           color: AppColors.background,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Center(
+        child: const Center(
           child: CircularProgressIndicator(
             color: AppColors.primary,
           ),

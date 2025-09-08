@@ -55,7 +55,8 @@ class CustomErrorWidget extends StatelessWidget {
   }) {
     return CustomErrorWidget(
       title: 'Localização indisponível',
-      message: 'Não foi possível acessar sua localização. Verifique as permissões.',
+      message:
+          'Não foi possível acessar sua localização. Verifique as permissões.',
       emoji: '📍',
       buttonText: 'Configurar',
       onRetry: onRetry,
@@ -112,32 +113,32 @@ class CustomErrorWidget extends StatelessWidget {
             emoji,
             style: const TextStyle(fontSize: 64),
           ),
-          SizedBox(height: 16),
-          
+          const SizedBox(height: 16),
+
           // Título
           Text(
             title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark,
+                ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 8),
-          
+          const SizedBox(height: 8),
+
           // Mensagem
           Text(
             message,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textLight,
-              height: 1.5,
-            ),
+                  color: AppColors.textLight,
+                  height: 1.5,
+                ),
             textAlign: TextAlign.center,
           ),
-          
+
           // Botão (se fornecido)
           if (buttonText != null && onRetry != null) ...{
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: CustomButton(
@@ -208,24 +209,24 @@ class InlineErrorWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.error_outline,
             size: 32,
             color: AppColors.textLight,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             message,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textLight,
-            ),
+                  color: AppColors.textLight,
+                ),
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...{
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextButton(
               onPressed: onRetry,
-              child: Text(
+              child: const Text(
                 'Tentar novamente',
                 style: TextStyle(
                   color: AppColors.primary,

@@ -3,7 +3,6 @@ import 'dart:html' as html;
 import 'dart:js' as js;
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 
 /// Web implementation for Advanced Markers
 class AdvancedMarkerWeb {
@@ -11,33 +10,33 @@ class AdvancedMarkerWeb {
   static js.JsObject? _map;
   static final List<Function()> _pendingMarkerCallbacks = [];
   static bool _isMapReady = false;
-  
+
   /// Inicializa o mapa para uso com AdvancedMarkers
   static void initializeMap(js.JsObject? mapInstance) {
     if (kDebugMode) {
       debugPrint('🗺️ Inicializando AdvancedMarkerWeb...');
     }
-    
+
     // Resetar estado
     _map = null;
     _isMapReady = false;
-    
+
     // Se uma instância foi fornecida, usar ela
     if (mapInstance != null) {
       _map = mapInstance;
       _isMapReady = true;
-      
+
       if (kDebugMode) {
         debugPrint('✅ Instância do mapa fornecida diretamente');
       }
-      
+
       _executePendingCallbacks();
       return;
     }
-    
+
     // Tentar obter a instância do mapa imediatamente
     _tryToGetMapInstance();
-    
+
     // Se não conseguir, tentar novamente após delays
     if (!_isMapReady) {
       Timer(const Duration(milliseconds: 500), () {
@@ -45,17 +44,18 @@ class AdvancedMarkerWeb {
           _tryToGetMapInstance();
         }
       });
-      
+
       Timer(const Duration(milliseconds: 1500), () {
         if (!_isMapReady) {
           _tryToGetMapInstance();
         }
       });
-      
+
       Timer(const Duration(milliseconds: 3000), () {
         if (!_isMapReady) {
           if (kDebugMode) {
-            debugPrint('⚠️ Timeout na inicialização do mapa, usando fallback para marcadores pendentes');
+            debugPrint(
+                '⚠️ Timeout na inicialização do mapa, usando fallback para marcadores pendentes');
           }
           // Executar callbacks mesmo sem o mapa pronto (usarão fallback)
           _executePendingCallbacks();
@@ -63,14 +63,14 @@ class AdvancedMarkerWeb {
       });
     }
   }
-  
+
   /// Tenta obter a instância do mapa JavaScript
   static void _tryToGetMapInstance() {
     try {
       if (kDebugMode) {
         debugPrint('🔍 Tentando obter instância do mapa...');
       }
-      
+
       // Verificar se o Google Maps está disponível
       final google = js.context['google'];
       if (google == null || google['maps'] == null) {
@@ -79,36 +79,35 @@ class AdvancedMarkerWeb {
         }
         return;
       }
-      
+
       // Procurar por elementos do Google Maps no DOM
       final mapElements = html.document.querySelectorAll('.gm-style');
-      final mapContainers = html.document.querySelectorAll('[data-testid="google-map"]');
-      
+      final mapContainers =
+          html.document.querySelectorAll('[data-testid="google-map"]');
+
       if (mapElements.isNotEmpty || mapContainers.isNotEmpty) {
         if (kDebugMode) {
           debugPrint('✅ Elementos do mapa encontrados no DOM');
         }
-        
+
         // Configurar uma referência funcional do mapa
-        _map = js.JsObject.jsify({
-          'isGoogleMap': true,
-          'ready': true,
-          'apiLoaded': true
-        });
+        _map = js.JsObject.jsify(
+            {'isGoogleMap': true, 'ready': true, 'apiLoaded': true});
         _isMapReady = true;
-        
+
         if (kDebugMode) {
           debugPrint('🎉 Instância do mapa configurada com sucesso!');
-          debugPrint('📋 Executando ${_pendingMarkerCallbacks.length} callbacks pendentes');
+          debugPrint(
+              '📋 Executando ${_pendingMarkerCallbacks.length} callbacks pendentes');
         }
-        
+
         // Executar callbacks pendentes
         _executePendingCallbacks();
       } else {
         if (kDebugMode) {
           debugPrint('⏳ Elementos do mapa ainda não encontrados no DOM');
         }
-        
+
         // Tentar novamente após um pequeno delay
         Timer(const Duration(milliseconds: 500), () {
           if (!_isMapReady && _pendingMarkerCallbacks.isNotEmpty) {
@@ -122,7 +121,7 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Executa callbacks pendentes quando o mapa estiver pronto
   static void _executePendingCallbacks() {
     if (_pendingMarkerCallbacks.isEmpty) {
@@ -131,17 +130,18 @@ class AdvancedMarkerWeb {
       }
       return;
     }
-    
+
     if (kDebugMode) {
-      debugPrint('🔄 Executando ${_pendingMarkerCallbacks.length} callbacks pendentes');
+      debugPrint(
+          '🔄 Executando ${_pendingMarkerCallbacks.length} callbacks pendentes');
     }
-    
+
     final callbacks = List<Function()>.from(_pendingMarkerCallbacks);
     _pendingMarkerCallbacks.clear();
-    
+
     int successCount = 0;
     int errorCount = 0;
-    
+
     for (final callback in callbacks) {
       try {
         callback();
@@ -153,12 +153,13 @@ class AdvancedMarkerWeb {
         }
       }
     }
-    
+
     if (kDebugMode) {
-      debugPrint('📊 Callbacks executados: $successCount sucessos, $errorCount erros');
+      debugPrint(
+          '📊 Callbacks executados: $successCount sucessos, $errorCount erros');
     }
   }
-  
+
   /// Obtém o objeto JavaScript do mapa atual
   static js.JsObject? _getCurrentMap() {
     try {
@@ -166,7 +167,8 @@ class AdvancedMarkerWeb {
       final google = js.context['google'];
       if (google != null && google['maps'] != null) {
         // Procurar por instâncias de mapa no DOM
-        final mapElements = js.context['document'].callMethod('querySelectorAll', ['.gm-style']);
+        final mapElements = js.context['document']
+            .callMethod('querySelectorAll', ['.gm-style']);
         if (mapElements != null && mapElements['length'] > 0) {
           // Retornar uma referência genérica que será usada para criar marcadores
           return js.JsObject.jsify({'isGoogleMap': true});
@@ -180,14 +182,15 @@ class AdvancedMarkerWeb {
       return null;
     }
   }
-  
+
   /// Verifica se AdvancedMarkerElement está disponível
   static bool isAdvancedMarkerAvailable() {
     try {
       if (kDebugMode) {
-        debugPrint('🔍 Verificando disponibilidade do AdvancedMarkerElement...');
+        debugPrint(
+            '🔍 Verificando disponibilidade do AdvancedMarkerElement...');
       }
-      
+
       final google = js.context['google'];
       if (google == null) {
         if (kDebugMode) {
@@ -195,7 +198,7 @@ class AdvancedMarkerWeb {
         }
         return false;
       }
-      
+
       final maps = js.context['google']['maps'];
       if (maps == null) {
         if (kDebugMode) {
@@ -203,18 +206,20 @@ class AdvancedMarkerWeb {
         }
         return false;
       }
-      
+
       final marker = js.context['google']['maps']['marker'];
       if (marker == null) {
         if (kDebugMode) {
-          debugPrint('❌ google.maps.marker não está disponível - biblioteca marker não foi carregada');
+          debugPrint(
+              '❌ google.maps.marker não está disponível - biblioteca marker não foi carregada');
         }
         return false;
       }
-      
-      final advancedMarker = js.context['google']['maps']['marker']['AdvancedMarkerElement'];
+
+      final advancedMarker =
+          js.context['google']['maps']['marker']['AdvancedMarkerElement'];
       final isAvailable = advancedMarker != null;
-      
+
       if (kDebugMode) {
         if (isAvailable) {
           debugPrint('✅ AdvancedMarkerElement está disponível!');
@@ -222,7 +227,7 @@ class AdvancedMarkerWeb {
           debugPrint('❌ AdvancedMarkerElement não está disponível');
         }
       }
-      
+
       return isAvailable;
     } catch (e) {
       if (kDebugMode) {
@@ -231,7 +236,7 @@ class AdvancedMarkerWeb {
       return false;
     }
   }
-  
+
   /// Cria um AdvancedMarkerElement
   static js.JsObject? createAdvancedMarker({
     required String markerId,
@@ -243,36 +248,41 @@ class AdvancedMarkerWeb {
   }) {
     try {
       if (kDebugMode) {
-        debugPrint('🚀 Solicitação para criar AdvancedMarkerElement: $markerId');
+        debugPrint(
+            '🚀 Solicitação para criar AdvancedMarkerElement: $markerId');
       }
-      
+
       // Se o mapa estiver pronto, criar imediatamente
       if (_isMapReady && _map != null) {
-        return _tryCreateMarkerImmediate(markerId, lat, lng, title, content, gmpDraggable);
+        return _tryCreateMarkerImmediate(
+            markerId, lat, lng, title, content, gmpDraggable);
       }
-      
+
       // Se o mapa não estiver pronto, adicionar à fila de callbacks
       if (kDebugMode) {
-        debugPrint('⏳ Mapa não está pronto, adicionando marcador $markerId à fila');
+        debugPrint(
+            '⏳ Mapa não está pronto, adicionando marcador $markerId à fila');
       }
-      
+
       _pendingMarkerCallbacks.add(() {
-        _tryCreateMarkerImmediate(markerId, lat, lng, title, content, gmpDraggable);
+        _tryCreateMarkerImmediate(
+            markerId, lat, lng, title, content, gmpDraggable);
       });
-      
+
       // Tentar obter a instância do mapa novamente
       _tryToGetMapInstance();
-      
+
       // Retornar um placeholder temporário
       return js.JsObject.jsify({'id': markerId, 'pending': true});
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Erro ao criar AdvancedMarkerElement: $e - usando fallback');
+        debugPrint(
+            '❌ Erro ao criar AdvancedMarkerElement: $e - usando fallback');
       }
       return _createFallbackMarker(markerId, lat, lng, title);
     }
   }
-  
+
   /// Tenta criar marcador imediatamente
   static js.JsObject? _tryCreateMarkerImmediate(
     String markerId,
@@ -286,7 +296,7 @@ class AdvancedMarkerWeb {
       if (kDebugMode) {
         debugPrint('🔨 Tentando criar marcador imediatamente: $markerId');
       }
-      
+
       // Verificar se o Google Maps está disponível
       final google = js.context['google'];
       if (google == null || google['maps'] == null) {
@@ -295,7 +305,7 @@ class AdvancedMarkerWeb {
         }
         return _createFallbackMarker(markerId, lat, lng, title);
       }
-      
+
       // Tentar obter a instância do mapa atual
       js.JsObject? currentMap = _getCurrentMapInstance();
       if (currentMap == null) {
@@ -304,12 +314,14 @@ class AdvancedMarkerWeb {
         }
         return _createFallbackMarker(markerId, lat, lng, title);
       }
-      
+
       // Verificar se AdvancedMarkerElement está disponível
-      final advancedMarkerClass = google['maps']['marker']?['AdvancedMarkerElement'];
+      final advancedMarkerClass =
+          google['maps']['marker']?['AdvancedMarkerElement'];
       if (advancedMarkerClass == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ AdvancedMarkerElement não disponível, usando fallback');
+          debugPrint(
+              '⚠️ AdvancedMarkerElement não disponível, usando fallback');
         }
         return _createFallbackMarker(markerId, lat, lng, title);
       }
@@ -338,7 +350,7 @@ class AdvancedMarkerWeb {
       return _createFallbackMarker(markerId, lat, lng, title);
     }
   }
-  
+
   /// Obtém a instância atual do mapa JavaScript
   static js.JsObject? _getCurrentMapInstance() {
     try {
@@ -346,7 +358,7 @@ class AdvancedMarkerWeb {
       if (_map != null && _map!['ready'] == true) {
         return _map;
       }
-      
+
       // Tentar encontrar o mapa através do DOM
       final mapElements = html.document.querySelectorAll('.gm-style');
       if (mapElements.isNotEmpty) {
@@ -354,13 +366,10 @@ class AdvancedMarkerWeb {
         final google = js.context['google'];
         if (google != null && google['maps'] != null) {
           // Retornar uma referência genérica que funciona com a API
-          return js.JsObject.jsify({
-            'isGoogleMap': true,
-            'ready': true
-          });
+          return js.JsObject.jsify({'isGoogleMap': true, 'ready': true});
         }
       }
-      
+
       return null;
     } catch (e) {
       if (kDebugMode) {
@@ -385,8 +394,10 @@ class AdvancedMarkerWeb {
 
       // Se AdvancedMarkerElement não estiver disponível, log error (não usar marcador tradicional)
       if (kDebugMode) {
-        debugPrint('❌ AdvancedMarkerElement não está disponível para marcador: $markerId');
-        debugPrint('ℹ️ Biblioteca marker não foi carregada. Verificar se &libraries=places,marker está na URL.');
+        debugPrint(
+            '❌ AdvancedMarkerElement não está disponível para marcador: $markerId');
+        debugPrint(
+            'ℹ️ Biblioteca marker não foi carregada. Verificar se &libraries=places,marker está na URL.');
       }
       return null;
     } catch (e) {
@@ -405,7 +416,8 @@ class AdvancedMarkerWeb {
     String? title,
   ) {
     try {
-      final advancedMarkerClass = js.context['google']['maps']['marker']['AdvancedMarkerElement'];
+      final advancedMarkerClass =
+          js.context['google']['maps']['marker']['AdvancedMarkerElement'];
       if (advancedMarkerClass == null) {
         return null;
       }
@@ -444,18 +456,19 @@ class AdvancedMarkerWeb {
   ) {
     try {
       // Tentar criar usando o método imediato primeiro
-      final marker = _tryCreateMarkerImmediate(markerId, lat, lng, title, content, gmpDraggable);
-      
+      final marker = _tryCreateMarkerImmediate(
+          markerId, lat, lng, title, content, gmpDraggable);
+
       if (marker != null) {
         if (kDebugMode) {
           debugPrint('✅ AdvancedMarkerElement criado com delay: $markerId');
         }
         return;
       }
-      
+
       // Se falhar, tentar criar marcador de fallback
       final fallbackMarker = _createFallbackMarker(markerId, lat, lng, title);
-      
+
       if (fallbackMarker != null) {
         if (kDebugMode) {
           debugPrint('✅ Marcador de fallback criado com delay: $markerId');
@@ -471,7 +484,7 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Cria um marcador com ícone customizado
   static js.JsObject? createAdvancedMarkerWithIcon({
     required String markerId,
@@ -492,7 +505,7 @@ class AdvancedMarkerWeb {
         ..style.backgroundSize = 'contain'
         ..style.backgroundRepeat = 'no-repeat'
         ..style.backgroundPosition = 'center';
-      
+
       return createAdvancedMarker(
         markerId: markerId,
         lat: lat,
@@ -508,7 +521,7 @@ class AdvancedMarkerWeb {
       return null;
     }
   }
-  
+
   /// Cria um marcador com emoji
   static js.JsObject? createAdvancedMarkerWithEmoji({
     required String markerId,
@@ -527,7 +540,7 @@ class AdvancedMarkerWeb {
         ..style.lineHeight = '1'
         ..style.userSelect = 'none'
         ..text = emoji;
-      
+
       return createAdvancedMarker(
         markerId: markerId,
         lat: lat,
@@ -543,7 +556,7 @@ class AdvancedMarkerWeb {
       return null;
     }
   }
-  
+
   /// Remove um marcador
   static void removeMarker(String markerId) {
     try {
@@ -552,7 +565,7 @@ class AdvancedMarkerWeb {
         // Remove o marcador do mapa
         marker['map'] = null;
         _markers.remove(markerId);
-        
+
         if (kDebugMode) {
           debugPrint('✅ AdvancedMarkerElement removido: $markerId');
         }
@@ -563,14 +576,14 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Remove todos os marcadores
   static void clearAllMarkers() {
     try {
       for (final markerId in _markers.keys.toList()) {
         removeMarker(markerId);
       }
-      
+
       if (kDebugMode) {
         debugPrint('✅ Todos os AdvancedMarkerElements removidos');
       }
@@ -580,7 +593,7 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Adiciona listener de clique a um marcador
   static void addClickListener(String markerId, Function() onTap) {
     try {
@@ -589,12 +602,17 @@ class AdvancedMarkerWeb {
         // Usar a API correta do Google Maps para eventos
         final eventClass = js.context['google']?['maps']?['event'];
         if (eventClass != null) {
-          eventClass.callMethod('addListener', [marker, 'click', js.allowInterop((_) {
-            onTap();
-          })]);
-          
+          eventClass.callMethod('addListener', [
+            marker,
+            'click',
+            js.allowInterop((_) {
+              onTap();
+            })
+          ]);
+
           if (kDebugMode) {
-            debugPrint('✅ Listener de clique adicionado ao marcador: $markerId');
+            debugPrint(
+                '✅ Listener de clique adicionado ao marcador: $markerId');
           }
         } else {
           if (kDebugMode) {
@@ -608,15 +626,16 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Atualiza a posição de um marcador
   static void updateMarkerPosition(String markerId, double lat, double lng) {
     try {
       final marker = _markers[markerId];
       if (marker != null) {
-        final position = js.JsObject(js.context['google']['maps']['LatLng'], [lat, lng]);
+        final position =
+            js.JsObject(js.context['google']['maps']['LatLng'], [lat, lng]);
         marker['position'] = position;
-        
+
         if (kDebugMode) {
           debugPrint('✅ Posição do marcador atualizada: $markerId');
         }
@@ -627,12 +646,12 @@ class AdvancedMarkerWeb {
       }
     }
   }
-  
+
   /// Obtém a contagem de marcadores ativos
   static int getMarkerCount() {
     return _markers.length;
   }
-  
+
   /// Verifica se um marcador existe
   static bool hasMarker(String markerId) {
     return _markers.containsKey(markerId);

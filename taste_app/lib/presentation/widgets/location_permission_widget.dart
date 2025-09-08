@@ -16,7 +16,7 @@ class LocationPermissionWidget extends StatefulWidget {
   final bool showDialog;
   final String? customTitle;
   final String? customMessage;
-  
+
   const LocationPermissionWidget({
     super.key,
     required this.child,
@@ -28,77 +28,81 @@ class LocationPermissionWidget extends StatefulWidget {
   });
 
   @override
-  State<LocationPermissionWidget> createState() => _LocationPermissionWidgetState();
+  State<LocationPermissionWidget> createState() =>
+      _LocationPermissionWidgetState();
 }
 
 class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
   final LocationRepository _locationRepository = LocationRepository.instance;
   bool _isCheckingPermissions = false;
   PermissionStatus? _currentStatus;
-  
+
   @override
   void initState() {
     super.initState();
     _checkPermissions();
   }
-  
+
   /// Verifica o status atual das permissões
   Future<void> _checkPermissions() async {
     if (_isCheckingPermissions) return;
-    
+
     setState(() {
       _isCheckingPermissions = true;
     });
-    
+
     try {
       final status = await _locationRepository.getLocationPermissionStatus();
-      final serviceEnabled = await _locationRepository.isLocationServiceEnabled();
-      
+      final serviceEnabled =
+          await _locationRepository.isLocationServiceEnabled();
+
       setState(() {
         _currentStatus = status;
         _isCheckingPermissions = false;
       });
-      
+
       Logger.info('LocationPermissionWidget: Status verificado', {
         'permission': status.toString(),
         'service_enabled': serviceEnabled,
       });
-      
+
       // Se as permissões estão OK, chama o callback
       if (status == PermissionStatus.granted && serviceEnabled) {
         widget.onPermissionGranted?.call();
       } else if (widget.showDialog && status != PermissionStatus.granted) {
         _showPermissionDialog();
       }
-      
     } catch (e, stackTrace) {
-      Logger.error('LocationPermissionWidget: Erro ao verificar permissões', e, stackTrace);
+      Logger.error('LocationPermissionWidget: Erro ao verificar permissões', e,
+          stackTrace);
       setState(() {
         _isCheckingPermissions = false;
       });
     }
   }
-  
+
   /// Solicita permissão de localização
   Future<void> _requestPermission() async {
     try {
       Logger.info('LocationPermissionWidget: Solicitando permissão');
-      
+
       final status = await _locationRepository.requestLocationPermission();
-      
+
       setState(() {
         _currentStatus = status;
       });
-      
-      AnalyticsService.instance.trackEvent('location_permission_dialog_result', parameters: {
+
+      AnalyticsService.instance
+          .trackEvent('location_permission_dialog_result', parameters: {
         'status': status.toString(),
         'source': 'permission_widget',
       });
-      
+
       if (status == PermissionStatus.granted) {
         // Verifica se o serviço também está habilitado
-        final serviceEnabled = await _locationRepository.isLocationServiceEnabled();
-        
+        final serviceEnabled =
+            await _locationRepository.isLocationServiceEnabled();
+
         if (serviceEnabled) {
           widget.onPermissionGranted?.call();
           if (mounted) {
@@ -115,17 +119,17 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
           NavigationHelper.safeGoBack(context);
         }
       }
-      
     } catch (e, stackTrace) {
-      Logger.error('LocationPermissionWidget: Erro ao solicitar permissão', e, stackTrace);
+      Logger.error('LocationPermissionWidget: Erro ao solicitar permissão', e,
+          stackTrace);
       widget.onPermissionDenied?.call();
     }
   }
-  
+
   /// Mostra dialog de solicitação de permissão
   void _showPermissionDialog() {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -138,9 +142,9 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
           ),
         ),
         content: Text(
-          widget.customMessage ?? 
-          'Para encontrar restaurantes próximos a você, precisamos acessar sua localização. '
-          'Seus dados de localização são usados apenas para melhorar sua experiência no app.',
+          widget.customMessage ??
+              'Para encontrar restaurantes próximos a você, precisamos acessar sua localização. '
+                  'Seus dados de localização são usados apenas para melhorar sua experiência no app.',
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
@@ -148,37 +152,38 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
             onPressed: () {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
-              
-              AnalyticsService.instance.trackEvent('location_permission_denied_dialog', parameters: {
+
+              AnalyticsService.instance
+                  .trackEvent('location_permission_denied_dialog', parameters: {
                 'action': 'cancel',
               });
             },
-            child: Text('Não Permitir'),
+            child: const Text('Não Permitir'),
           ),
           ElevatedButton(
             onPressed: _requestPermission,
-            child: Text('Permitir'),
+            child: const Text('Permitir'),
           ),
         ],
       ),
     );
   }
-  
+
   /// Mostra dialog quando o serviço de localização está desabilitado
   void _showLocationServiceDialog() {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
+        title: const Text(
           'Serviço de Localização Desabilitado',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: Text(
+        content: const Text(
           'O serviço de localização está desabilitado no seu dispositivo. '
           'Por favor, habilite-o nas configurações para usar recursos baseados em localização.',
           style: TextStyle(fontSize: 16),
@@ -189,7 +194,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
             },
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -197,28 +202,28 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               // Tenta abrir as configurações
               await _locationRepository.openAppSettings();
             },
-            child: Text('Abrir Configurações'),
+            child: const Text('Abrir Configurações'),
           ),
         ],
       ),
     );
   }
-  
+
   /// Mostra dialog quando a permissão foi permanentemente negada
   void _showPermanentlyDeniedDialog() {
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
+        title: const Text(
           'Permissão Negada',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: Text(
+        content: const Text(
           'A permissão de localização foi permanentemente negada. '
           'Para usar recursos baseados em localização, você precisa habilitar '
           'a permissão manualmente nas configurações do app.',
@@ -230,20 +235,20 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
               NavigationHelper.safeGoBack(context);
               widget.onPermissionDenied?.call();
             },
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
               NavigationHelper.safeGoBack(context);
               await _locationRepository.openAppSettings();
             },
-            child: Text('Abrir Configurações'),
+            child: const Text('Abrir Configurações'),
           ),
         ],
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return widget.child;
@@ -254,7 +259,7 @@ class _LocationPermissionWidgetState extends State<LocationPermissionWidget> {
 class LocationPermissionStatus extends StatefulWidget {
   final Widget Function(PermissionStatus status, bool isServiceEnabled) builder;
   final Duration refreshInterval;
-  
+
   const LocationPermissionStatus({
     super.key,
     required this.builder,
@@ -262,7 +267,8 @@ class LocationPermissionStatus extends StatefulWidget {
   });
 
   @override
-  State<LocationPermissionStatus> createState() => _LocationPermissionStatusState();
+  State<LocationPermissionStatus> createState() =>
+      _LocationPermissionStatusState();
 }
 
 class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
@@ -270,12 +276,12 @@ class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
   PermissionStatus _status = PermissionStatus.denied;
   bool _isServiceEnabled = false;
   bool _isLoading = true;
-  
+
   @override
   void initState() {
     super.initState();
     _checkStatus();
-    
+
     // Atualiza periodicamente o status
     Timer.periodic(widget.refreshInterval, (timer) {
       if (mounted) {
@@ -285,12 +291,13 @@ class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
       }
     });
   }
-  
+
   Future<void> _checkStatus() async {
     try {
       final status = await _locationRepository.getLocationPermissionStatus();
-      final serviceEnabled = await _locationRepository.isLocationServiceEnabled();
-      
+      final serviceEnabled =
+          await _locationRepository.isLocationServiceEnabled();
+
       if (mounted) {
         setState(() {
           _status = status;
@@ -299,7 +306,8 @@ class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
         });
       }
     } catch (e, stackTrace) {
-      Logger.error('LocationPermissionStatus: Erro ao verificar status', e, stackTrace);
+      Logger.error(
+          'LocationPermissionStatus: Erro ao verificar status', e, stackTrace);
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -307,7 +315,7 @@ class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -315,7 +323,7 @@ class _LocationPermissionStatusState extends State<LocationPermissionStatus> {
         child: CircularProgressIndicator(),
       );
     }
-    
+
     return widget.builder(_status, _isServiceEnabled);
   }
 }
@@ -327,7 +335,7 @@ class LocationPermissionButton extends StatefulWidget {
   final VoidCallback? onPermissionGranted;
   final VoidCallback? onPermissionDenied;
   final ButtonStyle? style;
-  
+
   const LocationPermissionButton({
     super.key,
     this.text,
@@ -338,31 +346,34 @@ class LocationPermissionButton extends StatefulWidget {
   });
 
   @override
-  State<LocationPermissionButton> createState() => _LocationPermissionButtonState();
+  State<LocationPermissionButton> createState() =>
+      _LocationPermissionButtonState();
 }
 
 class _LocationPermissionButtonState extends State<LocationPermissionButton> {
   final LocationRepository _locationRepository = LocationRepository.instance;
   bool _isLoading = false;
-  
+
   Future<void> _handlePress() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
-      final hasPermissions = await _locationRepository.hasAllRequiredPermissions();
-      
+      final hasPermissions =
+          await _locationRepository.hasAllRequiredPermissions();
+
       if (hasPermissions) {
         widget.onPermissionGranted?.call();
       } else {
         final status = await _locationRepository.requestLocationPermission();
-        
+
         if (status == PermissionStatus.granted) {
-          final serviceEnabled = await _locationRepository.isLocationServiceEnabled();
-          
+          final serviceEnabled =
+              await _locationRepository.isLocationServiceEnabled();
+
           if (serviceEnabled) {
             widget.onPermissionGranted?.call();
           } else {
@@ -373,7 +384,8 @@ class _LocationPermissionButtonState extends State<LocationPermissionButton> {
         }
       }
     } catch (e, stackTrace) {
-      Logger.error('LocationPermissionButton: Erro ao processar permissão', e, stackTrace);
+      Logger.error('LocationPermissionButton: Erro ao processar permissão', e,
+          stackTrace);
       widget.onPermissionDenied?.call();
     } finally {
       if (mounted) {
@@ -383,19 +395,19 @@ class _LocationPermissionButtonState extends State<LocationPermissionButton> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: _isLoading ? null : _handlePress,
       style: widget.style,
-      icon: _isLoading 
-        ? SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        : Icon(widget.icon ?? Icons.location_on),
+      icon: _isLoading
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(widget.icon ?? Icons.location_on),
       label: Text(widget.text ?? 'Permitir Localização'),
     );
   }

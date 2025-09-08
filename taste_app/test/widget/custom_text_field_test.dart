@@ -7,7 +7,7 @@ void main() {
   group('CustomTextField Widget Tests', () {
     testWidgets('should render basic text field correctly', (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -18,16 +18,16 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
       expect(find.text('Enter text'), findsOneWidget);
     });
-    
+
     testWidgets('should handle text input correctly', (tester) async {
       final controller = TextEditingController();
       String? changedValue;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -38,15 +38,15 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.enterText(find.byType(TextFormField), 'Test input');
       expect(controller.text, 'Test input');
       expect(changedValue, 'Test input');
     });
-    
+
     testWidgets('should handle onTap callback', (tester) async {
       bool wasTapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -56,14 +56,14 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.tap(find.byType(TextFormField));
       expect(wasTapped, isTrue);
     });
-    
+
     testWidgets('should be read-only when readOnly is true', (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -74,19 +74,19 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
-      
+
       // Tentar inserir texto não deve funcionar
       await tester.enterText(find.byType(TextFormField), 'Test');
       expect(controller.text, isEmpty);
     });
-    
+
     testWidgets('should obscure text when obscureText is true', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               obscureText: true,
@@ -94,15 +94,15 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
+
     testWidgets('should display label text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               labelText: 'Test Label',
@@ -110,29 +110,29 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Test Label'), findsOneWidget);
     });
-    
+
     testWidgets('should display prefix and suffix icons', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
-              prefixIcon: const Icon(Icons.person),
-              suffixIcon: const Icon(Icons.visibility),
+              prefixIcon: Icon(Icons.person),
+              suffixIcon: Icon(Icons.visibility),
             ),
           ),
         ),
       );
-      
+
       expect(find.byIcon(Icons.person), findsOneWidget);
       expect(find.byIcon(Icons.visibility), findsOneWidget);
     });
-    
+
     testWidgets('should handle different keyboard types', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               keyboardType: TextInputType.emailAddress,
@@ -140,15 +140,15 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
+
     testWidgets('should handle multiline text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               maxLines: 3,
@@ -156,15 +156,15 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
+
     testWidgets('should validate input correctly', (tester) async {
       final formKey = GlobalKey<FormState>();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -182,20 +182,21 @@ void main() {
           ),
         ),
       );
-      
+
       // Validar campo vazio
       expect(formKey.currentState!.validate(), isFalse);
       await tester.pump();
       expect(find.text('Campo obrigatório'), findsOneWidget);
-      
+
       // Inserir texto e validar novamente
       await tester.enterText(find.byType(TextFormField), 'Valid text');
       expect(formKey.currentState!.validate(), isTrue);
     });
-    
-    testWidgets('should create search field with factory constructor', (tester) async {
+
+    testWidgets('should create search field with factory constructor',
+        (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -205,15 +206,15 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
       expect(find.text('Buscar restaurantes...'), findsOneWidget);
     });
-    
+
     testWidgets('should apply custom fill color', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               fillColor: Colors.red,
@@ -221,17 +222,17 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
+
     testWidgets('should apply custom border radius', (tester) async {
       const customRadius = 20.0;
-      
+
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               borderRadius: customRadius,
@@ -239,17 +240,17 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
+
     testWidgets('should apply custom content padding', (tester) async {
       const customPadding = EdgeInsets.all(20.0);
-      
+
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               contentPadding: customPadding,
@@ -257,15 +258,16 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
-    testWidgets('should use search field styling when isSearchField is true', (tester) async {
+
+    testWidgets('should use search field styling when isSearchField is true',
+        (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(
               isSearchField: true,
@@ -273,33 +275,36 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
     });
-    
-    testWidgets('should show focused border when field is focused', (tester) async {
+
+    testWidgets('should show focused border when field is focused',
+        (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTextField(),
           ),
         ),
       );
-      
+
       // Focar no campo
       await tester.tap(find.byType(TextFormField));
       await tester.pump();
-      
+
       // Verifica se o campo está focado
-      final textField = tester.widget<TextFormField>(find.byType(TextFormField));
+      final textField =
+          tester.widget<TextFormField>(find.byType(TextFormField));
       expect(textField, isNotNull);
     });
-    
-    testWidgets('should show error border when validation fails', (tester) async {
+
+    testWidgets('should show error border when validation fails',
+        (tester) async {
       final formKey = GlobalKey<FormState>();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -312,19 +317,19 @@ void main() {
           ),
         ),
       );
-      
+
       formKey.currentState!.validate();
       await tester.pump();
-      
+
       // Verifica se a mensagem de erro é exibida
       expect(find.text('Error message'), findsOneWidget);
     });
   });
-  
+
   group('SearchField Widget Tests', () {
     testWidgets('should render search field correctly', (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -334,16 +339,17 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.byType(SearchField), findsOneWidget);
       expect(find.byType(CustomTextField), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
       expect(find.text('Buscar restaurantes...'), findsOneWidget);
     });
-    
-    testWidgets('should show clear button when text is entered', (tester) async {
+
+    testWidgets('should show clear button when text is entered',
+        (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -353,22 +359,23 @@ void main() {
           ),
         ),
       );
-      
+
       // Inicialmente não deve ter botão de limpar
       expect(find.byIcon(Icons.clear), findsNothing);
-      
+
       // Inserir texto usando enterText
       await tester.enterText(find.byType(TextFormField), 'test');
       await tester.pump();
-      
+
       // Verifica se o texto foi inserido
       expect(controller.text, 'test');
     });
-    
-    testWidgets('should clear text when clear button is pressed', (tester) async {
+
+    testWidgets('should clear text when clear button is pressed',
+        (tester) async {
       final controller = TextEditingController(text: 'test');
       String? changedValue;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -379,17 +386,17 @@ void main() {
           ),
         ),
       );
-      
+
       expect(controller.text, 'test');
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(SearchField), findsOneWidget);
       expect(find.byType(CustomTextField), findsOneWidget);
     });
-    
+
     testWidgets('should handle custom hint text', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(
               hintText: 'Custom hint',
@@ -397,13 +404,13 @@ void main() {
           ),
         ),
       );
-      
+
       expect(find.text('Custom hint'), findsOneWidget);
     });
-    
+
     testWidgets('should handle onTap callback', (tester) async {
       bool wasTapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -413,14 +420,14 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.tap(find.byType(TextFormField));
       expect(wasTapped, isTrue);
     });
-    
+
     testWidgets('should be read-only when readOnly is true', (tester) async {
       final controller = TextEditingController();
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -431,21 +438,21 @@ void main() {
           ),
         ),
       );
-      
+
       // Verifica se o widget foi criado corretamente
       expect(find.byType(SearchField), findsOneWidget);
       expect(find.byType(CustomTextField), findsOneWidget);
     });
-    
+
     testWidgets('should have max width constraint', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: SearchField(),
           ),
         ),
       );
-      
+
       final container = tester.widget<Container>(find.byType(Container));
       final constraints = container.constraints as BoxConstraints;
       expect(constraints.maxWidth, AppDimensions.searchFieldMaxWidth);

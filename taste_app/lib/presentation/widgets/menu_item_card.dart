@@ -6,6 +6,7 @@ import '../../core/services/ui/interaction_service.dart';
 import '../../data/models/menu_item_model.dart';
 // MenuCategoryModel is defined in menu_item_model.dart
 import 'cached_image_widget.dart';
+
 /// Widget para exibir um item do cardápio
 class MenuItemCard extends StatelessWidget {
   final MenuItemModel item;
@@ -37,7 +38,7 @@ class MenuItemCard extends StatelessWidget {
             children: [
               // Imagem do item
               _buildItemImage(),
-              SizedBox(width: AppDimensions.paddingMedium),
+              const SizedBox(width: AppDimensions.paddingMedium),
               // Informações do item
               Expanded(
                 child: _buildItemInfo(),
@@ -79,7 +80,7 @@ class MenuItemCard extends StatelessWidget {
       width: 80,
       height: 80,
       color: AppColors.surface,
-      child: Icon(
+      child: const Icon(
         Icons.restaurant,
         color: AppColors.textLight,
         size: 32,
@@ -95,23 +96,26 @@ class MenuItemCard extends StatelessWidget {
         Text(
           item.name,
           style: AppTextStyles.headingSmall.copyWith(
-            color: item.isAvailable ? AppColors.textPrimary : AppColors.textLight,
+            color:
+                item.isAvailable ? AppColors.textPrimary : AppColors.textLight,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
         if (item.description != null) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             item.description!,
             style: AppTextStyles.bodySmall.copyWith(
-              color: item.isAvailable ? AppColors.textSecondary : AppColors.textLight,
+              color: item.isAvailable
+                  ? AppColors.textSecondary
+                  : AppColors.textLight,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ],
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         // Preço
         Text(
           item.formattedPrice,
@@ -122,12 +126,12 @@ class MenuItemCard extends StatelessWidget {
         ),
         // Alérgenos (se houver)
         if (item.allergens.isNotEmpty) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           _buildAllergenInfo(),
         ],
         // Status de disponibilidade
         if (!item.isAvailable) ...[
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 8,
@@ -194,7 +198,7 @@ class MenuItemCard extends StatelessWidget {
                 InteractionService.lightHaptic();
                 onAddToCart?.call();
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.add,
                 color: AppColors.surface,
                 size: 20,
@@ -214,7 +218,7 @@ class MenuItemCard extends StatelessWidget {
               color: AppColors.textLight.withOpacity(0.3),
               borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.block,
               color: AppColors.surface,
               size: 20,
@@ -254,7 +258,7 @@ class MenuCategorySection extends StatelessWidget {
                 style: AppTextStyles.headingMedium,
               ),
               if (category.description != null) ...[
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   category.description!,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -280,7 +284,7 @@ class MenuCategorySection extends StatelessWidget {
             }).toList(),
           ),
         ),
-        SizedBox(height: AppDimensions.paddingLarge),
+        const SizedBox(height: AppDimensions.paddingLarge),
       ],
     );
   }

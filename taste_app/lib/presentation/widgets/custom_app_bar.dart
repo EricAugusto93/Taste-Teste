@@ -19,7 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final VoidCallback? onBackPressed;
   final PreferredSizeWidget? bottom;
-  
+
   const CustomAppBar({
     super.key,
     this.title,
@@ -35,7 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBackPressed,
     this.bottom,
   });
-  
+
   /// Factory para AppBar transparente (usado na home)
   factory CustomAppBar.transparent({
     Key? key,
@@ -57,7 +57,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
     );
   }
-  
+
   /// Factory para AppBar com gradiente
   factory CustomAppBar.gradient({
     Key? key,
@@ -82,24 +82,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       onBackPressed: onBackPressed,
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     Widget? leadingWidget = leading;
-    
+
     if (showBackButton && leadingWidget == null) {
       leadingWidget = IconButton(
-        icon: Icon(
+        icon: const Icon(
           Icons.arrow_back_ios,
           color: AppColors.textPrimary,
           size: AppDimensions.iconMedium,
         ),
-        onPressed: onBackPressed ?? () {
-          NavigationHelper.safeGoBack(context);
-        },
+        onPressed: onBackPressed ??
+            () {
+              NavigationHelper.safeGoBack(context);
+            },
       );
     }
-    
+
     Widget? titleContent = titleWidget;
     if (titleContent == null && title != null) {
       titleContent = Text(
@@ -107,7 +108,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: AppTextStyles.h2,
       );
     }
-    
+
     return Container(
       decoration: backgroundColor == Colors.transparent
           ? const BoxDecoration(
@@ -136,11 +137,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-  
+
   @override
   Size get preferredSize => Size.fromHeight(
-    AppDimensions.appBarHeight + (bottom?.preferredSize.height ?? 0),
-  );
+        AppDimensions.appBarHeight + (bottom?.preferredSize.height ?? 0),
+      );
 }
 
 /// AppBar específica para a home com saudação
@@ -148,14 +149,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName;
   final VoidCallback? onProfileTap;
   final VoidCallback? onNotificationTap;
-  
+
   const HomeAppBar({
     super.key,
     required this.userName,
     this.onProfileTap,
     this.onNotificationTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,15 +181,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     shape: BoxShape.circle,
                     color: AppColors.surface,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.person,
                     color: AppColors.primary,
                     size: AppDimensions.iconMedium,
                   ),
                 ),
               ),
-              SizedBox(width: AppDimensions.paddingMedium),
-              
+              const SizedBox(width: AppDimensions.paddingMedium),
+
               // Saudação
               Expanded(
                 child: Column(
@@ -206,11 +207,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
               ),
-              
+
               // Botão de notificação
               IconButton(
                 onPressed: onNotificationTap,
-                icon: Icon(
+                icon: const Icon(
                   Icons.notifications_outlined,
                   color: AppColors.textPrimary,
                   size: AppDimensions.iconLarge,
@@ -222,7 +223,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-  
+
   @override
   Size get preferredSize => const Size.fromHeight(100);
 }

@@ -8,6 +8,7 @@ import '../../data/models/review_model.dart';
 import '../../data/repositories/review_repository.dart';
 import '../../data/services/reviews/review_service.dart';
 import 'rating_widget.dart';
+
 /// Widget para exibir uma avaliação
 class ReviewCard extends StatefulWidget {
   final ReviewModel review;
@@ -27,7 +28,7 @@ class ReviewCard extends StatefulWidget {
 
 class _ReviewCardState extends State<ReviewCard> {
   final ReviewRepository _reviewRepository = ReviewRepository();
-  
+
   ReviewModel get review => widget.review;
   VoidCallback? get onTap => widget.onTap;
   bool get showRestaurantName => widget.showRestaurantName;
@@ -48,13 +49,13 @@ class _ReviewCardState extends State<ReviewCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              SizedBox(height: AppDimensions.paddingSmall),
+              const SizedBox(height: AppDimensions.paddingSmall),
               _buildRating(),
               if (review.comment?.isNotEmpty == true) ...[
-                SizedBox(height: AppDimensions.paddingSmall),
+                const SizedBox(height: AppDimensions.paddingSmall),
                 _buildComment(),
               ],
-              SizedBox(height: AppDimensions.paddingSmall),
+              const SizedBox(height: AppDimensions.paddingSmall),
               _buildFooter(),
             ],
           ),
@@ -83,7 +84,7 @@ class _ReviewCardState extends State<ReviewCard> {
                 )
               : _buildDefaultAvatar(),
         ),
-        SizedBox(width: AppDimensions.paddingMedium),
+        const SizedBox(width: AppDimensions.paddingMedium),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +109,7 @@ class _ReviewCardState extends State<ReviewCard> {
   }
 
   Widget _buildDefaultAvatar() {
-    return Icon(
+    return const Icon(
       Icons.person,
       size: AppDimensions.iconMedium,
       color: AppColors.primary,
@@ -126,7 +127,7 @@ class _ReviewCardState extends State<ReviewCard> {
             color: isFilled ? AppColors.warning : Colors.grey[300],
           );
         }),
-        SizedBox(width: AppDimensions.paddingSmall),
+        const SizedBox(width: AppDimensions.paddingSmall),
         Text(
           review.rating.toString(),
           style: AppTextStyles.bodyMedium.copyWith(
@@ -148,7 +149,6 @@ class _ReviewCardState extends State<ReviewCard> {
     );
   }
 
-
   Widget _buildFooter() {
     return Row(
       children: [
@@ -165,12 +165,12 @@ class _ReviewCardState extends State<ReviewCard> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.check_circle,
                   size: 12,
                   color: AppColors.success,
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   'Verificado',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -181,19 +181,19 @@ class _ReviewCardState extends State<ReviewCard> {
               ],
             ),
           ),
-          SizedBox(width: AppDimensions.paddingSmall),
+          const SizedBox(width: AppDimensions.paddingSmall),
         ],
-        
+
         if (review.helpfulCount > 0) ...[
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.thumb_up,
                 size: AppDimensions.iconSmall,
                 color: AppColors.textLight,
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 review.helpfulCount.toString(),
                 style: AppTextStyles.bodySmall.copyWith(
@@ -205,7 +205,7 @@ class _ReviewCardState extends State<ReviewCard> {
           const Spacer(),
         ] else
           const Spacer(),
-        
+
         // Ações da avaliação
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -215,13 +215,13 @@ class _ReviewCardState extends State<ReviewCard> {
               label: 'Útil',
               onPressed: () => _onHelpfulPressed(),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             _buildActionButton(
               icon: Icons.reply,
               label: 'Responder',
               onPressed: () => _onReplyPressed(),
             ),
-            SizedBox(width: AppDimensions.paddingSmall),
+            const SizedBox(width: AppDimensions.paddingSmall),
             _buildActionButton(
               icon: Icons.flag_outlined,
               label: 'Reportar',
@@ -229,12 +229,12 @@ class _ReviewCardState extends State<ReviewCard> {
             ),
           ],
         ),
-        
+
         // Respostas
-         if (widget.review.replies.isNotEmpty) ...[
-           SizedBox(height: AppDimensions.paddingMedium),
-           _buildReplies(),
-         ],
+        if (widget.review.replies.isNotEmpty) ...[
+          const SizedBox(height: AppDimensions.paddingMedium),
+          _buildReplies(),
+        ],
       ],
     );
   }
@@ -260,7 +260,7 @@ class _ReviewCardState extends State<ReviewCard> {
               size: AppDimensions.iconSmall,
               color: AppColors.textLight,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               label,
               style: AppTextStyles.bodySmall.copyWith(
@@ -276,13 +276,14 @@ class _ReviewCardState extends State<ReviewCard> {
   void _onHelpfulPressed() async {
     try {
       final reviewService = ReviewService.instance;
-      final wasHelpful = await reviewService.toggleHelpfulVote(widget.review.id);
-      
+      final wasHelpful =
+          await reviewService.toggleHelpfulVote(widget.review.id);
+
       if (mounted) {
-        final message = wasHelpful 
+        final message = wasHelpful
             ? 'Avaliação marcada como útil!'
             : 'Voto removido da avaliação';
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
@@ -290,7 +291,7 @@ class _ReviewCardState extends State<ReviewCard> {
             duration: const Duration(seconds: 2),
           ),
         );
-        
+
         // Forçar atualização da página pai se possível
         // Isso atualizará o contador de helpful_count
         setState(() {});
@@ -326,23 +327,23 @@ class _ReviewCardState extends State<ReviewCard> {
               reviewId: widget.review.id,
               content: content,
             );
-            
+
             NavigationHelper.safeGoBack(context);
-            
+
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Resposta enviada com sucesso!'),
+                const SnackBar(
+                  content: Text('Resposta enviada com sucesso!'),
                   backgroundColor: AppColors.success,
                 ),
               );
-              
+
               // Recarregar respostas se possível
               setState(() {});
             }
           } catch (e) {
             NavigationHelper.safeGoBack(context);
-            
+
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -368,18 +369,18 @@ class _ReviewCardState extends State<ReviewCard> {
               reason: reason,
             );
             NavigationHelper.safeGoBack(context);
-            
+
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Avaliação reportada com sucesso'),
+                const SnackBar(
+                  content: Text('Avaliação reportada com sucesso'),
                   backgroundColor: AppColors.success,
                 ),
               );
             }
           } catch (e) {
             NavigationHelper.safeGoBack(context);
-            
+
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -395,96 +396,99 @@ class _ReviewCardState extends State<ReviewCard> {
   }
 
   Widget _buildReplies() {
-     return Container(
-       margin: const EdgeInsets.only(left: AppDimensions.paddingLarge),
-       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-       decoration: BoxDecoration(
-         color: AppColors.surface,
-         borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-         border: Border.all(color: AppColors.divider),
-       ),
-       child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: [
-           Text(
-             'Respostas (${widget.review.replies.length})',
-             style: AppTextStyles.bodyMedium.copyWith(
-               fontWeight: FontWeight.w600,
-             ),
-           ),
-           SizedBox(height: AppDimensions.paddingSmall),
-           ...widget.review.replies.map((reply) => _buildReplyItem(reply)),
-         ],
-       ),
-     );
-   }
+    return Container(
+      margin: const EdgeInsets.only(left: AppDimensions.paddingLarge),
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Respostas (${widget.review.replies.length})',
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppDimensions.paddingSmall),
+          ...widget.review.replies.map((reply) => _buildReplyItem(reply)),
+        ],
+      ),
+    );
+  }
 
   Widget _buildReplyItem(ReviewReply reply) {
-     return Padding(
-       padding: const EdgeInsets.only(bottom: AppDimensions.paddingSmall),
-       child: Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: [
-           Row(
-             children: [
-               Icon(
-                 Icons.reply,
-                 size: 16,
-                 color: AppColors.primary,
-               ),
-               SizedBox(width: AppDimensions.paddingSmall),
-               Text(
-                 reply.userName,
-                 style: AppTextStyles.bodySmall.copyWith(
-                   fontWeight: FontWeight.w600,
-                   color: reply.isRestaurantOwner ? AppColors.primary : AppColors.textDark,
-                 ),
-               ),
-               if (reply.isRestaurantOwner) ...[
-                 SizedBox(width: 4),
-                 Container(
-                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                   decoration: BoxDecoration(
-                     color: AppColors.primary,
-                     borderRadius: BorderRadius.circular(8),
-                   ),
-                   child: Text(
-                     'Restaurante',
-                     style: AppTextStyles.bodySmall.copyWith(
-                       color: AppColors.surface,
-                       fontSize: 10,
-                     ),
-                   ),
-                 ),
-               ],
-               const Spacer(),
-               Text(
-                 _formatDate(reply.createdAt),
-                 style: AppTextStyles.bodySmall.copyWith(
-                   color: AppColors.textLight,
-                 ),
-               ),
-             ],
-           ),
-           SizedBox(height: 4),
-           Padding(
-             padding: const EdgeInsets.only(left: AppDimensions.paddingLarge),
-             child: Text(
-               reply.content,
-               style: AppTextStyles.bodyMedium.copyWith(
-                 color: AppColors.textDark,
-               ),
-             ),
-           ),
-         ],
-       ),
-     );
-   }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimensions.paddingSmall),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.reply,
+                size: 16,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: AppDimensions.paddingSmall),
+              Text(
+                reply.userName,
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: reply.isRestaurantOwner
+                      ? AppColors.primary
+                      : AppColors.textDark,
+                ),
+              ),
+              if (reply.isRestaurantOwner) ...[
+                const SizedBox(width: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Restaurante',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.surface,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              Text(
+                _formatDate(reply.createdAt),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textLight,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: AppDimensions.paddingLarge),
+            child: Text(
+              reply.content,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textDark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} dia${difference.inDays > 1 ? 's' : ''} atrás';
     } else if (difference.inHours > 0) {
@@ -536,17 +540,19 @@ class ReviewStatsWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (index) {
                         final isFilled = index < averageRating.floor();
-                        final isHalf = index == averageRating.floor() && 
-                                      averageRating % 1 >= 0.5;
-                        
+                        final isHalf = index == averageRating.floor() &&
+                            averageRating % 1 >= 0.5;
+
                         return Icon(
                           isFilled || isHalf ? Icons.star : Icons.star_border,
                           size: AppDimensions.iconSmall,
-                          color: isFilled || isHalf ? AppColors.warning : Colors.grey[300],
+                          color: isFilled || isHalf
+                              ? AppColors.warning
+                              : Colors.grey[300],
                         );
                       }),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       '$totalReviews avaliações',
                       style: AppTextStyles.bodySmall.copyWith(
@@ -556,15 +562,16 @@ class ReviewStatsWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: AppDimensions.paddingLarge),
+              const SizedBox(width: AppDimensions.paddingLarge),
               Expanded(
                 flex: 2,
                 child: Column(
                   children: List.generate(5, (index) {
                     final rating = 5 - index;
                     final count = ratingDistribution[rating] ?? 0;
-                    final percentage = totalReviews > 0 ? count / totalReviews : 0.0;
-                    
+                    final percentage =
+                        totalReviews > 0 ? count / totalReviews : 0.0;
+
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
@@ -573,13 +580,13 @@ class ReviewStatsWidget extends StatelessWidget {
                             '$rating',
                             style: AppTextStyles.bodySmall,
                           ),
-                          SizedBox(width: 4),
-                          Icon(
+                          const SizedBox(width: 4),
+                          const Icon(
                             Icons.star,
                             size: 12,
                             color: AppColors.warning,
                           ),
-                          SizedBox(width: AppDimensions.paddingSmall),
+                          const SizedBox(width: AppDimensions.paddingSmall),
                           Expanded(
                             child: LinearProgressIndicator(
                               value: percentage,
@@ -589,7 +596,7 @@ class ReviewStatsWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(width: AppDimensions.paddingSmall),
+                          const SizedBox(width: AppDimensions.paddingSmall),
                           SizedBox(
                             width: 30,
                             child: Text(
@@ -641,7 +648,7 @@ class _ReplyDialogState extends State<_ReplyDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Responder Avaliação'),
+      title: const Text('Responder Avaliação'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -658,20 +665,21 @@ class _ReplyDialogState extends State<_ReplyDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: _isSubmitting ? null : () => NavigationHelper.safeGoBack(context),
-          child: Text('Cancelar'),
+          onPressed:
+              _isSubmitting ? null : () => NavigationHelper.safeGoBack(context),
+          child: const Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: _isSubmitting || _controller.text.trim().isEmpty
               ? null
               : _submitReply,
           child: _isSubmitting
-              ? SizedBox(
+              ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text('Enviar'),
+              : const Text('Enviar'),
         ),
       ],
     );
@@ -679,9 +687,9 @@ class _ReplyDialogState extends State<_ReplyDialog> {
 
   void _submitReply() {
     if (_controller.text.trim().isEmpty) return;
-    
+
     setState(() => _isSubmitting = true);
-    
+
     // Simular delay de envio
     Future.delayed(const Duration(seconds: 1), () {
       widget.onReplySubmitted(_controller.text.trim());
@@ -708,12 +716,12 @@ class _ReportDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Reportar Avaliação'),
+      title: const Text('Reportar Avaliação'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Por que você está reportando esta avaliação?'),
-          SizedBox(height: AppDimensions.paddingMedium),
+          const Text('Por que você está reportando esta avaliação?'),
+          const SizedBox(height: AppDimensions.paddingMedium),
           ..._reportReasons.map(
             (reason) => ListTile(
               title: Text(reason),
@@ -726,7 +734,7 @@ class _ReportDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => NavigationHelper.safeGoBack(context),
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
       ],
     );

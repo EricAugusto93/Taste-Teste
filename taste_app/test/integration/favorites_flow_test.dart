@@ -3,12 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-
   group('Favorites Flow Integration Tests', () {
-    testWidgets('Complete favorites flow - add, view, and remove favorites', (tester) async {
+    testWidgets('Complete favorites flow - add, view, and remove favorites',
+        (tester) async {
       bool isFavorite = false;
       int currentIndex = 0;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -21,14 +21,17 @@ void main() {
                       // Home page with restaurant card
                       const Center(
                         child: Card(
-                          key: const Key('restaurant_card'),
+                          key: Key('restaurant_card'),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('Restaurante Teste'),
+                              Text('Restaurante Teste'),
                               IconButton(
-                                icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-                                onPressed: () => setState(() => isFavorite = !isFavorite),
+                                icon: Icon(isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border),
+                                onPressed: () =>
+                                    setState(() => isFavorite = !isFavorite),
                               ),
                             ],
                           ),
@@ -40,27 +43,28 @@ void main() {
                             ? Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('Favoritos'),
-                                  const Card(
-                                    key: const Key('favorite_item'),
+                                  Text('Favoritos'),
+                                  Card(
+                                    key: Key('favorite_item'),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Text('Restaurante Teste'),
+                                        Text('Restaurante Teste'),
                                         IconButton(
-                                          icon: const Icon(Icons.favorite),
-                                          onPressed: () => setState(() => isFavorite = false),
+                                          icon: Icon(Icons.favorite),
+                                          onPressed: () => setState(
+                                              () => isFavorite = false),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ],
                               )
-                            : const Column(
+                            : Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('Favoritos'),
-                                  const Text('Nenhum favorito ainda'),
+                                  Text('Favoritos'),
+                                  Text('Nenhum favorito ainda'),
                                 ],
                               ),
                       ),
@@ -70,8 +74,10 @@ void main() {
                     currentIndex: currentIndex,
                     onTap: (index) => setState(() => currentIndex = index),
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.favorite), label: 'Favorites'),
                     ],
                   ),
                 );
@@ -80,7 +86,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar se chegamos na home
@@ -119,9 +125,10 @@ void main() {
       expect(find.byKey(const Key('favorite_item')), findsNothing);
     });
 
-    testWidgets('Navigate to restaurant details from favorites', (tester) async {
+    testWidgets('Navigate to restaurant details from favorites',
+        (tester) async {
       bool showDetails = false;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -140,36 +147,38 @@ void main() {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Restaurante Teste'),
-                          const Row(
+                          Text('Restaurante Teste'),
+                          Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.star),
-                              const Text('4.5'),
+                              Icon(Icons.star),
+                              Text('4.5'),
                             ],
                           ),
-                          const Text('Avaliações'),
-                          const Text('Cardápio'),
+                          Text('Avaliações'),
+                          Text('Cardápio'),
                         ],
                       ),
                     ),
                   );
                 }
-                
+
                 return Scaffold(
                   body: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('Favoritos'),
+                        Text('Favoritos'),
                       ],
                     ),
                   ),
                   bottomNavigationBar: BottomNavigationBar(
                     currentIndex: 1,
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.favorite), label: 'Favorites'),
                     ],
                   ),
                   floatingActionButton: FloatingActionButton(
@@ -183,7 +192,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar se estamos na página de favoritos
@@ -218,23 +227,25 @@ void main() {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Favoritos'),
-                    const Text('Nenhum favorito ainda'),
+                    Text('Favoritos'),
+                    Text('Nenhum favorito ainda'),
                   ],
                 ),
               ),
               bottomNavigationBar: BottomNavigationBar(
                 currentIndex: 1,
                 items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                  BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.home), label: 'Home'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.favorite), label: 'Favorites'),
                 ],
               ),
             ),
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar estado vazio
@@ -246,7 +257,7 @@ void main() {
     testWidgets('Favorites persistence across app restarts', (tester) async {
       bool hasFavorites = true;
       int currentIndex = 1;
-      
+
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -266,18 +277,18 @@ void main() {
                             ? Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('Favoritos'),
-                                  const Card(
-                                    key: const Key('favorite_item'),
-                                    child: const Text('Restaurante Favorito'),
+                                  Text('Favoritos'),
+                                  Card(
+                                    key: Key('favorite_item'),
+                                    child: Text('Restaurante Favorito'),
                                   ),
                                 ],
                               )
-                            : const Column(
+                            : Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('Favoritos'),
-                                  const Text('Nenhum favorito ainda'),
+                                  Text('Favoritos'),
+                                  Text('Nenhum favorito ainda'),
                                 ],
                               ),
                       ),
@@ -287,8 +298,10 @@ void main() {
                     currentIndex: currentIndex,
                     onTap: (index) => setState(() => currentIndex = index),
                     items: const [
-                      BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-                      BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: 'Home'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.favorite), label: 'Favorites'),
                     ],
                   ),
                 );
@@ -297,7 +310,7 @@ void main() {
           ),
         ),
       );
-      
+
       await tester.pumpAndSettle();
 
       // Verificar se estamos na página de favoritos

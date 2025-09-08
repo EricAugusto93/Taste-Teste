@@ -26,7 +26,7 @@ class CustomMapMarker {
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 3, center.dy + 3),
       radius + (isSelected ? 4 : 0),
@@ -38,7 +38,7 @@ class CustomMapMarker {
       final pulsePaint = Paint()
         ..color = AppColors.primary.withOpacity(0.3)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, radius + 8, pulsePaint);
     }
 
@@ -47,13 +47,13 @@ class CustomMapMarker {
       ..shader = ui.Gradient.radial(
         center,
         radius,
-        isSelected 
-          ? [AppColors.primary, AppColors.primaryDark]
-          : [Colors.white, const Color(0xFFF8F9FA)],
+        isSelected
+            ? [AppColors.primary, AppColors.primaryDark]
+            : [Colors.white, const Color(0xFFF8F9FA)],
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, radius, gradientPaint);
 
     // Desenhar borda com gradiente
@@ -61,14 +61,14 @@ class CustomMapMarker {
       ..shader = ui.Gradient.linear(
         Offset(center.dx - radius, center.dy - radius),
         Offset(center.dx + radius, center.dy + radius),
-        isSelected 
-          ? [AppColors.primaryDark, AppColors.primary]
-          : [AppColors.primary, AppColors.primaryLight],
+        isSelected
+            ? [AppColors.primaryDark, AppColors.primary]
+            : [AppColors.primary, AppColors.primaryLight],
         [0.0, 1.0],
       )
       ..style = PaintingStyle.stroke
       ..strokeWidth = isSelected ? 4 : 3;
-    
+
     canvas.drawCircle(center, radius, borderPaint);
 
     // Desenhar emoji com sombra
@@ -89,7 +89,7 @@ class CustomMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     emojiShadowPainter.layout();
     emojiShadowPainter.paint(
       canvas,
@@ -102,14 +102,14 @@ class CustomMapMarker {
     // Desenhar rating com design melhorado
     if (rating > 0) {
       final ratingCenter = Offset(markerSize.width / 2, markerSize.height - 12);
-      final ratingWidth = 40.0;
-      final ratingHeight = 20.0;
-      
+      const ratingWidth = 40.0;
+      const ratingHeight = 20.0;
+
       // Sombra do rating
       final ratingShadowPaint = Paint()
         ..color = Colors.black.withOpacity(0.2)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
-      
+
       final ratingShadowRect = RRect.fromRectAndRadius(
         Rect.fromCenter(
           center: Offset(ratingCenter.dx + 1, ratingCenter.dy + 1),
@@ -118,20 +118,20 @@ class CustomMapMarker {
         ),
         const Radius.circular(10),
       );
-      
+
       canvas.drawRRect(ratingShadowRect, ratingShadowPaint);
-      
+
       // Background do rating com gradiente
       final ratingColor = _getRatingColor(rating);
       final ratingBgPaint = Paint()
         ..shader = ui.Gradient.linear(
-          Offset(ratingCenter.dx - ratingWidth/2, ratingCenter.dy),
-          Offset(ratingCenter.dx + ratingWidth/2, ratingCenter.dy),
+          Offset(ratingCenter.dx - ratingWidth / 2, ratingCenter.dy),
+          Offset(ratingCenter.dx + ratingWidth / 2, ratingCenter.dy),
           [ratingColor, ratingColor.withOpacity(0.8)],
           [0.0, 1.0],
         )
         ..style = PaintingStyle.fill;
-      
+
       final ratingRect = RRect.fromRectAndRadius(
         Rect.fromCenter(
           center: ratingCenter,
@@ -140,9 +140,9 @@ class CustomMapMarker {
         ),
         const Radius.circular(10),
       );
-      
+
       canvas.drawRRect(ratingRect, ratingBgPaint);
-      
+
       // Texto do rating
       final ratingTextPainter = TextPainter(
         text: TextSpan(
@@ -162,7 +162,7 @@ class CustomMapMarker {
         ),
         textDirection: TextDirection.ltr,
       );
-      
+
       ratingTextPainter.layout();
       ratingTextPainter.paint(
         canvas,
@@ -179,7 +179,7 @@ class CustomMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -198,11 +198,11 @@ class CustomMapMarker {
     for (int i = 0; i < 3; i++) {
       final pulseRadius = (size / 2) + (i * 8);
       final pulseOpacity = 0.4 - (i * 0.1);
-      
+
       final pulsePaint = Paint()
         ..color = AppColors.primary.withOpacity(pulseOpacity)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(center, pulseRadius, pulsePaint);
     }
 
@@ -210,7 +210,7 @@ class CustomMapMarker {
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 2, center.dy + 2),
       size / 3,
@@ -226,7 +226,7 @@ class CustomMapMarker {
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, size / 3, mainPaint);
 
     // Desenhar borda branca
@@ -234,14 +234,14 @@ class CustomMapMarker {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
-    
+
     canvas.drawCircle(center, size / 3, borderPaint);
 
     // Desenhar ponto central
     final centerPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, size / 8, centerPaint);
 
     // Converter para imagem
@@ -250,7 +250,7 @@ class CustomMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -287,7 +287,7 @@ class CustomMapMarker {
     final shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-    
+
     canvas.drawCircle(
       Offset(center.dx + 2, center.dy + 2),
       size / 2,
@@ -303,7 +303,7 @@ class CustomMapMarker {
         [0.0, 1.0],
       )
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(center, size / 2, mainPaint);
 
     // Desenhar borda
@@ -311,7 +311,7 @@ class CustomMapMarker {
       ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
-    
+
     canvas.drawCircle(center, size / 2, borderPaint);
 
     // Desenhar ícone com sombra
@@ -333,7 +333,7 @@ class CustomMapMarker {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     iconPainter.layout();
     iconPainter.paint(
       canvas,
@@ -349,7 +349,7 @@ class CustomMapMarker {
       markerSize.width.toInt(),
       markerSize.height.toInt(),
     );
-    
+
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -504,7 +504,7 @@ class CustomInfoWindow extends StatelessWidget {
                     return Container(
                       height: 80,
                       color: AppColors.surfaceVariant,
-                      child: Icon(
+                      child: const Icon(
                         Icons.restaurant,
                         color: AppColors.textSecondary,
                       ),
@@ -512,9 +512,9 @@ class CustomInfoWindow extends StatelessWidget {
                   },
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
             ],
-            
+
             // Título
             Text(
               title,
@@ -525,10 +525,10 @@ class CustomInfoWindow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            
+
             // Subtítulo
             if (subtitle != null) ...[
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 subtitle!,
                 style: AppTextStyles.bodySmall.copyWith(
@@ -538,9 +538,9 @@ class CustomInfoWindow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            
-            SizedBox(height: 8),
-            
+
+            const SizedBox(height: 8),
+
             // Informações adicionais
             Row(
               children: [
@@ -558,12 +558,12 @@ class CustomInfoWindow extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star,
                           size: 12,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 2),
+                        const SizedBox(width: 2),
                         Text(
                           rating!.toStringAsFixed(1),
                           style: const TextStyle(
@@ -575,34 +575,34 @@ class CustomInfoWindow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                 ],
-                
+
                 // Tempo de entrega
                 if (deliveryTime != null) ...[
-                  Icon(
+                  const Icon(
                     Icons.access_time,
                     size: 12,
                     color: AppColors.textSecondary,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     deliveryTime!,
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                 ],
-                
+
                 // Distância
                 if (distance != null) ...[
-                  Icon(
+                  const Icon(
                     Icons.location_on,
                     size: 12,
                     color: AppColors.textSecondary,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     distance!,
                     style: AppTextStyles.caption.copyWith(
@@ -610,11 +610,11 @@ class CustomInfoWindow extends StatelessWidget {
                     ),
                   ),
                 ],
-                
+
                 const Spacer(),
-                
+
                 // Seta indicando que é clicável
-                Icon(
+                const Icon(
                   Icons.arrow_forward_ios,
                   size: 12,
                   color: AppColors.primary,

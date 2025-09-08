@@ -9,19 +9,19 @@ import '../../../data/services/onboarding_service.dart';
 /// Página de onboarding idêntica à primeira imagem de referência
 class OnboardingPage extends StatefulWidget {
   final VoidCallback? onCompleted;
-  
+
   const OnboardingPage({
     super.key,
     this.onCompleted,
   });
-  
+
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
   bool _isUIReady = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       });
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,16 +53,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Column(
               children: [
                 const Spacer(flex: 2),
-                
+
                 // Logo da aplicação
-                Container(
+                SizedBox(
                   height: 80,
                   width: 200,
                   child: Image.asset(
                     'assets/images/logo_bege.png',
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
-                      return Text(
+                      return const Text(
                         'taste',
                         style: TextStyle(
                           fontFamily: 'Dancing Script',
@@ -75,9 +75,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     },
                   ),
                 ),
-                
-                SizedBox(height: AppDimensions.paddingLarge),
-                
+
+                const SizedBox(height: AppDimensions.paddingLarge),
+
                 // Subtítulo principal
                 Text(
                   'Sua curadoria de experiências.',
@@ -88,7 +88,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
+
                 // Segunda linha do subtítulo em amarelo/dourado
                 Text(
                   'Tudo em um só lugar',
@@ -99,15 +99,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                
-                SizedBox(height: AppDimensions.paddingXLarge),
-                
+
+                const SizedBox(height: AppDimensions.paddingXLarge),
+
                 // Imagem de comida centralizada
                 Container(
                   height: 200,
                   width: 280,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppDimensions.mediumRadius),
+                    borderRadius:
+                        BorderRadius.circular(AppDimensions.mediumRadius),
                     color: AppColors.primary,
                     boxShadow: [
                       BoxShadow(
@@ -125,9 +126,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                 ),
-                
-                SizedBox(height: AppDimensions.paddingXLarge),
-                
+
+                const SizedBox(height: AppDimensions.paddingXLarge),
+
                 // Seção "Busca inteligente"
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +141,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: AppDimensions.paddingSmall),
+                    const SizedBox(height: AppDimensions.paddingSmall),
                     Text(
                       'Você diz o que quer. A gente entende.\nEx: "um jantar romântico no Morumbi" e pronto —\nsugestões com a sua cara.',
                       style: AppTextStyles.bodyMedium.copyWith(
@@ -151,9 +152,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ],
                 ),
-                
+
                 const Spacer(flex: 2),
-                
+
                 // Três pontos indicadores
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +167,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Container(
                       width: 8,
                       height: 8,
@@ -175,7 +176,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Container(
                       width: 8,
                       height: 8,
@@ -186,9 +187,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ],
                 ),
-                
-                SizedBox(height: AppDimensions.paddingLarge),
-                
+
+                const SizedBox(height: AppDimensions.paddingLarge),
+
                 // Botões Login e Cadastro divididos verticalmente
                 AnimatedOpacity(
                   opacity: _isUIReady ? 1.0 : 0.5,
@@ -200,68 +201,80 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           onTap: _isUIReady ? () => _navigateToLogin() : null,
                           child: Material(
                             color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                            borderRadius: BorderRadius.circular(
+                                AppDimensions.buttonRadius),
                             child: InkWell(
-                              onTap: _isUIReady ? () => _navigateToLogin() : null,
-                              borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
-                              child: Container(
+                              onTap:
+                                  _isUIReady ? () => _navigateToLogin() : null,
+                              borderRadius: BorderRadius.circular(
+                                  AppDimensions.buttonRadius),
+                              child: SizedBox(
                                 height: AppDimensions.buttonHeight,
                                 child: Center(
-                                  child: _isUIReady 
-                                    ? Text(
-                                        'Login',
-                                        style: AppTextStyles.buttonText.copyWith(
-                                          color: AppColors.textPrimary,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      )
-                                    : SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            AppColors.textPrimary,
+                                  child: _isUIReady
+                                      ? Text(
+                                          'Login',
+                                          style:
+                                              AppTextStyles.buttonText.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      : const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              AppColors.textPrimary,
+                                            ),
                                           ),
                                         ),
-                                      ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 1),
+                      const SizedBox(width: 1),
                       Expanded(
                         child: GestureDetector(
-                          onTap: _isUIReady ? () => _navigateToRegister() : null,
+                          onTap:
+                              _isUIReady ? () => _navigateToRegister() : null,
                           child: Material(
                             color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
+                            borderRadius: BorderRadius.circular(
+                                AppDimensions.buttonRadius),
                             child: InkWell(
-                              onTap: _isUIReady ? () => _navigateToRegister() : null,
-                              borderRadius: BorderRadius.circular(AppDimensions.buttonRadius),
-                              child: Container(
+                              onTap: _isUIReady
+                                  ? () => _navigateToRegister()
+                                  : null,
+                              borderRadius: BorderRadius.circular(
+                                  AppDimensions.buttonRadius),
+                              child: SizedBox(
                                 height: AppDimensions.buttonHeight,
                                 child: Center(
-                                  child: _isUIReady 
-                                    ? Text(
-                                        'Cadastro',
-                                        style: AppTextStyles.buttonText.copyWith(
-                                          color: AppColors.textPrimary,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      )
-                                    : SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            AppColors.textPrimary,
+                                  child: _isUIReady
+                                      ? Text(
+                                          'Cadastro',
+                                          style:
+                                              AppTextStyles.buttonText.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      : const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              AppColors.textPrimary,
+                                            ),
                                           ),
                                         ),
-                                      ),
                                 ),
                               ),
                             ),
@@ -271,8 +284,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ],
                   ),
                 ),
-                
-                SizedBox(height: AppDimensions.paddingLarge),
+
+                const SizedBox(height: AppDimensions.paddingLarge),
               ],
             ),
           ),
@@ -280,12 +293,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
       ),
     );
   }
-  
+
   /// Navega para a página de login com verificação robusta
   void _navigateToLogin() {
     _safeNavigate('/login');
   }
-  
+
   /// Navega para a página de cadastro com verificação robusta
   void _navigateToRegister() {
     _safeNavigate('/register');
@@ -296,10 +309,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
     try {
       // Primeiro, marca o onboarding como completado
       await _markOnboardingCompleted();
-      
+
       // Verifica se o widget ainda está montado
       if (!mounted) return;
-      
+
       // Verifica se o GoRouter está disponível no contexto
       final router = GoRouter.maybeOf(context);
       if (router != null) {
@@ -308,7 +321,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         // GoRouter não está disponível, tenta novamente após pequeno delay
         debugPrint('🔀 GoRouter não disponível, tentando novamente...');
         await Future.delayed(const Duration(milliseconds: 100));
-        
+
         if (mounted) {
           // Segunda tentativa
           final retryRouter = GoRouter.maybeOf(context);
@@ -318,7 +331,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             // Fallback final após mais um delay
             debugPrint('🔀 Segunda tentativa falhou, usando fallback...');
             await Future.delayed(const Duration(milliseconds: 200));
-            
+
             if (mounted) {
               // Tentativa final
               try {
@@ -348,7 +361,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       }
     }
   }
-  
+
   Future<void> _markOnboardingCompleted() async {
     try {
       await OnboardingService.setOnboardingCompleted();

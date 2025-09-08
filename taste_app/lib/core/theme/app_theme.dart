@@ -9,21 +9,19 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      
+
       // Esquema de cores
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         surface: AppColors.surface,
-        background: AppColors.background,
         error: AppColors.error,
         onPrimary: AppColors.textPrimary,
         onSecondary: AppColors.textPrimary,
         onSurface: AppColors.textDark,
-        onBackground: AppColors.textPrimary,
         onError: AppColors.textPrimary,
       ),
-      
+
       // AppBar
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
@@ -33,12 +31,12 @@ class AppTheme {
         titleTextStyle: AppTextStyles.h2,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
-      
+
       // Scaffold
       scaffoldBackgroundColor: AppColors.background,
-      
+
       // Cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: AppDimensions.elevationMedium,
         shape: RoundedRectangleBorder(
@@ -46,7 +44,7 @@ class AppTheme {
         ),
         margin: const EdgeInsets.all(AppDimensions.marginSmall),
       ),
-      
+
       // Botões Elevados
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -60,7 +58,7 @@ class AppTheme {
           textStyle: AppTextStyles.buttonText,
         ),
       ),
-      
+
       // Botões de Texto
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -68,7 +66,7 @@ class AppTheme {
           textStyle: AppTextStyles.buttonTextSecondary,
         ),
       ),
-      
+
       // Botões Outlined
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -81,7 +79,7 @@ class AppTheme {
           textStyle: AppTextStyles.buttonTextSecondary,
         ),
       ),
-      
+
       // Campos de Texto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -104,7 +102,7 @@ class AppTheme {
           vertical: AppDimensions.paddingMedium,
         ),
       ),
-      
+
       // Bottom Navigation
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
@@ -113,21 +111,21 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: AppDimensions.elevationLarge,
       ),
-      
+
       // Floating Action Button
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textPrimary,
         elevation: AppDimensions.elevationLarge,
       ),
-      
+
       // Divider
       dividerTheme: const DividerThemeData(
         color: AppColors.textLight,
         thickness: 1,
         space: AppDimensions.paddingMedium,
       ),
-      
+
       // Lista
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(
@@ -137,7 +135,7 @@ class AppTheme {
         titleTextStyle: AppTextStyles.bodyLarge,
         subtitleTextStyle: AppTextStyles.bodyMedium,
       ),
-      
+
       // Texto
       textTheme: TextTheme(
         displayLarge: AppTextStyles.h1,
@@ -149,7 +147,7 @@ class AppTheme {
       ),
     );
   }
-  
+
   static ThemeData get darkTheme {
     // Para futuras implementações do tema escuro
     return lightTheme;
